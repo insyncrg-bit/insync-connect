@@ -1,5 +1,4 @@
 import { Mail, Linkedin, Twitter } from "lucide-react";
-import logoImage from "@/assets/insync-logo.png";
 
 export const Footer = () => {
   return (
@@ -9,7 +8,8 @@ export const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <img src={logoImage} alt="In-Sync" className="h-8" />
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg" />
+              <span className="text-xl font-bold">In-Sync</span>
             </div>
             <p className="text-sm text-muted-foreground">
               High-fidelity startup-investor matching for the Boston ecosystem
