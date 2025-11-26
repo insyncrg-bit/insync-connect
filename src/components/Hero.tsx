@@ -8,10 +8,12 @@ export const Hero = () => {
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2" />
-        <div className="absolute top-1/4 right-1/3 w-2 h-32 bg-gradient-to-b from-[hsl(var(--cyan-glow))]/50 to-transparent blur-sm" />
-        <div className="absolute bottom-1/3 left-1/3 w-32 h-2 bg-gradient-to-r from-[hsl(var(--cyan-glow))]/50 to-transparent blur-sm" />
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border-2 border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 animate-[spin_25s_linear_infinite] shadow-[0_0_100px_rgba(0,255,255,0.4),inset_0_0_60px_rgba(0,255,255,0.2)]" />
+        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border-2 border-[hsl(var(--cyan-glow))]/25 rounded-full translate-y-1/2 animate-[spin_18s_linear_infinite_reverse] shadow-[0_0_80px_rgba(0,255,255,0.3),inset_0_0_50px_rgba(0,255,255,0.15)]" />
+        <div className="absolute top-1/3 left-[40%] w-[350px] h-[350px] border border-white/15 rounded-full animate-[float_12s_ease-in-out_infinite] shadow-[0_0_60px_rgba(255,255,255,0.2)]" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/4 right-1/3 w-3 h-3 rounded-full bg-[hsl(var(--cyan-glow))]/70 animate-[float_7s_ease-in-out_infinite] shadow-[0_0_25px_rgba(0,255,255,0.8)] animate-pulse" />
+        <div className="absolute bottom-1/3 left-1/3 w-2.5 h-2.5 rounded-full bg-[hsl(var(--cyan-glow))]/50 animate-[float_9s_ease-in-out_infinite] shadow-[0_0_20px_rgba(0,255,255,0.6)]" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-[15%] w-2 h-2 rounded-full bg-white/40 animate-[float_8s_ease-in-out_infinite] shadow-[0_0_18px_rgba(255,255,255,0.5)]" style={{ animationDelay: '4s' }} />
       </div>
 
       {/* Content */}
@@ -34,7 +36,8 @@ export const Hero = () => {
       </div>
 
       {/* Gradient Orb Effect */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[hsl(var(--cyan-glow))]/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[hsl(var(--cyan-glow))]/20 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+      <div className="absolute top-1/4 right-[10%] w-[300px] h-[300px] bg-[hsl(var(--cyan-glow))]/10 rounded-full blur-[100px] pointer-events-none animate-[float_12s_ease-in-out_infinite]" style={{ animationDelay: '3s' }} />
     </section>
   );
 };
