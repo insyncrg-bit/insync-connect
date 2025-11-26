@@ -3,11 +3,11 @@ import { ArrowRight } from "lucide-react";
 
 export const CTA = () => {
   return (
-    <section className="py-24 bg-gradient-to-br from-primary via-primary/95 to-accent relative overflow-hidden">
+    <section className="py-24 relative overflow-hidden" style={{ background: 'var(--gradient-navy-teal)' }}>
       {/* Decorative Elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent rounded-full blur-3xl" />
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-10 left-10 w-72 h-72 bg-[hsl(var(--cyan-glow))] rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-[hsl(var(--cyan-glow))] rounded-full blur-3xl" />
       </div>
 
       <div className="container px-4 md:px-6 relative z-10">
@@ -23,15 +23,14 @@ export const CTA = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <Button 
               size="lg" 
-              className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 h-auto shadow-xl"
+              className="bg-white text-[hsl(var(--navy-deep))] hover:bg-white/90 text-lg px-8 py-6 h-auto shadow-xl border-2 border-[hsl(var(--cyan-glow))]/30 hover:shadow-[0_0_30px_rgba(0,255,255,0.4)] transition-all"
             >
               Get Started Now
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button 
-              variant="outline" 
               size="lg" 
-              className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-primary text-lg px-8 py-6 h-auto"
+              className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-[hsl(var(--navy-deep))] text-lg px-8 py-6 h-auto transition-all"
             >
               Schedule a Demo
             </Button>

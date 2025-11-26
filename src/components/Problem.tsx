@@ -25,13 +25,13 @@ export const Problem = () => {
   ];
 
   return (
-    <section id="problem" className="py-24 bg-muted/30">
+    <section id="problem" className="py-24 relative" style={{ background: 'linear-gradient(180deg, hsl(220 60% 15%) 0%, hsl(210 65% 20%) 100%)' }}>
       <div className="container px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            The <span className="text-destructive">Noise Problem</span>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
+            The <span className="text-[hsl(var(--cyan-glow))]">Noise Problem</span>
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-white/70">
             Today's startup ecosystem is fragmented, inefficient, and built on randomness. 
             Founders hope to meet the right investor. Investors sift through irrelevant dealflow.
           </p>
@@ -41,15 +41,15 @@ export const Problem = () => {
           {painPoints.map((point, index) => (
             <div 
               key={index}
-              className="bg-card border border-border rounded-xl p-6 hover:shadow-lg hover:border-accent/50 transition-all duration-300"
+              className="bg-white/5 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/20 rounded-xl p-6 hover:bg-white/10 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300"
             >
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-destructive/10 rounded-lg">
-                  <point.icon className="h-6 w-6 text-destructive" />
+                <div className="p-3 bg-[hsl(var(--cyan-glow))]/10 rounded-lg">
+                  <point.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">{point.title}</h3>
-                  <p className="text-muted-foreground">{point.description}</p>
+                  <h3 className="text-xl font-semibold mb-2 text-white">{point.title}</h3>
+                  <p className="text-white/70">{point.description}</p>
                 </div>
               </div>
             </div>
