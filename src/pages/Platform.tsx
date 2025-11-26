@@ -43,14 +43,14 @@ export default function Platform() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white animate-scale-in">
               Choose Your <span className="text-[hsl(var(--cyan-glow))] inline-block hover:scale-110 transition-transform duration-300">Path</span>
             </h2>
-            <p className="text-lg text-white/80 animate-fade-in" style={{ animationDelay: '0.2s', opacity: 0, animationFillMode: 'forwards' }}>
+            <p className="text-lg text-white/80 animate-fade-in" style={{ animationDelay: '0.2s' }}>
               Built for serious founders and emerging VC firms in the Boston ecosystem
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
             {/* Startups Card */}
-            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_40px_rgba(0,255,255,0.3)] hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in" style={{ animationDelay: '0.3s', opacity: 0, animationFillMode: 'forwards' }} onClick={() => navigate("/founder-application")}>
+            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_40px_rgba(0,255,255,0.3)] hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in" style={{ animationDelay: '0.3s' }} onClick={() => navigate("/founder-application")}>
               <div className="flex items-start gap-6 mb-8">
                 <div className="w-16 h-16 bg-[hsl(var(--cyan-glow))]/10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-[hsl(var(--cyan-glow))]/20 transition-colors">
                   <Rocket className="h-8 w-8 text-[hsl(var(--cyan-glow))]" />
@@ -106,7 +106,7 @@ export default function Platform() {
             </div>
 
             {/* Investors Card */}
-            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-white/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-white/60 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0, animationFillMode: 'forwards' }}>
+            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-white/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-white/60 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in" style={{ animationDelay: '0.5s' }}>
               <div className="flex items-start gap-6 mb-8">
                 <div className="w-16 h-16 bg-white/15 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-white/25 transition-colors">
                   <Building2 className="h-8 w-8 text-white" />
