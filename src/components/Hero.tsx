@@ -8,13 +8,12 @@ export const Hero = () => {
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[10%] right-[5%] w-[450px] h-[450px] border border-[hsl(var(--cyan-glow))]/25 rounded-full shadow-[0_0_80px_rgba(0,255,255,0.3),inset_0_0_40px_rgba(0,255,255,0.15)]" />
-        <div className="absolute top-[60%] left-[8%] w-[380px] h-[380px] border border-[hsl(var(--cyan-glow))]/20 rounded-full shadow-[0_0_60px_rgba(0,255,255,0.25),inset_0_0_35px_rgba(0,255,255,0.12)]" />
-        <div className="absolute bottom-[15%] right-[15%] w-[320px] h-[320px] border border-white/12 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.15)]" />
-        <div className="absolute top-[35%] left-[70%] w-[280px] h-[280px] border border-[hsl(var(--cyan-glow))]/15 rounded-full shadow-[0_0_40px_rgba(0,255,255,0.2)]" />
-        <div className="absolute top-[20%] left-[35%] w-3 h-3 rounded-full bg-[hsl(var(--cyan-glow))]/60 shadow-[0_0_20px_rgba(0,255,255,0.7)] animate-[float_15s_ease-in-out_infinite]" />
-        <div className="absolute bottom-[25%] left-[25%] w-2.5 h-2.5 rounded-full bg-[hsl(var(--cyan-glow))]/45 shadow-[0_0_15px_rgba(0,255,255,0.5)] animate-[float_18s_ease-in-out_infinite]" style={{ animationDelay: '5s' }} />
-        <div className="absolute top-[70%] right-[40%] w-2 h-2 rounded-full bg-white/35 shadow-[0_0_12px_rgba(255,255,255,0.4)] animate-[float_20s_ease-in-out_infinite]" style={{ animationDelay: '10s' }} />
+        <div className="absolute top-[5%] right-[10%] w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/25 rounded-full shadow-[0_0_80px_rgba(0,255,255,0.3),inset_0_0_40px_rgba(0,255,255,0.15)] animate-[float_25s_ease-in-out_infinite]" />
+        <div className="absolute bottom-[10%] left-[5%] w-[550px] h-[550px] border border-[hsl(var(--cyan-glow))]/20 rounded-full shadow-[0_0_70px_rgba(0,255,255,0.25),inset_0_0_35px_rgba(0,255,255,0.12)] animate-[float_30s_ease-in-out_infinite]" style={{ animationDelay: '8s' }} />
+        <div className="absolute top-[50%] right-[5%] w-[400px] h-[400px] border border-white/15 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.2)] animate-[float_28s_ease-in-out_infinite]" style={{ animationDelay: '15s' }} />
+        <div className="absolute top-[15%] left-[15%] w-[450px] h-[450px] border border-[hsl(var(--cyan-glow))]/18 rounded-full shadow-[0_0_60px_rgba(0,255,255,0.22)] animate-[float_32s_ease-in-out_infinite]" style={{ animationDelay: '5s' }} />
+        <div className="absolute top-[25%] left-[48%] w-2.5 h-2.5 rounded-full bg-[hsl(var(--cyan-glow))]/50 shadow-[0_0_18px_rgba(0,255,255,0.6)] animate-[float_18s_ease-in-out_infinite]" style={{ animationDelay: '3s' }} />
+        <div className="absolute bottom-[30%] right-[35%] w-2 h-2 rounded-full bg-white/40 shadow-[0_0_15px_rgba(255,255,255,0.5)] animate-[float_20s_ease-in-out_infinite]" style={{ animationDelay: '12s' }} />
       </div>
 
       {/* Content */}
