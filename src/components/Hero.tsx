@@ -49,8 +49,8 @@ export const Hero = () => {
         </svg>
         
         {/* Subtle geometric accents */}
-        <div className="absolute top-[20%] right-[10%] w-[200px] h-[200px] border border-[hsl(var(--cyan-glow))]/8 rounded-full" style={{ animation: 'float 40s ease-in-out infinite' }} />
-        <div className="absolute bottom-[15%] left-[15%] w-[180px] h-[180px] border border-white/6 rounded-full" style={{ animation: 'float 45s ease-in-out infinite', animationDelay: '5s' }} />
+        <div className="absolute top-[20%] right-[10%] w-[350px] h-[350px] border border-[hsl(var(--cyan-glow))]/5 rounded-full shadow-[0_0_80px_rgba(0,255,255,0.15),inset_0_0_60px_rgba(0,255,255,0.08)]" style={{ animation: 'float 40s ease-in-out infinite' }} />
+        <div className="absolute bottom-[15%] left-[15%] w-[320px] h-[320px] border border-white/4 rounded-full shadow-[0_0_70px_rgba(255,255,255,0.12),inset_0_0_50px_rgba(255,255,255,0.06)]" style={{ animation: 'float 45s ease-in-out infinite', animationDelay: '5s' }} />
       </div>
 
       {/* Content */}
