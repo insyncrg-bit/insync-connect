@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FounderApplication from "./pages/FounderApplication";
 import Platform from "./pages/Platform";
+import Intro from "./pages/Intro";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/intro" element={<Intro />} />
           <Route path="/platform" element={<Platform />} />
           <Route path="/founder-application" element={<FounderApplication />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

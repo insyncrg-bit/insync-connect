@@ -62,7 +62,7 @@ export const Hero = () => {
           
           <div 
             className="cursor-pointer transition-all duration-500 hover:scale-105"
-            onClick={() => navigate("/platform")}
+            onClick={() => navigate("/intro")}
           >
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white drop-shadow-lg hover:animate-pulse">
               In<span className="text-[hsl(var(--cyan-glow))]">∞</span>Sync
