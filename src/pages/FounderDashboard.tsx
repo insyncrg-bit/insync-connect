@@ -65,19 +65,23 @@ export default function FounderDashboard() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) {
-        navigate("/");
-        return;
+      // Allow preview mode without auth
+      if (user) {
+        // Fetch application
+        const { data: appData } = await supabase
+          .from("founder_applications")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+        
+        setApplication(appData);
+      } else {
+        // Preview mode with mock data
+        setApplication({
+          founder_name: "Demo Founder",
+          company_name: "Demo Startup",
+        });
       }
-
-      // Fetch application
-      const { data: appData } = await supabase
-        .from("founder_applications")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-      
-      setApplication(appData);
 
       // Fetch investors
       const { data: investorsData } = await supabase
