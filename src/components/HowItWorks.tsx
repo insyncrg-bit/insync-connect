@@ -33,13 +33,13 @@ export const HowItWorks = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-muted/30">
+    <section id="how-it-works" className="py-24 relative" style={{ background: 'linear-gradient(180deg, hsl(195 70% 35%) 0%, hsl(180 75% 40%) 100%)' }}>
       <div className="container px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
             How It Works
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-white/80">
             From profile to partnership in four strategic steps
           </p>
         </div>
@@ -48,29 +48,29 @@ export const HowItWorks = () => {
           {steps.map((step, index) => (
             <div 
               key={index}
-              className="group relative bg-card border border-border rounded-2xl p-8 hover:shadow-xl hover:border-accent/50 transition-all duration-300"
+              className="group relative bg-white/5 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/20 rounded-2xl p-8 hover:bg-white/10 hover:border-[hsl(var(--cyan-glow))]/40 hover:shadow-[0_0_30px_rgba(0,255,255,0.2)] transition-all duration-300"
             >
               <div className="flex flex-col md:flex-row items-start gap-6">
                 {/* Number Badge */}
-                <div className={`flex-shrink-0 w-16 h-16 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center text-white font-bold text-xl shadow-lg`}>
+                <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-[hsl(var(--cyan-glow))]/20 border-2 border-[hsl(var(--cyan-glow))]/40 flex items-center justify-center text-white font-bold text-xl shadow-lg backdrop-blur-sm">
                   {step.number}
                 </div>
 
                 {/* Icon */}
-                <div className="flex-shrink-0 p-4 bg-accent/10 rounded-xl group-hover:bg-accent/20 transition-colors">
-                  <step.icon className="h-8 w-8 text-accent" />
+                <div className="flex-shrink-0 p-4 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
+                  <step.icon className="h-8 w-8 text-white" />
                 </div>
 
                 {/* Content */}
                 <div className="flex-1">
-                  <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground text-lg leading-relaxed">{step.description}</p>
+                  <h3 className="text-2xl font-bold mb-3 text-white">{step.title}</h3>
+                  <p className="text-white/80 text-lg leading-relaxed">{step.description}</p>
                 </div>
               </div>
 
               {/* Connector Line (except for last item) */}
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute left-8 top-full w-0.5 h-8 bg-gradient-to-b from-accent/50 to-transparent" />
+                <div className="hidden md:block absolute left-8 top-full w-0.5 h-8 bg-gradient-to-b from-[hsl(var(--cyan-glow))]/50 to-transparent" />
               )}
             </div>
           ))}

@@ -2,34 +2,34 @@ import { Button } from "@/components/ui/button";
 
 export const Navigation = () => {
   return (
-    <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
+    <nav className="fixed top-0 w-full z-50 bg-[hsl(var(--navy-deep))]/90 backdrop-blur-lg border-b border-[hsl(var(--cyan-glow))]/20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg" />
-            <span className="text-xl font-bold">In-Sync</span>
+            <span className="text-xl font-bold text-white">In-Sync</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8">
-            <a href="#problem" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#problem" className="text-sm font-medium text-white/70 hover:text-[hsl(var(--cyan-glow))] transition-colors">
               Problem
             </a>
-            <a href="#solution" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#solution" className="text-sm font-medium text-white/70 hover:text-[hsl(var(--cyan-glow))] transition-colors">
               Solution
             </a>
-            <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#how-it-works" className="text-sm font-medium text-white/70 hover:text-[hsl(var(--cyan-glow))] transition-colors">
               How It Works
             </a>
-            <a href="#audience" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#audience" className="text-sm font-medium text-white/70 hover:text-[hsl(var(--cyan-glow))] transition-colors">
               Who We Serve
             </a>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-white hover:text-[hsl(var(--cyan-glow))] hover:bg-white/5">
               Sign In
             </Button>
-            <Button size="sm">
+            <Button size="sm" className="bg-white text-[hsl(var(--navy-deep))] hover:bg-white/90 border-2 border-[hsl(var(--cyan-glow))]/30">
               Get Started
             </Button>
           </div>
