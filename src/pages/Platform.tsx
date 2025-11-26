@@ -89,7 +89,7 @@ export default function Platform() {
 
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {/* Startups Card */}
-            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_60px_rgba(0,255,255,0.4)] hover:scale-[1.03] transition-all duration-500 cursor-pointer animate-fade-in relative overflow-hidden" style={{ animationDelay: '0.7s' }} onClick={() => navigate("/founder-application")}>
+            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_60px_rgba(0,255,255,0.4)] hover:scale-[1.03] transition-all duration-500 cursor-pointer animate-fade-in relative overflow-hidden" style={{ animationDelay: '0.7s' }} onClick={() => navigate("/")}>
               {/* Animated background effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--cyan-glow))]/0 via-[hsl(var(--cyan-glow))]/5 to-[hsl(var(--cyan-glow))]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[hsl(var(--cyan-glow))] to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>

@@ -1,6 +1,10 @@
-import { UserPlus, Handshake, BarChart3 } from "lucide-react";
+import { UserPlus, Handshake, BarChart3, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export const HowItWorks = () => {
+  const navigate = useNavigate();
+  
   return (
     <section id="how-it-works" className="py-20 relative overflow-hidden">
       {/* Animated decorative elements */}
@@ -63,6 +67,26 @@ export const HowItWorks = () => {
                 <h3 className="text-xl font-bold mb-2 text-white">Track Results</h3>
                 <p className="text-white/80 text-sm">Monitor engagement and outcomes through your dashboard</p>
               </div>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="mt-16 text-center animate-fade-in" style={{ animationDelay: '0.9s' }}>
+            <div className="max-w-2xl mx-auto space-y-6">
+              <h3 className="text-2xl md:text-3xl font-bold text-white">
+                Ready to Get Matched?
+              </h3>
+              <p className="text-white/70">
+                Join the founders transforming how they connect with investors
+              </p>
+              <Button 
+                size="lg" 
+                onClick={() => navigate("/founder-application")}
+                className="bg-[hsl(var(--cyan-glow))]/20 text-white hover:bg-[hsl(var(--cyan-glow))]/30 border-2 border-[hsl(var(--cyan-glow))]/40 hover:border-[hsl(var(--cyan-glow))]/60 text-lg px-8 py-6 h-auto shadow-[0_0_30px_rgba(0,255,255,0.3)] hover:shadow-[0_0_50px_rgba(0,255,255,0.5)] transition-all duration-300 group"
+              >
+                Apply as a Founder
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
             </div>
           </div>
         </div>
