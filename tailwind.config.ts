@@ -83,6 +83,25 @@ export default {
             height: "0",
           },
         },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-20px)",
+          },
+        },
+        "draw": {
+          "0%": {
+            strokeDasharray: "0 100",
+          },
+          "50%": {
+            strokeDasharray: "100 0",
+          },
+          "100%": {
+            strokeDasharray: "0 100",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
