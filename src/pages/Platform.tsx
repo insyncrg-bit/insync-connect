@@ -14,45 +14,77 @@ export default function Platform() {
       {/* Hero & Choose Your Path - Unified Section */}
       <section className="relative overflow-hidden" style={{ background: 'linear-gradient(180deg, hsl(200 60% 25%) 0%, hsl(180 65% 35%) 20%, hsl(180 70% 38%) 50%, hsl(220 60% 15%) 100%)' }}>
         {/* Hero Content */}
-        <div className="relative min-h-[50vh] flex items-center justify-center pt-16 pb-12">
-          {/* Decorative Elements */}
+        <div className="relative min-h-[50vh] flex items-center justify-center pt-16 pb-20">
+          {/* Animated Decorative Elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2" />
-            <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2" />
+            <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 animate-[spin_20s_linear_infinite]" />
+            <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2 animate-[spin_15s_linear_infinite_reverse]" />
+            <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-[hsl(var(--cyan-glow))]/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl animate-pulse" />
           </div>
 
           <div className="container relative z-10 px-4 md:px-6">
-            <div className="max-w-4xl mx-auto text-center space-y-6 animate-fade-in">
+            <div className="max-w-4xl mx-auto text-center space-y-8">
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-lg">
-                Stop Networking.
+                <span className="inline-block animate-fade-in opacity-0" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
+                  Stop Networking.
+                </span>
                 <br />
-                <span className="text-[hsl(var(--cyan-glow))]">
+                <span className="inline-block text-[hsl(var(--cyan-glow))] animate-fade-in opacity-0 hover:scale-110 transition-transform duration-300" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
                   Start Connecting.
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed animate-fade-in opacity-0" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
                 The centralized routing system that matches founders with the right investors at the right time.
               </p>
+
+              {/* Animated Divider */}
+              <div className="flex items-center justify-center gap-3 pt-4 animate-fade-in opacity-0" style={{ animationDelay: '1s', animationFillMode: 'forwards' }}>
+                <div className="h-px w-20 bg-gradient-to-r from-transparent to-[hsl(var(--cyan-glow))]/50"></div>
+                <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))] animate-pulse"></div>
+                <div className="h-px w-20 bg-gradient-to-l from-transparent to-[hsl(var(--cyan-glow))]/50"></div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Who We Serve Content */}
-        <div className="py-16 relative">
+        <div className="py-20 relative">
         <div className="container px-4 md:px-6">
-          <div className="max-w-3xl mx-auto text-center mb-12 animate-fade-in">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white animate-scale-in">
-              Choose Your <span className="text-[hsl(var(--cyan-glow))] inline-block hover:scale-110 transition-transform duration-300">Path</span>
-            </h2>
-            <p className="text-lg text-white/80 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          {/* Floating particles effect */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-20 left-[10%] w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]/30 animate-[float_6s_ease-in-out_infinite]"></div>
+            <div className="absolute top-40 right-[15%] w-1.5 h-1.5 rounded-full bg-white/30 animate-[float_8s_ease-in-out_infinite]" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute bottom-40 left-[20%] w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]/20 animate-[float_7s_ease-in-out_infinite]" style={{ animationDelay: '4s' }}></div>
+          </div>
+
+          <div className="max-w-3xl mx-auto text-center mb-16 relative">
+            <div className="inline-block animate-fade-in opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+              <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white relative">
+                <span className="relative inline-block">
+                  Choose Your 
+                  <span className="absolute -inset-1 bg-[hsl(var(--cyan-glow))]/10 blur-xl rounded-lg -z-10"></span>
+                </span>
+                {" "}
+                <span className="text-[hsl(var(--cyan-glow))] inline-block hover:scale-110 transition-transform duration-300 relative">
+                  Path
+                  <svg className="absolute -bottom-2 left-0 w-full" height="8" viewBox="0 0 100 8" preserveAspectRatio="none">
+                    <path d="M0,4 Q25,0 50,4 T100,4" stroke="currentColor" strokeWidth="2" fill="none" className="animate-[draw_2s_ease-in-out_infinite]" />
+                  </svg>
+                </span>
+              </h2>
+            </div>
+            <p className="text-lg md:text-xl text-white/80 animate-fade-in opacity-0 max-w-2xl mx-auto" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
               Built for serious founders and emerging VC firms in the Boston ecosystem
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {/* Startups Card */}
-            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_40px_rgba(0,255,255,0.3)] hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in" style={{ animationDelay: '0.3s' }} onClick={() => navigate("/founder-application")}>
+            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_60px_rgba(0,255,255,0.4)] hover:scale-[1.03] transition-all duration-500 cursor-pointer animate-fade-in opacity-0 relative overflow-hidden" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }} onClick={() => navigate("/founder-application")}>
+              {/* Animated background effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--cyan-glow))]/0 via-[hsl(var(--cyan-glow))]/5 to-[hsl(var(--cyan-glow))]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[hsl(var(--cyan-glow))] to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
               <div className="flex items-start gap-6 mb-8">
                 <div className="w-16 h-16 bg-[hsl(var(--cyan-glow))]/10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-[hsl(var(--cyan-glow))]/20 transition-colors">
                   <Rocket className="h-8 w-8 text-[hsl(var(--cyan-glow))]" />
@@ -109,7 +141,10 @@ export default function Platform() {
             </div>
 
             {/* Investors Card */}
-            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-white/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-white/60 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-white/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-white/60 hover:shadow-[0_0_60px_rgba(255,255,255,0.3)] hover:scale-[1.03] transition-all duration-500 cursor-pointer animate-fade-in opacity-0 relative overflow-hidden" style={{ animationDelay: '0.9s', animationFillMode: 'forwards' }}>
+              {/* Animated background effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
               <div className="flex items-start gap-6 mb-8">
                 <div className="w-16 h-16 bg-white/15 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-white/25 transition-colors">
                   <Building2 className="h-8 w-8 text-white" />
