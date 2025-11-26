@@ -1,11 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 
 export const Hero = () => {
   const navigate = useNavigate();
-  const [revealed, setRevealed] = useState(false);
   
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden" style={{ background: 'var(--gradient-navy-teal)' }}>
@@ -24,45 +21,15 @@ export const Hero = () => {
             High-Fidelity Startup-Investor Matching
           </div>
           
-          {!revealed ? (
-            <div 
-              className="cursor-pointer transition-all duration-500 hover:scale-105"
-              onClick={() => setRevealed(true)}
-            >
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white drop-shadow-lg animate-pulse">
-                In<span className="text-[hsl(var(--cyan-glow))]">∞</span>Sync
-              </h1>
-              <p className="text-sm text-white/50 mt-4">Click to reveal</p>
-            </div>
-          ) : (
-            <div className="animate-fade-in">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-lg">
-                Stop Networking.
-                <br />
-                <span className="text-[hsl(var(--cyan-glow))]">
-                  Start Connecting.
-                </span>
-              </h1>
-              
-              <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed mt-6">
-                The centralized routing system that matches founders with the right investors at the right time.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
-                <Button 
-                  size="lg" 
-                  className="text-lg px-8 py-6 h-auto bg-white text-[hsl(var(--navy-deep))] hover:bg-white/90 shadow-xl border-2 border-[hsl(var(--cyan-glow))]/30 hover:shadow-[0_0_20px_rgba(0,255,255,0.4)] transition-all"
-                  onClick={() => navigate("/founder-application")}
-                >
-                  Join as a Founder
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                <Button size="lg" className="text-lg px-8 py-6 h-auto bg-transparent border-2 border-white text-white hover:bg-white hover:text-[hsl(var(--navy-deep))] transition-all">
-                  Partner as an Investor
-                </Button>
-              </div>
-            </div>
-          )}
+          <div 
+            className="cursor-pointer transition-all duration-500 hover:scale-105"
+            onClick={() => navigate("/platform")}
+          >
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white drop-shadow-lg hover:animate-pulse">
+              In<span className="text-[hsl(var(--cyan-glow))]">∞</span>Sync
+            </h1>
+            <p className="text-sm text-white/50 mt-4">Click to explore</p>
+          </div>
         </div>
       </div>
 
