@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Infinity } from "lucide-react";
 
 export default function Intro() {
   const navigate = useNavigate();
@@ -39,57 +40,21 @@ export default function Intro() {
             </div>
           </div>
 
-          {/* Dynamic Infinity with Moving Gradient */}
+          {/* Dynamic Infinity Symbol */}
           <div className="flex justify-center animate-fade-in" style={{ animationDelay: '0.9s' }}>
             <div className="relative">
-              {/* Subtle pulsing glow background */}
+              {/* Pulsing glow background */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-64 h-64 bg-[hsl(var(--cyan-glow))]/15 rounded-full blur-3xl animate-pulse"></div>
+                <div className="w-64 h-64 bg-[hsl(var(--cyan-glow))]/20 rounded-full blur-3xl animate-pulse"></div>
               </div>
               
-              {/* Infinity icon with animated gradient */}
+              {/* Infinity icon - same as navigation logo */}
               <div className="relative z-10 p-12">
-                <svg 
-                  className="w-32 h-32 md:w-40 md:h-40" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <defs>
-                    <linearGradient id="infinityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="hsl(var(--cyan-glow))" stopOpacity="0.4">
-                        <animate attributeName="offset" values="0;1;0" dur="3s" repeatCount="indefinite" />
-                      </stop>
-                      <stop offset="50%" stopColor="hsl(var(--cyan-glow))" stopOpacity="1">
-                        <animate attributeName="offset" values="0.5;1;0.5" dur="3s" repeatCount="indefinite" />
-                      </stop>
-                      <stop offset="100%" stopColor="hsl(var(--cyan-glow))" stopOpacity="0.4">
-                        <animate attributeName="offset" values="1;0;1" dur="3s" repeatCount="indefinite" />
-                      </stop>
-                    </linearGradient>
-                    <filter id="glow">
-                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                      <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                  </defs>
-                  <path 
-                    d="M18.178 8c1.038 0 1.922.67 2.078 1.66.158 1.001-.635 1.84-1.648 1.84-1.933 0-3.326 1.555-3.326 3.5s1.393 3.5 3.326 3.5c1.013 0 1.806.839 1.648 1.84-.156.99-1.04 1.66-2.078 1.66-3.435 0-6.178-2.685-6.178-6s2.743-6 6.178-6zm-12.356 0c3.435 0 6.178 2.685 6.178 6s-2.743 6-6.178 6c-1.038 0-1.922-.67-2.078-1.66-.158-1.001.635-1.84 1.648-1.84 1.933 0 3.326-1.555 3.326-3.5s-1.393-3.5-3.326-3.5c-1.013 0-1.806-.839-1.648-1.84.156-.99 1.04-1.66 2.078-1.66z" 
-                    stroke="url(#infinityGradient)" 
-                    strokeWidth="2.5"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    filter="url(#glow)"
-                  />
-                </svg>
+                <Infinity 
+                  className="w-32 h-32 md:w-40 md:h-40 text-[hsl(var(--cyan-glow))] animate-pulse drop-shadow-[0_0_20px_rgba(0,255,255,0.6)]" 
+                  strokeWidth={2.5} 
+                />
               </div>
-
-              {/* Flowing particles */}
-              <div className="absolute top-1/2 left-0 w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]/70 shadow-[0_0_15px_rgba(0,255,255,0.8)]" style={{ animation: 'float 4s ease-in-out infinite' }}></div>
-              <div className="absolute top-1/2 right-0 w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]/70 shadow-[0_0_15px_rgba(0,255,255,0.8)]" style={{ animation: 'float 4s ease-in-out infinite', animationDelay: '2s' }}></div>
             </div>
           </div>
 
