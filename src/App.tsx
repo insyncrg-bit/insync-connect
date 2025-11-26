@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FounderApplication from "./pages/FounderApplication";
+import InvestorApplication from "./pages/InvestorApplication";
 import Platform from "./pages/Platform";
 import Intro from "./pages/Intro";
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/intro" element={<Intro />} />
           <Route path="/platform" element={<Platform />} />
           <Route path="/founder-application" element={<FounderApplication />} />
+          <Route path="/investor-application" element={<InvestorApplication />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
