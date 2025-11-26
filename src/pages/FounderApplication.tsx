@@ -136,6 +136,14 @@ export default function FounderApplication() {
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/founder-dashboard")}
+              className="gap-2 text-[hsl(var(--cyan-glow))] hover:bg-white/5"
+            >
+              Skip to Dashboard (Preview)
+            </Button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg" />
               <span className="text-xl font-bold text-white">In-Sync</span>
