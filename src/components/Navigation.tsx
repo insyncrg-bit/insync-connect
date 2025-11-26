@@ -20,9 +20,6 @@ export const Navigation = () => {
             <a href="#how-it-works" className="text-sm font-medium text-white/70 hover:text-[hsl(var(--cyan-glow))] transition-colors">
               How It Works
             </a>
-            <a href="#audience" className="text-sm font-medium text-white/70 hover:text-[hsl(var(--cyan-glow))] transition-colors">
-              Who We Serve
-            </a>
           </div>
 
           <div className="flex items-center gap-3">
