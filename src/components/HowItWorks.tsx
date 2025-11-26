@@ -48,7 +48,7 @@ export const HowItWorks = () => {
           {steps.map((step, index) => (
             <div 
               key={index}
-              className="group relative bg-white/5 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/20 rounded-2xl p-8 hover:bg-white/10 hover:border-[hsl(var(--cyan-glow))]/40 hover:shadow-[0_0_30px_rgba(0,255,255,0.2)] transition-all duration-300"
+              className="group relative bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/30 rounded-2xl p-8 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/50 hover:shadow-[0_0_30px_rgba(0,255,255,0.2)] transition-all duration-300"
             >
               <div className="flex flex-col md:flex-row items-start gap-6">
                 {/* Number Badge */}
@@ -57,7 +57,7 @@ export const HowItWorks = () => {
                 </div>
 
                 {/* Icon */}
-                <div className="flex-shrink-0 p-4 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
+                <div className="flex-shrink-0 p-4 bg-[hsl(var(--cyan-glow))]/15 rounded-xl group-hover:bg-[hsl(var(--cyan-glow))]/25 transition-colors">
                   <step.icon className="h-8 w-8 text-white" />
                 </div>
 

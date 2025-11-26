@@ -28,7 +28,7 @@ export const Solution = () => {
     <section id="solution" className="py-24 relative" style={{ background: 'linear-gradient(180deg, hsl(210 65% 20%) 0%, hsl(195 70% 35%) 100%)' }}>
       <div className="container px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-6 py-2 bg-white/10 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/30 rounded-full text-sm font-medium text-[hsl(var(--cyan-glow))] mb-6">
+          <div className="inline-flex items-center gap-2 px-6 py-2 bg-[hsl(var(--navy-deep))]/60 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/40 rounded-full text-sm font-medium text-[hsl(var(--cyan-glow))] mb-6">
             <CheckCircle2 className="h-4 w-4" />
             The Solution
           </div>
@@ -49,7 +49,7 @@ export const Solution = () => {
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="group bg-white/5 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/20 rounded-xl p-8 hover:bg-white/10 hover:border-[hsl(var(--cyan-glow))]/40 hover:shadow-[0_0_30px_rgba(0,255,255,0.2)] transition-all duration-300"
+              className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/30 rounded-xl p-8 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/50 hover:shadow-[0_0_30px_rgba(0,255,255,0.2)] transition-all duration-300"
             >
               <div className="flex items-start gap-4">
                 <div className="p-4 bg-[hsl(var(--cyan-glow))]/10 rounded-xl group-hover:bg-[hsl(var(--cyan-glow))]/20 transition-colors">
@@ -64,11 +64,11 @@ export const Solution = () => {
           ))}
         </div>
 
-        <div className="mt-16 max-w-3xl mx-auto bg-white/10 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/30 rounded-2xl p-8 text-center">
+        <div className="mt-16 max-w-3xl mx-auto bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-8 text-center">
           <h3 className="text-2xl font-bold mb-4 text-white">
             Network Solvency: Making Every Connection Count
           </h3>
-          <p className="text-white/80 text-lg">
+          <p className="text-white/90 text-lg">
             We increase the probability that each introduction results in a measurable outcome—
             turning random networking into strategic, data-driven relationship building.
           </p>

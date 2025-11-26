@@ -41,7 +41,7 @@ export const Problem = () => {
           {painPoints.map((point, index) => (
             <div 
               key={index}
-              className="bg-white/5 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/20 rounded-xl p-6 hover:bg-white/10 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300"
+              className="bg-[hsl(var(--navy-deep))]/80 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/30 rounded-xl p-6 hover:bg-[hsl(var(--navy-deep))]/90 hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300"
             >
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-[hsl(var(--cyan-glow))]/10 rounded-lg">
