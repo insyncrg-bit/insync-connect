@@ -11,33 +11,35 @@ export default function Platform() {
     <div className="min-h-screen">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden pt-16 pb-12" style={{ background: 'var(--gradient-navy-teal)' }}>
-        {/* Decorative Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2" />
-          <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2" />
-        </div>
+      {/* Hero & Choose Your Path - Unified Section */}
+      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(180deg, hsl(200 60% 25%) 0%, hsl(180 65% 35%) 20%, hsl(180 70% 38%) 50%, hsl(220 60% 15%) 100%)' }}>
+        {/* Hero Content */}
+        <div className="relative min-h-[50vh] flex items-center justify-center pt-16 pb-12">
+          {/* Decorative Elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2" />
+            <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2" />
+          </div>
 
-        <div className="container relative z-10 px-4 md:px-6">
-          <div className="max-w-4xl mx-auto text-center space-y-6 animate-fade-in">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-lg">
-              Stop Networking.
-              <br />
-              <span className="text-[hsl(var(--cyan-glow))]">
-                Start Connecting.
-              </span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-              The centralized routing system that matches founders with the right investors at the right time.
-            </p>
+          <div className="container relative z-10 px-4 md:px-6">
+            <div className="max-w-4xl mx-auto text-center space-y-6 animate-fade-in">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-lg">
+                Stop Networking.
+                <br />
+                <span className="text-[hsl(var(--cyan-glow))]">
+                  Start Connecting.
+                </span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+                The centralized routing system that matches founders with the right investors at the right time.
+              </p>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* Who We Serve Section */}
-      <section id="audience" className="py-16 relative" style={{ background: 'linear-gradient(180deg, hsl(180 75% 40%) 0%, hsl(220 60% 15%) 100%)' }}>
+        {/* Who We Serve Content */}
+        <div className="py-16 relative">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12 animate-fade-in">
             <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white animate-scale-in">
@@ -93,15 +95,16 @@ export default function Platform() {
                 </div>
               </div>
 
-              <div className="relative overflow-hidden pt-6 border-t border-[hsl(var(--cyan-glow))]/30">
-                <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--cyan-glow))]/0 via-[hsl(var(--cyan-glow))]/10 to-[hsl(var(--cyan-glow))]/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                <div className="relative flex items-center justify-between">
-                  <span className="text-white font-semibold text-lg group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Apply as a Founder</span>
-                  <div className="flex items-center gap-2">
-                    <ArrowRight className="h-6 w-6 text-[hsl(var(--cyan-glow))] group-hover:translate-x-2 transition-transform duration-300" />
-                    <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))] animate-pulse"></div>
+              <div className="relative overflow-hidden mt-8">
+                <button className="w-full group/btn relative bg-[hsl(var(--cyan-glow))]/10 hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/50 hover:border-[hsl(var(--cyan-glow))] rounded-xl px-6 py-4 transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,255,255,0.4)]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[hsl(var(--cyan-glow))]/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
+                  <div className="relative flex items-center justify-between">
+                    <span className="text-white font-semibold text-lg tracking-wide">Apply as a Founder</span>
+                    <div className="flex items-center gap-2">
+                      <ArrowRight className="h-5 w-5 text-[hsl(var(--cyan-glow))] group-hover/btn:translate-x-1 transition-transform duration-300" />
+                    </div>
                   </div>
-                </div>
+                </button>
               </div>
             </div>
 
@@ -149,18 +152,20 @@ export default function Platform() {
                 </div>
               </div>
 
-              <div className="relative overflow-hidden pt-6 border-t border-white/30">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                <div className="relative flex items-center justify-between">
-                  <span className="text-white font-semibold text-lg group-hover:scale-105 transition-transform">Become a Partner</span>
-                  <div className="flex items-center gap-2">
-                    <ArrowRight className="h-6 w-6 text-white group-hover:translate-x-2 transition-transform duration-300" />
-                    <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+              <div className="relative overflow-hidden mt-8">
+                <button className="w-full group/btn relative bg-white/10 hover:bg-white/20 border border-white/50 hover:border-white rounded-xl px-6 py-4 transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
+                  <div className="relative flex items-center justify-between">
+                    <span className="text-white font-semibold text-lg tracking-wide">Become a Partner</span>
+                    <div className="flex items-center gap-2">
+                      <ArrowRight className="h-5 w-5 text-white group-hover/btn:translate-x-1 transition-transform duration-300" />
+                    </div>
                   </div>
-                </div>
+                </button>
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 
