@@ -76,50 +76,58 @@ export default function FounderApplication() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'var(--gradient-navy-teal)' }}>
+      {/* Decorative Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-1/2 left-1/4 w-2 h-40 bg-gradient-to-b from-[hsl(var(--cyan-glow))]/40 to-transparent blur-sm" />
+        <div className="absolute bottom-1/4 right-1/3 w-40 h-2 bg-gradient-to-r from-[hsl(var(--cyan-glow))]/40 to-transparent blur-sm" />
+      </div>
+
       {/* Header */}
-      <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
+      <header className="fixed top-0 w-full z-50 bg-[hsl(var(--navy-deep))]/80 backdrop-blur-lg border-b border-[hsl(var(--cyan-glow))]/20">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate("/")}
-              className="gap-2"
+              className="gap-2 text-white hover:text-[hsl(var(--cyan-glow))] hover:bg-white/5"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg" />
-              <span className="text-xl font-bold">In-Sync</span>
+              <span className="text-xl font-bold text-white">In-Sync</span>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-24 pb-16">
+      <main className="pt-32 pb-16 relative z-10">
         <div className="container max-w-3xl mx-auto px-4 md:px-6">
-          <div className="space-y-8">
+          <div className="space-y-12">
             {/* Header Section */}
-            <div className="text-center space-y-4">
-              <div className="inline-block px-4 py-2 bg-accent/10 border border-accent/20 rounded-full text-sm font-medium text-accent">
+            <div className="text-center space-y-6">
+              <div className="inline-block px-6 py-2 bg-white/10 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/30 rounded-full text-sm font-medium text-[hsl(var(--cyan-glow))]">
                 Founder Application
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold">
-                Join the <span className="bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">In-Sync</span> Ecosystem
+              <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tight">
+                Join the Ecosystem
               </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Tell us about your startup and get connected to the right investors and partners
+              <p className="text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+                Connect with precision-matched investors and accelerate your startup journey
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl p-8 space-y-8">
+            <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/20 rounded-2xl p-10 space-y-10 shadow-2xl">
               {/* Founder Info */}
               <div className="space-y-6">
-                <h2 className="text-2xl font-semibold">Founder Information</h2>
+                <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Founder Information</h2>
                 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -149,7 +157,7 @@ export default function FounderApplication() {
 
               {/* Company Info */}
               <div className="space-y-6">
-                <h2 className="text-2xl font-semibold">Company Information</h2>
+                <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Company Information</h2>
                 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -236,7 +244,7 @@ export default function FounderApplication() {
 
               {/* Business Details */}
               <div className="space-y-6">
-                <h2 className="text-2xl font-semibold">Business Details</h2>
+                <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Business Details</h2>
                 
                 <div className="space-y-2">
                   <Label htmlFor="businessModel">Business Model & Value Proposition * (min 50 characters)</Label>
@@ -280,32 +288,32 @@ export default function FounderApplication() {
 
               {/* Upload Section */}
               <div className="space-y-4">
-                <h2 className="text-2xl font-semibold">Supporting Materials (Optional)</h2>
-                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center space-y-4">
-                  <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
+                <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Supporting Materials (Optional)</h2>
+                <div className="border-2 border-dashed border-[hsl(var(--cyan-glow))]/30 rounded-xl p-8 text-center space-y-4 hover:border-[hsl(var(--cyan-glow))]/50 transition-colors">
+                  <Upload className="h-12 w-12 mx-auto text-[hsl(var(--navy-deep))]/60" />
                   <div>
-                    <p className="text-sm font-medium">Upload pitch deck or one-pager</p>
-                    <p className="text-xs text-muted-foreground">PDF, PPTX up to 10MB</p>
+                    <p className="text-sm font-semibold text-[hsl(var(--navy-deep))]">Upload pitch deck or one-pager</p>
+                    <p className="text-xs text-[hsl(var(--navy-deep))]/60">PDF, PPTX up to 10MB</p>
                   </div>
-                  <Button type="button" variant="outline" size="sm">
+                  <Button type="button" variant="outline" size="sm" className="border-[hsl(var(--cyan-glow))]/40 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/10">
                     Choose File
                   </Button>
                 </div>
               </div>
 
               {/* Submit Button */}
-              <div className="flex gap-4">
+              <div className="flex gap-4 pt-4">
                 <Button
                   type="submit"
                   size="lg"
-                  className="flex-1"
+                  className="flex-1 bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90 text-white border-2 border-[hsl(var(--cyan-glow))]/30 shadow-lg hover:shadow-[0_0_20px_rgba(0,255,255,0.3)] transition-all text-lg py-6"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Submitting..." : "Submit Application"}
                 </Button>
               </div>
 
-              <p className="text-xs text-muted-foreground text-center">
+              <p className="text-xs text-[hsl(var(--navy-deep))]/60 text-center">
                 By submitting, you agree to our Terms of Service and Privacy Policy
               </p>
             </form>
