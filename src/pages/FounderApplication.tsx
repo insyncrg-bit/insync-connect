@@ -8,6 +8,7 @@ import { ArrowLeft, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const applicationSchema = z.object({
   founderName: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -48,21 +49,58 @@ export default function FounderApplication() {
     try {
       const validated = applicationSchema.parse(formData);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to submit your application.",
+          variant: "destructive",
+        });
+        navigate("/");
+        return;
+      }
+
+      // Save application to database
+      const { error: insertError } = await supabase
+        .from("founder_applications")
+        .insert({
+          user_id: user.id,
+          founder_name: validated.founderName,
+          email: validated.email,
+          company_name: validated.companyName,
+          website: validated.website || null,
+          vertical: validated.vertical,
+          stage: validated.stage,
+          location: validated.location,
+          funding_goal: validated.fundingGoal,
+          business_model: validated.businessModel,
+          traction: validated.traction,
+          current_ask: validated.currentAsk,
+          status: 'pending'
+        });
+
+      if (insertError) throw insertError;
       
       toast({
         title: "Application Submitted!",
-        description: "We'll review your application and get back to you within 48 hours.",
+        description: "Welcome to the ecosystem! Explore your dashboard.",
       });
       
-      navigate("/");
+      navigate("/founder-dashboard");
     } catch (error) {
       if (error instanceof z.ZodError) {
         const firstError = error.errors[0];
         toast({
           title: "Validation Error",
           description: firstError.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Submission Error",
+          description: "Failed to submit application. Please try again.",
           variant: "destructive",
         });
       }
