@@ -25,21 +25,21 @@ export default function Platform() {
           <div className="container relative z-10 px-4 md:px-6">
             <div className="max-w-4xl mx-auto text-center space-y-8">
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-lg">
-                <span className="inline-block animate-fade-in opacity-0" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
+                <span className="inline-block animate-fade-in" style={{ animationDelay: '0.1s' }}>
                   Stop Networking.
                 </span>
                 <br />
-                <span className="inline-block text-[hsl(var(--cyan-glow))] animate-fade-in opacity-0 hover:scale-110 transition-transform duration-300" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                <span className="inline-block text-[hsl(var(--cyan-glow))] animate-fade-in hover:scale-110 transition-transform duration-300" style={{ animationDelay: '0.4s' }}>
                   Start Connecting.
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed animate-fade-in opacity-0" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
+              <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.7s' }}>
                 The centralized routing system that matches founders with the right investors at the right time.
               </p>
 
               {/* Animated Divider */}
-              <div className="flex items-center justify-center gap-3 pt-4 animate-fade-in opacity-0" style={{ animationDelay: '1s', animationFillMode: 'forwards' }}>
+              <div className="flex items-center justify-center gap-3 pt-4 animate-fade-in" style={{ animationDelay: '1s' }}>
                 <div className="h-px w-20 bg-gradient-to-r from-transparent to-[hsl(var(--cyan-glow))]/50"></div>
                 <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))] animate-pulse"></div>
                 <div className="h-px w-20 bg-gradient-to-l from-transparent to-[hsl(var(--cyan-glow))]/50"></div>
@@ -59,7 +59,7 @@ export default function Platform() {
           </div>
 
           <div className="max-w-3xl mx-auto text-center mb-16 relative">
-            <div className="inline-block animate-fade-in opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+            <div className="inline-block animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white relative">
                 <span className="relative inline-block">
                   Choose Your 
@@ -74,14 +74,14 @@ export default function Platform() {
                 </span>
               </h2>
             </div>
-            <p className="text-lg md:text-xl text-white/80 animate-fade-in opacity-0 max-w-2xl mx-auto" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
+            <p className="text-lg md:text-xl text-white/80 animate-fade-in max-w-2xl mx-auto" style={{ animationDelay: '0.5s' }}>
               Built for serious founders and emerging VC firms in the Boston ecosystem
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {/* Startups Card */}
-            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_60px_rgba(0,255,255,0.4)] hover:scale-[1.03] transition-all duration-500 cursor-pointer animate-fade-in opacity-0 relative overflow-hidden" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }} onClick={() => navigate("/founder-application")}>
+            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_60px_rgba(0,255,255,0.4)] hover:scale-[1.03] transition-all duration-500 cursor-pointer animate-fade-in relative overflow-hidden" style={{ animationDelay: '0.7s' }} onClick={() => navigate("/founder-application")}>
               {/* Animated background effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--cyan-glow))]/0 via-[hsl(var(--cyan-glow))]/5 to-[hsl(var(--cyan-glow))]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[hsl(var(--cyan-glow))] to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
@@ -141,7 +141,7 @@ export default function Platform() {
             </div>
 
             {/* Investors Card */}
-            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-white/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-white/60 hover:shadow-[0_0_60px_rgba(255,255,255,0.3)] hover:scale-[1.03] transition-all duration-500 cursor-pointer animate-fade-in opacity-0 relative overflow-hidden" style={{ animationDelay: '0.9s', animationFillMode: 'forwards' }}>
+            <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-white/40 rounded-2xl p-10 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-white/60 hover:shadow-[0_0_60px_rgba(255,255,255,0.3)] hover:scale-[1.03] transition-all duration-500 cursor-pointer animate-fade-in relative overflow-hidden" style={{ animationDelay: '0.9s' }}>
               {/* Animated background effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
