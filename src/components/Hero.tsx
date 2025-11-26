@@ -19,7 +19,7 @@ export const Hero = () => {
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          <div className="inline-block px-6 py-2 bg-white/10 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/30 rounded-full text-sm font-medium text-[hsl(var(--cyan-glow))] mb-4 shadow-lg">
+          <div className="inline-block px-6 py-2 bg-[hsl(var(--navy-deep))]/60 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/40 rounded-full text-sm font-medium text-[hsl(var(--cyan-glow))] mb-4 shadow-lg">
             High-Fidelity Startup-Investor Matching
           </div>
           

@@ -16,7 +16,7 @@ export const Audience = () => {
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {/* Startups Card */}
-          <div className="group bg-white/5 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/30 rounded-2xl p-8 hover:bg-white/10 hover:border-[hsl(var(--cyan-glow))]/50 hover:shadow-[0_0_40px_rgba(0,255,255,0.3)] transition-all duration-300">
+          <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/40 rounded-2xl p-8 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_40px_rgba(0,255,255,0.3)] transition-all duration-300">
             <div className="mb-6">
               <div className="w-14 h-14 bg-[hsl(var(--cyan-glow))]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[hsl(var(--cyan-glow))]/20 transition-colors">
                 <Rocket className="h-7 w-7 text-[hsl(var(--cyan-glow))]" />
@@ -63,9 +63,9 @@ export const Audience = () => {
           </div>
 
           {/* Investors Card */}
-          <div className="group bg-white/5 backdrop-blur-sm border-2 border-white/30 rounded-2xl p-8 hover:bg-white/10 hover:border-white/50 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-all duration-300">
+          <div className="group bg-[hsl(var(--navy-deep))]/70 backdrop-blur-sm border-2 border-white/40 rounded-2xl p-8 hover:bg-[hsl(var(--navy-deep))]/85 hover:border-white/60 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-all duration-300">
             <div className="mb-6">
-              <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors">
+              <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/25 transition-colors">
                 <Building2 className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-2 text-white">For Investors</h3>
