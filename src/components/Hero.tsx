@@ -10,6 +10,9 @@ export const Hero = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/20 rounded-full -translate-y-1/2 shadow-[0_0_60px_rgba(0,255,255,0.2)] animate-[float_30s_ease-in-out_infinite]" />
         <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/15 rounded-full translate-y-1/2 shadow-[0_0_50px_rgba(0,255,255,0.15)] animate-[float_35s_ease-in-out_infinite]" style={{ animationDelay: '10s' }} />
+        <div className="absolute top-[20%] left-[15%] w-[350px] h-[350px] border border-[hsl(var(--cyan-glow))]/12 rounded-full shadow-[0_0_40px_rgba(0,255,255,0.12)] animate-[float_40s_ease-in-out_infinite]" style={{ animationDelay: '5s' }} />
+        <div className="absolute bottom-[20%] right-[12%] w-[400px] h-[400px] border border-white/10 rounded-full shadow-[0_0_35px_rgba(255,255,255,0.1)] animate-[float_38s_ease-in-out_infinite]" style={{ animationDelay: '15s' }} />
+        <div className="absolute top-[55%] right-[35%] w-[280px] h-[280px] border border-[hsl(var(--cyan-glow))]/10 rounded-full shadow-[0_0_30px_rgba(0,255,255,0.1)] animate-[float_42s_ease-in-out_infinite]" style={{ animationDelay: '20s' }} />
       </div>
 
       {/* Content */}
