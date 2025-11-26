@@ -8,21 +8,12 @@ export const Hero = () => {
   
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden" style={{ background: 'var(--gradient-navy-teal)' }}>
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={heroNetwork} 
-          alt="Network visualization representing startup ecosystem connections" 
-          className="w-full h-full object-cover opacity-10"
-        />
-      </div>
-      
       {/* Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/20 rounded-full -translate-y-1/2" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/15 rounded-full translate-y-1/2" />
-        <div className="absolute top-1/4 right-1/3 w-2 h-32 bg-gradient-to-b from-[hsl(var(--cyan-glow))]/40 to-transparent blur-sm" />
-        <div className="absolute bottom-1/3 left-1/3 w-32 h-2 bg-gradient-to-r from-[hsl(var(--cyan-glow))]/40 to-transparent blur-sm" />
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2" />
+        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2" />
+        <div className="absolute top-1/4 right-1/3 w-2 h-32 bg-gradient-to-b from-[hsl(var(--cyan-glow))]/50 to-transparent blur-sm" />
+        <div className="absolute bottom-1/3 left-1/3 w-32 h-2 bg-gradient-to-r from-[hsl(var(--cyan-glow))]/50 to-transparent blur-sm" />
       </div>
 
       {/* Content */}
