@@ -8,7 +8,7 @@ export default function Platform() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(180deg, hsl(200 60% 25%) 0%, hsl(180 65% 35%) 15%, hsl(180 70% 38%) 40%, hsl(200 65% 30%) 70%, hsl(220 60% 15%) 100%)' }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(180deg, hsl(220 60% 15%) 0%, hsl(200 65% 25%) 25%, hsl(180 65% 35%) 50%, hsl(200 65% 25%) 75%, hsl(220 60% 15%) 100%)' }}>
       {/* Animated background elements */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-20 left-[10%] w-96 h-96 bg-[hsl(var(--cyan-glow))]/10 rounded-full blur-3xl animate-[float_8s_ease-in-out_infinite]"></div>
