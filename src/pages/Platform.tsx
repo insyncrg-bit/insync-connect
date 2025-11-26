@@ -99,7 +99,13 @@ export default function Platform() {
               </div>
 
               <div className="relative overflow-hidden mt-8">
-                <button className="w-full group/btn relative bg-[hsl(var(--cyan-glow))]/10 hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/50 hover:border-[hsl(var(--cyan-glow))] rounded-xl px-6 py-4 transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,255,255,0.4)]">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate("/founder-application");
+                  }}
+                  className="w-full group/btn relative bg-[hsl(var(--cyan-glow))]/10 hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/50 hover:border-[hsl(var(--cyan-glow))] rounded-xl px-6 py-4 transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,255,255,0.4)]"
+                >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[hsl(var(--cyan-glow))]/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
                   <div className="relative flex items-center justify-between">
                     <span className="text-white font-semibold text-lg tracking-wide">Apply as a Founder</span>
