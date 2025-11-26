@@ -8,12 +8,13 @@ export const Hero = () => {
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border-2 border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 animate-[spin_25s_linear_infinite] shadow-[0_0_100px_rgba(0,255,255,0.4),inset_0_0_60px_rgba(0,255,255,0.2)]" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border-2 border-[hsl(var(--cyan-glow))]/25 rounded-full translate-y-1/2 animate-[spin_18s_linear_infinite_reverse] shadow-[0_0_80px_rgba(0,255,255,0.3),inset_0_0_50px_rgba(0,255,255,0.15)]" />
-        <div className="absolute top-1/3 left-[40%] w-[350px] h-[350px] border border-white/15 rounded-full animate-[float_12s_ease-in-out_infinite] shadow-[0_0_60px_rgba(255,255,255,0.2)]" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/4 right-1/3 w-3 h-3 rounded-full bg-[hsl(var(--cyan-glow))]/70 animate-[float_7s_ease-in-out_infinite] shadow-[0_0_25px_rgba(0,255,255,0.8)] animate-pulse" />
-        <div className="absolute bottom-1/3 left-1/3 w-2.5 h-2.5 rounded-full bg-[hsl(var(--cyan-glow))]/50 animate-[float_9s_ease-in-out_infinite] shadow-[0_0_20px_rgba(0,255,255,0.6)]" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 left-[15%] w-2 h-2 rounded-full bg-white/40 animate-[float_8s_ease-in-out_infinite] shadow-[0_0_18px_rgba(255,255,255,0.5)]" style={{ animationDelay: '4s' }} />
+        <div className="absolute top-[10%] right-[5%] w-[450px] h-[450px] border border-[hsl(var(--cyan-glow))]/25 rounded-full shadow-[0_0_80px_rgba(0,255,255,0.3),inset_0_0_40px_rgba(0,255,255,0.15)]" />
+        <div className="absolute top-[60%] left-[8%] w-[380px] h-[380px] border border-[hsl(var(--cyan-glow))]/20 rounded-full shadow-[0_0_60px_rgba(0,255,255,0.25),inset_0_0_35px_rgba(0,255,255,0.12)]" />
+        <div className="absolute bottom-[15%] right-[15%] w-[320px] h-[320px] border border-white/12 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.15)]" />
+        <div className="absolute top-[35%] left-[70%] w-[280px] h-[280px] border border-[hsl(var(--cyan-glow))]/15 rounded-full shadow-[0_0_40px_rgba(0,255,255,0.2)]" />
+        <div className="absolute top-[20%] left-[35%] w-3 h-3 rounded-full bg-[hsl(var(--cyan-glow))]/60 shadow-[0_0_20px_rgba(0,255,255,0.7)] animate-[float_15s_ease-in-out_infinite]" />
+        <div className="absolute bottom-[25%] left-[25%] w-2.5 h-2.5 rounded-full bg-[hsl(var(--cyan-glow))]/45 shadow-[0_0_15px_rgba(0,255,255,0.5)] animate-[float_18s_ease-in-out_infinite]" style={{ animationDelay: '5s' }} />
+        <div className="absolute top-[70%] right-[40%] w-2 h-2 rounded-full bg-white/35 shadow-[0_0_12px_rgba(255,255,255,0.4)] animate-[float_20s_ease-in-out_infinite]" style={{ animationDelay: '10s' }} />
       </div>
 
       {/* Content */}
@@ -36,8 +37,8 @@ export const Hero = () => {
       </div>
 
       {/* Gradient Orb Effect */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[hsl(var(--cyan-glow))]/20 rounded-full blur-[120px] pointer-events-none animate-pulse" />
-      <div className="absolute top-1/4 right-[10%] w-[300px] h-[300px] bg-[hsl(var(--cyan-glow))]/10 rounded-full blur-[100px] pointer-events-none animate-[float_12s_ease-in-out_infinite]" style={{ animationDelay: '3s' }} />
+      <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-[hsl(var(--cyan-glow))]/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[12%] w-[280px] h-[280px] bg-[hsl(var(--cyan-glow))]/10 rounded-full blur-[100px] pointer-events-none" />
     </section>
   );
 };
