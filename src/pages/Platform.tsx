@@ -165,7 +165,13 @@ export default function Platform() {
               </div>
 
               <div className="relative overflow-hidden mt-8">
-                <button className="w-full group/btn relative bg-white/10 hover:bg-white/20 border border-white/50 hover:border-white rounded-xl px-6 py-4 transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate("/investor-application");
+                  }}
+                  className="w-full group/btn relative bg-white/10 hover:bg-white/20 border border-white/50 hover:border-white rounded-xl px-6 py-4 transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]"
+                >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
                   <div className="relative flex items-center justify-between">
                     <span className="text-white font-semibold text-lg tracking-wide">Become a Partner</span>
