@@ -5,7 +5,7 @@ export const Hero = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden" style={{ background: 'var(--gradient-navy-teal)' }}>
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2" />

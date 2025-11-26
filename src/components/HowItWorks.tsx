@@ -2,7 +2,7 @@ import { UserPlus, Handshake, BarChart3 } from "lucide-react";
 
 export const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="py-20 relative" style={{ background: 'linear-gradient(180deg, hsl(195 70% 35%) 0%, hsl(180 75% 40%) 100%)' }}>
+    <section id="how-it-works" className="py-20 relative">
       <div className="container px-4 md:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">

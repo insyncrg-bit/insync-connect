@@ -2,7 +2,7 @@ import { CheckCircle2, Database, Target, Zap, TrendingUp } from "lucide-react";
 
 export const Solution = () => {
   return (
-    <section id="solution" className="py-20 relative" style={{ background: 'linear-gradient(180deg, hsl(210 65% 20%) 0%, hsl(195 70% 35%) 100%)' }}>
+    <section id="solution" className="py-20 relative">
       <div className="container px-4 md:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">

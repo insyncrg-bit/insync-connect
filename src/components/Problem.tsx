@@ -2,7 +2,7 @@ import { AlertCircle } from "lucide-react";
 
 export const Problem = () => {
   return (
-    <section id="problem" className="py-20 relative" style={{ background: 'linear-gradient(180deg, hsl(220 60% 15%) 0%, hsl(210 65% 20%) 100%)' }}>
+    <section id="problem" className="py-20 relative">
       <div className="container px-4 md:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
