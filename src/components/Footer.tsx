@@ -2,7 +2,7 @@ import { Mail, Linkedin, Twitter } from "lucide-react";
 
 export const Footer = () => {
   return (
-    <footer className="bg-[hsl(var(--navy-deep))] border-t border-[hsl(var(--cyan-glow))]/20 py-12">
+    <footer className="bg-transparent py-12">
       <div className="container px-4 md:px-6">
         <div className="max-w-md mx-auto text-center space-y-8">
           {/* Connect */}
@@ -11,21 +11,21 @@ export const Footer = () => {
             <div className="flex gap-3 justify-center">
               <a 
                 href="#" 
-                className="w-10 h-10 bg-white/10 hover:bg-[hsl(var(--cyan-glow))]/20 text-white hover:text-[hsl(var(--cyan-glow))] rounded-lg flex items-center justify-center transition-all border border-[hsl(var(--cyan-glow))]/20"
+                className="w-10 h-10 bg-white/10 hover:bg-[hsl(var(--cyan-glow))]/20 text-white hover:text-[hsl(var(--cyan-glow))] rounded-lg flex items-center justify-center transition-all border border-[hsl(var(--cyan-glow))]/20 hover:scale-110 duration-300"
                 aria-label="Email"
               >
                 <Mail className="h-5 w-5" />
               </a>
               <a 
                 href="#" 
-                className="w-10 h-10 bg-white/10 hover:bg-[hsl(var(--cyan-glow))]/20 text-white hover:text-[hsl(var(--cyan-glow))] rounded-lg flex items-center justify-center transition-all border border-[hsl(var(--cyan-glow))]/20"
+                className="w-10 h-10 bg-white/10 hover:bg-[hsl(var(--cyan-glow))]/20 text-white hover:text-[hsl(var(--cyan-glow))] rounded-lg flex items-center justify-center transition-all border border-[hsl(var(--cyan-glow))]/20 hover:scale-110 duration-300"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
               </a>
               <a 
                 href="#" 
-                className="w-10 h-10 bg-white/10 hover:bg-[hsl(var(--cyan-glow))]/20 text-white hover:text-[hsl(var(--cyan-glow))] rounded-lg flex items-center justify-center transition-all border border-[hsl(var(--cyan-glow))]/20"
+                className="w-10 h-10 bg-white/10 hover:bg-[hsl(var(--cyan-glow))]/20 text-white hover:text-[hsl(var(--cyan-glow))] rounded-lg flex items-center justify-center transition-all border border-[hsl(var(--cyan-glow))]/20 hover:scale-110 duration-300"
                 aria-label="Twitter"
               >
                 <Twitter className="h-5 w-5" />
@@ -34,7 +34,7 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-[hsl(var(--cyan-glow))]/20 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-white/70">
             © 2024 In-Sync. All rights reserved.
           </p>
