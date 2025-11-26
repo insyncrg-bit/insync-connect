@@ -14,7 +14,7 @@ export default function Platform() {
       {/* Hero & Choose Your Path - Unified Section */}
       <section className="relative overflow-hidden" style={{ background: 'linear-gradient(180deg, hsl(200 60% 25%) 0%, hsl(180 65% 35%) 20%, hsl(180 70% 38%) 50%, hsl(220 60% 15%) 100%)' }}>
         {/* Hero Content */}
-        <div className="relative min-h-[50vh] flex items-center justify-center pt-16 pb-20">
+        <div className="relative min-h-[50vh] flex items-center justify-center pt-16 pb-8">
           {/* Animated Decorative Elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 animate-[spin_20s_linear_infinite]" />
@@ -49,7 +49,7 @@ export default function Platform() {
         </div>
 
         {/* Who We Serve Content */}
-        <div className="py-20 relative">
+        <div className="pt-8 pb-20 relative">
         <div className="container px-4 md:px-6">
           {/* Floating particles effect */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
