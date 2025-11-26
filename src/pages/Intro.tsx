@@ -26,15 +26,15 @@ export default function Intro() {
       <div className="container relative z-10 px-4 md:px-6">
         <div className="max-w-5xl mx-auto text-center space-y-16">
           {/* Main message */}
-          <div className="space-y-4 animate-fade-in">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white drop-shadow-lg">
+          <div className="space-y-6 animate-fade-in text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white/90 drop-shadow-lg">
               Get Ready to
             </h1>
-            <div className="space-y-2">
-              <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="space-y-3">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white animate-fade-in drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]" style={{ animationDelay: '0.2s' }}>
                 Stop Networking.
               </h2>
-              <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[hsl(var(--cyan-glow))] animate-fade-in" style={{ animationDelay: '0.6s' }}>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[hsl(var(--cyan-glow))] animate-fade-in drop-shadow-[0_0_30px_rgba(0,255,255,0.5)]" style={{ animationDelay: '0.4s' }}>
                 Start Connecting.
               </h2>
             </div>
