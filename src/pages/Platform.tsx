@@ -19,45 +19,8 @@ export default function Platform() {
       <div className="relative z-10">
         <Navigation />
       
-      {/* Hero & Choose Your Path - Unified Section */}
-      <section className="relative overflow-hidden">
-        {/* Hero Content */}
-        <div className="relative min-h-[50vh] flex items-center justify-center pt-16 pb-8">
-          {/* Animated Decorative Elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-0 right-1/4 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 animate-[spin_20s_linear_infinite]" />
-            <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2 animate-[spin_15s_linear_infinite_reverse]" />
-            <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-[hsl(var(--cyan-glow))]/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl animate-pulse" />
-          </div>
-
-          <div className="container relative z-10 px-4 md:px-6">
-            <div className="max-w-4xl mx-auto text-center space-y-8">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-lg">
-                <span className="inline-block animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                  Stop Networking.
-                </span>
-                <br />
-                <span className="inline-block text-[hsl(var(--cyan-glow))] animate-fade-in hover:scale-110 transition-transform duration-300" style={{ animationDelay: '0.4s' }}>
-                  Start Connecting.
-                </span>
-              </h1>
-              
-              <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.7s' }}>
-                The centralized routing system that matches founders with the right investors at the right time.
-              </p>
-
-              {/* Animated Divider */}
-              <div className="flex items-center justify-center gap-3 pt-4 animate-fade-in" style={{ animationDelay: '1s' }}>
-                <div className="h-px w-20 bg-gradient-to-r from-transparent to-[hsl(var(--cyan-glow))]/50"></div>
-                <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))] animate-pulse"></div>
-                <div className="h-px w-20 bg-gradient-to-l from-transparent to-[hsl(var(--cyan-glow))]/50"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Who We Serve Content */}
-        <div className="pt-8 pb-20 relative">
+      {/* Choose Your Path Section */}
+      <section className="relative overflow-hidden pt-24 pb-20">
         <div className="container px-4 md:px-6">
           {/* Floating particles effect */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -208,7 +171,6 @@ export default function Platform() {
               </div>
             </div>
           </div>
-        </div>
         </div>
       </section>
 
