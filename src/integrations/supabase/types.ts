@@ -14,7 +14,216 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      engagement_tracking: {
+        Row: {
+          action_date: string
+          action_type: string
+          application_id: string | null
+          id: string
+          investor_id: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          action_date?: string
+          action_type: string
+          application_id?: string | null
+          id?: string
+          investor_id?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          action_date?: string
+          action_type?: string
+          application_id?: string | null
+          id?: string
+          investor_id?: string | null
+          metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engagement_tracking_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "founder_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engagement_tracking_investor_id_fkey"
+            columns: ["investor_id"]
+            isOneToOne: false
+            referencedRelation: "investors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_date: string
+          event_type: string
+          id: string
+          location: string | null
+          max_attendees: number | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          location?: string | null
+          max_attendees?: number | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          location?: string | null
+          max_attendees?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
+      founder_applications: {
+        Row: {
+          business_model: string
+          company_name: string
+          created_at: string
+          current_ask: string
+          email: string
+          founder_name: string
+          funding_goal: string
+          id: string
+          location: string
+          stage: string
+          status: string | null
+          traction: string
+          updated_at: string
+          user_id: string | null
+          vertical: string
+          website: string | null
+        }
+        Insert: {
+          business_model: string
+          company_name: string
+          created_at?: string
+          current_ask: string
+          email: string
+          founder_name: string
+          funding_goal: string
+          id?: string
+          location: string
+          stage: string
+          status?: string | null
+          traction: string
+          updated_at?: string
+          user_id?: string | null
+          vertical: string
+          website?: string | null
+        }
+        Update: {
+          business_model?: string
+          company_name?: string
+          created_at?: string
+          current_ask?: string
+          email?: string
+          founder_name?: string
+          funding_goal?: string
+          id?: string
+          location?: string
+          stage?: string
+          status?: string | null
+          traction?: string
+          updated_at?: string
+          user_id?: string | null
+          vertical?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      investors: {
+        Row: {
+          active: boolean | null
+          bio: string | null
+          check_size: string
+          created_at: string
+          firm_name: string
+          id: string
+          investment_stage: string
+          logo_url: string | null
+          name: string
+          portfolio_count: number | null
+          sectors: Json | null
+        }
+        Insert: {
+          active?: boolean | null
+          bio?: string | null
+          check_size: string
+          created_at?: string
+          firm_name: string
+          id?: string
+          investment_stage: string
+          logo_url?: string | null
+          name: string
+          portfolio_count?: number | null
+          sectors?: Json | null
+        }
+        Update: {
+          active?: boolean | null
+          bio?: string | null
+          check_size?: string
+          created_at?: string
+          firm_name?: string
+          id?: string
+          investment_stage?: string
+          logo_url?: string | null
+          name?: string
+          portfolio_count?: number | null
+          sectors?: Json | null
+        }
+        Relationships: []
+      }
+      mentors: {
+        Row: {
+          available: boolean | null
+          avatar_url: string | null
+          bio: string | null
+          company: string | null
+          created_at: string
+          expertise: Json | null
+          id: string
+          name: string
+          title: string
+        }
+        Insert: {
+          available?: boolean | null
+          avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
+          created_at?: string
+          expertise?: Json | null
+          id?: string
+          name: string
+          title: string
+        }
+        Update: {
+          available?: boolean | null
+          avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
+          created_at?: string
+          expertise?: Json | null
+          id?: string
+          name?: string
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
