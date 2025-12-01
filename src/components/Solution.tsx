@@ -20,7 +20,7 @@ export const Solution = () => {
             </div>
             <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">
               High-Fidelity Routing +<br />
-              <span className="text-[hsl(var(--cyan-glow))]/70 inline-block hover:scale-110 transition-transform duration-300">Outcome Accountability</span>
+              <span className="text-white inline-block hover:scale-110 transition-transform duration-300">Outcome Accountability</span>
             </h2>
             <p className="text-lg text-white/80 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
               Transform unstructured chaos into a high-throughput system that accelerates capital formation.
