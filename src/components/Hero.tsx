@@ -61,19 +61,15 @@ export const Hero = () => {
             High-Fidelity Startup-Investor Matching
           </div>
           
-          <div 
-            className="cursor-pointer transition-all duration-500 hover:scale-105"
-            onClick={() => navigate("/intro")}
-          >
+          <div className="transition-all duration-500">
             <img 
               src={inSyncLogo} 
               alt="In∞Sync" 
-              className="w-full max-w-4xl mx-auto drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"
+              className="w-full max-w-4xl mx-auto drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]"
             />
-            <p className="text-sm text-white/50 mt-4">Click to explore</p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
             <Button
               variant="hero"
               size="lg"
