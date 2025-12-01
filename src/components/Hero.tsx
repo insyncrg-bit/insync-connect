@@ -69,7 +69,7 @@ export const Hero = () => {
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-2 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <Button
               variant="hero"
               size="lg"
