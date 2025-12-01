@@ -72,6 +72,25 @@ export const Hero = () => {
             />
             <p className="text-sm text-white/50 mt-4">Click to explore</p>
           </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <Button
+              variant="hero"
+              size="lg"
+              onClick={() => navigate("/founder-application")}
+              className="text-base px-8"
+            >
+              Join as a Startup
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate("/investor-application")}
+              className="text-base px-8 border-[hsl(var(--cyan-glow))]/40 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10 hover:border-[hsl(var(--cyan-glow))]/60"
+            >
+              Join as a Venture Capital Firm
+            </Button>
+          </div>
         </div>
       </div>
 
