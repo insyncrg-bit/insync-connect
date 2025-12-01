@@ -69,12 +69,12 @@ export const Hero = () => {
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <Button
               variant="hero"
               size="lg"
               onClick={() => navigate("/founder-application")}
-              className="text-base px-8"
+              className="text-base px-10 py-6 font-semibold shadow-[0_0_30px_rgba(83,209,214,0.3)] hover:shadow-[0_0_50px_rgba(83,209,214,0.5)] hover:scale-105 transition-all duration-300"
             >
               Join as a Startup
             </Button>
@@ -82,7 +82,7 @@ export const Hero = () => {
               variant="outline"
               size="lg"
               onClick={() => navigate("/investor-application")}
-              className="text-base px-8 border-[hsl(var(--cyan-glow))]/40 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10 hover:border-[hsl(var(--cyan-glow))]/60"
+              className="text-base px-10 py-6 font-semibold border-2 border-[hsl(var(--cyan-glow))]/50 text-white bg-[hsl(var(--navy-deep))]/60 backdrop-blur-sm hover:bg-[hsl(var(--cyan-glow))]/20 hover:border-[hsl(var(--cyan-glow))] hover:text-white hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(83,209,214,0.2)] hover:shadow-[0_0_40px_rgba(83,209,214,0.4)]"
             >
               Join as a Venture Capital Firm
             </Button>
