@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Infinity } from "lucide-react";
+import { InfinityLogo } from "@/components/InfinityLogo";
 
 export const Navigation = () => {
   return (
@@ -7,7 +7,12 @@ export const Navigation = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <Infinity className="w-8 h-8 text-[hsl(var(--cyan-glow))]" strokeWidth={2.5} />
+            <InfinityLogo 
+              size={32} 
+              strokeColor="hsl(180 100% 50%)" 
+              strokeWidth={2.5}
+              className="text-[hsl(var(--cyan-glow))]"
+            />
           </div>
 
           <div className="hidden md:flex items-center gap-8">

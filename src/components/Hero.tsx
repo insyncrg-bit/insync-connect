@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { InfinityLogo } from "@/components/InfinityLogo";
 
 export const Hero = () => {
   const navigate = useNavigate();
@@ -64,9 +65,20 @@ export const Hero = () => {
             className="cursor-pointer transition-all duration-500 hover:scale-105"
             onClick={() => navigate("/intro")}
           >
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white drop-shadow-lg hover:animate-pulse">
-              In<span className="text-[hsl(var(--cyan-glow))]">∞</span>Sync
-            </h1>
+            <div className="flex items-center justify-center gap-2 md:gap-4">
+              <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white drop-shadow-lg">
+                In
+              </h1>
+              <InfinityLogo 
+                size={120} 
+                strokeColor="hsl(180 100% 50%)" 
+                strokeWidth={2.5}
+                className="text-[hsl(var(--cyan-glow))] drop-shadow-[0_0_20px_rgba(0,255,255,0.6)] animate-pulse"
+              />
+              <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white drop-shadow-lg">
+                Sync
+              </h1>
+            </div>
             <p className="text-sm text-white/50 mt-4">Click to explore</p>
           </div>
         </div>
