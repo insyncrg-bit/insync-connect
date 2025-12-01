@@ -14,15 +14,15 @@ export const InfinityLogo = ({
   return (
     <svg 
       width={size} 
-      height={size * 0.45} 
-      viewBox="0 0 200 90" 
+      height={size * 0.4} 
+      viewBox="0 0 240 96" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Outer infinity loop */}
+      {/* Outer larger infinity loop */}
       <path 
-        d="M 10,45 C 10,20 25,5 45,5 C 65,5 80,20 100,45 C 120,70 135,85 155,85 C 175,85 190,70 190,45 C 190,20 175,5 155,5 C 135,5 120,20 100,45 C 80,70 65,85 45,85 C 25,85 10,70 10,45 Z" 
+        d="M 15,48 Q 15,15 45,15 Q 75,15 95,35 Q 115,55 120,48 Q 125,41 145,21 Q 165,1 195,1 Q 225,1 225,34 Q 225,67 195,67 Q 165,67 145,47 Q 125,27 120,34 Q 115,41 95,61 Q 75,81 45,81 Q 15,81 15,48 Z" 
         stroke={strokeColor}
         strokeWidth={strokeWidth}
         fill="none"
@@ -30,15 +30,14 @@ export const InfinityLogo = ({
         strokeLinejoin="round"
       />
       
-      {/* Inner infinity loop (slightly offset) */}
+      {/* Inner smaller infinity loop */}
       <path 
-        d="M 35,45 C 35,32 42,25 52,25 C 62,25 69,32 80,45 C 91,58 98,65 108,65 C 118,65 125,58 125,45 C 125,32 118,25 108,25 C 98,25 91,32 80,45 C 69,58 62,65 52,65 C 42,65 35,58 35,45 Z" 
+        d="M 50,48 Q 50,30 65,30 Q 80,30 92,42 Q 104,54 107,48 Q 110,42 122,30 Q 134,18 149,18 Q 164,18 164,33 Q 164,48 149,48 Q 134,48 122,36 Q 110,24 107,30 Q 104,36 92,48 Q 80,60 65,60 Q 50,60 50,48 Z" 
         stroke={strokeColor}
-        strokeWidth={strokeWidth * 0.9}
+        strokeWidth={strokeWidth * 0.85}
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity="0.95"
       />
     </svg>
   );
