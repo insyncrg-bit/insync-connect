@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { InfinityLogo } from "@/components/InfinityLogo";
+import infinityLogo from "@/assets/infinity-logo.png";
 
 export const Navigation = () => {
   return (
@@ -7,10 +7,10 @@ export const Navigation = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <InfinityLogo 
-              size={32} 
-              strokeColor="white" 
-              strokeWidth={2.5}
+            <img 
+              src={infinityLogo} 
+              alt="In∞Sync" 
+              className="h-8 w-auto"
             />
           </div>
 
