@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { InfinityLogo } from "@/components/InfinityLogo";
+import inSyncLogo from "@/assets/in-sync-logo.png";
 
 export const Hero = () => {
   const navigate = useNavigate();
@@ -65,20 +65,11 @@ export const Hero = () => {
             className="cursor-pointer transition-all duration-500 hover:scale-105"
             onClick={() => navigate("/intro")}
           >
-            <div className="flex items-center justify-center gap-2 md:gap-4">
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white drop-shadow-lg">
-                In
-              </h1>
-              <InfinityLogo 
-                size={120} 
-                strokeColor="white" 
-                strokeWidth={2.5}
-                className="drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
-              />
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white drop-shadow-lg">
-                Sync
-              </h1>
-            </div>
+            <img 
+              src={inSyncLogo} 
+              alt="In∞Sync" 
+              className="w-full max-w-4xl mx-auto drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"
+            />
             <p className="text-sm text-white/50 mt-4">Click to explore</p>
           </div>
         </div>
