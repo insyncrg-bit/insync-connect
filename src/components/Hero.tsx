@@ -71,9 +71,9 @@ export const Hero = () => {
               </h1>
               <InfinityLogo 
                 size={120} 
-                strokeColor="hsl(180 100% 50%)" 
+                strokeColor="white" 
                 strokeWidth={2.5}
-                className="text-[hsl(var(--cyan-glow))] drop-shadow-[0_0_20px_rgba(0,255,255,0.6)] animate-pulse"
+                className="drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
               />
               <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white drop-shadow-lg">
                 Sync

@@ -9,9 +9,8 @@ export const Navigation = () => {
           <div className="flex items-center gap-2">
             <InfinityLogo 
               size={32} 
-              strokeColor="hsl(180 100% 50%)" 
+              strokeColor="white" 
               strokeWidth={2.5}
-              className="text-[hsl(var(--cyan-glow))]"
             />
           </div>
 
