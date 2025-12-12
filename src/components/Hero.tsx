@@ -61,12 +61,18 @@ export const Hero = () => {
             High-Fidelity Startup-Investor Matching
           </div>
           
-          <div className="transition-all duration-500">
+          <div className="transition-all duration-500 relative">
             <img 
               src={inSyncLogo} 
               alt="In∞Sync" 
-              className="w-full max-w-4xl mx-auto drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]"
+              className="w-full max-w-4xl mx-auto drop-shadow-[0_0_50px_rgba(83,209,214,0.6)] blur-[0.5px]"
+              style={{ 
+                filter: 'drop-shadow(0 0 60px rgba(83,209,214,0.7)) drop-shadow(0 0 120px rgba(83,209,214,0.4)) blur(0.3px)',
+                fontStyle: 'italic'
+              }}
             />
+            {/* Glow overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[hsl(var(--cyan-glow))]/10 to-transparent blur-xl pointer-events-none" />
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-2 animate-fade-in" style={{ animationDelay: '0.3s' }}>
