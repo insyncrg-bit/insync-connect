@@ -4,7 +4,7 @@ const steps = [
   {
     icon: FileText,
     title: "Apply",
-    description: "5-min pitch, no deck needed",
+    description: "Your full pitch, one form",
   },
   {
     icon: Sparkles,
