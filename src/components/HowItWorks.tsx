@@ -4,17 +4,17 @@ const steps = [
   {
     icon: FileText,
     title: "Apply",
-    description: "2-minute form",
+    description: "Quick application form",
   },
   {
     icon: Sparkles,
-    title: "Get Matched",
-    description: "AI finds aligned investors",
+    title: "Get Reviewed",
+    description: "Analysts vet every startup",
   },
   {
     icon: Handshake,
-    title: "Connect",
-    description: "Warm intros, not cold emails",
+    title: "Get Matched",
+    description: "Hand-picked VC intros",
   },
 ];
 
