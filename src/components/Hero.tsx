@@ -9,8 +9,8 @@ export const Hero = () => {
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Subtle background accents */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[10%] right-[5%] w-[400px] h-[400px] border border-[hsl(var(--cyan-glow))]/5 rounded-full shadow-[0_0_80px_rgba(83,209,214,0.15)]" style={{ animation: 'float 40s ease-in-out infinite' }} />
-        <div className="absolute bottom-[10%] left-[5%] w-[350px] h-[350px] border border-[hsl(var(--cyan-glow))]/5 rounded-full shadow-[0_0_80px_rgba(83,209,214,0.15)]" style={{ animation: 'float 45s ease-in-out infinite', animationDelay: '5s' }} />
+        <div className="absolute top-[10%] right-[5%] w-[400px] h-[400px] border border-gold-glow/10 rounded-full shadow-[0_0_80px_rgba(234,179,8,0.1)]" style={{ animation: 'float 40s ease-in-out infinite' }} />
+        <div className="absolute bottom-[10%] left-[5%] w-[350px] h-[350px] border border-gold-glow/10 rounded-full shadow-[0_0_80px_rgba(234,179,8,0.1)]" style={{ animation: 'float 45s ease-in-out infinite', animationDelay: '5s' }} />
       </div>
 
       {/* Content */}
@@ -23,7 +23,7 @@ export const Hero = () => {
               alt="In∞Sync" 
               className="w-full max-w-2xl mx-auto"
               style={{ 
-                filter: 'drop-shadow(0 0 40px rgba(83,209,214,0.5)) drop-shadow(0 0 80px rgba(83,209,214,0.3))',
+                filter: 'drop-shadow(0 0 40px rgba(234,179,8,0.4)) drop-shadow(0 0 80px rgba(234,179,8,0.2))',
               }}
             />
           </div>
@@ -39,7 +39,7 @@ export const Hero = () => {
               variant="hero"
               size="lg"
               onClick={() => navigate("/founder-application")}
-              className="text-base px-10 py-6 font-semibold shadow-[0_0_30px_rgba(83,209,214,0.3)] hover:shadow-[0_0_50px_rgba(83,209,214,0.5)] hover:scale-105 transition-all duration-300"
+              className="text-base px-10 py-6 font-semibold bg-gold-glow text-navy-deep hover:bg-gold-warm shadow-[0_0_30px_rgba(234,179,8,0.3)] hover:shadow-[0_0_50px_rgba(234,179,8,0.5)] hover:scale-105 transition-all duration-300"
             >
               Join as a Startup
             </Button>
@@ -47,7 +47,7 @@ export const Hero = () => {
               variant="outline"
               size="lg"
               onClick={() => navigate("/investor-application")}
-              className="text-base px-10 py-6 font-semibold border-2 border-[hsl(var(--cyan-glow))]/50 text-white bg-[hsl(var(--navy-deep))]/60 backdrop-blur-sm hover:bg-[hsl(var(--cyan-glow))]/20 hover:border-[hsl(var(--cyan-glow))] hover:text-white hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(83,209,214,0.2)] hover:shadow-[0_0_40px_rgba(83,209,214,0.4)]"
+              className="text-base px-10 py-6 font-semibold border-2 border-gold-glow/50 text-white bg-navy-deep/60 backdrop-blur-sm hover:bg-gold-glow/20 hover:border-gold-glow hover:text-white hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(234,179,8,0.15)] hover:shadow-[0_0_40px_rgba(234,179,8,0.3)]"
             >
               Join as a VC
             </Button>
@@ -56,7 +56,7 @@ export const Hero = () => {
       </div>
 
       {/* Subtle glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[hsl(var(--cyan-glow))]/6 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-gold-glow/6 rounded-full blur-[120px] pointer-events-none" />
     </section>
   );
 };
