@@ -32,8 +32,8 @@ export const HowItWorks = () => {
               key={index} 
               className="text-center group"
             >
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-violet-glow/10 border border-violet-glow/20 mb-4 group-hover:bg-violet-glow/20 group-hover:border-violet-glow/40 transition-all duration-300">
-                <step.icon className="w-6 h-6 text-violet-glow" />
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-cyan-glow/10 border border-cyan-glow/20 mb-4 group-hover:bg-cyan-glow/20 group-hover:border-cyan-glow/40 transition-all duration-300">
+                <step.icon className="w-6 h-6 text-cyan-glow" />
               </div>
               <h3 className="text-lg font-semibold text-white mb-1">
                 {step.title}
