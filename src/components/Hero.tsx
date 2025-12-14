@@ -6,76 +6,35 @@ export const Hero = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Dynamic Network Background */}
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+      {/* Subtle background accents */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Connection nodes */}
-        <div className="absolute top-[15%] left-[12%] w-3 h-3 rounded-full bg-[hsl(var(--cyan-glow))]/40 shadow-[0_0_20px_rgba(0,255,255,0.6)] animate-pulse" />
-        <div className="absolute top-[25%] right-[18%] w-2.5 h-2.5 rounded-full bg-[hsl(var(--cyan-glow))]/35 shadow-[0_0_15px_rgba(0,255,255,0.5)]" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite', animationDelay: '0.5s' }} />
-        <div className="absolute top-[45%] left-[8%] w-2 h-2 rounded-full bg-white/30 shadow-[0_0_12px_rgba(255,255,255,0.4)]" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite', animationDelay: '1s' }} />
-        <div className="absolute top-[60%] right-[15%] w-3 h-3 rounded-full bg-[hsl(var(--cyan-glow))]/40 shadow-[0_0_20px_rgba(0,255,255,0.6)]" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite', animationDelay: '1.5s' }} />
-        <div className="absolute bottom-[20%] left-[20%] w-2.5 h-2.5 rounded-full bg-[hsl(var(--cyan-glow))]/35 shadow-[0_0_15px_rgba(0,255,255,0.5)]" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite', animationDelay: '2s' }} />
-        <div className="absolute bottom-[30%] right-[25%] w-2 h-2 rounded-full bg-white/30 shadow-[0_0_12px_rgba(255,255,255,0.4)]" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite', animationDelay: '2.5s' }} />
-        <div className="absolute top-[35%] right-[35%] w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]/30 shadow-[0_0_10px_rgba(0,255,255,0.4)]" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite', animationDelay: '0.8s' }} />
-        <div className="absolute bottom-[45%] left-[30%] w-2 h-2 rounded-full bg-white/25 shadow-[0_0_10px_rgba(255,255,255,0.3)]" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite', animationDelay: '1.8s' }} />
-        
-        {/* Connection lines - using SVG for dynamic lines */}
-        <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.15 }}>
-          <defs>
-            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="hsl(var(--cyan-glow))" stopOpacity="0" />
-              <stop offset="50%" stopColor="hsl(var(--cyan-glow))" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="hsl(var(--cyan-glow))" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          
-          <line x1="12%" y1="15%" x2="82%" y2="25%" stroke="url(#line-gradient)" strokeWidth="1">
-            <animate attributeName="stroke-opacity" values="0.1;0.4;0.1" dur="4s" repeatCount="indefinite" />
-          </line>
-          <line x1="82%" y1="25%" x2="85%" y2="60%" stroke="url(#line-gradient)" strokeWidth="1">
-            <animate attributeName="stroke-opacity" values="0.1;0.4;0.1" dur="5s" repeatCount="indefinite" begin="0.5s" />
-          </line>
-          <line x1="12%" y1="15%" x2="8%" y2="45%" stroke="url(#line-gradient)" strokeWidth="1">
-            <animate attributeName="stroke-opacity" values="0.1;0.4;0.1" dur="4.5s" repeatCount="indefinite" begin="1s" />
-          </line>
-          <line x1="8%" y1="45%" x2="20%" y2="80%" stroke="url(#line-gradient)" strokeWidth="1">
-            <animate attributeName="stroke-opacity" values="0.1;0.4;0.1" dur="5.5s" repeatCount="indefinite" begin="1.5s" />
-          </line>
-          <line x1="85%" y1="60%" x2="75%" y2="70%" stroke="url(#line-gradient)" strokeWidth="1">
-            <animate attributeName="stroke-opacity" values="0.1;0.4;0.1" dur="4.8s" repeatCount="indefinite" begin="2s" />
-          </line>
-          <line x1="20%" y1="80%" x2="65%" y2="35%" stroke="url(#line-gradient)" strokeWidth="1">
-            <animate attributeName="stroke-opacity" values="0.1;0.4;0.1" dur="5.2s" repeatCount="indefinite" begin="2.5s" />
-          </line>
-        </svg>
-        
-        {/* Subtle geometric accents */}
-        <div className="absolute top-[10%] right-[5%] w-[450px] h-[450px] border border-[hsl(var(--cyan-glow))]/5 rounded-full shadow-[0_0_100px_rgba(0,255,255,0.2),inset_0_0_70px_rgba(0,255,255,0.1)]" style={{ animation: 'float 40s ease-in-out infinite' }} />
-        <div className="absolute bottom-[8%] left-[8%] w-[450px] h-[450px] border border-[hsl(var(--cyan-glow))]/5 rounded-full shadow-[0_0_100px_rgba(0,255,255,0.2),inset_0_0_70px_rgba(0,255,255,0.1)]" style={{ animation: 'float 45s ease-in-out infinite', animationDelay: '5s' }} />
+        <div className="absolute top-[10%] right-[5%] w-[400px] h-[400px] border border-[hsl(var(--cyan-glow))]/5 rounded-full shadow-[0_0_80px_rgba(83,209,214,0.15)]" style={{ animation: 'float 40s ease-in-out infinite' }} />
+        <div className="absolute bottom-[10%] left-[5%] w-[350px] h-[350px] border border-[hsl(var(--cyan-glow))]/5 rounded-full shadow-[0_0_80px_rgba(83,209,214,0.15)]" style={{ animation: 'float 45s ease-in-out infinite', animationDelay: '5s' }} />
       </div>
 
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <div className="inline-block px-6 py-2 bg-[hsl(var(--navy-deep))]/60 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/40 rounded-full text-sm font-medium text-[hsl(var(--cyan-glow))] mb-4 shadow-lg">
-            High-Fidelity Startup-Investor Matching
-          </div>
-          
+        <div className="max-w-3xl mx-auto text-center space-y-6">
+          {/* Logo */}
           <div className="transition-all duration-500 relative">
             <img 
               src={inSyncLogo} 
               alt="In∞Sync" 
-              className="w-full max-w-4xl mx-auto drop-shadow-[0_0_50px_rgba(83,209,214,0.6)] blur-[0.5px]"
+              className="w-full max-w-2xl mx-auto"
               style={{ 
-                filter: 'drop-shadow(0 0 60px rgba(83,209,214,0.7)) drop-shadow(0 0 120px rgba(83,209,214,0.4)) blur(0.3px)',
-                fontStyle: 'italic'
+                filter: 'drop-shadow(0 0 40px rgba(83,209,214,0.5)) drop-shadow(0 0 80px rgba(83,209,214,0.3))',
               }}
             />
-            {/* Glow overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[hsl(var(--cyan-glow))]/10 to-transparent blur-xl pointer-events-none" />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-2 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          {/* Tagline */}
+          <p className="text-xl md:text-2xl text-white/90 font-light max-w-xl mx-auto leading-relaxed">
+            Find investors who actually fit your startup.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <Button
               variant="hero"
               size="lg"
@@ -90,15 +49,14 @@ export const Hero = () => {
               onClick={() => navigate("/investor-application")}
               className="text-base px-10 py-6 font-semibold border-2 border-[hsl(var(--cyan-glow))]/50 text-white bg-[hsl(var(--navy-deep))]/60 backdrop-blur-sm hover:bg-[hsl(var(--cyan-glow))]/20 hover:border-[hsl(var(--cyan-glow))] hover:text-white hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(83,209,214,0.2)] hover:shadow-[0_0_40px_rgba(83,209,214,0.4)]"
             >
-              Join as a Venture Capital Firm
+              Join as a VC
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Energy gradient effects */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[hsl(var(--cyan-glow))]/8 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute top-[10%] right-[5%] w-[300px] h-[300px] bg-[hsl(var(--cyan-glow))]/6 rounded-full blur-[100px] pointer-events-none" />
+      {/* Subtle glow */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[hsl(var(--cyan-glow))]/6 rounded-full blur-[120px] pointer-events-none" />
     </section>
   );
 };
