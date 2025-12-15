@@ -43,9 +43,49 @@ export default function Intro() {
           {/* Dynamic Infinity Symbol */}
           <div className="flex justify-center animate-fade-in" style={{ animationDelay: '0.9s' }}>
             <div className="relative">
-              {/* Pulsing glow background */}
+              {/* 3D Grid/Mesh effect */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-64 h-64 bg-[hsl(var(--cyan-glow))]/20 rounded-full blur-3xl animate-pulse"></div>
+                {/* Horizontal scan lines */}
+                <div className="absolute w-72 h-48 overflow-hidden">
+                  {[...Array(8)].map((_, i) => (
+                    <div 
+                      key={`h-${i}`}
+                      className="absolute w-full h-px bg-gradient-to-r from-transparent via-[hsl(var(--cyan-glow))]/40 to-transparent"
+                      style={{ 
+                        top: `${(i + 1) * 12}%`,
+                        animation: `pulse 2s ease-in-out infinite`,
+                        animationDelay: `${i * 0.1}s`
+                      }}
+                    />
+                  ))}
+                </div>
+                {/* Vertical scan lines */}
+                <div className="absolute w-72 h-48 overflow-hidden">
+                  {[...Array(10)].map((_, i) => (
+                    <div 
+                      key={`v-${i}`}
+                      className="absolute h-full w-px bg-gradient-to-b from-transparent via-[hsl(var(--cyan-glow))]/30 to-transparent"
+                      style={{ 
+                        left: `${(i + 1) * 9}%`,
+                        animation: `pulse 2.5s ease-in-out infinite`,
+                        animationDelay: `${i * 0.15}s`
+                      }}
+                    />
+                  ))}
+                </div>
+                {/* Perspective diamond frame */}
+                <div 
+                  className="absolute w-56 h-56 border border-[hsl(var(--cyan-glow))]/20 rotate-45"
+                  style={{ 
+                    boxShadow: '0 0 40px rgba(0, 255, 255, 0.1), inset 0 0 40px rgba(0, 255, 255, 0.05)'
+                  }}
+                />
+                <div 
+                  className="absolute w-40 h-40 border border-[hsl(var(--cyan-glow))]/30 rotate-45 animate-pulse"
+                  style={{ 
+                    boxShadow: '0 0 30px rgba(0, 255, 255, 0.15), inset 0 0 30px rgba(0, 255, 255, 0.1)'
+                  }}
+                />
               </div>
               
               {/* Infinity icon - same as navigation logo */}
