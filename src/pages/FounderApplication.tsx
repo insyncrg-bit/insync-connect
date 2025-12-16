@@ -55,7 +55,7 @@ export default function FounderApplication() {
   const [founderEmail, setFounderEmail] = useState("");
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([{ name: "", role: "", linkedin: "", background: "" }]);
 
-  // Section 2 - The Problem
+  // Section 2 - The Problem & Value Proposition
   const [currentPainPoint, setCurrentPainPoint] = useState("");
   const [valueProposition, setValueProposition] = useState("");
   const [valueDrivers, setValueDrivers] = useState<string[]>([]);
@@ -66,6 +66,18 @@ export default function FounderApplication() {
   const [emotionalValue, setEmotionalValue] = useState("");
   const [adaptability, setAdaptability] = useState("");
   const [marketContext, setMarketContext] = useState("");
+  
+  // Value Proposition Dropdowns
+  const [scalabilityType, setScalabilityType] = useState("");
+  const [scalabilityExplanation, setScalabilityExplanation] = useState("");
+  const [severityType, setSeverityType] = useState("");
+  const [severityExplanation, setSeverityExplanation] = useState("");
+  const [uniqueTechType, setUniqueTechType] = useState("");
+  const [uniqueTechExplanation, setUniqueTechExplanation] = useState("");
+  const [emotionalValueType, setEmotionalValueType] = useState("");
+  const [emotionalValueExplanation, setEmotionalValueExplanation] = useState("");
+  const [adaptabilityType, setAdaptabilityType] = useState("");
+  const [adaptabilityExplanation, setAdaptabilityExplanation] = useState("");
 
   // Section 3 - Business Model
   const [customerType, setCustomerType] = useState<string[]>([]);
@@ -85,8 +97,8 @@ export default function FounderApplication() {
   const [revenueMetricsValues, setRevenueMetricsValues] = useState("");
 
   // Section 4 - Go-to-Market
-  const [gtmDescription, setGtmDescription] = useState("");
-  const [gtmValueAlignment, setGtmValueAlignment] = useState("");
+  const [gtmAcquisition, setGtmAcquisition] = useState("");
+  const [gtmTimeline, setGtmTimeline] = useState("");
 
   // Section 5 - Target Customer & Market Sizing
   const [targetGeography, setTargetGeography] = useState("");
@@ -108,13 +120,40 @@ export default function FounderApplication() {
   ]);
   const [competitiveMoat, setCompetitiveMoat] = useState("");
 
-  const VALUE_DRIVERS = [
-    "Saves time",
-    "Reduces cost",
-    "Improves efficiency",
-    "Reduces risk or error",
-    "Improves compliance or reliability",
-    "Improves user experience or intuitiveness",
+  // Value Proposition Options
+  const SCALABILITY_OPTIONS = [
+    { value: "easier", label: "Makes life easier" },
+    { value: "efficient", label: "Makes processes more efficient" },
+    { value: "intuitive", label: "Makes things more intuitive" },
+  ];
+
+  const SEVERITY_OPTIONS = [
+    { value: "critical", label: "Critical - Business stops without solution" },
+    { value: "high", label: "High - Significant daily impact" },
+    { value: "medium", label: "Medium - Noticeable but manageable" },
+    { value: "low", label: "Low - Nice to have improvement" },
+  ];
+
+  const UNIQUE_TECH_OPTIONS = [
+    { value: "proprietary", label: "Proprietary technology" },
+    { value: "data-advantage", label: "Unique data advantage" },
+    { value: "integration", label: "Superior integration capabilities" },
+    { value: "ux", label: "Best-in-class user experience" },
+    { value: "speed", label: "Significantly faster performance" },
+  ];
+
+  const EMOTIONAL_VALUE_OPTIONS = [
+    { value: "status", label: "Creates status or prestige" },
+    { value: "trust", label: "Builds trust and credibility" },
+    { value: "peace-of-mind", label: "Provides peace of mind" },
+    { value: "belonging", label: "Creates sense of belonging" },
+  ];
+
+  const ADAPTABILITY_OPTIONS = [
+    { value: "global", label: "Global - Works across all regions" },
+    { value: "regional", label: "Regional - Adaptable to specific regions" },
+    { value: "demographic", label: "Demographic - Works across different groups" },
+    { value: "industry", label: "Industry - Adaptable across industries" },
   ];
 
   const CUSTOMER_TYPES = ["B2B", "B2C", "Both"];
@@ -127,14 +166,17 @@ export default function FounderApplication() {
     { id: "services", label: "Services" },
   ];
 
-  const GTM_ALIGNMENT_OPTIONS = [
-    { value: "enterprise-sales", label: "Enterprise Sales", desc: "High-touch, long sales cycles for complex solutions" },
-    { value: "self-serve", label: "Self-Serve / PLG", desc: "Product-led growth with minimal sales involvement" },
-    { value: "channel-partners", label: "Channel Partners", desc: "Distribution through resellers or integrators" },
-    { value: "marketplace", label: "Marketplace", desc: "Platform connecting buyers and sellers" },
-    { value: "direct-consumer", label: "Direct to Consumer", desc: "B2C acquisition through marketing" },
-    { value: "hybrid", label: "Hybrid", desc: "Combination of multiple approaches" },
-  ];
+  const addCompetitor = () => {
+    if (competitors.length < 5) {
+      setCompetitors([...competitors, { name: "", description: "", howYouDiffer: "" }]);
+    }
+  };
+
+  const removeCompetitor = (index: number) => {
+    if (competitors.length > 3) {
+      setCompetitors(competitors.filter((_, i) => i !== index));
+    }
+  };
 
   const SAAS_METRICS = ["MRR", "ARR", "LTV", "CAC", "Churn Rate", "Net Revenue Retention"];
   const TRANSACTION_METRICS = ["GMV", "Take Rate", "Transaction Volume", "Average Transaction Size"];
@@ -146,7 +188,7 @@ export default function FounderApplication() {
     "Welcome",
     "Company Info",
     "Team & Overview",
-    "The Problem",
+    "Value Proposition",
     "Business Model",
     "Go-to-Market",
     "Customer & Market",
@@ -225,14 +267,14 @@ export default function FounderApplication() {
         break;
       case 3:
         if (countWords(currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
-        if (valueDrivers.length === 0) errors.push("Select at least one value type");
+        if (!scalabilityType) errors.push("Select a scalability type");
         break;
       case 4:
         if (customerType.length === 0) errors.push("Select at least one customer type");
         if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
         break;
       case 5:
-        if (!gtmDescription.trim()) errors.push("GTM description is required");
+        if (!gtmAcquisition.trim()) errors.push("Customer acquisition strategy is required");
         break;
       case 6:
         if (!targetGeography.trim()) errors.push("Target geography is required");
@@ -273,10 +315,10 @@ export default function FounderApplication() {
     if (!founderName.trim()) errors.push("Your name is required");
     if (!founderEmail.trim()) errors.push("Your email is required");
     if (countWords(currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
-    if (valueDrivers.length === 0) errors.push("Select at least one value type");
+    if (!scalabilityType) errors.push("Select a scalability type");
     if (customerType.length === 0) errors.push("Select at least one customer type");
     if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
-    if (!gtmDescription.trim()) errors.push("GTM description is required");
+    if (!gtmAcquisition.trim()) errors.push("Customer acquisition strategy is required");
     if (!tamValue.trim()) errors.push("TAM value is required");
     if (!samValue.trim()) errors.push("SAM value is required");
     if (!somValue.trim()) errors.push("SOM value is required");
@@ -318,13 +360,16 @@ export default function FounderApplication() {
         },
         section2: {
           currentPainPoint,
-          valueProposition,
-          valueDrivers,
-          severityUrgency,
-          uniqueValue,
-          emotionalValue,
-          adaptability,
-          marketContext,
+          scalabilityType,
+          scalabilityExplanation,
+          severityType,
+          severityExplanation,
+          uniqueTechType,
+          uniqueTechExplanation,
+          emotionalValueType,
+          emotionalValueExplanation,
+          adaptabilityType,
+          adaptabilityExplanation,
         },
         section3: {
           customerType,
@@ -342,8 +387,8 @@ export default function FounderApplication() {
           revenueMetricsValues,
         },
         section4: {
-          gtmDescription,
-          gtmValueAlignment,
+          gtmAcquisition,
+          gtmTimeline,
         },
         section5: {
           targetGeography,
@@ -377,7 +422,7 @@ export default function FounderApplication() {
           funding_goal: "TBD",
           business_model: companyOverview,
           traction: revenueMetricsValues || "N/A",
-          current_ask: gtmDescription || "N/A",
+          current_ask: gtmAcquisition || "N/A",
           application_sections: {
             ...applicationSections,
             linkedIn: basicInfo.linkedIn,
@@ -726,8 +771,8 @@ export default function FounderApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 2 — The Problem</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">What pain point are you solving and why does it matter?</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 2 — Value Proposition</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">What value do you deliver and why does it matter?</p>
             </div>
 
             {/* 2.1 Current Pain Point */}
@@ -747,58 +792,134 @@ export default function FounderApplication() {
               <WordCounter current={currentPainPoint} min={20} max={100} />
             </div>
 
-            {/* 2.2 Value Type */}
+            {/* 2.2 True Scalability */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">2.2 What type of value do you deliver?</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Select all that apply</p>
+                <Label className="text-base font-semibold">2.2 True Scalability</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How does your solution make life easier, more efficient, or intuitive?</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {VALUE_DRIVERS.map((driver) => (
-                  <div
-                    key={driver}
-                    className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                      valueDrivers.includes(driver)
-                        ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
-                        : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
-                    }`}
-                    onClick={() => toggleCheckbox(driver, valueDrivers, setValueDrivers)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Checkbox checked={valueDrivers.includes(driver)} />
-                      <span className="text-sm">{driver}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Select value={scalabilityType} onValueChange={setScalabilityType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select how your solution scales value" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SCALABILITY_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {scalabilityType && (
+                <Textarea
+                  value={scalabilityExplanation}
+                  onChange={(e) => setScalabilityExplanation(e.target.value)}
+                  placeholder="Explain how your solution delivers this value..."
+                  rows={3}
+                />
+              )}
             </div>
 
             {/* 2.3 Severity */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">2.3 How urgent is this problem?</Label>
+                <Label className="text-base font-semibold">2.3 Severity & Urgency</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How urgent or costly is this problem for the customer? (Impact analysis)</p>
               </div>
-              <Textarea
-                value={severityUrgency}
-                onChange={(e) => setSeverityUrgency(e.target.value)}
-                placeholder="What happens if the customer does nothing? Is this a nice-to-have or a burning need?"
-                rows={3}
-              />
-              <WordCounter current={severityUrgency} min={20} max={75} />
+              <Select value={severityType} onValueChange={setSeverityType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select severity level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SEVERITY_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {severityType && (
+                <Textarea
+                  value={severityExplanation}
+                  onChange={(e) => setSeverityExplanation(e.target.value)}
+                  placeholder="Explain the impact and urgency of this problem..."
+                  rows={3}
+                />
+              )}
             </div>
 
-            {/* 2.4 Unique Value */}
+            {/* 2.4 Unique Tech Value */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">2.4 What makes your solution unique?</Label>
+                <Label className="text-base font-semibold">2.4 Unique Technology Value</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">What makes your uniqueness attractive to customers in their daily life?</p>
               </div>
-              <Textarea
-                value={uniqueValue}
-                onChange={(e) => setUniqueValue(e.target.value)}
-                placeholder="What can you do that competitors can't? What's your unfair advantage?"
-                rows={3}
-              />
-              <WordCounter current={uniqueValue} min={20} max={75} />
+              <Select value={uniqueTechType} onValueChange={setUniqueTechType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your unique advantage" />
+                </SelectTrigger>
+                <SelectContent>
+                  {UNIQUE_TECH_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {uniqueTechType && (
+                <Textarea
+                  value={uniqueTechExplanation}
+                  onChange={(e) => setUniqueTechExplanation(e.target.value)}
+                  placeholder="Explain what makes this uniqueness valuable to customers..."
+                  rows={3}
+                />
+              )}
+            </div>
+
+            {/* 2.5 Emotional/Social Value */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">2.5 Emotional & Social Value</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Does your solution create status, trust, or peace of mind?</p>
+              </div>
+              <Select value={emotionalValueType} onValueChange={setEmotionalValueType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select emotional value type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {EMOTIONAL_VALUE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {emotionalValueType && (
+                <Textarea
+                  value={emotionalValueExplanation}
+                  onChange={(e) => setEmotionalValueExplanation(e.target.value)}
+                  placeholder="Explain how your solution creates this emotional value..."
+                  rows={3}
+                />
+              )}
+            </div>
+
+            {/* 2.6 Adaptability */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">2.6 Adaptability</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How does your solution adapt across regions, geographies, or groups of people?</p>
+              </div>
+              <Select value={adaptabilityType} onValueChange={setAdaptabilityType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select adaptability scope" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ADAPTABILITY_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {adaptabilityType && (
+                <Textarea
+                  value={adaptabilityExplanation}
+                  onChange={(e) => setAdaptabilityExplanation(e.target.value)}
+                  placeholder="Explain how your solution adapts across different contexts..."
+                  rows={3}
+                />
+              )}
             </div>
           </div>
         );
@@ -1044,42 +1165,39 @@ export default function FounderApplication() {
               <p className="text-[hsl(var(--navy-deep))]/70">How do you reach and acquire customers?</p>
             </div>
 
-            {/* 4.1 GTM Strategy */}
+            {/* 4.1 Customer Acquisition */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">4.1 Go-to-Market Strategy *</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How do you acquire customers?</p>
+                <Label className="text-base font-semibold">4.1 How do you acquire customers? *</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  Describe your customer acquisition strategy in detail. Include your channels (paid ads, content marketing, sales team, partnerships, referrals, etc.), 
+                  your sales process, how you generate leads, and how you convert them to paying customers.
+                </p>
               </div>
               <Textarea
-                value={gtmDescription}
-                onChange={(e) => setGtmDescription(e.target.value)}
-                placeholder="Describe your current or planned customer acquisition channels, sales process, and how you convert leads to customers..."
-                rows={5}
+                value={gtmAcquisition}
+                onChange={(e) => setGtmAcquisition(e.target.value)}
+                placeholder="We acquire customers through [channels]. Our sales process involves [steps]. We generate leads by [methods] and convert them by [approach]. Our current customer acquisition cost is [CAC] and we expect to scale by [how]..."
+                rows={8}
               />
-              <WordCounter current={gtmDescription} min={50} max={150} />
+              <WordCounter current={gtmAcquisition} min={100} max={250} />
             </div>
 
-            {/* 4.2 GTM Alignment */}
+            {/* 4.2 Timeline */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">4.2 GTM Model Type</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How does this align with your value proposition?</p>
+                <Label className="text-base font-semibold">4.2 What does your GTM timeline look like?</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  Describe your go-to-market timeline. What are your milestones? When do you expect to hit key metrics?
+                </p>
               </div>
-              <Select value={gtmValueAlignment} onValueChange={setGtmValueAlignment}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select GTM model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {GTM_ALIGNMENT_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div>
-                        <span className="font-medium">{option.label}</span>
-                        <span className="text-muted-foreground ml-2">— {option.desc}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Textarea
+                value={gtmTimeline}
+                onChange={(e) => setGtmTimeline(e.target.value)}
+                placeholder="Month 1-3: Launch beta with [X] customers. Month 4-6: Scale to [Y] customers via [channel]. Month 7-12: Expand to [market/region]. Key milestones include..."
+                rows={5}
+              />
+              <WordCounter current={gtmTimeline} min={50} max={150} />
             </div>
           </div>
         );
@@ -1247,14 +1365,27 @@ export default function FounderApplication() {
               <div className="space-y-2">
                 <Label className="text-base font-semibold">6.1 Competitors</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  List up to 3 competitors. Describe what they do and how you're different.
+                  List 3-5 competitors. Describe what they do and how you're different.
                 </p>
               </div>
               
               <div className="space-y-4">
                 {competitors.map((competitor, index) => (
                   <div key={index} className="p-4 border border-[hsl(var(--navy-deep))]/10 rounded-lg bg-white space-y-4">
-                    <Label className="font-medium text-[hsl(var(--navy-deep))]">Competitor {index + 1}</Label>
+                    <div className="flex justify-between items-center">
+                      <Label className="font-medium text-[hsl(var(--navy-deep))]">Competitor {index + 1} {index < 3 && "*"}</Label>
+                      {competitors.length > 3 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeCompetitor(index)}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label>Company Name</Label>
@@ -1286,6 +1417,18 @@ export default function FounderApplication() {
                   </div>
                 ))}
               </div>
+
+              {competitors.length < 5 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addCompetitor}
+                  className="w-full border-dashed"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Competitor ({competitors.length}/5)
+                </Button>
+              )}
             </div>
 
             {/* Competitive Moat */}
