@@ -57,31 +57,12 @@ export default function FounderApplication() {
 
   // Section 2 - The Problem & Value Proposition
   const [currentPainPoint, setCurrentPainPoint] = useState("");
-  const [valueProposition, setValueProposition] = useState("");
   const [valueDrivers, setValueDrivers] = useState<string[]>([]);
-  const [severityUrgency, setSeverityUrgency] = useState("");
-  const [necessityType, setNecessityType] = useState("");
-  const [necessityExplanation, setNecessityExplanation] = useState("");
-  const [uniqueValue, setUniqueValue] = useState("");
-  const [emotionalValue, setEmotionalValue] = useState("");
-  const [adaptability, setAdaptability] = useState("");
-  const [marketContext, setMarketContext] = useState("");
-  
-  // Value Proposition Dropdowns
-  const [scalabilityType, setScalabilityType] = useState("");
-  const [scalabilityExplanation, setScalabilityExplanation] = useState("");
-  const [severityType, setSeverityType] = useState("");
-  const [severityExplanation, setSeverityExplanation] = useState("");
-  const [uniqueTechType, setUniqueTechType] = useState("");
-  const [uniqueTechExplanation, setUniqueTechExplanation] = useState("");
-  const [emotionalValueType, setEmotionalValueType] = useState("");
-  const [emotionalValueExplanation, setEmotionalValueExplanation] = useState("");
-  const [adaptabilityType, setAdaptabilityType] = useState("");
-  const [adaptabilityExplanation, setAdaptabilityExplanation] = useState("");
 
   // Section 3 - Business Model
   const [customerType, setCustomerType] = useState<string[]>([]);
   const [customerTypeExplanation, setCustomerTypeExplanation] = useState("");
+  const [businessStructure, setBusinessStructure] = useState(""); // New: business structure breakdown
   const [pricingStrategies, setPricingStrategies] = useState<string[]>([]);
   // Dynamic pricing sub-fields
   const [subscriptionType, setSubscriptionType] = useState("");
@@ -120,41 +101,42 @@ export default function FounderApplication() {
   ]);
   const [competitiveMoat, setCompetitiveMoat] = useState("");
 
-  // Value Proposition Options
-  const SCALABILITY_OPTIONS = [
-    { value: "easier", label: "Makes life easier" },
-    { value: "efficient", label: "Makes processes more efficient" },
-    { value: "intuitive", label: "Makes things more intuitive" },
+  // Value Proposition Options - Single multi-select dropdown
+  const VALUE_DRIVER_OPTIONS = [
+    { 
+      value: "scalability", 
+      label: "True Scalability", 
+      description: "Making life easier, more efficient, or intuitive",
+      prompt: "Explain how your solution makes life easier, more efficient, or more intuitive for your customers..."
+    },
+    { 
+      value: "severity", 
+      label: "Severity & Urgency", 
+      description: "How urgent or costly is the problem (impact analysis)",
+      prompt: "Explain how urgent or costly this problem is for your customers and the impact of not solving it..."
+    },
+    { 
+      value: "unique-tech", 
+      label: "Unique Technology Value", 
+      description: "What makes your uniqueness attractive to customers daily life",
+      prompt: "Explain what makes your technology unique and how it improves your customers' daily life..."
+    },
+    { 
+      value: "emotional", 
+      label: "Emotional & Social Value", 
+      description: "Does it create status, trust, or peace of mind",
+      prompt: "Explain how your solution creates status, trust, belonging, or peace of mind for customers..."
+    },
+    { 
+      value: "adaptability", 
+      label: "Adaptability", 
+      description: "Across regions, geographies, groups of people",
+      prompt: "Explain how your solution adapts across different regions, geographies, or groups of people..."
+    },
   ];
 
-  const SEVERITY_OPTIONS = [
-    { value: "critical", label: "Critical - Business stops without solution" },
-    { value: "high", label: "High - Significant daily impact" },
-    { value: "medium", label: "Medium - Noticeable but manageable" },
-    { value: "low", label: "Low - Nice to have improvement" },
-  ];
-
-  const UNIQUE_TECH_OPTIONS = [
-    { value: "proprietary", label: "Proprietary technology" },
-    { value: "data-advantage", label: "Unique data advantage" },
-    { value: "integration", label: "Superior integration capabilities" },
-    { value: "ux", label: "Best-in-class user experience" },
-    { value: "speed", label: "Significantly faster performance" },
-  ];
-
-  const EMOTIONAL_VALUE_OPTIONS = [
-    { value: "status", label: "Creates status or prestige" },
-    { value: "trust", label: "Builds trust and credibility" },
-    { value: "peace-of-mind", label: "Provides peace of mind" },
-    { value: "belonging", label: "Creates sense of belonging" },
-  ];
-
-  const ADAPTABILITY_OPTIONS = [
-    { value: "global", label: "Global - Works across all regions" },
-    { value: "regional", label: "Regional - Adaptable to specific regions" },
-    { value: "demographic", label: "Demographic - Works across different groups" },
-    { value: "industry", label: "Industry - Adaptable across industries" },
-  ];
+  // Value driver explanations state
+  const [valueDriverExplanations, setValueDriverExplanations] = useState<Record<string, string>>({});
 
   const CUSTOMER_TYPES = ["B2B", "B2C", "Both"];
 
@@ -267,7 +249,7 @@ export default function FounderApplication() {
         break;
       case 3:
         if (countWords(currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
-        if (!scalabilityType) errors.push("Select a scalability type");
+        if (valueDrivers.length === 0) errors.push("Select at least one value driver");
         break;
       case 4:
         if (customerType.length === 0) errors.push("Select at least one customer type");
@@ -315,7 +297,7 @@ export default function FounderApplication() {
     if (!founderName.trim()) errors.push("Your name is required");
     if (!founderEmail.trim()) errors.push("Your email is required");
     if (countWords(currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
-    if (!scalabilityType) errors.push("Select a scalability type");
+    if (valueDrivers.length === 0) errors.push("Select at least one value driver");
     if (customerType.length === 0) errors.push("Select at least one customer type");
     if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
     if (!gtmAcquisition.trim()) errors.push("Customer acquisition strategy is required");
@@ -360,20 +342,13 @@ export default function FounderApplication() {
         },
         section2: {
           currentPainPoint,
-          scalabilityType,
-          scalabilityExplanation,
-          severityType,
-          severityExplanation,
-          uniqueTechType,
-          uniqueTechExplanation,
-          emotionalValueType,
-          emotionalValueExplanation,
-          adaptabilityType,
-          adaptabilityExplanation,
+          valueDrivers,
+          valueDriverExplanations,
         },
         section3: {
           customerType,
           customerTypeExplanation,
+          businessStructure,
           pricingStrategies,
           subscriptionType,
           subscriptionBillingCycle,
@@ -792,133 +767,83 @@ export default function FounderApplication() {
               <WordCounter current={currentPainPoint} min={20} max={100} />
             </div>
 
-            {/* 2.2 True Scalability */}
+            {/* 2.2 Value Drivers - Multi-select dropdown */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">2.2 True Scalability</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How does your solution make life easier, more efficient, or intuitive?</p>
+                <Label className="text-base font-semibold">2.2 How do you deliver value?</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  Select all the ways your solution delivers value to customers. For each selection, you'll explain how.
+                </p>
               </div>
-              <Select value={scalabilityType} onValueChange={setScalabilityType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select how your solution scales value" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SCALABILITY_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {scalabilityType && (
-                <Textarea
-                  value={scalabilityExplanation}
-                  onChange={(e) => setScalabilityExplanation(e.target.value)}
-                  placeholder="Explain how your solution delivers this value..."
-                  rows={3}
-                />
-              )}
-            </div>
+              
+              <div className="space-y-3">
+                {VALUE_DRIVER_OPTIONS.map((option) => (
+                  <div 
+                    key={option.value}
+                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                      valueDrivers.includes(option.value)
+                        ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
+                        : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
+                    }`}
+                    onClick={() => {
+                      toggleCheckbox(option.value, valueDrivers, setValueDrivers);
+                      // Clear explanation if unchecking
+                      if (valueDrivers.includes(option.value)) {
+                        setValueDriverExplanations(prev => {
+                          const next = { ...prev };
+                          delete next[option.value];
+                          return next;
+                        });
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        checked={valueDrivers.includes(option.value)}
+                        onCheckedChange={() => {
+                          toggleCheckbox(option.value, valueDrivers, setValueDrivers);
+                          if (valueDrivers.includes(option.value)) {
+                            setValueDriverExplanations(prev => {
+                              const next = { ...prev };
+                              delete next[option.value];
+                              return next;
+                            });
+                          }
+                        }}
+                      />
+                      <div>
+                        <p className="font-medium text-[hsl(var(--navy-deep))]">{option.label}</p>
+                        <p className="text-sm text-[hsl(var(--navy-deep))]/60">{option.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-            {/* 2.3 Severity */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.3 Severity & Urgency</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How urgent or costly is this problem for the customer? (Impact analysis)</p>
-              </div>
-              <Select value={severityType} onValueChange={setSeverityType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select severity level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SEVERITY_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {severityType && (
-                <Textarea
-                  value={severityExplanation}
-                  onChange={(e) => setSeverityExplanation(e.target.value)}
-                  placeholder="Explain the impact and urgency of this problem..."
-                  rows={3}
-                />
-              )}
-            </div>
-
-            {/* 2.4 Unique Tech Value */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.4 Unique Technology Value</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">What makes your uniqueness attractive to customers in their daily life?</p>
-              </div>
-              <Select value={uniqueTechType} onValueChange={setUniqueTechType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your unique advantage" />
-                </SelectTrigger>
-                <SelectContent>
-                  {UNIQUE_TECH_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {uniqueTechType && (
-                <Textarea
-                  value={uniqueTechExplanation}
-                  onChange={(e) => setUniqueTechExplanation(e.target.value)}
-                  placeholder="Explain what makes this uniqueness valuable to customers..."
-                  rows={3}
-                />
-              )}
-            </div>
-
-            {/* 2.5 Emotional/Social Value */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.5 Emotional & Social Value</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Does your solution create status, trust, or peace of mind?</p>
-              </div>
-              <Select value={emotionalValueType} onValueChange={setEmotionalValueType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select emotional value type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {EMOTIONAL_VALUE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {emotionalValueType && (
-                <Textarea
-                  value={emotionalValueExplanation}
-                  onChange={(e) => setEmotionalValueExplanation(e.target.value)}
-                  placeholder="Explain how your solution creates this emotional value..."
-                  rows={3}
-                />
-              )}
-            </div>
-
-            {/* 2.6 Adaptability */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.6 Adaptability</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How does your solution adapt across regions, geographies, or groups of people?</p>
-              </div>
-              <Select value={adaptabilityType} onValueChange={setAdaptabilityType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select adaptability scope" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ADAPTABILITY_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {adaptabilityType && (
-                <Textarea
-                  value={adaptabilityExplanation}
-                  onChange={(e) => setAdaptabilityExplanation(e.target.value)}
-                  placeholder="Explain how your solution adapts across different contexts..."
-                  rows={3}
-                />
+              {/* Dynamic textboxes for selected value drivers */}
+              {valueDrivers.length > 0 && (
+                <div className="space-y-4 mt-6">
+                  <Label className="text-base font-semibold">Expand on your selected value drivers:</Label>
+                  {valueDrivers.map((driverValue) => {
+                    const driver = VALUE_DRIVER_OPTIONS.find(d => d.value === driverValue);
+                    if (!driver) return null;
+                    return (
+                      <div key={driverValue} className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-2">
+                        <Label className="font-semibold text-[hsl(var(--navy-deep))]">{driver.label}</Label>
+                        <Textarea
+                          value={valueDriverExplanations[driverValue] || ""}
+                          onChange={(e) => setValueDriverExplanations(prev => ({
+                            ...prev,
+                            [driverValue]: e.target.value
+                          }))}
+                          placeholder={driver.prompt}
+                          rows={3}
+                        />
+                        <WordCounter current={valueDriverExplanations[driverValue] || ""} min={20} max={100} />
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>
@@ -954,12 +879,37 @@ export default function FounderApplication() {
                 ))}
               </div>
               {customerType.length > 0 && (
-                <Textarea
-                  value={customerTypeExplanation}
-                  onChange={(e) => setCustomerTypeExplanation(e.target.value)}
-                  placeholder="Briefly describe your buyer persona and decision-maker..."
-                  rows={2}
-                />
+                <div className="space-y-4 mt-4">
+                  <Textarea
+                    value={customerTypeExplanation}
+                    onChange={(e) => setCustomerTypeExplanation(e.target.value)}
+                    placeholder="Briefly describe your buyer persona and decision-maker..."
+                    rows={2}
+                  />
+                  
+                  {/* Business Structure Breakdown */}
+                  <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-3">
+                    <Label className="font-semibold text-[hsl(var(--navy-deep))]">Business Structure Breakdown</Label>
+                    <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                      {customerType.includes("B2B") && customerType.includes("B2C")
+                        ? "Since you serve both B2B and B2C customers, explain how your business structure supports both segments."
+                        : customerType.includes("B2B")
+                        ? "Explain your B2B business structure: sales cycle, deal sizes, key stakeholders, and how you engage enterprise customers."
+                        : "Explain your B2C business structure: acquisition channels, customer journey, retention strategy, and unit economics."}
+                    </p>
+                    <Textarea
+                      value={businessStructure}
+                      onChange={(e) => setBusinessStructure(e.target.value)}
+                      placeholder={
+                        customerType.includes("B2B")
+                          ? "Our sales cycle typically takes [X weeks/months]. Key stakeholders include [roles]. We engage customers through [channels]..."
+                          : "We acquire customers through [channels]. The typical customer journey involves [steps]. We retain customers by [strategy]..."
+                      }
+                      rows={4}
+                    />
+                    <WordCounter current={businessStructure} min={30} max={150} />
+                  </div>
+                </div>
               )}
             </div>
 
