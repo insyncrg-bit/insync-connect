@@ -19,27 +19,19 @@ export const Navigation = () => {
 
           <div className="flex items-center gap-3">
             <Button 
-              variant="ghost" 
               size="sm" 
-              className="text-white hover:text-cyan-glow hover:bg-white/5"
+              className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright font-semibold"
               onClick={() => navigate("/founder-application")}
             >
               For Startups
             </Button>
             <Button 
-              variant="ghost" 
+              variant="outline"
               size="sm" 
-              className="text-white hover:text-cyan-glow hover:bg-white/5"
+              className="border-cyan-glow/50 text-white hover:bg-cyan-glow/10 hover:border-cyan-glow"
               onClick={() => navigate("/investor-application")}
             >
               For VCs
-            </Button>
-            <Button 
-              size="sm" 
-              className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright font-semibold"
-              onClick={() => navigate("/founder-application")}
-            >
-              Get Started
             </Button>
           </div>
         </div>
