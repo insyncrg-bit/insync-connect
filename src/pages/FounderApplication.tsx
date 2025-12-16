@@ -541,114 +541,132 @@ export default function FounderApplication() {
           <div className="space-y-8">
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 2 — Value & Impact</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">Help us understand the value your solution provides</p>
+              <p className="text-[hsl(var(--navy-deep))]/70">Select all value types that apply to your solution, then describe each</p>
             </div>
 
-            {/* True Scalability */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">True Scalability</Label>
-              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                How does your solution make life easier, more efficient, or intuitive?
-              </p>
-              <Select value={valueProposition} onValueChange={setValueProposition}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select scalability type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="saves-time">Saves significant time</SelectItem>
-                  <SelectItem value="reduces-cost">Reduces cost substantially</SelectItem>
-                  <SelectItem value="improves-efficiency">Improves operational efficiency</SelectItem>
-                  <SelectItem value="simplifies-workflow">Simplifies complex workflows</SelectItem>
-                  <SelectItem value="automates-tasks">Automates manual tasks</SelectItem>
-                  <SelectItem value="improves-ux">Improves user experience dramatically</SelectItem>
-                  <SelectItem value="multiple">Multiple of the above</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Value Type Selection */}
+            <div className="space-y-4">
+              <Label className="text-base font-semibold">What types of value does your solution provide?</Label>
+              <p className="text-sm text-[hsl(var(--navy-deep))]/60">Select all that apply — you'll describe each one below</p>
+              
+              <div className="grid gap-3">
+                {[
+                  { id: "scalability", label: "True Scalability", desc: "Makes life easier, more efficient, or intuitive" },
+                  { id: "severity", label: "Severity / Urgency", desc: "Solves an urgent or costly problem" },
+                  { id: "unique-tech", label: "Unique Value / Technology", desc: "Has tech or approach that's uniquely attractive" },
+                  { id: "emotional", label: "Emotional / Social Value", desc: "Creates status, trust, or peace of mind" },
+                  { id: "adaptability", label: "Adaptability", desc: "Works across regions, geographies, or customer groups" },
+                ].map((item) => (
+                  <div
+                    key={item.id}
+                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                      valueDrivers.includes(item.id)
+                        ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
+                        : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
+                    }`}
+                    onClick={() => toggleCheckbox(item.id, valueDrivers, setValueDrivers)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        checked={valueDrivers.includes(item.id)}
+                        onCheckedChange={() => toggleCheckbox(item.id, valueDrivers, setValueDrivers)}
+                      />
+                      <div>
+                        <p className="font-medium text-[hsl(var(--navy-deep))]">{item.label}</p>
+                        <p className="text-sm text-[hsl(var(--navy-deep))]/60">{item.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Severity */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Severity</Label>
-              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                How urgent or costly is this problem for the customer? (Impact analysis)
-              </p>
-              <Select value={severityUrgency} onValueChange={setSeverityUrgency}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select severity level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="critical">Critical — Significant financial/operational impact daily</SelectItem>
-                  <SelectItem value="high">High — Regular pain point affecting productivity</SelectItem>
-                  <SelectItem value="moderate">Moderate — Noticeable friction but manageable</SelectItem>
-                  <SelectItem value="low">Low — Minor inconvenience</SelectItem>
-                  <SelectItem value="emerging">Emerging — Problem growing in urgency</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Conditional Text Areas based on selection */}
+            {valueDrivers.includes("scalability") && (
+              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
+                <Label className="text-base font-semibold">True Scalability</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  Describe how your solution makes life easier, more efficient, or intuitive. What processes does it simplify? How much time/effort does it save?
+                </p>
+                <Textarea
+                  value={valueProposition}
+                  onChange={(e) => setValueProposition(e.target.value)}
+                  placeholder="Our solution saves [X hours/dollars] by... It simplifies... Users can now..."
+                  rows={3}
+                />
+                <WordCounter current={valueProposition} min={40} max={75} />
+              </div>
+            )}
 
-            {/* Unique Value / Tech */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Unique Value / Technology</Label>
-              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                What makes your uniqueness attractive to customers in their daily life?
-              </p>
-              <Select value={uniqueValue} onValueChange={setUniqueValue}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select unique value type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="proprietary-tech">Proprietary technology/algorithm</SelectItem>
-                  <SelectItem value="data-advantage">Unique data or insights</SelectItem>
-                  <SelectItem value="network-effects">Network effects</SelectItem>
-                  <SelectItem value="superior-ux">Superior user experience</SelectItem>
-                  <SelectItem value="cost-advantage">Significant cost advantage</SelectItem>
-                  <SelectItem value="speed-advantage">Speed/performance advantage</SelectItem>
-                  <SelectItem value="integration">Deep integrations/ecosystem</SelectItem>
-                  <SelectItem value="other">Other differentiator</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {valueDrivers.includes("severity") && (
+              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
+                <Label className="text-base font-semibold">Severity / Urgency</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  How urgent or costly is this problem? What's the financial/operational impact if left unsolved? What triggers customers to seek a solution NOW?
+                </p>
+                <Textarea
+                  value={severityUrgency}
+                  onChange={(e) => setSeverityUrgency(e.target.value)}
+                  placeholder="This problem costs customers [X] per year... Without a solution, they face... The urgency comes from..."
+                  rows={3}
+                />
+                <WordCounter current={severityUrgency} min={40} max={75} />
+              </div>
+            )}
 
-            {/* Emotional/Social Value */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Emotional / Social Value</Label>
-              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                Does your product create status, trust, or peace of mind?
-              </p>
-              <Select value={emotionalValue} onValueChange={setEmotionalValue}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select emotional value (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="trust">Builds trust and credibility</SelectItem>
-                  <SelectItem value="peace-of-mind">Provides peace of mind</SelectItem>
-                  <SelectItem value="status">Confers status or prestige</SelectItem>
-                  <SelectItem value="confidence">Increases user confidence</SelectItem>
-                  <SelectItem value="community">Creates sense of community</SelectItem>
-                  <SelectItem value="not-applicable">Not applicable to our product</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {valueDrivers.includes("unique-tech") && (
+              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
+                <Label className="text-base font-semibold">Unique Value / Technology</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  What makes your approach uniquely attractive? Is it proprietary tech, data advantage, workflow design, or something else? Why can't competitors easily replicate it?
+                </p>
+                <Textarea
+                  value={uniqueValue}
+                  onChange={(e) => setUniqueValue(e.target.value)}
+                  placeholder="Our unique advantage is... Competitors can't replicate this because... This matters to customers because..."
+                  rows={3}
+                />
+                <WordCounter current={uniqueValue} min={40} max={75} />
+              </div>
+            )}
 
-            {/* Adaptability */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Adaptability</Label>
-              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                Does this solution work across regions, geographies, or groups of people?
-              </p>
-              <Select value={adaptability} onValueChange={setAdaptability}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select adaptability scope" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="global">Global — Works anywhere with minimal changes</SelectItem>
-                  <SelectItem value="multi-region">Multi-region — Adaptable across major markets</SelectItem>
-                  <SelectItem value="regional">Regional — Focused on specific geography</SelectItem>
-                  <SelectItem value="niche">Niche — Specific industry or customer segment</SelectItem>
-                  <SelectItem value="expanding">Currently niche, expanding scope</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {valueDrivers.includes("emotional") && (
+              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
+                <Label className="text-base font-semibold">Emotional / Social Value</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  How does your product create status, trust, confidence, or peace of mind? What emotional benefit do users get? How does it make them feel?
+                </p>
+                <Textarea
+                  value={emotionalValue}
+                  onChange={(e) => setEmotionalValue(e.target.value)}
+                  placeholder="Users feel [confident/secure/proud] because... It creates trust by... The peace of mind comes from..."
+                  rows={3}
+                />
+                <WordCounter current={emotionalValue} min={40} max={75} />
+              </div>
+            )}
+
+            {valueDrivers.includes("adaptability") && (
+              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
+                <Label className="text-base font-semibold">Adaptability</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  How does your solution work across different regions, geographies, industries, or customer segments? What makes it adaptable?
+                </p>
+                <Textarea
+                  value={adaptability}
+                  onChange={(e) => setAdaptability(e.target.value)}
+                  placeholder="Our solution works across [regions/industries] because... We can adapt to different markets by... The core value translates because..."
+                  rows={3}
+                />
+                <WordCounter current={adaptability} min={40} max={75} />
+              </div>
+            )}
+
+            {valueDrivers.length === 0 && (
+              <div className="p-6 border-2 border-dashed border-[hsl(var(--navy-deep))]/20 rounded-lg text-center">
+                <p className="text-[hsl(var(--navy-deep))]/60">Select at least one value type above to continue</p>
+              </div>
+            )}
 
             {/* Market Context */}
             <div className="space-y-4">
