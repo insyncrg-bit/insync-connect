@@ -445,16 +445,19 @@ export default function FounderApplication() {
               <CheckCircle className="w-10 h-10 text-[hsl(var(--cyan-glow))]" />
             </div>
             <h1 className="text-3xl font-bold text-[hsl(var(--navy-deep))] mb-4">
-              Thank You for Your Submission
+              Thank You!
             </h1>
-            <p className="text-lg text-[hsl(var(--navy-deep))]/70 mb-8">
-              We will get back to you after reviewing your memo and provide access to your curated database.
+            <p className="text-lg text-[hsl(var(--navy-deep))]/70 mb-4">
+              Your application is under review.
+            </p>
+            <p className="text-[hsl(var(--navy-deep))]/60 mb-8">
+              We'll get back to you with your dashboard login featuring curated investors matched to your company.
             </p>
             <Button
-              onClick={() => navigate("/founder-dashboard")}
+              onClick={() => navigate("/")}
               className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 font-semibold px-8"
             >
-              Go to Dashboard
+              Back to Home
             </Button>
           </div>
         </div>
