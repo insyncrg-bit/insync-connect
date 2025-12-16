@@ -416,34 +416,6 @@ export default function FounderApplication() {
               <p className="text-[hsl(var(--navy-deep))]/70">Help us understand your company and the people behind it</p>
             </div>
 
-            {/* Founder Contact Info */}
-            <div className="space-y-4">
-              <Label className="text-base font-semibold">Primary Contact</Label>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="founderName">Your Full Name *</Label>
-                  <Input
-                    id="founderName"
-                    value={founderName}
-                    onChange={(e) => setFounderName(e.target.value)}
-                    placeholder="John Doe"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="founderEmail">Your Email *</Label>
-                  <Input
-                    id="founderEmail"
-                    type="email"
-                    value={founderEmail}
-                    onChange={(e) => setFounderEmail(e.target.value)}
-                    placeholder="john@startup.com"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-base font-semibold">1.1 Company Overview</Label>
@@ -464,42 +436,73 @@ export default function FounderApplication() {
               <div className="space-y-2">
                 <Label className="text-base font-semibold">1.2 Team & Expertise</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  List each core team member and their role. For each person, explain their relevant background.
+                  List key team members relevant to understanding the credibility of who is running the company. Focus on founders and critical hires.
                 </p>
               </div>
 
-              {teamMembers.map((member, index) => (
-                <div key={index} className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4 bg-white/50">
+              {/* Primary Contact / First Founder */}
+              <div className="p-4 border-2 border-[hsl(var(--cyan-glow))]/30 rounded-lg space-y-4 bg-[hsl(var(--cyan-glow))]/5">
+                <span className="font-medium text-[hsl(var(--navy-deep))]">Primary Contact (You)</span>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Input
+                    placeholder="Your Name *"
+                    value={founderName}
+                    onChange={(e) => setFounderName(e.target.value)}
+                    required
+                  />
+                  <Input
+                    placeholder="Your Role *"
+                    value={teamMembers[0]?.role || ""}
+                    onChange={(e) => updateTeamMember(0, "role", e.target.value)}
+                  />
+                </div>
+                <Input
+                  type="email"
+                  placeholder="Your Email *"
+                  value={founderEmail}
+                  onChange={(e) => setFounderEmail(e.target.value)}
+                  required
+                />
+                <Textarea
+                  placeholder="Your relevant experience, domain expertise, or execution strength..."
+                  value={teamMembers[0]?.background || ""}
+                  onChange={(e) => updateTeamMember(0, "background", e.target.value)}
+                  rows={2}
+                />
+                <WordCounter current={teamMembers[0]?.background || ""} min={30} max={50} />
+              </div>
+
+              {/* Additional Key Team Members */}
+              {teamMembers.slice(1).map((member, index) => (
+                <div key={index + 1} className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4 bg-white/50">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-[hsl(var(--navy-deep))]">Team Member {index + 1}</span>
-                    {teamMembers.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeTeamMember(index)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
+                    <span className="font-medium text-[hsl(var(--navy-deep))]">Key Team Member</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeTeamMember(index + 1)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <Input
                       placeholder="Name"
                       value={member.name}
-                      onChange={(e) => updateTeamMember(index, "name", e.target.value)}
+                      onChange={(e) => updateTeamMember(index + 1, "name", e.target.value)}
                     />
                     <Input
                       placeholder="Role"
                       value={member.role}
-                      onChange={(e) => updateTeamMember(index, "role", e.target.value)}
+                      onChange={(e) => updateTeamMember(index + 1, "role", e.target.value)}
                     />
                   </div>
                   <Textarea
                     placeholder="Relevant experience, domain expertise, or execution strength..."
                     value={member.background}
-                    onChange={(e) => updateTeamMember(index, "background", e.target.value)}
+                    onChange={(e) => updateTeamMember(index + 1, "background", e.target.value)}
                     rows={2}
                   />
                   <WordCounter current={member.background} min={30} max={50} />
@@ -512,7 +515,7 @@ export default function FounderApplication() {
                 onClick={addTeamMember}
                 className="w-full border-dashed border-[hsl(var(--cyan-glow))]/40"
               >
-                <Plus className="h-4 w-4 mr-2" /> Add Team Member
+                <Plus className="h-4 w-4 mr-2" /> Add Key Team Member
               </Button>
             </div>
           </div>

@@ -44,6 +44,7 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(220 30% 15%), hsl(185 80% 50%));
     --gradient-subtle: linear-gradient(180deg, hsl(220 25% 97%), hsl(220 20% 92%));
     --gradient-hero: linear-gradient(135deg, hsl(220 30% 15%) 0%, hsl(215 35% 18%) 50%, hsl(210 40% 22%) 100%);
+    --gradient-navy-teal: linear-gradient(135deg, hsl(220 30% 12%) 0%, hsl(210 35% 18%) 50%, hsl(185 40% 25%) 100%);
     --cyan-glow: 185 80% 50%;
     --cyan-bright: 185 90% 60%;
     --navy-deep: 220 30% 15%;
@@ -109,6 +110,7 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(185 80% 50%), hsl(220 25% 8%));
     --gradient-subtle: linear-gradient(180deg, hsl(220 25% 8%), hsl(220 25% 10%));
     --gradient-hero: linear-gradient(135deg, hsl(220 25% 8%) 0%, hsl(215 30% 12%) 50%, hsl(210 35% 16%) 100%);
+    --gradient-navy-teal: linear-gradient(135deg, hsl(220 30% 8%) 0%, hsl(210 35% 12%) 50%, hsl(185 40% 20%) 100%);
     --cyan-glow: 185 80% 50%;
     --cyan-bright: 185 90% 60%;
     --navy-deep: 220 25% 8%;
