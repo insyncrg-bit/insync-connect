@@ -47,6 +47,7 @@ export default function FounderApplication() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([{ name: "", role: "", linkedin: "", background: "" }]);
 
   // Section 2 - The Problem
+  const [currentPainPoint, setCurrentPainPoint] = useState("");
   const [valueProposition, setValueProposition] = useState("");
   const [valueDrivers, setValueDrivers] = useState<string[]>([]);
   const [severityUrgency, setSeverityUrgency] = useState("");
@@ -162,11 +163,10 @@ export default function FounderApplication() {
           teamMembers,
         },
         section2: {
+          currentPainPoint,
           valueProposition,
           valueDrivers,
           severityUrgency,
-          necessityType,
-          necessityExplanation,
           uniqueValue,
           emotionalValue,
           adaptability,
@@ -542,6 +542,21 @@ export default function FounderApplication() {
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 2 — Value & Impact</h2>
               <p className="text-[hsl(var(--navy-deep))]/70">Select all value types that apply to your solution, then describe each</p>
+            </div>
+
+            {/* Current Pain Point */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">What is the existing problem?</Label>
+              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                Describe the current pain point your target customers face — not your solution, but the problem itself.
+              </p>
+              <Textarea
+                value={currentPainPoint}
+                onChange={(e) => setCurrentPainPoint(e.target.value)}
+                placeholder="Today, [target customers] struggle with... The pain point is..."
+                rows={3}
+              />
+              <WordCounter current={currentPainPoint} min={20} max={50} />
             </div>
 
             {/* Value Type Selection */}
