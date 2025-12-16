@@ -91,6 +91,7 @@ export type Database = {
       }
       founder_applications: {
         Row: {
+          application_sections: Json | null
           business_model: string
           company_name: string
           created_at: string
@@ -102,6 +103,7 @@ export type Database = {
           location: string
           stage: string
           status: string | null
+          team_members: Json | null
           traction: string
           updated_at: string
           user_id: string | null
@@ -109,6 +111,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          application_sections?: Json | null
           business_model: string
           company_name: string
           created_at?: string
@@ -120,6 +123,7 @@ export type Database = {
           location: string
           stage: string
           status?: string | null
+          team_members?: Json | null
           traction: string
           updated_at?: string
           user_id?: string | null
@@ -127,6 +131,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          application_sections?: Json | null
           business_model?: string
           company_name?: string
           created_at?: string
@@ -138,6 +143,7 @@ export type Database = {
           location?: string
           stage?: string
           status?: string | null
+          team_members?: Json | null
           traction?: string
           updated_at?: string
           user_id?: string | null
