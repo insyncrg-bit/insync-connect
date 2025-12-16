@@ -18,6 +18,7 @@ const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).le
 interface TeamMember {
   name: string;
   role: string;
+  linkedin: string;
   background: string;
 }
 
@@ -43,7 +44,7 @@ export default function FounderApplication() {
   const [companyOverview, setCompanyOverview] = useState("");
   const [founderName, setFounderName] = useState("");
   const [founderEmail, setFounderEmail] = useState("");
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([{ name: "", role: "", background: "" }]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([{ name: "", role: "", linkedin: "", background: "" }]);
 
   // Section 2 - The Problem
   const [valueProposition, setValueProposition] = useState("");
@@ -115,7 +116,7 @@ export default function FounderApplication() {
   };
 
   const addTeamMember = () => {
-    setTeamMembers([...teamMembers, { name: "", role: "", background: "" }]);
+    setTeamMembers([...teamMembers, { name: "", role: "", linkedin: "", background: "" }]);
   };
 
   const removeTeamMember = (index: number) => {
@@ -456,20 +457,28 @@ export default function FounderApplication() {
                     onChange={(e) => updateTeamMember(0, "role", e.target.value)}
                   />
                 </div>
-                <Input
-                  type="email"
-                  placeholder="Your Email *"
-                  value={founderEmail}
-                  onChange={(e) => setFounderEmail(e.target.value)}
-                  required
-                />
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Input
+                    type="email"
+                    placeholder="Your Email *"
+                    value={founderEmail}
+                    onChange={(e) => setFounderEmail(e.target.value)}
+                    required
+                  />
+                  <Input
+                    type="url"
+                    placeholder="LinkedIn Profile"
+                    value={teamMembers[0]?.linkedin || ""}
+                    onChange={(e) => updateTeamMember(0, "linkedin", e.target.value)}
+                  />
+                </div>
                 <Textarea
                   placeholder="Your relevant experience, domain expertise, or execution strength..."
                   value={teamMembers[0]?.background || ""}
                   onChange={(e) => updateTeamMember(0, "background", e.target.value)}
                   rows={2}
                 />
-                <WordCounter current={teamMembers[0]?.background || ""} min={30} max={50} />
+                <WordCounter current={teamMembers[0]?.background || ""} min={20} max={50} />
               </div>
 
               {/* Additional Key Team Members */}
@@ -499,13 +508,19 @@ export default function FounderApplication() {
                       onChange={(e) => updateTeamMember(index + 1, "role", e.target.value)}
                     />
                   </div>
+                  <Input
+                    type="url"
+                    placeholder="LinkedIn Profile"
+                    value={member.linkedin}
+                    onChange={(e) => updateTeamMember(index + 1, "linkedin", e.target.value)}
+                  />
                   <Textarea
                     placeholder="Relevant experience, domain expertise, or execution strength..."
                     value={member.background}
                     onChange={(e) => updateTeamMember(index + 1, "background", e.target.value)}
                     rows={2}
                   />
-                  <WordCounter current={member.background} min={30} max={50} />
+                  <WordCounter current={member.background} min={20} max={50} />
                 </div>
               ))}
 
