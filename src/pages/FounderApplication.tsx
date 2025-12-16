@@ -747,6 +747,8 @@ export default function FounderApplication() {
                     <div className="flex items-center gap-3">
                       <Checkbox
                         checked={valueDrivers.includes(item.id)}
+                        onCheckedChange={() => {}}
+                        onClick={(e) => e.stopPropagation()}
                       />
                       <div>
                         <p className="font-medium text-[hsl(var(--navy-deep))]">{item.label}</p>
