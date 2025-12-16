@@ -7,6 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   Save, 
   Edit2, 
@@ -24,7 +30,9 @@ import {
   BarChart3,
   Rocket,
   FileText,
-  Eye
+  Eye,
+  ChevronRight,
+  Calculator
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,11 +42,14 @@ interface MemoEditorProps {
   onUpdate?: () => void;
 }
 
+type MarketMetric = "tam" | "sam" | "som" | null;
+
 export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [viewMode, setViewMode] = useState<"condensed" | "full">("condensed");
+  const [selectedMetric, setSelectedMetric] = useState<MarketMetric>(null);
   const [formData, setFormData] = useState({
     company_name: "",
     vertical: "",
@@ -206,20 +217,38 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
                 </p>
               </div>
 
-              {/* Key Metrics Row */}
+              {/* Key Metrics Row - Clickable */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <p className="text-sm text-white/50 mb-1">TAM</p>
+                <button 
+                  onClick={() => setSelectedMetric("tam")}
+                  className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-blue-500/30"
+                >
+                  <p className="text-sm text-white/50 mb-1 group-hover:text-blue-400 transition-colors">TAM</p>
                   <p className="text-2xl font-bold text-white">{sections.section5?.tamValue || "—"}</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <p className="text-sm text-white/50 mb-1">SAM</p>
+                  <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                    View breakdown <ChevronRight className="h-3 w-3" />
+                  </p>
+                </button>
+                <button 
+                  onClick={() => setSelectedMetric("sam")}
+                  className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-purple-500/30"
+                >
+                  <p className="text-sm text-white/50 mb-1 group-hover:text-purple-400 transition-colors">SAM</p>
                   <p className="text-2xl font-bold text-white">{sections.section5?.samValue || "—"}</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <p className="text-sm text-white/50 mb-1">SOM</p>
+                  <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                    View breakdown <ChevronRight className="h-3 w-3" />
+                  </p>
+                </button>
+                <button 
+                  onClick={() => setSelectedMetric("som")}
+                  className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-green-500/30"
+                >
+                  <p className="text-sm text-white/50 mb-1 group-hover:text-green-400 transition-colors">SOM</p>
                   <p className="text-2xl font-bold text-white">{sections.section5?.somValue || "—"}</p>
-                </div>
+                  <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                    View breakdown <ChevronRight className="h-3 w-3" />
+                  </p>
+                </button>
               </div>
             </div>
           </Card>
@@ -448,27 +477,36 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 mb-6">
-              <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-xl p-6 border border-blue-500/20 text-center">
+              <button 
+                onClick={() => setSelectedMetric("tam")}
+                className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-xl p-6 border border-blue-500/20 text-center hover:border-blue-500/50 transition-all cursor-pointer group"
+              >
                 <p className="text-sm text-blue-400 font-semibold mb-2">Total Addressable Market</p>
                 <p className="text-4xl font-bold text-white mb-2">{sections.section5?.tamValue || "—"}</p>
-                {sections.section5?.tamBreakdown && (
-                  <p className="text-xs text-white/50">{sections.section5.tamBreakdown}</p>
-                )}
-              </div>
-              <div className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 rounded-xl p-6 border border-purple-500/20 text-center">
+                <p className="text-xs text-white/40 group-hover:text-white/60 flex items-center justify-center gap-1">
+                  <Calculator className="h-3 w-3" /> View calculation method
+                </p>
+              </button>
+              <button 
+                onClick={() => setSelectedMetric("sam")}
+                className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 rounded-xl p-6 border border-purple-500/20 text-center hover:border-purple-500/50 transition-all cursor-pointer group"
+              >
                 <p className="text-sm text-purple-400 font-semibold mb-2">Serviceable Addressable Market</p>
                 <p className="text-4xl font-bold text-white mb-2">{sections.section5?.samValue || "—"}</p>
-                {sections.section5?.samBreakdown && (
-                  <p className="text-xs text-white/50">{sections.section5.samBreakdown}</p>
-                )}
-              </div>
-              <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-xl p-6 border border-green-500/20 text-center">
+                <p className="text-xs text-white/40 group-hover:text-white/60 flex items-center justify-center gap-1">
+                  <Calculator className="h-3 w-3" /> View calculation method
+                </p>
+              </button>
+              <button 
+                onClick={() => setSelectedMetric("som")}
+                className="bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-xl p-6 border border-green-500/20 text-center hover:border-green-500/50 transition-all cursor-pointer group"
+              >
                 <p className="text-sm text-green-400 font-semibold mb-2">Serviceable Obtainable Market</p>
                 <p className="text-4xl font-bold text-white mb-2">{sections.section5?.somValue || "—"}</p>
-                {sections.section5?.somBreakdown && (
-                  <p className="text-xs text-white/50">{sections.section5.somBreakdown}</p>
-                )}
-              </div>
+                <p className="text-xs text-white/40 group-hover:text-white/60 flex items-center justify-center gap-1">
+                  <Calculator className="h-3 w-3" /> View calculation method
+                </p>
+              </button>
             </div>
 
             {sections.section5?.targetCustomerDescription && (
@@ -552,6 +590,115 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           </div>
         </div>
       )}
+
+      {/* Market Sizing Dialog */}
+      <Dialog open={selectedMetric !== null} onOpenChange={() => setSelectedMetric(null)}>
+        <DialogContent className="bg-[hsl(220,60%,12%)] border-white/20 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-2xl">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                selectedMetric === "tam" ? "bg-blue-500/20" :
+                selectedMetric === "sam" ? "bg-purple-500/20" : "bg-green-500/20"
+              }`}>
+                <BarChart3 className={`h-5 w-5 ${
+                  selectedMetric === "tam" ? "text-blue-400" :
+                  selectedMetric === "sam" ? "text-purple-400" : "text-green-400"
+                }`} />
+              </div>
+              {selectedMetric === "tam" && "Total Addressable Market (TAM)"}
+              {selectedMetric === "sam" && "Serviceable Addressable Market (SAM)"}
+              {selectedMetric === "som" && "Serviceable Obtainable Market (SOM)"}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6 mt-4">
+            {/* Value Display */}
+            <div className={`rounded-xl p-6 text-center border ${
+              selectedMetric === "tam" ? "bg-blue-500/10 border-blue-500/30" :
+              selectedMetric === "sam" ? "bg-purple-500/10 border-purple-500/30" : "bg-green-500/10 border-green-500/30"
+            }`}>
+              <p className="text-sm text-white/50 mb-1">Market Value</p>
+              <p className="text-5xl font-bold text-white">
+                {selectedMetric === "tam" && (sections.section5?.tamValue || "—")}
+                {selectedMetric === "sam" && (sections.section5?.samValue || "—")}
+                {selectedMetric === "som" && (sections.section5?.somValue || "—")}
+              </p>
+            </div>
+
+            {/* Definition */}
+            <div className="bg-white/5 rounded-xl p-5 border border-white/10">
+              <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <FileText className="h-4 w-4" /> Definition
+              </h4>
+              <p className="text-white/80 leading-relaxed">
+                {selectedMetric === "tam" && "The total market demand for a product or service, representing the maximum potential revenue opportunity if 100% market share were achieved."}
+                {selectedMetric === "sam" && "The segment of the TAM targeted by your products/services that is within your geographical reach and target demographics."}
+                {selectedMetric === "som" && "The realistic portion of SAM that you can capture, considering competition, resources, and current capabilities."}
+              </p>
+            </div>
+
+            {/* Calculation Method */}
+            <div className="bg-white/5 rounded-xl p-5 border border-white/10">
+              <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Calculator className="h-4 w-4" /> Calculation Breakdown
+              </h4>
+              <div className="text-white/80 leading-relaxed">
+                {selectedMetric === "tam" && (
+                  sections.section5?.tamBreakdown ? (
+                    <p>{sections.section5.tamBreakdown}</p>
+                  ) : (
+                    <p className="text-white/50 italic">No calculation breakdown provided in the application.</p>
+                  )
+                )}
+                {selectedMetric === "sam" && (
+                  sections.section5?.samBreakdown ? (
+                    <p>{sections.section5.samBreakdown}</p>
+                  ) : (
+                    <p className="text-white/50 italic">No calculation breakdown provided in the application.</p>
+                  )
+                )}
+                {selectedMetric === "som" && (
+                  sections.section5?.somBreakdown ? (
+                    <p>{sections.section5.somBreakdown}</p>
+                  ) : (
+                    <p className="text-white/50 italic">No calculation breakdown provided in the application.</p>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* Market Relationship Visual */}
+            <div className="bg-white/5 rounded-xl p-5 border border-white/10">
+              <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Market Hierarchy</h4>
+              <div className="flex items-center justify-center gap-2">
+                <div className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  selectedMetric === "tam" 
+                    ? "bg-blue-500/30 text-blue-300 ring-2 ring-blue-400" 
+                    : "bg-blue-500/10 text-blue-400/70"
+                }`}>
+                  TAM: {sections.section5?.tamValue || "—"}
+                </div>
+                <ChevronRight className="h-4 w-4 text-white/30" />
+                <div className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  selectedMetric === "sam" 
+                    ? "bg-purple-500/30 text-purple-300 ring-2 ring-purple-400" 
+                    : "bg-purple-500/10 text-purple-400/70"
+                }`}>
+                  SAM: {sections.section5?.samValue || "—"}
+                </div>
+                <ChevronRight className="h-4 w-4 text-white/30" />
+                <div className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  selectedMetric === "som" 
+                    ? "bg-green-500/30 text-green-300 ring-2 ring-green-400" 
+                    : "bg-green-500/10 text-green-400/70"
+                }`}>
+                  SOM: {sections.section5?.somValue || "—"}
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
