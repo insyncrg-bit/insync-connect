@@ -419,14 +419,14 @@ export default function FounderApplication() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">1.1 Company Overview</Label>
+                <Label className="text-base font-semibold">1.1 Problem Statement</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Describe what your company does, who it serves, and the core problem it solves.
+                  Describe the existing problem your company is trying to solve. What pain point are you addressing?
                 </p>
                 <Textarea
                   value={companyOverview}
                   onChange={(e) => setCompanyOverview(e.target.value)}
-                  placeholder="We build [product] for [audience] to solve [problem]..."
+                  placeholder="The problem we're solving is... Our target customers struggle with..."
                   rows={4}
                 />
                 <WordCounter current={companyOverview} min={30} max={50} />
@@ -540,148 +540,120 @@ export default function FounderApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 2 — The Problem</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">Value Proposition, Necessity, Market Reality</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 2 — Value & Impact</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">Help us understand the value your solution provides</p>
             </div>
 
-            {/* 2.1 Value Proposition */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.1 Value Proposition</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  What do you bring to the market that meaningfully differentiates or improves existing solutions?
-                </p>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {VALUE_DRIVERS.map((driver) => (
-                  <div key={driver} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={driver}
-                      checked={valueDrivers.includes(driver)}
-                      onCheckedChange={() => toggleCheckbox(driver, valueDrivers, setValueDrivers)}
-                    />
-                    <Label htmlFor={driver} className="text-sm cursor-pointer">{driver}</Label>
-                  </div>
-                ))}
-              </div>
-              <Textarea
-                value={valueProposition}
-                onChange={(e) => setValueProposition(e.target.value)}
-                placeholder="Explain why these matter to your customer..."
-                rows={4}
-              />
-              <WordCounter current={valueProposition} min={75} max={100} />
+            {/* True Scalability */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">True Scalability</Label>
+              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                How does your solution make life easier, more efficient, or intuitive?
+              </p>
+              <Select value={valueProposition} onValueChange={setValueProposition}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select scalability type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="saves-time">Saves significant time</SelectItem>
+                  <SelectItem value="reduces-cost">Reduces cost substantially</SelectItem>
+                  <SelectItem value="improves-efficiency">Improves operational efficiency</SelectItem>
+                  <SelectItem value="simplifies-workflow">Simplifies complex workflows</SelectItem>
+                  <SelectItem value="automates-tasks">Automates manual tasks</SelectItem>
+                  <SelectItem value="improves-ux">Improves user experience dramatically</SelectItem>
+                  <SelectItem value="multiple">Multiple of the above</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* 2.2 Severity & Urgency */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.2 Severity & Urgency</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How urgent or costly is this problem for your customer if it remains unsolved?
-                </p>
-              </div>
-              <Textarea
-                value={severityUrgency}
-                onChange={(e) => setSeverityUrgency(e.target.value)}
-                placeholder="Consider financial impact, operational friction, risk exposure, or emotional burden..."
-                rows={4}
-              />
-              <WordCounter current={severityUrgency} min={60} max={100} />
+            {/* Severity */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Severity</Label>
+              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                How urgent or costly is this problem for the customer? (Impact analysis)
+              </p>
+              <Select value={severityUrgency} onValueChange={setSeverityUrgency}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select severity level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="critical">Critical — Significant financial/operational impact daily</SelectItem>
+                  <SelectItem value="high">High — Regular pain point affecting productivity</SelectItem>
+                  <SelectItem value="moderate">Moderate — Noticeable friction but manageable</SelectItem>
+                  <SelectItem value="low">Low — Minor inconvenience</SelectItem>
+                  <SelectItem value="emerging">Emerging — Problem growing in urgency</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* 2.3 Necessity Test */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.3 Necessity Test</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Where does your product fall on the spectrum?</p>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="must-have"
-                    checked={necessityType === "must-have"}
-                    onCheckedChange={() => setNecessityType(necessityType === "must-have" ? "" : "must-have")}
-                  />
-                  <Label htmlFor="must-have" className="cursor-pointer">
-                    <span className="font-medium">Must-have:</span> Customers cannot operate effectively without this solution
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="nice-to-have"
-                    checked={necessityType === "nice-to-have"}
-                    onCheckedChange={() => setNecessityType(necessityType === "nice-to-have" ? "" : "nice-to-have")}
-                  />
-                  <Label htmlFor="nice-to-have" className="cursor-pointer">
-                    <span className="font-medium">Nice-to-have:</span> Customers benefit, but could operate without it
-                  </Label>
-                </div>
-              </div>
-              <Textarea
-                value={necessityExplanation}
-                onChange={(e) => setNecessityExplanation(e.target.value)}
-                placeholder="Explain your reasoning..."
-                rows={3}
-              />
-              <WordCounter current={necessityExplanation} min={50} max={75} />
+            {/* Unique Value / Tech */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Unique Value / Technology</Label>
+              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                What makes your uniqueness attractive to customers in their daily life?
+              </p>
+              <Select value={uniqueValue} onValueChange={setUniqueValue}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select unique value type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="proprietary-tech">Proprietary technology/algorithm</SelectItem>
+                  <SelectItem value="data-advantage">Unique data or insights</SelectItem>
+                  <SelectItem value="network-effects">Network effects</SelectItem>
+                  <SelectItem value="superior-ux">Superior user experience</SelectItem>
+                  <SelectItem value="cost-advantage">Significant cost advantage</SelectItem>
+                  <SelectItem value="speed-advantage">Speed/performance advantage</SelectItem>
+                  <SelectItem value="integration">Deep integrations/ecosystem</SelectItem>
+                  <SelectItem value="other">Other differentiator</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* 2.4 Unique Value */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.4 Unique Value / Technology</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  What makes your solution uniquely valuable in a customer's day-to-day life?
-                </p>
-              </div>
-              <Textarea
-                value={uniqueValue}
-                onChange={(e) => setUniqueValue(e.target.value)}
-                placeholder="Technology, workflow design, data advantages, or execution..."
-                rows={4}
-              />
-              <WordCounter current={uniqueValue} min={60} max={100} />
+            {/* Emotional/Social Value */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Emotional / Social Value</Label>
+              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                Does your product create status, trust, or peace of mind?
+              </p>
+              <Select value={emotionalValue} onValueChange={setEmotionalValue}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select emotional value (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="trust">Builds trust and credibility</SelectItem>
+                  <SelectItem value="peace-of-mind">Provides peace of mind</SelectItem>
+                  <SelectItem value="status">Confers status or prestige</SelectItem>
+                  <SelectItem value="confidence">Increases user confidence</SelectItem>
+                  <SelectItem value="community">Creates sense of community</SelectItem>
+                  <SelectItem value="not-applicable">Not applicable to our product</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* 2.5 Emotional Value */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.5 Emotional or Social Value</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Does your product create trust, peace of mind, confidence, or status for the user or buyer?
-                </p>
-              </div>
-              <Textarea
-                value={emotionalValue}
-                onChange={(e) => setEmotionalValue(e.target.value)}
-                placeholder="If yes, explain how..."
-                rows={3}
-              />
-              <WordCounter current={emotionalValue} min={40} max={75} />
+            {/* Adaptability */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Adaptability</Label>
+              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                Does this solution work across regions, geographies, or groups of people?
+              </p>
+              <Select value={adaptability} onValueChange={setAdaptability}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select adaptability scope" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="global">Global — Works anywhere with minimal changes</SelectItem>
+                  <SelectItem value="multi-region">Multi-region — Adaptable across major markets</SelectItem>
+                  <SelectItem value="regional">Regional — Focused on specific geography</SelectItem>
+                  <SelectItem value="niche">Niche — Specific industry or customer segment</SelectItem>
+                  <SelectItem value="expanding">Currently niche, expanding scope</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* 2.6 Adaptability */}
+            {/* Market Context */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">2.6 Adaptability & Breadth</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Does this problem (and solution) exist across multiple geographies, industries, or customer groups?
-                </p>
-              </div>
-              <Textarea
-                value={adaptability}
-                onChange={(e) => setAdaptability(e.target.value)}
-                placeholder="If not, explain why the niche is still compelling..."
-                rows={3}
-              />
-              <WordCounter current={adaptability} min={40} max={75} />
-            </div>
-
-            {/* 2.7 Market Context */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">2.7 Broader Market Context</Label>
+                <Label className="text-base font-semibold">Broader Market Context</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
                   How does your product fit into the broader market or industry landscape?
                 </p>
@@ -695,10 +667,10 @@ export default function FounderApplication() {
               <WordCounter current={marketContext} min={75} max={100} />
             </div>
 
-            {/* 2.8 Buyer vs User */}
+            {/* Buyer vs User */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">2.8 Buyer vs. User</Label>
+                <Label className="text-base font-semibold">Buyer vs. User</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
                   Who feels the pain most, and who has the budget authority to pay for the solution?
                 </p>
