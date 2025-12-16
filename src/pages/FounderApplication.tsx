@@ -70,8 +70,6 @@ export default function FounderApplication() {
   // Section 3 - Business Model
   const [customerType, setCustomerType] = useState<string[]>([]);
   const [customerTypeExplanation, setCustomerTypeExplanation] = useState("");
-  const [gtmDescription, setGtmDescription] = useState("");
-  const [gtmValueAlignment, setGtmValueAlignment] = useState("");
   const [pricingStrategies, setPricingStrategies] = useState<string[]>([]);
   // Dynamic pricing sub-fields
   const [subscriptionType, setSubscriptionType] = useState("");
@@ -86,19 +84,21 @@ export default function FounderApplication() {
   const [revenueMetrics, setRevenueMetrics] = useState<string[]>([]);
   const [revenueMetricsValues, setRevenueMetricsValues] = useState("");
 
-  // Section 4 - Market Sizing
+  // Section 4 - Go-to-Market
+  const [gtmDescription, setGtmDescription] = useState("");
+  const [gtmValueAlignment, setGtmValueAlignment] = useState("");
+
+  // Section 5 - Target Customer & Market Sizing
+  const [targetGeography, setTargetGeography] = useState("");
+  const [targetCustomerDescription, setTargetCustomerDescription] = useState("");
   const [tamValue, setTamValue] = useState("");
   const [tamCalculationMethod, setTamCalculationMethod] = useState("");
   const [tamBreakdown, setTamBreakdown] = useState("");
   const [samValue, setSamValue] = useState("");
-  const [samSegments, setSamSegments] = useState("");
+  const [samBreakdown, setSamBreakdown] = useState("");
   const [somValue, setSomValue] = useState("");
   const [somTimeframe, setSomTimeframe] = useState("");
-  const [somStrategy, setSomStrategy] = useState("");
-
-  // Section 5 - Target Customer
-  const [targetGeography, setTargetGeography] = useState("");
-  const [targetCustomerDescription, setTargetCustomerDescription] = useState("");
+  const [somBreakdown, setSomBreakdown] = useState("");
 
   // Section 6 - Competitors
   const [competitors, setCompetitors] = useState<Competitor[]>([
@@ -148,8 +148,8 @@ export default function FounderApplication() {
     "Team & Overview",
     "The Problem",
     "Business Model",
-    "Market Sizing",
-    "Target Customer",
+    "Go-to-Market",
+    "Customer & Market",
     "Competitors",
   ];
 
@@ -229,17 +229,17 @@ export default function FounderApplication() {
         break;
       case 4:
         if (customerType.length === 0) errors.push("Select at least one customer type");
-        if (!gtmDescription.trim()) errors.push("GTM description is required");
         if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
         break;
       case 5:
-        if (!tamValue.trim()) errors.push("TAM value is required");
-        if (!samValue.trim()) errors.push("SAM value is required");
-        if (!somValue.trim()) errors.push("SOM value is required");
+        if (!gtmDescription.trim()) errors.push("GTM description is required");
         break;
       case 6:
         if (!targetGeography.trim()) errors.push("Target geography is required");
         if (countWords(targetCustomerDescription) < 20) errors.push("Customer description needs at least 20 words");
+        if (!tamValue.trim()) errors.push("TAM value is required");
+        if (!samValue.trim()) errors.push("SAM value is required");
+        if (!somValue.trim()) errors.push("SOM value is required");
         break;
       case 7:
         break;
@@ -276,6 +276,7 @@ export default function FounderApplication() {
     if (valueDrivers.length === 0) errors.push("Select at least one value type");
     if (customerType.length === 0) errors.push("Select at least one customer type");
     if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
+    if (!gtmDescription.trim()) errors.push("GTM description is required");
     if (!tamValue.trim()) errors.push("TAM value is required");
     if (!samValue.trim()) errors.push("SAM value is required");
     if (!somValue.trim()) errors.push("SOM value is required");
@@ -328,8 +329,6 @@ export default function FounderApplication() {
         section3: {
           customerType,
           customerTypeExplanation,
-          gtmDescription,
-          gtmValueAlignment,
           pricingStrategies,
           subscriptionType,
           subscriptionBillingCycle,
@@ -343,18 +342,20 @@ export default function FounderApplication() {
           revenueMetricsValues,
         },
         section4: {
-          tamValue,
-          tamCalculationMethod,
-          tamBreakdown,
-          samValue,
-          samSegments,
-          somValue,
-          somTimeframe,
-          somStrategy,
+          gtmDescription,
+          gtmValueAlignment,
         },
         section5: {
           targetGeography,
           targetCustomerDescription,
+          tamValue,
+          tamCalculationMethod,
+          tamBreakdown,
+          samValue,
+          samBreakdown,
+          somValue,
+          somTimeframe,
+          somBreakdown,
         },
         section6: {
           competitors,
@@ -413,7 +414,6 @@ export default function FounderApplication() {
   if (isSubmitted) {
     return (
       <div className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{ background: "var(--gradient-navy-teal)" }}>
-        {/* Decorative Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2 -translate-x-1/2" />
@@ -808,7 +808,7 @@ export default function FounderApplication() {
           <div className="space-y-8">
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 3 — Business Model</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">How do you make money and reach customers?</p>
+              <p className="text-[hsl(var(--navy-deep))]/70">How do you make money?</p>
             </div>
 
             {/* 3.1 Customer Type */}
@@ -842,44 +842,10 @@ export default function FounderApplication() {
               )}
             </div>
 
-            {/* 3.2 GTM Strategy */}
+            {/* 3.2 Pricing Strategy */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">3.2 Go-to-Market Strategy</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How do you acquire customers?</p>
-              </div>
-              <Textarea
-                value={gtmDescription}
-                onChange={(e) => setGtmDescription(e.target.value)}
-                placeholder="Describe your current or planned customer acquisition channels, sales process, and how you convert leads to customers..."
-                rows={4}
-              />
-              <WordCounter current={gtmDescription} min={50} max={100} />
-
-              <div className="space-y-2 mt-4">
-                <Label className="font-medium">How does this align with your value proposition?</Label>
-                <Select value={gtmValueAlignment} onValueChange={setGtmValueAlignment}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select GTM alignment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GTM_ALIGNMENT_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        <div>
-                          <span className="font-medium">{option.label}</span>
-                          <span className="text-muted-foreground ml-2">— {option.desc}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* 3.3 Pricing Strategy */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">3.3 Pricing Strategy</Label>
+                <Label className="text-base font-semibold">3.2 Pricing Strategy</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">How do you charge customers? Select all that apply.</p>
               </div>
               <div className="space-y-3">
@@ -1032,11 +998,11 @@ export default function FounderApplication() {
               )}
             </div>
 
-            {/* 3.4 Revenue & Metrics */}
+            {/* 3.3 Revenue & Metrics */}
             {pricingStrategies.length > 0 && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-base font-semibold">3.4 Key Metrics</Label>
+                  <Label className="text-base font-semibold">3.3 Key Metrics</Label>
                   <p className="text-sm text-[hsl(var(--navy-deep))]/60">
                     Based on your pricing model, select the metrics you track (and share values if available)
                   </p>
@@ -1074,15 +1040,96 @@ export default function FounderApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 4 — Market Sizing</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">How big is the opportunity?</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 4 — Go-to-Market</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">How do you reach and acquire customers?</p>
             </div>
 
-            {/* Market Opportunity */}
+            {/* 4.1 GTM Strategy */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">4.1 Go-to-Market Strategy *</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How do you acquire customers?</p>
+              </div>
+              <Textarea
+                value={gtmDescription}
+                onChange={(e) => setGtmDescription(e.target.value)}
+                placeholder="Describe your current or planned customer acquisition channels, sales process, and how you convert leads to customers..."
+                rows={5}
+              />
+              <WordCounter current={gtmDescription} min={50} max={150} />
+            </div>
+
+            {/* 4.2 GTM Alignment */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">4.2 GTM Model Type</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How does this align with your value proposition?</p>
+              </div>
+              <Select value={gtmValueAlignment} onValueChange={setGtmValueAlignment}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select GTM model" />
+                </SelectTrigger>
+                <SelectContent>
+                  {GTM_ALIGNMENT_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <div>
+                        <span className="font-medium">{option.label}</span>
+                        <span className="text-muted-foreground ml-2">— {option.desc}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        );
+
+      case 6:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 5 — Target Customer & Market Sizing</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">Who are you selling to and how big is the opportunity?</p>
+            </div>
+
+            {/* 5.1 Geography */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">5.1 Target Geography *</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  Be specific about your geographic focus. Include regions, cities, states, or countries you're targeting.
+                </p>
+              </div>
+              <Textarea
+                value={targetGeography}
+                onChange={(e) => setTargetGeography(e.target.value)}
+                placeholder="e.g., Initially focusing on the Northeast US corridor (Boston to Washington DC) due to high concentration of target enterprise customers. Expanding to Chicago and San Francisco metro areas in Year 2..."
+                rows={3}
+              />
+            </div>
+
+            {/* 5.2 Target Customer Description */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">5.2 Describe Your Target Customer *</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  Paint a complete picture of who you're selling to. Include their role, what their day looks like, their pain points, and why they're the right fit.
+                </p>
+              </div>
+              <Textarea
+                value={targetCustomerDescription}
+                onChange={(e) => setTargetCustomerDescription(e.target.value)}
+                placeholder="Our ideal customer is a VP of Operations at a mid-size manufacturing company (100-500 employees) who is frustrated by outdated inventory management. They spend 3+ hours daily reconciling spreadsheets..."
+                rows={5}
+              />
+              <WordCounter current={targetCustomerDescription} min={20} max={200} />
+            </div>
+
+            {/* 5.3 Market Sizing */}
             <div className="space-y-6">
-              <Label className="text-base font-semibold">Market Opportunity (TAM → SAM → SOM)</Label>
+              <Label className="text-base font-semibold">5.3 Market Sizing (TAM → SAM → SOM)</Label>
               <p className="text-sm text-[hsl(var(--navy-deep))]/60 bg-blue-50 p-3 rounded-lg">
-                💡 <strong>Tip:</strong> TAM = Total market if you had 100% share. SAM = Segment you can actually reach. SOM = What you can realistically capture in 2-3 years.
+                💡 <strong>Tip:</strong> TAM = Total market if you had 100% share. SAM = The portion you can actually serve (more narrow). SOM = What you can realistically capture.
               </p>
 
               {/* TAM */}
@@ -1112,11 +1159,11 @@ export default function FounderApplication() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Show your work — break down how you got this number</Label>
+                  <Label>Show your work</Label>
                   <Textarea
                     value={tamBreakdown}
                     onChange={(e) => setTamBreakdown(e.target.value)}
-                    placeholder="e.g., For LymeAlert: 476,000 new Lyme cases/year in US × $3,000 avg treatment cost = $1.4B direct treatment market. Endemic regions: Northeast (65%), Upper Midwest (25%), Pacific Coast (10%)..."
+                    placeholder="e.g., 476,000 new Lyme cases/year in US × $3,000 avg treatment cost = $1.4B direct treatment market..."
                     rows={3}
                   />
                 </div>
@@ -1125,22 +1172,21 @@ export default function FounderApplication() {
               {/* SAM */}
               <div className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
                 <Label className="font-semibold text-[hsl(var(--navy-deep))]">SAM — Serviceable Addressable Market</Label>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Serviceable Market Size *</Label>
-                    <Input
-                      value={samValue}
-                      onChange={(e) => setSamValue(e.target.value)}
-                      placeholder="e.g., $5B"
-                    />
-                  </div>
+                <p className="text-xs text-[hsl(var(--navy-deep))]/60">The portion of TAM you can actually serve based on your product, geography, or segment focus.</p>
+                <div className="space-y-2">
+                  <Label>Serviceable Market Size *</Label>
+                  <Input
+                    value={samValue}
+                    onChange={(e) => setSamValue(e.target.value)}
+                    placeholder="e.g., $5B"
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>What segments are you focusing on and why?</Label>
+                  <Label>Show your work</Label>
                   <Textarea
-                    value={samSegments}
-                    onChange={(e) => setSamSegments(e.target.value)}
-                    placeholder="e.g., Focusing on high-risk outdoor workers in endemic regions first (forestry, construction, landscaping) = 2.3M workers. Then expanding to recreational outdoor enthusiasts..."
+                    value={samBreakdown}
+                    onChange={(e) => setSamBreakdown(e.target.value)}
+                    placeholder="e.g., Of the $1.4B TAM, we're focusing on high-risk outdoor workers in endemic regions (forestry, construction, landscaping) = 2.3M workers × $200/year = $460M..."
                     rows={3}
                   />
                 </div>
@@ -1149,13 +1195,14 @@ export default function FounderApplication() {
               {/* SOM */}
               <div className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
                 <Label className="font-semibold text-[hsl(var(--navy-deep))]">SOM — Serviceable Obtainable Market</Label>
+                <p className="text-xs text-[hsl(var(--navy-deep))]/60">What you can realistically capture given your resources, competition, and timeline.</p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Obtainable Market Size *</Label>
                     <Input
                       value={somValue}
                       onChange={(e) => setSomValue(e.target.value)}
-                      placeholder="e.g., $500M"
+                      placeholder="e.g., $50M"
                     />
                   </div>
                   <div className="space-y-2">
@@ -1174,58 +1221,15 @@ export default function FounderApplication() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>How will you capture this?</Label>
+                  <Label>Show your work</Label>
                   <Textarea
-                    value={somStrategy}
-                    onChange={(e) => setSomStrategy(e.target.value)}
-                    placeholder="e.g., Year 1: Partner with 50 forestry companies in CT/MA/NY (15,000 workers). Year 2: Expand to all Northeast states + launch consumer app. Year 3: National rollout..."
+                    value={somBreakdown}
+                    onChange={(e) => setSomBreakdown(e.target.value)}
+                    placeholder="e.g., With our current team and funding, we can realistically capture 10% of the forestry segment in the Northeast (50 companies, 15,000 workers) = $3M in Year 1, scaling to $15M by Year 3..."
                     rows={3}
                   />
                 </div>
               </div>
-            </div>
-          </div>
-        );
-
-      case 6:
-        return (
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 5 — Target Customer</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">Who exactly are you selling to?</p>
-            </div>
-
-            {/* Geography */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">5.1 Target Geography *</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Be specific about your geographic focus. Include regions, cities, states, or countries you're targeting.
-                </p>
-              </div>
-              <Textarea
-                value={targetGeography}
-                onChange={(e) => setTargetGeography(e.target.value)}
-                placeholder="e.g., Initially focusing on the Northeast US corridor (Boston to Washington DC) due to high concentration of target enterprise customers. Expanding to Chicago and San Francisco metro areas in Year 2..."
-                rows={3}
-              />
-            </div>
-
-            {/* Target Customer Description */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">5.2 Describe Your Target Customer *</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Paint a complete picture of who you're selling to. Include their role, what their day looks like, their pain points, and why they're the right fit. Also describe who you're actually going after right now — your actionable customer list.
-                </p>
-              </div>
-              <Textarea
-                value={targetCustomerDescription}
-                onChange={(e) => setTargetCustomerDescription(e.target.value)}
-                placeholder="Our ideal customer is a VP of Operations at a mid-size manufacturing company (100-500 employees) who is frustrated by outdated inventory management. They spend 3+ hours daily reconciling spreadsheets and have been burned by stockouts. Right now, we're targeting 150 specific manufacturing companies in the Midwest that use legacy ERP systems..."
-                rows={6}
-              />
-              <WordCounter current={targetCustomerDescription} min={20} max={200} />
             </div>
           </div>
         );
