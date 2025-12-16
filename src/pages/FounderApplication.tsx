@@ -195,17 +195,51 @@ export default function FounderApplication() {
   };
 
   const handleNextSection = () => {
-    if (validateSection(currentSection)) {
-      setSectionErrors([]);
-      setCurrentSection(currentSection + 1);
-    }
+    setCurrentSection(currentSection + 1);
+  };
+
+  const validateAllSections = (): string[] => {
+    const errors: string[] = [];
+    
+    // Section 1: Company Info
+    if (!basicInfo.companyName.trim()) errors.push("Company name is required");
+    if (!basicInfo.vertical) errors.push("Vertical is required");
+    if (!basicInfo.stage) errors.push("Stage is required");
+    if (!basicInfo.location.trim()) errors.push("Location is required");
+    
+    // Section 2: Team & Overview
+    if (countWords(companyOverview) < 30) errors.push("Problem statement needs at least 30 words");
+    if (!founderName.trim()) errors.push("Your name is required");
+    if (!founderEmail.trim()) errors.push("Your email is required");
+    
+    // Section 3: The Problem
+    if (countWords(currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
+    if (valueDrivers.length === 0) errors.push("Select at least one value type");
+    if (!buyerVsUser) errors.push("Select buyer/user relationship");
+    
+    // Section 4: Business Model
+    if (customerType.length === 0) errors.push("Select at least one customer type");
+    if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
+    
+    // Section 5: Market & GTM
+    if (countWords(tam) < 50) errors.push("TAM description needs at least 50 words");
+    if (countWords(sam) < 50) errors.push("SAM description needs at least 50 words");
+    if (countWords(som) < 50) errors.push("SOM description needs at least 50 words");
+    
+    return errors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate final section before submitting
-    if (!validateSection(currentSection)) {
+    // Validate all sections before submitting
+    const errors = validateAllSections();
+    if (errors.length > 0) {
+      toast({
+        title: "Please complete required fields",
+        description: errors[0],
+        variant: "destructive",
+      });
       return;
     }
     
@@ -1049,27 +1083,10 @@ export default function FounderApplication() {
               {sections.map((section, index) => (
                 <button
                   key={section}
-                  onClick={() => {
-                    if (index <= currentSection) {
-                      // Allow going back freely
-                      setCurrentSection(index);
-                    } else if (index === currentSection + 1) {
-                      // Validate before moving forward one step
-                      handleNextSection();
-                    } else {
-                      // Can't skip ahead multiple sections
-                      toast({
-                        title: "Complete current section first",
-                        description: "Please complete each section in order.",
-                        variant: "destructive",
-                      });
-                    }
-                  }}
+                  onClick={() => setCurrentSection(index)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     currentSection === index
                       ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]"
-                      : index < currentSection
-                      ? "bg-green-500/80 text-white"
                       : "bg-white/10 text-white/70 hover:bg-white/20"
                   }`}
                 >
