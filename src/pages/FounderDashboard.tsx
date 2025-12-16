@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { FounderSidebar } from "@/components/FounderSidebar";
+import { MemoEditor } from "@/components/MemoEditor";
 import { 
   Building2, 
   Calendar, 
@@ -11,9 +14,8 @@ import {
   TrendingUp, 
   Eye, 
   Mail,
-  Rocket,
   ArrowRight,
-  LogOut
+  Menu
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -50,12 +52,15 @@ interface Mentor {
 
 export default function FounderDashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
   const [application, setApplication] = useState<any>(null);
+
+  const currentTab = searchParams.get("tab") || "dashboard";
 
   useEffect(() => {
     fetchDashboardData();
@@ -78,8 +83,25 @@ export default function FounderDashboard() {
       } else {
         // Preview mode with mock data
         setApplication({
+          id: "demo",
           founder_name: "Demo Founder",
           company_name: "Demo Startup",
+          vertical: "FinTech",
+          stage: "Seed",
+          location: "San Francisco, CA",
+          website: "https://demo.com",
+          business_model: "We help businesses manage their finances more efficiently through AI-powered automation.",
+          application_sections: {
+            section2: {
+              currentPainPoint: "Businesses waste 20+ hours per week on manual financial reconciliation.",
+              valueDrivers: ["scalability", "unique-tech", "severity"]
+            },
+            section5: {
+              tamValue: "$50B",
+              samValue: "$5B",
+              somValue: "$500M"
+            }
+          }
         });
       }
 
@@ -129,11 +151,6 @@ export default function FounderDashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -150,228 +167,242 @@ export default function FounderDashboard() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-[hsl(220,60%,10%)]">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-[hsl(220,60%,12%)]">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] rounded-lg flex items-center justify-center">
-                <Rocket className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">In-Sync</h1>
-                <p className="text-sm text-white/60">Founder Dashboard</p>
-              </div>
+  const renderContent = () => {
+    switch (currentTab) {
+      case "memo":
+        return <MemoEditor application={application} onUpdate={fetchDashboardData} />;
+      
+      case "investors":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">Curated Investors</h2>
+              <p className="text-white/60">Investors matched to your company profile</p>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-white/80 hover:text-white hover:bg-white/10">
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">
-            Welcome back, {application?.founder_name?.split(" ")[0]}!
-          </h2>
-          <p className="text-white/60">
-            Track your connections, engagement, and opportunities
-          </p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-[hsl(220,60%,15%)] border-[hsl(var(--cyan-glow))]/20 p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white">0</p>
-                <p className="text-sm text-white/60">Profile Views</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Mail className="h-6 w-6 text-blue-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white">0</p>
-                <p className="text-sm text-white/60">Connections</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-green-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white">Pending</p>
-                <p className="text-sm text-white/60">Status</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-purple-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white">{events.length}</p>
-                <p className="text-sm text-white/60">Upcoming Events</p>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Curated Investors */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-white">Curated Investors</h3>
-            <Button variant="ghost" size="sm" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
-              View All <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {investors.map((investor) => (
-              <Card key={investor.id} className="bg-[hsl(220,60%,15%)] border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
-                    <Building2 className="h-6 w-6 text-white" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {investors.map((investor) => (
+                <Card key={investor.id} className="bg-[hsl(220,60%,15%)] border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
+                      <Building2 className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-white mb-1">{investor.name}</h4>
+                      <p className="text-sm text-white/60">{investor.firm_name}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-white mb-1">{investor.name}</h4>
-                    <p className="text-sm text-white/60">{investor.firm_name}</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20">{investor.check_size}</Badge>
+                    <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">{investor.investment_stage}</Badge>
                   </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20">
-                    {investor.check_size}
-                  </Badge>
-                  <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20">
-                    {investor.investment_stage}
-                  </Badge>
-                  {investor.sectors.slice(0, 1).map((sector, i) => (
-                    <Badge key={i} className="bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20">
-                      {sector}
-                    </Badge>
-                  ))}
-                </div>
-
-                <p className="text-sm text-white/70 mb-4 line-clamp-2">
-                  {investor.bio}
-                </p>
-
-                <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                  <span className="text-xs text-white/50">
-                    {investor.portfolio_count} portfolio companies
-                  </span>
+                  <p className="text-sm text-white/70 mb-4 line-clamp-2">{investor.bio}</p>
                   <Button size="sm" variant="ghost" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
                     View Profile
                   </Button>
+                </Card>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "events":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">Upcoming Events</h2>
+              <p className="text-white/60">Networking opportunities and pitch events</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event) => (
+                <Card key={event.id} className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                      <Calendar className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+                    </div>
+                    <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">{event.event_type}</Badge>
+                  </div>
+                  <h4 className="font-semibold text-white mb-2">{event.title}</h4>
+                  <p className="text-sm text-white/60 mb-4 line-clamp-2">{event.description}</p>
+                  <div className="space-y-2 text-sm text-white/50 mb-4">
+                    <p>📍 {event.location}</p>
+                    <p>📅 {formatDate(event.event_date)}</p>
+                  </div>
+                  <Button size="sm" className="w-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/30">
+                    Register
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "profile":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">Profile Settings</h2>
+              <p className="text-white/60">Manage your account</p>
+            </div>
+            <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+              <p className="text-white/60">Profile settings coming soon...</p>
+            </Card>
+          </div>
+        );
+
+      default:
+        return (
+          <>
+            {/* Welcome Section */}
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2">
+                Welcome back, {application?.founder_name?.split(" ")[0] || "Founder"}!
+              </h2>
+              <p className="text-white/60">
+                Track your connections, engagement, and opportunities
+              </p>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <Card className="bg-[hsl(220,60%,15%)] border-[hsl(var(--cyan-glow))]/20 p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">0</p>
+                    <p className="text-sm text-white/60">Profile Views</p>
+                  </div>
                 </div>
               </Card>
-            ))}
-          </div>
-        </section>
 
-        {/* Events */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-white">Upcoming Events</h3>
-            <Button variant="ghost" size="sm" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
-              View All <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {events.map((event) => (
-              <Card key={event.id} className="bg-[hsl(220,60%,15%)] border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <Calendar className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+              <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <Mail className="h-6 w-6 text-blue-400" />
                   </div>
-                  <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
-                    {event.event_type}
-                  </Badge>
+                  <div>
+                    <p className="text-2xl font-bold text-white">0</p>
+                    <p className="text-sm text-white/60">Connections</p>
+                  </div>
                 </div>
+              </Card>
 
-                <h4 className="font-semibold text-white mb-2">{event.title}</h4>
-                <p className="text-sm text-white/60 mb-4 line-clamp-2">
-                  {event.description}
-                </p>
-
-                <div className="space-y-2 text-sm text-white/50 mb-4">
-                  <p>📍 {event.location}</p>
-                  <p>📅 {formatDate(event.event_date)}</p>
-                  <p>👥 {event.max_attendees} max attendees</p>
+              <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">Pending</p>
+                    <p className="text-sm text-white/60">Status</p>
+                  </div>
                 </div>
+              </Card>
 
-                <Button size="sm" className="w-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/30">
-                  Register
+              <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <Calendar className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{events.length}</p>
+                    <p className="text-sm text-white/60">Upcoming Events</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <Card 
+                className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/20 to-[hsl(var(--primary))]/20 border-[hsl(var(--cyan-glow))]/30 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/50 transition-all"
+                onClick={() => navigate("/founder-dashboard?tab=memo")}
+              >
+                <h3 className="text-xl font-bold text-white mb-2">📄 View Your Memo</h3>
+                <p className="text-white/70 mb-4">Review and update your company information</p>
+                <Button size="sm" className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]">
+                  Edit Memo <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Card>
-            ))}
-          </div>
-        </section>
 
-        {/* Mentor Network */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-white">Mentor Network</h3>
-            <Button variant="ghost" size="sm" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
-              View All <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {mentors.map((mentor) => (
-              <Card key={mentor.id} className="bg-[hsl(220,60%,15%)] border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shrink-0">
-                    <Users className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-white mb-1">{mentor.name}</h4>
-                    <p className="text-sm text-white/60">{mentor.title}</p>
-                    <p className="text-xs text-white/50">{mentor.company}</p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {mentor.expertise.slice(0, 2).map((skill, i) => (
-                    <Badge key={i} className="bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20 text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-
-                <p className="text-sm text-white/70 mb-4 line-clamp-2">
-                  {mentor.bio}
-                </p>
-
-                <Button size="sm" className="w-full bg-white/5 text-white hover:bg-white/10 border border-white/10">
-                  Connect
+              <Card 
+                className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 p-6 cursor-pointer hover:border-purple-500/50 transition-all"
+                onClick={() => navigate("/founder-dashboard?tab=investors")}
+              >
+                <h3 className="text-xl font-bold text-white mb-2">🎯 Curated Investors</h3>
+                <p className="text-white/70 mb-4">Browse investors matched to your profile</p>
+                <Button size="sm" className="bg-purple-500 text-white hover:bg-purple-600">
+                  View Investors <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Card>
-            ))}
+            </div>
+
+            {/* Recent Investors Preview */}
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-white">Recent Investors</h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-[hsl(var(--cyan-glow))] hover:bg-white/5"
+                  onClick={() => navigate("/founder-dashboard?tab=investors")}
+                >
+                  View All <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {investors.slice(0, 3).map((investor) => (
+                  <Card key={investor.id} className="bg-[hsl(220,60%,15%)] border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
+                        <Building2 className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-white mb-1">{investor.name}</h4>
+                        <p className="text-sm text-white/60">{investor.firm_name}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20">{investor.check_size}</Badge>
+                      <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">{investor.investment_stage}</Badge>
+                    </div>
+                    <Button size="sm" variant="ghost" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
+                      View Profile
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          </>
+        );
+    }
+  };
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-[hsl(220,60%,10%)]">
+        <FounderSidebar />
+        
+        <main className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="h-14 border-b border-white/10 bg-[hsl(220,60%,12%)] flex items-center px-4 gap-4">
+            <SidebarTrigger className="text-white hover:bg-white/10">
+              <Menu className="h-5 w-5" />
+            </SidebarTrigger>
+            <div className="flex-1" />
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+              {application?.company_name || "Demo Mode"}
+            </Badge>
+          </header>
+
+          {/* Content */}
+          <div className="flex-1 p-6 overflow-auto">
+            {renderContent()}
           </div>
-        </section>
-      </main>
-    </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }
