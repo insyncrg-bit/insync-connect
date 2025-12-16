@@ -453,12 +453,21 @@ export default function FounderApplication() {
             <p className="text-[hsl(var(--navy-deep))]/60 mb-8">
               We'll get back to you with your dashboard login featuring curated investors matched to your company.
             </p>
-            <Button
-              onClick={() => navigate("/")}
-              className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 font-semibold px-8"
-            >
-              Back to Home
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={() => navigate("/")}
+                variant="outline"
+                className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 font-semibold px-8"
+              >
+                Back to Home
+              </Button>
+              <Button
+                onClick={() => navigate("/founder-dashboard")}
+                className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 font-semibold px-8"
+              >
+                Preview Dashboard
+              </Button>
+            </div>
           </div>
         </div>
       </div>
