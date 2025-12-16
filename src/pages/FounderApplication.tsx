@@ -27,19 +27,22 @@ export default function FounderApplication() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
 
-  // Basic info
+  // Basic company info
   const [basicInfo, setBasicInfo] = useState({
-    founderName: "",
-    email: "",
     companyName: "",
     website: "",
+    linkedIn: "",
     vertical: "",
     stage: "",
     location: "",
   });
+  const [companyLogo, setCompanyLogo] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   // Section 1 - Company Overview & Team
   const [companyOverview, setCompanyOverview] = useState("");
+  const [founderName, setFounderName] = useState("");
+  const [founderEmail, setFounderEmail] = useState("");
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([{ name: "", role: "", background: "" }]);
 
   // Section 2 - The Problem
@@ -91,12 +94,25 @@ export default function FounderApplication() {
   ];
 
   const sections = [
-    "Basic Info",
-    "Company & Team",
+    "Welcome",
+    "Company Info",
+    "Team & Overview",
     "The Problem",
     "Business Model",
     "Market & GTM",
   ];
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCompanyLogo(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const addTeamMember = () => {
     setTeamMembers([...teamMembers, { name: "", role: "", background: "" }]);
@@ -179,8 +195,8 @@ export default function FounderApplication() {
         .from("founder_applications")
         .insert({
           user_id: user.id,
-          founder_name: basicInfo.founderName,
-          email: basicInfo.email,
+          founder_name: founderName,
+          email: founderEmail,
           company_name: basicInfo.companyName,
           website: basicInfo.website || null,
           vertical: basicInfo.vertical,
@@ -190,7 +206,10 @@ export default function FounderApplication() {
           business_model: companyOverview,
           traction: revenueMetrics || "N/A",
           current_ask: gtmStrategy || "N/A",
-          application_sections: applicationSections as unknown as Record<string, unknown>,
+          application_sections: {
+            ...applicationSections,
+            linkedIn: basicInfo.linkedIn,
+          } as unknown as Record<string, unknown>,
           team_members: teamMembers as unknown as Record<string, unknown>[],
           status: "pending",
         } as any);
@@ -228,33 +247,81 @@ export default function FounderApplication() {
     switch (currentSection) {
       case 0:
         return (
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Basic Information</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">Tell us about you and your company</p>
+          <div className="space-y-8">
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl font-bold text-[hsl(var(--navy-deep))]">Welcome</h2>
+              <p className="text-lg text-[hsl(var(--navy-deep))]/80 max-w-2xl mx-auto">
+                Help us understand the <strong>what</strong>, <strong>why</strong>, and <strong>how</strong> of your company so we can match you with the right investors.
+              </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="founderName">Full Name *</Label>
-                <Input
-                  id="founderName"
-                  value={basicInfo.founderName}
-                  onChange={(e) => setBasicInfo({ ...basicInfo, founderName: e.target.value })}
-                  placeholder="John Doe"
-                  required
-                />
+            <div className="bg-[hsl(var(--cyan-glow))]/10 border border-[hsl(var(--cyan-glow))]/30 rounded-xl p-6 space-y-4">
+              <p className="text-[hsl(var(--navy-deep))]/80">
+                This application is structured so that, by the end, you will have effectively written an <strong>investor-ready memo</strong>.
+              </p>
+              <p className="text-[hsl(var(--navy-deep))]/70">Every question helps us understand:</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">WHAT</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">The problem you're solving</p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={basicInfo.email}
-                  onChange={(e) => setBasicInfo({ ...basicInfo, email: e.target.value })}
-                  placeholder="john@startup.com"
-                  required
-                />
+              <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">WHY</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">Motivation, urgency, vision</p>
+              </div>
+              <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">HOW</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">Solution & business model</p>
+              </div>
+              <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">METRIC</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">Proof, behavior, traction</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-[hsl(var(--navy-deep))]/60 text-center italic">
+              Please respect the minimum and maximum word limits — they are intentional.
+            </p>
+          </div>
+        );
+
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Company Information</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">Tell us about your company</p>
+            </div>
+
+            {/* Company Logo */}
+            <div className="space-y-3">
+              <Label>Company Logo</Label>
+              <div className="flex items-center gap-6">
+                <div className="w-24 h-24 border-2 border-dashed border-[hsl(var(--cyan-glow))]/30 rounded-xl flex items-center justify-center overflow-hidden bg-white">
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="Logo preview" className="w-full h-full object-contain" />
+                  ) : (
+                    <Upload className="h-8 w-8 text-[hsl(var(--navy-deep))]/40" />
+                  )}
+                </div>
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                    id="logo-upload"
+                  />
+                  <Label
+                    htmlFor="logo-upload"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-[hsl(var(--navy-deep))]/10 hover:bg-[hsl(var(--navy-deep))]/20 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Upload Logo
+                  </Label>
+                  <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PNG, JPG up to 2MB</p>
+                </div>
               </div>
             </div>
 
@@ -279,6 +346,17 @@ export default function FounderApplication() {
                   placeholder="https://yourstartup.com"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="linkedIn">Company LinkedIn</Label>
+              <Input
+                id="linkedIn"
+                type="url"
+                value={basicInfo.linkedIn}
+                onChange={(e) => setBasicInfo({ ...basicInfo, linkedIn: e.target.value })}
+                placeholder="https://linkedin.com/company/yourstartup"
+              />
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
@@ -330,12 +408,40 @@ export default function FounderApplication() {
           </div>
         );
 
-      case 1:
+      case 2:
         return (
           <div className="space-y-8">
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 1 — Company Overview & Team</h2>
               <p className="text-[hsl(var(--navy-deep))]/70">Help us understand your company and the people behind it</p>
+            </div>
+
+            {/* Founder Contact Info */}
+            <div className="space-y-4">
+              <Label className="text-base font-semibold">Primary Contact</Label>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="founderName">Your Full Name *</Label>
+                  <Input
+                    id="founderName"
+                    value={founderName}
+                    onChange={(e) => setFounderName(e.target.value)}
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="founderEmail">Your Email *</Label>
+                  <Input
+                    id="founderEmail"
+                    type="email"
+                    value={founderEmail}
+                    onChange={(e) => setFounderEmail(e.target.value)}
+                    placeholder="john@startup.com"
+                    required
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -412,7 +518,7 @@ export default function FounderApplication() {
           </div>
         );
 
-      case 2:
+      case 3:
         return (
           <div className="space-y-8">
             <div className="space-y-2">
@@ -590,7 +696,7 @@ export default function FounderApplication() {
           </div>
         );
 
-      case 3:
+      case 4:
         return (
           <div className="space-y-8">
             <div className="space-y-2">
@@ -688,7 +794,7 @@ export default function FounderApplication() {
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="space-y-8">
             <div className="space-y-2">
