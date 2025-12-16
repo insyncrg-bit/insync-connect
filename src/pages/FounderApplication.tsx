@@ -569,6 +569,7 @@ export default function FounderApplication() {
                     <div className="flex items-center gap-3">
                       <Checkbox
                         checked={valueDrivers.includes(item.id)}
+                        onClick={(e) => e.stopPropagation()}
                         onCheckedChange={() => toggleCheckbox(item.id, valueDrivers, setValueDrivers)}
                       />
                       <div>
