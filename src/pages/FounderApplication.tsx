@@ -684,38 +684,24 @@ export default function FounderApplication() {
               </div>
             )}
 
-            {/* Market Context */}
+            {/* Who Buys vs Who Uses */}
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">Broader Market Context</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How does your product fit into the broader market or industry landscape?
-                </p>
-              </div>
-              <Textarea
-                value={marketContext}
-                onChange={(e) => setMarketContext(e.target.value)}
-                placeholder="Reference known pain points such as inefficiencies, cost overruns, or compliance gaps..."
-                rows={4}
-              />
-              <WordCounter current={marketContext} min={75} max={100} />
-            </div>
-
-            {/* Buyer vs User */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">Buyer vs. User</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Who feels the pain most, and who has the budget authority to pay for the solution?
-                </p>
-              </div>
-              <Textarea
-                value={buyerVsUser}
-                onChange={(e) => setBuyerVsUser(e.target.value)}
-                placeholder="Explain whether these are the same or different stakeholders..."
-                rows={3}
-              />
-              <WordCounter current={buyerVsUser} min={50} max={75} />
+              <Label className="text-base font-semibold">Who buys vs. who uses?</Label>
+              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                This helps investors understand your sales motion
+              </p>
+              <Select value={buyerVsUser} onValueChange={setBuyerVsUser}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select buyer/user relationship" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="same">Same person — The user is also the buyer</SelectItem>
+                  <SelectItem value="different-same-org">Different people, same org — User recommends, manager/exec buys</SelectItem>
+                  <SelectItem value="different-org">Different orgs — End user is different from purchasing org</SelectItem>
+                  <SelectItem value="consumer">Consumer — Individual purchases for personal use</SelectItem>
+                  <SelectItem value="platform">Platform — Multiple buyer/user types</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         );
