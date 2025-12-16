@@ -22,6 +22,12 @@ interface TeamMember {
   background: string;
 }
 
+// Competitor type
+interface Competitor {
+  name: string;
+  howYouDiffer: string;
+}
+
 export default function FounderApplication() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -58,23 +64,48 @@ export default function FounderApplication() {
   const [emotionalValue, setEmotionalValue] = useState("");
   const [adaptability, setAdaptability] = useState("");
   const [marketContext, setMarketContext] = useState("");
-  const [buyerVsUser, setBuyerVsUser] = useState("");
 
   // Section 3 - Business Model
   const [customerType, setCustomerType] = useState<string[]>([]);
   const [customerTypeExplanation, setCustomerTypeExplanation] = useState("");
-  const [goToMarketFit, setGoToMarketFit] = useState("");
+  const [gtmDescription, setGtmDescription] = useState("");
+  const [gtmValueAlignment, setGtmValueAlignment] = useState("");
   const [pricingStrategies, setPricingStrategies] = useState<string[]>([]);
-  const [pricingExplanation, setPricingExplanation] = useState("");
-  const [revenueMetrics, setRevenueMetrics] = useState("");
+  // Dynamic pricing sub-fields
+  const [subscriptionType, setSubscriptionType] = useState("");
+  const [subscriptionBillingCycle, setSubscriptionBillingCycle] = useState("");
+  const [subscriptionTiers, setSubscriptionTiers] = useState("");
+  const [transactionFeeType, setTransactionFeeType] = useState("");
+  const [transactionFeePercentage, setTransactionFeePercentage] = useState("");
+  const [licensingModel, setLicensingModel] = useState("");
+  const [adRevenueModel, setAdRevenueModel] = useState("");
+  const [serviceType, setServiceType] = useState("");
+  // Revenue metrics
+  const [revenueMetrics, setRevenueMetrics] = useState<string[]>([]);
+  const [revenueMetricsValues, setRevenueMetricsValues] = useState("");
 
   // Section 4 - Market & GTM
-  const [tam, setTam] = useState("");
-  const [sam, setSam] = useState("");
-  const [som, setSom] = useState("");
-  const [targetPersonas, setTargetPersonas] = useState("");
-  const [gtmStrategy, setGtmStrategy] = useState("");
-  const [competitors, setCompetitors] = useState("");
+  const [tamValue, setTamValue] = useState("");
+  const [tamCalculationMethod, setTamCalculationMethod] = useState("");
+  const [tamBreakdown, setTamBreakdown] = useState("");
+  const [samValue, setSamValue] = useState("");
+  const [samSegments, setSamSegments] = useState("");
+  const [somValue, setSomValue] = useState("");
+  const [somTimeframe, setSomTimeframe] = useState("");
+  const [somStrategy, setSomStrategy] = useState("");
+  // Target personas
+  const [targetIndustry, setTargetIndustry] = useState("");
+  const [targetCompanySize, setTargetCompanySize] = useState("");
+  const [targetGeography, setTargetGeography] = useState("");
+  const [targetBehavior, setTargetBehavior] = useState("");
+  const [idealCustomerDescription, setIdealCustomerDescription] = useState("");
+  const [actionableCustomerBase, setActionableCustomerBase] = useState("");
+  // Competitors
+  const [competitors, setCompetitors] = useState<Competitor[]>([
+    { name: "", howYouDiffer: "" },
+    { name: "", howYouDiffer: "" },
+    { name: "", howYouDiffer: "" },
+  ]);
   const [competitiveMoat, setCompetitiveMoat] = useState("");
 
   const VALUE_DRIVERS = [
@@ -89,12 +120,27 @@ export default function FounderApplication() {
   const CUSTOMER_TYPES = ["B2B", "B2C", "Both"];
 
   const PRICING_STRATEGIES = [
-    "Subscription (flat / tiered / usage-based)",
-    "Transaction-based (take rate or % fee)",
-    "One-time / licensing",
-    "Advertising-driven",
-    "Services",
+    { id: "subscription", label: "Subscription" },
+    { id: "transaction", label: "Transaction-based" },
+    { id: "licensing", label: "One-time / Licensing" },
+    { id: "advertising", label: "Advertising-driven" },
+    { id: "services", label: "Services" },
   ];
+
+  const GTM_ALIGNMENT_OPTIONS = [
+    { value: "enterprise-sales", label: "Enterprise Sales", desc: "High-touch, long sales cycles for complex solutions" },
+    { value: "self-serve", label: "Self-Serve / PLG", desc: "Product-led growth with minimal sales involvement" },
+    { value: "channel-partners", label: "Channel Partners", desc: "Distribution through resellers or integrators" },
+    { value: "marketplace", label: "Marketplace", desc: "Platform connecting buyers and sellers" },
+    { value: "direct-consumer", label: "Direct to Consumer", desc: "B2C acquisition through marketing" },
+    { value: "hybrid", label: "Hybrid", desc: "Combination of multiple approaches" },
+  ];
+
+  const SAAS_METRICS = ["MRR", "ARR", "LTV", "CAC", "Churn Rate", "Net Revenue Retention"];
+  const TRANSACTION_METRICS = ["GMV", "Take Rate", "Transaction Volume", "Average Transaction Size"];
+  const LICENSING_METRICS = ["Revenue per License", "Renewal Rate", "Number of Licenses Sold"];
+  const AD_METRICS = ["DAU/MAU", "CPM", "Ad Revenue per User", "Engagement Rate"];
+  const SERVICES_METRICS = ["Revenue per Project", "Utilization Rate", "Average Contract Value"];
 
   const sections = [
     "Welcome",
@@ -104,6 +150,16 @@ export default function FounderApplication() {
     "Business Model",
     "Market & GTM",
   ];
+
+  const getRelevantMetrics = () => {
+    const metrics: string[] = [];
+    if (pricingStrategies.includes("subscription")) metrics.push(...SAAS_METRICS);
+    if (pricingStrategies.includes("transaction")) metrics.push(...TRANSACTION_METRICS);
+    if (pricingStrategies.includes("licensing")) metrics.push(...LICENSING_METRICS);
+    if (pricingStrategies.includes("advertising")) metrics.push(...AD_METRICS);
+    if (pricingStrategies.includes("services")) metrics.push(...SERVICES_METRICS);
+    return [...new Set(metrics)];
+  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -133,6 +189,12 @@ export default function FounderApplication() {
     setTeamMembers(updated);
   };
 
+  const updateCompetitor = (index: number, field: keyof Competitor, value: string) => {
+    const updated = [...competitors];
+    updated[index][field] = value;
+    setCompetitors(updated);
+  };
+
   const toggleCheckbox = (value: string, currentArray: string[], setter: (arr: string[]) => void) => {
     if (currentArray.includes(value)) {
       setter(currentArray.filter((v) => v !== value));
@@ -145,39 +207,34 @@ export default function FounderApplication() {
     const errors: string[] = [];
 
     switch (sectionIndex) {
-      case 0: // Welcome - no validation needed
+      case 0:
         break;
-      case 1: // Company Info
+      case 1:
         if (!basicInfo.companyName.trim()) errors.push("Company name is required");
         if (!basicInfo.vertical) errors.push("Vertical is required");
         if (!basicInfo.stage) errors.push("Stage is required");
         if (!basicInfo.location.trim()) errors.push("Location is required");
         break;
-      case 2: // Team & Overview
+      case 2:
         if (countWords(companyOverview) < 30) errors.push("Problem statement needs at least 30 words");
         if (!founderName.trim()) errors.push("Your name is required");
         if (!founderEmail.trim()) errors.push("Your email is required");
         if (!teamMembers[0]?.role?.trim()) errors.push("Your role is required");
         break;
-      case 3: // The Problem
+      case 3:
         if (countWords(currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
         if (valueDrivers.length === 0) errors.push("Select at least one value type");
-        if (!buyerVsUser) errors.push("Select buyer/user relationship");
         break;
-      case 4: // Business Model
+      case 4:
         if (customerType.length === 0) errors.push("Select at least one customer type");
-        if (countWords(customerTypeExplanation) < 50) errors.push("Customer type explanation needs at least 50 words");
-        if (countWords(goToMarketFit) < 75) errors.push("Go-to-market fit needs at least 75 words");
+        if (!gtmDescription.trim()) errors.push("GTM description is required");
         if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
         break;
-      case 5: // Market & GTM
-        if (countWords(tam) < 50) errors.push("TAM description needs at least 50 words");
-        if (countWords(sam) < 50) errors.push("SAM description needs at least 50 words");
-        if (countWords(som) < 50) errors.push("SOM description needs at least 50 words");
-        if (countWords(targetPersonas) < 75) errors.push("Target personas needs at least 75 words");
-        if (countWords(gtmStrategy) < 75) errors.push("GTM strategy needs at least 75 words");
-        if (countWords(competitors) < 40) errors.push("Competitors description needs at least 40 words");
-        if (countWords(competitiveMoat) < 75) errors.push("Competitive moat needs at least 75 words");
+      case 5:
+        if (!tamValue.trim()) errors.push("TAM value is required");
+        if (!samValue.trim()) errors.push("SAM value is required");
+        if (!somValue.trim()) errors.push("SOM value is required");
+        if (!targetIndustry) errors.push("Target industry is required");
         break;
     }
 
@@ -201,30 +258,20 @@ export default function FounderApplication() {
   const validateAllSections = (): string[] => {
     const errors: string[] = [];
     
-    // Section 1: Company Info
     if (!basicInfo.companyName.trim()) errors.push("Company name is required");
     if (!basicInfo.vertical) errors.push("Vertical is required");
     if (!basicInfo.stage) errors.push("Stage is required");
     if (!basicInfo.location.trim()) errors.push("Location is required");
-    
-    // Section 2: Team & Overview
     if (countWords(companyOverview) < 30) errors.push("Problem statement needs at least 30 words");
     if (!founderName.trim()) errors.push("Your name is required");
     if (!founderEmail.trim()) errors.push("Your email is required");
-    
-    // Section 3: The Problem
     if (countWords(currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
     if (valueDrivers.length === 0) errors.push("Select at least one value type");
-    if (!buyerVsUser) errors.push("Select buyer/user relationship");
-    
-    // Section 4: Business Model
     if (customerType.length === 0) errors.push("Select at least one customer type");
     if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
-    
-    // Section 5: Market & GTM
-    if (countWords(tam) < 50) errors.push("TAM description needs at least 50 words");
-    if (countWords(sam) < 50) errors.push("SAM description needs at least 50 words");
-    if (countWords(som) < 50) errors.push("SOM description needs at least 50 words");
+    if (!tamValue.trim()) errors.push("TAM value is required");
+    if (!samValue.trim()) errors.push("SAM value is required");
+    if (!somValue.trim()) errors.push("SOM value is required");
     
     return errors;
   };
@@ -232,7 +279,6 @@ export default function FounderApplication() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate all sections before submitting
     const errors = validateAllSections();
     if (errors.length > 0) {
       toast({
@@ -271,22 +317,39 @@ export default function FounderApplication() {
           emotionalValue,
           adaptability,
           marketContext,
-          buyerVsUser,
         },
         section3: {
           customerType,
           customerTypeExplanation,
-          goToMarketFit,
+          gtmDescription,
+          gtmValueAlignment,
           pricingStrategies,
-          pricingExplanation,
+          subscriptionType,
+          subscriptionBillingCycle,
+          subscriptionTiers,
+          transactionFeeType,
+          transactionFeePercentage,
+          licensingModel,
+          adRevenueModel,
+          serviceType,
           revenueMetrics,
+          revenueMetricsValues,
         },
         section4: {
-          tam,
-          sam,
-          som,
-          targetPersonas,
-          gtmStrategy,
+          tamValue,
+          tamCalculationMethod,
+          tamBreakdown,
+          samValue,
+          samSegments,
+          somValue,
+          somTimeframe,
+          somStrategy,
+          targetIndustry,
+          targetCompanySize,
+          targetGeography,
+          targetBehavior,
+          idealCustomerDescription,
+          actionableCustomerBase,
           competitors,
           competitiveMoat,
         },
@@ -305,8 +368,8 @@ export default function FounderApplication() {
           location: basicInfo.location,
           funding_goal: "TBD",
           business_model: companyOverview,
-          traction: revenueMetrics || "N/A",
-          current_ask: gtmStrategy || "N/A",
+          traction: revenueMetricsValues || "N/A",
+          current_ask: gtmDescription || "N/A",
           application_sections: {
             ...applicationSections,
             linkedIn: basicInfo.linkedIn,
@@ -700,12 +763,12 @@ export default function FounderApplication() {
               <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
                 <Label className="text-base font-semibold">True Scalability</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Describe how your solution makes life easier, more efficient, or intuitive. What processes does it simplify? How much time/effort does it save?
+                  Describe how your solution makes life easier, more efficient, or intuitive.
                 </p>
                 <Textarea
                   value={valueProposition}
                   onChange={(e) => setValueProposition(e.target.value)}
-                  placeholder="Our solution saves [X hours/dollars] by... It simplifies... Users can now..."
+                  placeholder="Our solution saves [X hours/dollars] by... It simplifies..."
                   rows={3}
                 />
                 <WordCounter current={valueProposition} min={40} max={75} />
@@ -716,12 +779,12 @@ export default function FounderApplication() {
               <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
                 <Label className="text-base font-semibold">Severity / Urgency</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How urgent or costly is this problem? What's the financial/operational impact if left unsolved? What triggers customers to seek a solution NOW?
+                  How urgent or costly is this problem? What triggers customers to seek a solution NOW?
                 </p>
                 <Textarea
                   value={severityUrgency}
                   onChange={(e) => setSeverityUrgency(e.target.value)}
-                  placeholder="This problem costs customers [X] per year... Without a solution, they face... The urgency comes from..."
+                  placeholder="This problem costs customers [X] per year... The urgency comes from..."
                   rows={3}
                 />
                 <WordCounter current={severityUrgency} min={40} max={75} />
@@ -732,12 +795,12 @@ export default function FounderApplication() {
               <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
                 <Label className="text-base font-semibold">Unique Value / Technology</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  What makes your approach uniquely attractive? Is it proprietary tech, data advantage, workflow design, or something else? Why can't competitors easily replicate it?
+                  What makes your approach uniquely attractive? Why can't competitors easily replicate it?
                 </p>
                 <Textarea
                   value={uniqueValue}
                   onChange={(e) => setUniqueValue(e.target.value)}
-                  placeholder="Our unique advantage is... Competitors can't replicate this because... This matters to customers because..."
+                  placeholder="Our unique advantage is... Competitors can't replicate this because..."
                   rows={3}
                 />
                 <WordCounter current={uniqueValue} min={40} max={75} />
@@ -748,12 +811,12 @@ export default function FounderApplication() {
               <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
                 <Label className="text-base font-semibold">Emotional / Social Value</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How does your product create status, trust, confidence, or peace of mind? What emotional benefit do users get? How does it make them feel?
+                  How does your product create status, trust, confidence, or peace of mind?
                 </p>
                 <Textarea
                   value={emotionalValue}
                   onChange={(e) => setEmotionalValue(e.target.value)}
-                  placeholder="Users feel [confident/secure/proud] because... It creates trust by... The peace of mind comes from..."
+                  placeholder="Users feel [confident/secure/proud] because..."
                   rows={3}
                 />
                 <WordCounter current={emotionalValue} min={40} max={75} />
@@ -764,12 +827,12 @@ export default function FounderApplication() {
               <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
                 <Label className="text-base font-semibold">Adaptability</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How does your solution work across different regions, geographies, industries, or customer segments? What makes it adaptable?
+                  How does your solution work across different regions, industries, or customer segments?
                 </p>
                 <Textarea
                   value={adaptability}
                   onChange={(e) => setAdaptability(e.target.value)}
-                  placeholder="Our solution works across [regions/industries] because... We can adapt to different markets by... The core value translates because..."
+                  placeholder="Our solution works across [regions/industries] because..."
                   rows={3}
                 />
                 <WordCounter current={adaptability} min={40} max={75} />
@@ -781,26 +844,6 @@ export default function FounderApplication() {
                 <p className="text-[hsl(var(--navy-deep))]/60">Select at least one value type above to continue</p>
               </div>
             )}
-
-            {/* Who Buys vs Who Uses */}
-            <div className="space-y-4">
-              <Label className="text-base font-semibold">Who buys vs. who uses?</Label>
-              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                This helps investors understand your sales motion
-              </p>
-              <Select value={buyerVsUser} onValueChange={setBuyerVsUser}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select buyer/user relationship" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="same">Same person — The user is also the buyer</SelectItem>
-                  <SelectItem value="different-same-org">Different people, same org — User recommends, manager/exec buys</SelectItem>
-                  <SelectItem value="different-org">Different orgs — End user is different from purchasing org</SelectItem>
-                  <SelectItem value="consumer">Consumer — Individual purchases for personal use</SelectItem>
-                  <SelectItem value="platform">Platform — Multiple buyer/user types</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         );
 
@@ -839,21 +882,40 @@ export default function FounderApplication() {
               <WordCounter current={customerTypeExplanation} min={50} max={75} />
             </div>
 
-            {/* 3.2 Go-to-Market Fit */}
+            {/* 3.2 Go-to-Market */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">3.2 Go-to-Market Fit</Label>
+                <Label className="text-base font-semibold">3.2 Go-to-Market Strategy</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How does your go-to-market strategy match the type of value you provide?
+                  First, describe your go-to-market approach
                 </p>
               </div>
               <Textarea
-                value={goToMarketFit}
-                onChange={(e) => setGoToMarketFit(e.target.value)}
-                placeholder="For example: operational efficiency → enterprise sales; lifestyle convenience → consumer distribution..."
-                rows={4}
+                value={gtmDescription}
+                onChange={(e) => setGtmDescription(e.target.value)}
+                placeholder="How do customers discover and purchase your product? What are your primary acquisition channels?"
+                rows={3}
               />
-              <WordCounter current={goToMarketFit} min={75} max={100} />
+              <WordCounter current={gtmDescription} min={50} max={100} />
+
+              <div className="space-y-2 mt-4">
+                <Label className="font-medium">How does this align with your value proposition?</Label>
+                <Select value={gtmValueAlignment} onValueChange={setGtmValueAlignment}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select GTM alignment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GTM_ALIGNMENT_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        <div>
+                          <span className="font-medium">{option.label}</span>
+                          <span className="text-muted-foreground ml-2">— {option.desc}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* 3.3 Pricing Strategy */}
@@ -864,41 +926,189 @@ export default function FounderApplication() {
               </div>
               <div className="space-y-3">
                 {PRICING_STRATEGIES.map((strategy) => (
-                  <div key={strategy} className="flex items-center space-x-2">
+                  <div key={strategy.id} className="flex items-center space-x-2">
                     <Checkbox
-                      id={`pricing-${strategy}`}
-                      checked={pricingStrategies.includes(strategy)}
-                      onCheckedChange={() => toggleCheckbox(strategy, pricingStrategies, setPricingStrategies)}
+                      id={`pricing-${strategy.id}`}
+                      checked={pricingStrategies.includes(strategy.id)}
+                      onCheckedChange={() => toggleCheckbox(strategy.id, pricingStrategies, setPricingStrategies)}
                     />
-                    <Label htmlFor={`pricing-${strategy}`} className="cursor-pointer">{strategy}</Label>
+                    <Label htmlFor={`pricing-${strategy.id}`} className="cursor-pointer">{strategy.label}</Label>
                   </div>
                 ))}
               </div>
-              <Textarea
-                value={pricingExplanation}
-                onChange={(e) => setPricingExplanation(e.target.value)}
-                placeholder="Explain your rationale..."
-                rows={3}
-              />
-              <WordCounter current={pricingExplanation} min={50} max={75} />
+
+              {/* Dynamic sub-fields based on pricing selection */}
+              {pricingStrategies.includes("subscription") && (
+                <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
+                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Subscription Details</Label>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Subscription Type</Label>
+                      <Select value={subscriptionType} onValueChange={setSubscriptionType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="flat">Flat Rate</SelectItem>
+                          <SelectItem value="tiered">Tiered Pricing</SelectItem>
+                          <SelectItem value="usage-based">Usage-Based</SelectItem>
+                          <SelectItem value="per-seat">Per-Seat</SelectItem>
+                          <SelectItem value="freemium">Freemium + Paid</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Billing Cycle</Label>
+                      <Select value={subscriptionBillingCycle} onValueChange={setSubscriptionBillingCycle}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select cycle" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="annual">Annual</SelectItem>
+                          <SelectItem value="both">Both (with annual discount)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Describe your tiers/pricing structure</Label>
+                    <Textarea
+                      value={subscriptionTiers}
+                      onChange={(e) => setSubscriptionTiers(e.target.value)}
+                      placeholder="e.g., Free tier: X features, Pro: $29/mo with Y features, Enterprise: Custom pricing..."
+                      rows={2}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {pricingStrategies.includes("transaction") && (
+                <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
+                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Transaction-Based Details</Label>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Fee Type</Label>
+                      <Select value={transactionFeeType} onValueChange={setTransactionFeeType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select fee type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="percentage">Percentage (Take Rate)</SelectItem>
+                          <SelectItem value="flat-fee">Flat Fee per Transaction</SelectItem>
+                          <SelectItem value="hybrid">Hybrid (% + Flat)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Fee Amount/Percentage</Label>
+                      <Input
+                        value={transactionFeePercentage}
+                        onChange={(e) => setTransactionFeePercentage(e.target.value)}
+                        placeholder="e.g., 2.9% + $0.30"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pricingStrategies.includes("licensing") && (
+                <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
+                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Licensing Details</Label>
+                  <div className="space-y-2">
+                    <Label>Licensing Model</Label>
+                    <Select value={licensingModel} onValueChange={setLicensingModel}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="perpetual">Perpetual License</SelectItem>
+                        <SelectItem value="term">Term License</SelectItem>
+                        <SelectItem value="enterprise">Enterprise Agreement</SelectItem>
+                        <SelectItem value="oem">OEM/White Label</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+
+              {pricingStrategies.includes("advertising") && (
+                <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
+                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Advertising Revenue Details</Label>
+                  <div className="space-y-2">
+                    <Label>Ad Revenue Model</Label>
+                    <Select value={adRevenueModel} onValueChange={setAdRevenueModel}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="display">Display Ads (CPM)</SelectItem>
+                        <SelectItem value="sponsored">Sponsored Content</SelectItem>
+                        <SelectItem value="affiliate">Affiliate/Referral</SelectItem>
+                        <SelectItem value="native">Native Advertising</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+
+              {pricingStrategies.includes("services") && (
+                <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
+                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Services Details</Label>
+                  <div className="space-y-2">
+                    <Label>Service Type</Label>
+                    <Select value={serviceType} onValueChange={setServiceType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="consulting">Consulting/Advisory</SelectItem>
+                        <SelectItem value="implementation">Implementation Services</SelectItem>
+                        <SelectItem value="managed">Managed Services</SelectItem>
+                        <SelectItem value="training">Training/Education</SelectItem>
+                        <SelectItem value="support">Premium Support</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 3.4 Revenue & Metrics */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">3.4 Revenue & Metrics</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  What are your primary sources of revenue today? Include metrics if available.
-                </p>
+            {pricingStrategies.length > 0 && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold">3.4 Key Metrics</Label>
+                  <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                    Based on your pricing model, select the metrics you track (and share values if available)
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {getRelevantMetrics().map((metric) => (
+                    <div
+                      key={metric}
+                      className={`p-3 border rounded-lg cursor-pointer transition-all text-center ${
+                        revenueMetrics.includes(metric)
+                          ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
+                          : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
+                      }`}
+                      onClick={() => toggleCheckbox(metric, revenueMetrics, setRevenueMetrics)}
+                    >
+                      <Checkbox checked={revenueMetrics.includes(metric)} className="mr-2" />
+                      <span className="text-sm font-medium">{metric}</span>
+                    </div>
+                  ))}
+                </div>
+                {revenueMetrics.length > 0 && (
+                  <Textarea
+                    value={revenueMetricsValues}
+                    onChange={(e) => setRevenueMetricsValues(e.target.value)}
+                    placeholder="Share your current numbers for the selected metrics (e.g., ARR: $500K, Churn: 2%/mo, LTV: $2,400)..."
+                    rows={3}
+                  />
+                )}
               </div>
-              <Textarea
-                value={revenueMetrics}
-                onChange={(e) => setRevenueMetrics(e.target.value)}
-                placeholder="ARR, MRR, ARPU, customer count, or growth rate..."
-                rows={4}
-              />
-              <WordCounter current={revenueMetrics} min={60} max={100} />
-            </div>
+            )}
           </div>
         );
 
@@ -910,104 +1120,250 @@ export default function FounderApplication() {
               <p className="text-[hsl(var(--navy-deep))]/70">Market opportunity and competitive positioning</p>
             </div>
 
-            {/* 4.1 TAM/SAM/SOM */}
+            {/* 4.1 TAM/SAM/SOM - Restructured */}
             <div className="space-y-6">
               <Label className="text-base font-semibold">4.1 Market Opportunity (TAM → SAM → SOM)</Label>
+              <p className="text-sm text-[hsl(var(--navy-deep))]/60 bg-blue-50 p-3 rounded-lg">
+                💡 <strong>Tip:</strong> TAM = Total market if you had 100% share. SAM = Segment you can actually reach. SOM = What you can realistically capture in 2-3 years.
+              </p>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="font-medium">TAM — Total Addressable Market</Label>
-                  <p className="text-sm text-[hsl(var(--navy-deep))]/60">How did you calculate it (top-down or bottom-up)?</p>
-                  <Textarea
-                    value={tam}
-                    onChange={(e) => setTam(e.target.value)}
-                    placeholder="The total market for your solution..."
-                    rows={3}
-                  />
-                  <WordCounter current={tam} min={50} max={75} />
+              {/* TAM */}
+              <div className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
+                <Label className="font-semibold text-[hsl(var(--navy-deep))]">TAM — Total Addressable Market</Label>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Market Size ($ value) *</Label>
+                    <Input
+                      value={tamValue}
+                      onChange={(e) => setTamValue(e.target.value)}
+                      placeholder="e.g., $50B"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Calculation Method</Label>
+                    <Select value={tamCalculationMethod} onValueChange={setTamCalculationMethod}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="How did you calculate?" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="top-down">Top-Down (industry reports)</SelectItem>
+                        <SelectItem value="bottom-up">Bottom-Up (# customers × price)</SelectItem>
+                        <SelectItem value="value-theory">Value Theory (problem cost × reach)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-
                 <div className="space-y-2">
-                  <Label className="font-medium">SAM — Serviceable Addressable Market</Label>
-                  <p className="text-sm text-[hsl(var(--navy-deep))]/60">What portion can you realistically serve today?</p>
+                  <Label>Show your work — break down how you got this number</Label>
                   <Textarea
-                    value={sam}
-                    onChange={(e) => setSam(e.target.value)}
-                    placeholder="The segment you can reach..."
+                    value={tamBreakdown}
+                    onChange={(e) => setTamBreakdown(e.target.value)}
+                    placeholder="e.g., For LymeAlert: 476,000 new Lyme cases/year in US × $3,000 avg treatment cost = $1.4B direct treatment market. Endemic regions: Northeast (65%), Upper Midwest (25%), Pacific Coast (10%)..."
                     rows={3}
                   />
-                  <WordCounter current={sam} min={50} max={75} />
                 </div>
+              </div>
 
+              {/* SAM */}
+              <div className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
+                <Label className="font-semibold text-[hsl(var(--navy-deep))]">SAM — Serviceable Addressable Market</Label>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Serviceable Market Size *</Label>
+                    <Input
+                      value={samValue}
+                      onChange={(e) => setSamValue(e.target.value)}
+                      placeholder="e.g., $5B"
+                    />
+                  </div>
+                </div>
                 <div className="space-y-2">
-                  <Label className="font-medium">SOM — Serviceable Obtainable Market</Label>
-                  <p className="text-sm text-[hsl(var(--navy-deep))]/60">What share is achievable in the near-to-medium term?</p>
+                  <Label>What segments are you focusing on and why?</Label>
                   <Textarea
-                    value={som}
-                    onChange={(e) => setSom(e.target.value)}
-                    placeholder="Your realistic target..."
+                    value={samSegments}
+                    onChange={(e) => setSamSegments(e.target.value)}
+                    placeholder="e.g., Focusing on high-risk outdoor workers in endemic regions first (forestry, construction, landscaping) = 2.3M workers. Then expanding to recreational outdoor enthusiasts..."
                     rows={3}
                   />
-                  <WordCounter current={som} min={50} max={75} />
+                </div>
+              </div>
+
+              {/* SOM */}
+              <div className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
+                <Label className="font-semibold text-[hsl(var(--navy-deep))]">SOM — Serviceable Obtainable Market</Label>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Obtainable Market Size *</Label>
+                    <Input
+                      value={somValue}
+                      onChange={(e) => setSomValue(e.target.value)}
+                      placeholder="e.g., $500M"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Timeframe</Label>
+                    <Select value={somTimeframe} onValueChange={setSomTimeframe}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select timeframe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1-year">1 Year</SelectItem>
+                        <SelectItem value="2-years">2 Years</SelectItem>
+                        <SelectItem value="3-years">3 Years</SelectItem>
+                        <SelectItem value="5-years">5 Years</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>How will you capture this?</Label>
+                  <Textarea
+                    value={somStrategy}
+                    onChange={(e) => setSomStrategy(e.target.value)}
+                    placeholder="e.g., Year 1: Partner with 50 forestry companies in CT/MA/NY (15,000 workers). Year 2: Expand to all Northeast states + launch consumer app. Year 3: National rollout..."
+                    rows={3}
+                  />
                 </div>
               </div>
             </div>
 
-            {/* 4.2 Target Personas */}
+            {/* 4.2 Target Customer Personas - Restructured */}
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-base font-semibold">4.2 Target Customer Personas</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Describe your ideal customer as specifically as possible.
+                  Define your ideal customer profile
                 </p>
               </div>
-              <Textarea
-                value={targetPersonas}
-                onChange={(e) => setTargetPersonas(e.target.value)}
-                placeholder="Include size, industry, geography, and behavior..."
-                rows={4}
-              />
-              <WordCounter current={targetPersonas} min={75} max={100} />
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Industry *</Label>
+                  <Select value={targetIndustry} onValueChange={setTargetIndustry}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select industry" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="technology">Technology</SelectItem>
+                      <SelectItem value="healthcare">Healthcare</SelectItem>
+                      <SelectItem value="finance">Finance & Banking</SelectItem>
+                      <SelectItem value="retail">Retail & E-commerce</SelectItem>
+                      <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                      <SelectItem value="education">Education</SelectItem>
+                      <SelectItem value="real-estate">Real Estate</SelectItem>
+                      <SelectItem value="hospitality">Hospitality & Travel</SelectItem>
+                      <SelectItem value="agriculture">Agriculture</SelectItem>
+                      <SelectItem value="energy">Energy & Utilities</SelectItem>
+                      <SelectItem value="government">Government</SelectItem>
+                      <SelectItem value="consumer">Consumer / B2C</SelectItem>
+                      <SelectItem value="multiple">Multiple Industries</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Company Size</Label>
+                  <Select value={targetCompanySize} onValueChange={setTargetCompanySize}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="smb">SMB (1-50 employees)</SelectItem>
+                      <SelectItem value="mid-market">Mid-Market (51-500)</SelectItem>
+                      <SelectItem value="enterprise">Enterprise (500+)</SelectItem>
+                      <SelectItem value="consumer">Individual Consumers</SelectItem>
+                      <SelectItem value="all">All Sizes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Geography</Label>
+                  <Select value={targetGeography} onValueChange={setTargetGeography}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select geography" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="local">Local / Regional</SelectItem>
+                      <SelectItem value="national-us">National (US)</SelectItem>
+                      <SelectItem value="north-america">North America</SelectItem>
+                      <SelectItem value="europe">Europe</SelectItem>
+                      <SelectItem value="apac">Asia-Pacific</SelectItem>
+                      <SelectItem value="global">Global</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Customer Behavior & Pain Points</Label>
+                <Textarea
+                  value={targetBehavior}
+                  onChange={(e) => setTargetBehavior(e.target.value)}
+                  placeholder="What does your ideal customer currently do? What frustrates them? What triggers them to look for a solution?"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Describe Your Ideal Customer</Label>
+                <Textarea
+                  value={idealCustomerDescription}
+                  onChange={(e) => setIdealCustomerDescription(e.target.value)}
+                  placeholder="Paint a picture of your perfect customer. What role are they in? What does their day look like? Why are they a great fit for you?"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <Label className="font-semibold text-amber-800">Realistic Target Customers (Now)</Label>
+                <p className="text-sm text-amber-700 mb-2">
+                  Who are you actually going after right now? This isn't your market size — it's your actionable customer list.
+                </p>
+                <Textarea
+                  value={actionableCustomerBase}
+                  onChange={(e) => setActionableCustomerBase(e.target.value)}
+                  placeholder="e.g., 150 mid-size manufacturing companies in the Midwest that use legacy ERP systems and have shown interest in digital transformation..."
+                  rows={3}
+                />
+              </div>
             </div>
 
-            {/* 4.3 GTM Strategy */}
+            {/* 4.3 Competitive Landscape - Grid Layout */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">4.3 Go-to-Market Strategy</Label>
+                <Label className="text-base font-semibold">4.3 Competitive Landscape</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How do customers discover, adopt, and purchase your product today?
+                  List up to 3 comparable companies and how you differ
                 </p>
               </div>
-              <Textarea
-                value={gtmStrategy}
-                onChange={(e) => setGtmStrategy(e.target.value)}
-                placeholder="Include sales motion, marketing channels, and partnerships..."
-                rows={4}
-              />
-              <WordCounter current={gtmStrategy} min={75} max={100} />
-            </div>
-
-            {/* 4.4 Competitive Landscape */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">4.4 Competitive Landscape</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  List up to 5 comparable companies and how you differ.
-                </p>
+              
+              <div className="grid gap-4">
+                {competitors.map((competitor, index) => (
+                  <div key={index} className="grid md:grid-cols-2 gap-4 p-4 border border-[hsl(var(--navy-deep))]/10 rounded-lg bg-white">
+                    <div className="space-y-2">
+                      <Label>Competitor {index + 1}</Label>
+                      <Input
+                        value={competitor.name}
+                        onChange={(e) => updateCompetitor(index, "name", e.target.value)}
+                        placeholder="Company name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>How You Differ</Label>
+                      <Input
+                        value={competitor.howYouDiffer}
+                        onChange={(e) => updateCompetitor(index, "howYouDiffer", e.target.value)}
+                        placeholder="Your key differentiator"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <Textarea
-                value={competitors}
-                onChange={(e) => setCompetitors(e.target.value)}
-                placeholder="Company 1, Company 2... and how you differentiate..."
-                rows={3}
-              />
-              <WordCounter current={competitors} min={40} max={50} />
             </div>
 
-            {/* 4.5 Competitive Moat */}
+            {/* 4.4 Competitive Moat */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">4.5 Competitive Moat</Label>
+                <Label className="text-base font-semibold">4.4 Competitive Moat</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
                   What is your defensible advantage over competitors?
                 </p>
