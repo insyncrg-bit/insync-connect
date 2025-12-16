@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Upload, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -25,6 +25,7 @@ interface TeamMember {
 // Competitor type
 interface Competitor {
   name: string;
+  description: string;
   howYouDiffer: string;
 }
 
@@ -32,6 +33,7 @@ export default function FounderApplication() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
   const [sectionErrors, setSectionErrors] = useState<string[]>([]);
 
@@ -84,7 +86,7 @@ export default function FounderApplication() {
   const [revenueMetrics, setRevenueMetrics] = useState<string[]>([]);
   const [revenueMetricsValues, setRevenueMetricsValues] = useState("");
 
-  // Section 4 - Market & GTM
+  // Section 4 - Market Sizing
   const [tamValue, setTamValue] = useState("");
   const [tamCalculationMethod, setTamCalculationMethod] = useState("");
   const [tamBreakdown, setTamBreakdown] = useState("");
@@ -93,18 +95,16 @@ export default function FounderApplication() {
   const [somValue, setSomValue] = useState("");
   const [somTimeframe, setSomTimeframe] = useState("");
   const [somStrategy, setSomStrategy] = useState("");
-  // Target personas
-  const [targetIndustry, setTargetIndustry] = useState("");
-  const [targetCompanySize, setTargetCompanySize] = useState("");
+
+  // Section 5 - Target Customer
   const [targetGeography, setTargetGeography] = useState("");
-  const [targetBehavior, setTargetBehavior] = useState("");
-  const [idealCustomerDescription, setIdealCustomerDescription] = useState("");
-  const [actionableCustomerBase, setActionableCustomerBase] = useState("");
-  // Competitors
+  const [targetCustomerDescription, setTargetCustomerDescription] = useState("");
+
+  // Section 6 - Competitors
   const [competitors, setCompetitors] = useState<Competitor[]>([
-    { name: "", howYouDiffer: "" },
-    { name: "", howYouDiffer: "" },
-    { name: "", howYouDiffer: "" },
+    { name: "", description: "", howYouDiffer: "" },
+    { name: "", description: "", howYouDiffer: "" },
+    { name: "", description: "", howYouDiffer: "" },
   ]);
   const [competitiveMoat, setCompetitiveMoat] = useState("");
 
@@ -148,7 +148,9 @@ export default function FounderApplication() {
     "Team & Overview",
     "The Problem",
     "Business Model",
-    "Market & GTM",
+    "Market Sizing",
+    "Target Customer",
+    "Competitors",
   ];
 
   const getRelevantMetrics = () => {
@@ -234,7 +236,12 @@ export default function FounderApplication() {
         if (!tamValue.trim()) errors.push("TAM value is required");
         if (!samValue.trim()) errors.push("SAM value is required");
         if (!somValue.trim()) errors.push("SOM value is required");
-        if (!targetIndustry) errors.push("Target industry is required");
+        break;
+      case 6:
+        if (!targetGeography.trim()) errors.push("Target geography is required");
+        if (countWords(targetCustomerDescription) < 20) errors.push("Customer description needs at least 20 words");
+        break;
+      case 7:
         break;
     }
 
@@ -344,12 +351,12 @@ export default function FounderApplication() {
           somValue,
           somTimeframe,
           somStrategy,
-          targetIndustry,
-          targetCompanySize,
+        },
+        section5: {
           targetGeography,
-          targetBehavior,
-          idealCustomerDescription,
-          actionableCustomerBase,
+          targetCustomerDescription,
+        },
+        section6: {
           competitors,
           competitiveMoat,
         },
@@ -380,12 +387,7 @@ export default function FounderApplication() {
 
       if (insertError) throw insertError;
 
-      toast({
-        title: "Application Submitted!",
-        description: "Welcome to the ecosystem! Explore your dashboard.",
-      });
-
-      navigate("/founder-dashboard");
+      setIsSubmitted(true);
     } catch (error) {
       toast({
         title: "Submission Error",
@@ -406,6 +408,39 @@ export default function FounderApplication() {
       </p>
     );
   };
+
+  // Thank You Page
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{ background: "var(--gradient-navy-teal)" }}>
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2 -translate-x-1/2" />
+        </div>
+
+        <div className="relative z-10 max-w-2xl mx-auto px-4 text-center">
+          <div className="bg-white/95 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/20 rounded-2xl p-12 shadow-2xl">
+            <div className="w-20 h-20 mx-auto mb-6 bg-[hsl(var(--cyan-glow))]/20 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-[hsl(var(--cyan-glow))]" />
+            </div>
+            <h1 className="text-3xl font-bold text-[hsl(var(--navy-deep))] mb-4">
+              Thank You for Your Submission
+            </h1>
+            <p className="text-lg text-[hsl(var(--navy-deep))]/70 mb-8">
+              We will get back to you after reviewing your memo and provide access to your curated database.
+            </p>
+            <Button
+              onClick={() => navigate("/founder-dashboard")}
+              className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 font-semibold px-8"
+            >
+              Go to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const renderSection = () => {
     switch (currentSection) {
@@ -446,110 +481,103 @@ export default function FounderApplication() {
             </div>
 
             <p className="text-sm text-[hsl(var(--navy-deep))]/60 text-center italic">
-              Please respect the minimum and maximum word limits — they are intentional.
+              Your answers will be kept confidential and only shared with approved investors.
             </p>
           </div>
         );
 
       case 1:
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Company Information</h2>
               <p className="text-[hsl(var(--navy-deep))]/70">Tell us about your company</p>
             </div>
 
-            {/* Company Logo */}
-            <div className="space-y-3">
-              <Label>Company Logo</Label>
-              <div className="flex items-center gap-6">
-                <div className="w-24 h-24 border-2 border-dashed border-[hsl(var(--cyan-glow))]/30 rounded-xl flex items-center justify-center overflow-hidden bg-white">
-                  {logoPreview ? (
-                    <img src={logoPreview} alt="Logo preview" className="w-full h-full object-contain" />
-                  ) : (
-                    <Upload className="h-8 w-8 text-[hsl(var(--navy-deep))]/40" />
-                  )}
-                </div>
+            {/* Logo Upload */}
+            <div className="space-y-2">
+              <Label className="font-medium">Company Logo</Label>
+              <div className="flex items-center gap-4">
+                {logoPreview ? (
+                  <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-[hsl(var(--cyan-glow))]/30">
+                    <img src={logoPreview} alt="Company logo" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 rounded-lg border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center">
+                    <Upload className="w-8 h-8 text-[hsl(var(--navy-deep))]/40" />
+                  </div>
+                )}
                 <div>
-                  <input
+                  <Input
                     type="file"
                     accept="image/*"
                     onChange={handleLogoUpload}
                     className="hidden"
                     id="logo-upload"
                   />
-                  <Label
-                    htmlFor="logo-upload"
-                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-[hsl(var(--navy-deep))]/10 hover:bg-[hsl(var(--navy-deep))]/20 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Upload Logo
+                  <Label htmlFor="logo-upload" className="cursor-pointer">
+                    <Button type="button" variant="outline" asChild>
+                      <span>Upload Logo</span>
+                    </Button>
                   </Label>
-                  <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PNG, JPG up to 2MB</p>
+                  <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PNG, JPG up to 5MB</p>
                 </div>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name *</Label>
+                <Label className="font-medium">Company Name *</Label>
                 <Input
-                  id="companyName"
                   value={basicInfo.companyName}
                   onChange={(e) => setBasicInfo({ ...basicInfo, companyName: e.target.value })}
-                  placeholder="Your Startup Inc."
-                  required
+                  placeholder="Your company name"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
+                <Label className="font-medium">Website</Label>
                 <Input
-                  id="website"
-                  type="url"
                   value={basicInfo.website}
                   onChange={(e) => setBasicInfo({ ...basicInfo, website: e.target.value })}
-                  placeholder="https://yourstartup.com"
+                  placeholder="https://yourcompany.com"
                 />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="linkedIn">Company LinkedIn</Label>
-              <Input
-                id="linkedIn"
-                type="url"
-                value={basicInfo.linkedIn}
-                onChange={(e) => setBasicInfo({ ...basicInfo, linkedIn: e.target.value })}
-                placeholder="https://linkedin.com/company/yourstartup"
-              />
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="vertical">Vertical *</Label>
-                <Select value={basicInfo.vertical} onValueChange={(value) => setBasicInfo({ ...basicInfo, vertical: value })}>
-                  <SelectTrigger id="vertical">
+                <Label className="font-medium">LinkedIn</Label>
+                <Input
+                  value={basicInfo.linkedIn}
+                  onChange={(e) => setBasicInfo({ ...basicInfo, linkedIn: e.target.value })}
+                  placeholder="Company LinkedIn URL"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-medium">Vertical *</Label>
+                <Select value={basicInfo.vertical} onValueChange={(v) => setBasicInfo({ ...basicInfo, vertical: v })}>
+                  <SelectTrigger>
                     <SelectValue placeholder="Select vertical" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ai-ml">AI/ML</SelectItem>
-                    <SelectItem value="fintech">FinTech</SelectItem>
-                    <SelectItem value="healthtech">HealthTech</SelectItem>
-                    <SelectItem value="climate">Climate Tech</SelectItem>
-                    <SelectItem value="saas">SaaS</SelectItem>
-                    <SelectItem value="hardware">Hardware</SelectItem>
-                    <SelectItem value="biotech">BioTech</SelectItem>
+                    <SelectItem value="ai-ml">AI / Machine Learning</SelectItem>
+                    <SelectItem value="fintech">Fintech</SelectItem>
+                    <SelectItem value="healthtech">Healthtech</SelectItem>
+                    <SelectItem value="edtech">Edtech</SelectItem>
+                    <SelectItem value="enterprise">Enterprise SaaS</SelectItem>
+                    <SelectItem value="consumer">Consumer</SelectItem>
+                    <SelectItem value="marketplace">Marketplace</SelectItem>
+                    <SelectItem value="hardware">Hardware / IoT</SelectItem>
+                    <SelectItem value="climate">Climate / Cleantech</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="stage">Stage *</Label>
-                <Select value={basicInfo.stage} onValueChange={(value) => setBasicInfo({ ...basicInfo, stage: value })}>
-                  <SelectTrigger id="stage">
+                <Label className="font-medium">Stage *</Label>
+                <Select value={basicInfo.stage} onValueChange={(v) => setBasicInfo({ ...basicInfo, stage: v })}>
+                  <SelectTrigger>
                     <SelectValue placeholder="Select stage" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="idea">Idea / Concept</SelectItem>
                     <SelectItem value="pre-seed">Pre-Seed</SelectItem>
                     <SelectItem value="seed">Seed</SelectItem>
                     <SelectItem value="series-a">Series A</SelectItem>
@@ -557,15 +585,12 @@ export default function FounderApplication() {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="location">Location *</Label>
+                <Label className="font-medium">Headquarters *</Label>
                 <Input
-                  id="location"
                   value={basicInfo.location}
                   onChange={(e) => setBasicInfo({ ...basicInfo, location: e.target.value })}
-                  placeholder="Boston, MA"
-                  required
+                  placeholder="City, State/Country"
                 />
               </div>
             </div>
@@ -576,124 +601,122 @@ export default function FounderApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 1 — Company Overview & Team</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">Help us understand your company and the people behind it</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 1 — Your Team & Company Overview</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">Who's building this and what does the company do?</p>
             </div>
 
+            {/* 1.1 Company Overview */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">1.1 Problem Statement</Label>
+                <Label className="text-base font-semibold">1.1 Tell us about your company</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Describe the existing problem your company is trying to solve. What pain point are you addressing?
+                  One paragraph that clearly explains what your company does, the problem it solves, and who it's for. This is your pitch.
                 </p>
-                <Textarea
-                  value={companyOverview}
-                  onChange={(e) => setCompanyOverview(e.target.value)}
-                  placeholder="The problem we're solving is... Our target customers struggle with..."
-                  rows={4}
-                />
-                <WordCounter current={companyOverview} min={30} max={50} />
               </div>
+              <Textarea
+                value={companyOverview}
+                onChange={(e) => setCompanyOverview(e.target.value)}
+                placeholder="We're building [what] for [who] to solve [problem]. Currently, [pain point]. Our solution [how it works] which results in [outcome]..."
+                rows={5}
+              />
+              <WordCounter current={companyOverview} min={30} max={100} />
             </div>
 
+            {/* 1.2 Founder / Key Contact */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">1.2 Team & Expertise</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  List key team members relevant to understanding the credibility of who is running the company. Focus on founders and critical hires.
-                </p>
+                <Label className="text-base font-semibold">1.2 Your Information</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Primary contact for this application</p>
               </div>
-
-              {/* Primary Contact / First Founder */}
-              <div className="p-4 border-2 border-[hsl(var(--cyan-glow))]/30 rounded-lg space-y-4 bg-[hsl(var(--cyan-glow))]/5">
-                <span className="font-medium text-[hsl(var(--navy-deep))]">Primary Contact (You)</span>
-                <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Your Name *</Label>
                   <Input
-                    placeholder="Your Name *"
                     value={founderName}
                     onChange={(e) => setFounderName(e.target.value)}
-                    required
-                  />
-                  <Input
-                    placeholder="Your Role *"
-                    value={teamMembers[0]?.role || ""}
-                    onChange={(e) => updateTeamMember(0, "role", e.target.value)}
+                    placeholder="Full name"
                   />
                 </div>
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Your Email *</Label>
                   <Input
                     type="email"
-                    placeholder="Your Email *"
                     value={founderEmail}
                     onChange={(e) => setFounderEmail(e.target.value)}
-                    required
-                  />
-                  <Input
-                    type="url"
-                    placeholder="LinkedIn Profile"
-                    value={teamMembers[0]?.linkedin || ""}
-                    onChange={(e) => updateTeamMember(0, "linkedin", e.target.value)}
+                    placeholder="you@company.com"
                   />
                 </div>
-                <Textarea
-                  placeholder="Your relevant experience, domain expertise, or execution strength..."
-                  value={teamMembers[0]?.background || ""}
-                  onChange={(e) => updateTeamMember(0, "background", e.target.value)}
-                  rows={2}
-                />
-                <WordCounter current={teamMembers[0]?.background || ""} min={20} max={50} />
               </div>
+            </div>
 
-              {/* Additional Key Team Members */}
-              {teamMembers.slice(1).map((member, index) => (
-                <div key={index + 1} className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4 bg-white/50">
+            {/* 1.3 Team */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">1.3 Team Members</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Add your founding team and key hires</p>
+              </div>
+              
+              {teamMembers.map((member, index) => (
+                <div key={index} className="p-4 border border-[hsl(var(--navy-deep))]/10 rounded-lg space-y-4 bg-white">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-[hsl(var(--navy-deep))]">Key Team Member</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeTeamMember(index + 1)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <Label className="font-medium">Team Member {index + 1}</Label>
+                    {teamMembers.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeTeamMember(index)}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <Input
-                      placeholder="Name"
-                      value={member.name}
-                      onChange={(e) => updateTeamMember(index + 1, "name", e.target.value)}
-                    />
-                    <Input
-                      placeholder="Role"
-                      value={member.role}
-                      onChange={(e) => updateTeamMember(index + 1, "role", e.target.value)}
-                    />
+                    <div className="space-y-2">
+                      <Label>Name</Label>
+                      <Input
+                        value={member.name}
+                        onChange={(e) => updateTeamMember(index, "name", e.target.value)}
+                        placeholder="Full name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Role *</Label>
+                      <Input
+                        value={member.role}
+                        onChange={(e) => updateTeamMember(index, "role", e.target.value)}
+                        placeholder="e.g., CEO, CTO, Head of Product"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>LinkedIn</Label>
+                      <Input
+                        value={member.linkedin}
+                        onChange={(e) => updateTeamMember(index, "linkedin", e.target.value)}
+                        placeholder="LinkedIn URL"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Background</Label>
+                      <Input
+                        value={member.background}
+                        onChange={(e) => updateTeamMember(index, "background", e.target.value)}
+                        placeholder="Previous experience (1-2 highlights)"
+                      />
+                    </div>
                   </div>
-                  <Input
-                    type="url"
-                    placeholder="LinkedIn Profile"
-                    value={member.linkedin}
-                    onChange={(e) => updateTeamMember(index + 1, "linkedin", e.target.value)}
-                  />
-                  <Textarea
-                    placeholder="Relevant experience, domain expertise, or execution strength..."
-                    value={member.background}
-                    onChange={(e) => updateTeamMember(index + 1, "background", e.target.value)}
-                    rows={2}
-                  />
-                  <WordCounter current={member.background} min={20} max={50} />
                 </div>
               ))}
-
+              
               <Button
                 type="button"
                 variant="outline"
                 onClick={addTeamMember}
-                className="w-full border-dashed border-[hsl(var(--cyan-glow))]/40"
+                className="w-full border-dashed"
               >
-                <Plus className="h-4 w-4 mr-2" /> Add Key Team Member
+                <Plus className="h-4 w-4 mr-2" />
+                Add Team Member
               </Button>
             </div>
           </div>
@@ -703,149 +726,80 @@ export default function FounderApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 2 — Value & Impact</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">Select all value types that apply to your solution, then describe each</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 2 — The Problem</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">What pain point are you solving and why does it matter?</p>
             </div>
 
-            {/* Current Pain Point */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">What is the existing problem?</Label>
-              <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                Describe the current pain point your target customers face — not your solution, but the problem itself.
-              </p>
+            {/* 2.1 Current Pain Point */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">2.1 What problem are you solving?</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  Describe the core pain point your target customer faces. Be specific — vague problems lead to vague solutions.
+                </p>
+              </div>
               <Textarea
                 value={currentPainPoint}
                 onChange={(e) => setCurrentPainPoint(e.target.value)}
-                placeholder="Today, [target customers] struggle with... The pain point is..."
-                rows={3}
+                placeholder="Today, [target customer] struggles with [specific problem]. This happens because [root cause]. The impact is [consequence]..."
+                rows={4}
               />
-              <WordCounter current={currentPainPoint} min={20} max={50} />
+              <WordCounter current={currentPainPoint} min={20} max={100} />
             </div>
 
-            {/* Value Type Selection */}
+            {/* 2.2 Value Type */}
             <div className="space-y-4">
-              <Label className="text-base font-semibold">What types of value does your solution provide?</Label>
-              <p className="text-sm text-[hsl(var(--navy-deep))]/60">Select all that apply — you'll describe each one below</p>
-              
-              <div className="grid gap-3">
-                {[
-                  { id: "scalability", label: "True Scalability", desc: "Makes life easier, more efficient, or intuitive" },
-                  { id: "severity", label: "Severity / Urgency", desc: "Solves an urgent or costly problem" },
-                  { id: "unique-tech", label: "Unique Value / Technology", desc: "Has tech or approach that's uniquely attractive" },
-                  { id: "emotional", label: "Emotional / Social Value", desc: "Creates status, trust, or peace of mind" },
-                  { id: "adaptability", label: "Adaptability", desc: "Works across regions, geographies, or customer groups" },
-                ].map((item) => (
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">2.2 What type of value do you deliver?</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Select all that apply</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {VALUE_DRIVERS.map((driver) => (
                   <div
-                    key={item.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      valueDrivers.includes(item.id)
+                    key={driver}
+                    className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                      valueDrivers.includes(driver)
                         ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
                         : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
                     }`}
-                    onClick={() => toggleCheckbox(item.id, valueDrivers, setValueDrivers)}
+                    onClick={() => toggleCheckbox(driver, valueDrivers, setValueDrivers)}
                   >
-                    <div className="flex items-center gap-3">
-                      <Checkbox
-                        checked={valueDrivers.includes(item.id)}
-                        onCheckedChange={() => {}}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <div>
-                        <p className="font-medium text-[hsl(var(--navy-deep))]">{item.label}</p>
-                        <p className="text-sm text-[hsl(var(--navy-deep))]/60">{item.desc}</p>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox checked={valueDrivers.includes(driver)} />
+                      <span className="text-sm">{driver}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Conditional Text Areas based on selection */}
-            {valueDrivers.includes("scalability") && (
-              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
-                <Label className="text-base font-semibold">True Scalability</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Describe how your solution makes life easier, more efficient, or intuitive.
-                </p>
-                <Textarea
-                  value={valueProposition}
-                  onChange={(e) => setValueProposition(e.target.value)}
-                  placeholder="Our solution saves [X hours/dollars] by... It simplifies..."
-                  rows={3}
-                />
-                <WordCounter current={valueProposition} min={40} max={75} />
+            {/* 2.3 Severity */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">2.3 How urgent is this problem?</Label>
               </div>
-            )}
+              <Textarea
+                value={severityUrgency}
+                onChange={(e) => setSeverityUrgency(e.target.value)}
+                placeholder="What happens if the customer does nothing? Is this a nice-to-have or a burning need?"
+                rows={3}
+              />
+              <WordCounter current={severityUrgency} min={20} max={75} />
+            </div>
 
-            {valueDrivers.includes("severity") && (
-              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
-                <Label className="text-base font-semibold">Severity / Urgency</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How urgent or costly is this problem? What triggers customers to seek a solution NOW?
-                </p>
-                <Textarea
-                  value={severityUrgency}
-                  onChange={(e) => setSeverityUrgency(e.target.value)}
-                  placeholder="This problem costs customers [X] per year... The urgency comes from..."
-                  rows={3}
-                />
-                <WordCounter current={severityUrgency} min={40} max={75} />
+            {/* 2.4 Unique Value */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">2.4 What makes your solution unique?</Label>
               </div>
-            )}
-
-            {valueDrivers.includes("unique-tech") && (
-              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
-                <Label className="text-base font-semibold">Unique Value / Technology</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  What makes your approach uniquely attractive? Why can't competitors easily replicate it?
-                </p>
-                <Textarea
-                  value={uniqueValue}
-                  onChange={(e) => setUniqueValue(e.target.value)}
-                  placeholder="Our unique advantage is... Competitors can't replicate this because..."
-                  rows={3}
-                />
-                <WordCounter current={uniqueValue} min={40} max={75} />
-              </div>
-            )}
-
-            {valueDrivers.includes("emotional") && (
-              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
-                <Label className="text-base font-semibold">Emotional / Social Value</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How does your product create status, trust, confidence, or peace of mind?
-                </p>
-                <Textarea
-                  value={emotionalValue}
-                  onChange={(e) => setEmotionalValue(e.target.value)}
-                  placeholder="Users feel [confident/secure/proud] because..."
-                  rows={3}
-                />
-                <WordCounter current={emotionalValue} min={40} max={75} />
-              </div>
-            )}
-
-            {valueDrivers.includes("adaptability") && (
-              <div className="space-y-3 p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg">
-                <Label className="text-base font-semibold">Adaptability</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  How does your solution work across different regions, industries, or customer segments?
-                </p>
-                <Textarea
-                  value={adaptability}
-                  onChange={(e) => setAdaptability(e.target.value)}
-                  placeholder="Our solution works across [regions/industries] because..."
-                  rows={3}
-                />
-                <WordCounter current={adaptability} min={40} max={75} />
-              </div>
-            )}
-
-            {valueDrivers.length === 0 && (
-              <div className="p-6 border-2 border-dashed border-[hsl(var(--navy-deep))]/20 rounded-lg text-center">
-                <p className="text-[hsl(var(--navy-deep))]/60">Select at least one value type above to continue</p>
-              </div>
-            )}
+              <Textarea
+                value={uniqueValue}
+                onChange={(e) => setUniqueValue(e.target.value)}
+                placeholder="What can you do that competitors can't? What's your unfair advantage?"
+                rows={3}
+              />
+              <WordCounter current={uniqueValue} min={20} max={75} />
+            </div>
           </div>
         );
 
@@ -853,50 +807,52 @@ export default function FounderApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 3 — Business Model & Profitability</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">How you make money and scale</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 3 — Business Model</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">How do you make money and reach customers?</p>
             </div>
 
             {/* 3.1 Customer Type */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">3.1 Customer Type</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Who do you primarily sell to?</p>
+                <Label className="text-base font-semibold">3.1 Who is your customer?</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Select your primary customer type</p>
               </div>
-              <div className="flex gap-6">
+              <div className="flex flex-wrap gap-3">
                 {CUSTOMER_TYPES.map((type) => (
-                  <div key={type} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`customer-${type}`}
-                      checked={customerType.includes(type)}
-                      onCheckedChange={() => toggleCheckbox(type, customerType, setCustomerType)}
-                    />
-                    <Label htmlFor={`customer-${type}`} className="cursor-pointer">{type}</Label>
+                  <div
+                    key={type}
+                    className={`px-4 py-2 border rounded-full cursor-pointer transition-all ${
+                      customerType.includes(type)
+                        ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--navy-deep))]"
+                        : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
+                    }`}
+                    onClick={() => toggleCheckbox(type, customerType, setCustomerType)}
+                  >
+                    <span className="text-sm font-medium">{type}</span>
                   </div>
                 ))}
               </div>
-              <Textarea
-                value={customerTypeExplanation}
-                onChange={(e) => setCustomerTypeExplanation(e.target.value)}
-                placeholder="Explain why this aligns with the value you deliver..."
-                rows={3}
-              />
-              <WordCounter current={customerTypeExplanation} min={50} max={75} />
+              {customerType.length > 0 && (
+                <Textarea
+                  value={customerTypeExplanation}
+                  onChange={(e) => setCustomerTypeExplanation(e.target.value)}
+                  placeholder="Briefly describe your buyer persona and decision-maker..."
+                  rows={2}
+                />
+              )}
             </div>
 
-            {/* 3.2 Go-to-Market */}
+            {/* 3.2 GTM Strategy */}
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-base font-semibold">3.2 Go-to-Market Strategy</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  First, describe your go-to-market approach
-                </p>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How do you acquire customers?</p>
               </div>
               <Textarea
                 value={gtmDescription}
                 onChange={(e) => setGtmDescription(e.target.value)}
-                placeholder="How do customers discover and purchase your product? What are your primary acquisition channels?"
-                rows={3}
+                placeholder="Describe your current or planned customer acquisition channels, sales process, and how you convert leads to customers..."
+                rows={4}
               />
               <WordCounter current={gtmDescription} min={50} max={100} />
 
@@ -1118,13 +1074,13 @@ export default function FounderApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 4 — Market & Go-to-Market</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">Market opportunity and competitive positioning</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 4 — Market Sizing</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">How big is the opportunity?</p>
             </div>
 
-            {/* 4.1 TAM/SAM/SOM - Restructured */}
+            {/* Market Opportunity */}
             <div className="space-y-6">
-              <Label className="text-base font-semibold">4.1 Market Opportunity (TAM → SAM → SOM)</Label>
+              <Label className="text-base font-semibold">Market Opportunity (TAM → SAM → SOM)</Label>
               <p className="text-sm text-[hsl(var(--navy-deep))]/60 bg-blue-50 p-3 rounded-lg">
                 💡 <strong>Tip:</strong> TAM = Total market if you had 100% share. SAM = Segment you can actually reach. SOM = What you can realistically capture in 2-3 years.
               </p>
@@ -1228,144 +1184,110 @@ export default function FounderApplication() {
                 </div>
               </div>
             </div>
+          </div>
+        );
 
-            {/* 4.2 Target Customer Personas - Restructured */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">4.2 Target Customer Personas</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Define your ideal customer profile
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Industry *</Label>
-                  <Select value={targetIndustry} onValueChange={setTargetIndustry}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select industry" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="technology">Technology</SelectItem>
-                      <SelectItem value="healthcare">Healthcare</SelectItem>
-                      <SelectItem value="finance">Finance & Banking</SelectItem>
-                      <SelectItem value="retail">Retail & E-commerce</SelectItem>
-                      <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                      <SelectItem value="education">Education</SelectItem>
-                      <SelectItem value="real-estate">Real Estate</SelectItem>
-                      <SelectItem value="hospitality">Hospitality & Travel</SelectItem>
-                      <SelectItem value="agriculture">Agriculture</SelectItem>
-                      <SelectItem value="energy">Energy & Utilities</SelectItem>
-                      <SelectItem value="government">Government</SelectItem>
-                      <SelectItem value="consumer">Consumer / B2C</SelectItem>
-                      <SelectItem value="multiple">Multiple Industries</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Company Size</Label>
-                  <Select value={targetCompanySize} onValueChange={setTargetCompanySize}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select size" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="smb">SMB (1-50 employees)</SelectItem>
-                      <SelectItem value="mid-market">Mid-Market (51-500)</SelectItem>
-                      <SelectItem value="enterprise">Enterprise (500+)</SelectItem>
-                      <SelectItem value="consumer">Individual Consumers</SelectItem>
-                      <SelectItem value="all">All Sizes</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Geography</Label>
-                  <Select value={targetGeography} onValueChange={setTargetGeography}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select geography" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="local">Local / Regional</SelectItem>
-                      <SelectItem value="national-us">National (US)</SelectItem>
-                      <SelectItem value="north-america">North America</SelectItem>
-                      <SelectItem value="europe">Europe</SelectItem>
-                      <SelectItem value="apac">Asia-Pacific</SelectItem>
-                      <SelectItem value="global">Global</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Customer Behavior & Pain Points</Label>
-                <Textarea
-                  value={targetBehavior}
-                  onChange={(e) => setTargetBehavior(e.target.value)}
-                  placeholder="What does your ideal customer currently do? What frustrates them? What triggers them to look for a solution?"
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Describe Your Ideal Customer</Label>
-                <Textarea
-                  value={idealCustomerDescription}
-                  onChange={(e) => setIdealCustomerDescription(e.target.value)}
-                  placeholder="Paint a picture of your perfect customer. What role are they in? What does their day look like? Why are they a great fit for you?"
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <Label className="font-semibold text-amber-800">Realistic Target Customers (Now)</Label>
-                <p className="text-sm text-amber-700 mb-2">
-                  Who are you actually going after right now? This isn't your market size — it's your actionable customer list.
-                </p>
-                <Textarea
-                  value={actionableCustomerBase}
-                  onChange={(e) => setActionableCustomerBase(e.target.value)}
-                  placeholder="e.g., 150 mid-size manufacturing companies in the Midwest that use legacy ERP systems and have shown interest in digital transformation..."
-                  rows={3}
-                />
-              </div>
+      case 6:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 5 — Target Customer</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">Who exactly are you selling to?</p>
             </div>
 
-            {/* 4.3 Competitive Landscape - Grid Layout */}
+            {/* Geography */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">4.3 Competitive Landscape</Label>
+                <Label className="text-base font-semibold">5.1 Target Geography *</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  List up to 3 comparable companies and how you differ
+                  Be specific about your geographic focus. Include regions, cities, states, or countries you're targeting.
+                </p>
+              </div>
+              <Textarea
+                value={targetGeography}
+                onChange={(e) => setTargetGeography(e.target.value)}
+                placeholder="e.g., Initially focusing on the Northeast US corridor (Boston to Washington DC) due to high concentration of target enterprise customers. Expanding to Chicago and San Francisco metro areas in Year 2..."
+                rows={3}
+              />
+            </div>
+
+            {/* Target Customer Description */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">5.2 Describe Your Target Customer *</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  Paint a complete picture of who you're selling to. Include their role, what their day looks like, their pain points, and why they're the right fit. Also describe who you're actually going after right now — your actionable customer list.
+                </p>
+              </div>
+              <Textarea
+                value={targetCustomerDescription}
+                onChange={(e) => setTargetCustomerDescription(e.target.value)}
+                placeholder="Our ideal customer is a VP of Operations at a mid-size manufacturing company (100-500 employees) who is frustrated by outdated inventory management. They spend 3+ hours daily reconciling spreadsheets and have been burned by stockouts. Right now, we're targeting 150 specific manufacturing companies in the Midwest that use legacy ERP systems..."
+                rows={6}
+              />
+              <WordCounter current={targetCustomerDescription} min={20} max={200} />
+            </div>
+          </div>
+        );
+
+      case 7:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 6 — Competitive Landscape</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">Who else is solving this problem?</p>
+            </div>
+
+            {/* Competitors */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">6.1 Competitors</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  List up to 3 competitors. Describe what they do and how you're different.
                 </p>
               </div>
               
-              <div className="grid gap-4">
+              <div className="space-y-4">
                 {competitors.map((competitor, index) => (
-                  <div key={index} className="grid md:grid-cols-2 gap-4 p-4 border border-[hsl(var(--navy-deep))]/10 rounded-lg bg-white">
-                    <div className="space-y-2">
-                      <Label>Competitor {index + 1}</Label>
-                      <Input
-                        value={competitor.name}
-                        onChange={(e) => updateCompetitor(index, "name", e.target.value)}
-                        placeholder="Company name"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>How You Differ</Label>
-                      <Input
-                        value={competitor.howYouDiffer}
-                        onChange={(e) => updateCompetitor(index, "howYouDiffer", e.target.value)}
-                        placeholder="Your key differentiator"
-                      />
+                  <div key={index} className="p-4 border border-[hsl(var(--navy-deep))]/10 rounded-lg bg-white space-y-4">
+                    <Label className="font-medium text-[hsl(var(--navy-deep))]">Competitor {index + 1}</Label>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Company Name</Label>
+                        <Input
+                          value={competitor.name}
+                          onChange={(e) => updateCompetitor(index, "name", e.target.value)}
+                          placeholder="Competitor name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>What They Do</Label>
+                        <Textarea
+                          value={competitor.description}
+                          onChange={(e) => updateCompetitor(index, "description", e.target.value)}
+                          placeholder="Describe their product/service, target market, and approach..."
+                          rows={2}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>How You Differ</Label>
+                        <Textarea
+                          value={competitor.howYouDiffer}
+                          onChange={(e) => updateCompetitor(index, "howYouDiffer", e.target.value)}
+                          placeholder="What's your key differentiator against this competitor?"
+                          rows={2}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* 4.4 Competitive Moat */}
+            {/* Competitive Moat */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">4.4 Competitive Moat</Label>
+                <Label className="text-base font-semibold">6.2 Competitive Moat</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
                   What is your defensible advantage over competitors?
                 </p>
