@@ -4,73 +4,1073 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Upload } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { ArrowLeft, ArrowRight, Upload, Check, Building2, Briefcase, Target, Users, Handshake, MessageSquare, FolderOpen, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { z } from "zod";
 
-const applicationSchema = z.object({
-  contactName: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
-  email: z.string().trim().email("Invalid email address").max(255),
-  firmName: z.string().trim().min(2, "Firm name required").max(100),
-  website: z.string().trim().url("Invalid URL").optional().or(z.literal("")),
-  firmType: z.string().min(1, "Please select firm type"),
-  checkSize: z.string().min(1, "Please select check size"),
-  investmentStage: z.string().min(1, "Please select investment stage"),
-  investmentThesis: z.string().trim().min(50, "Please provide at least 50 characters").max(1000),
-  portfolio: z.string().trim().min(20, "Please provide portfolio examples").max(500),
-  whyPartner: z.string().trim().min(20, "Please describe why you want to partner").max(500),
-});
+const STEPS = [
+  { id: 1, title: "Admin & Verification", icon: Shield },
+  { id: 2, title: "Fund Overview", icon: Building2 },
+  { id: 3, title: "Investment Thesis", icon: Target },
+  { id: 4, title: "What You Look For", icon: Users },
+  { id: 5, title: "Deal Mechanics", icon: Briefcase },
+  { id: 6, title: "Value-Add", icon: Handshake },
+  { id: 7, title: "Outreach Preferences", icon: MessageSquare },
+  { id: 8, title: "Portfolio & Conflicts", icon: FolderOpen },
+];
+
+const FUND_TYPES = ["VC", "Micro-VC", "Seed Fund", "Angel Syndicate", "CVC", "Family Office", "Accelerator Fund"];
+const CHECK_SIZES = ["<$50K", "$50–150K", "$150–250K", "$250–500K", "$500K–$1M", "$1–3M", "$3–7M", "$7M+"];
+const STAGE_FOCUS = ["Pre-seed", "Seed", "Series A", "Series B+"];
+const SECTOR_TAGS = ["AI/ML", "FinTech", "Health", "Climate", "DevTools", "Consumer", "Marketplace", "SaaS", "Biotech", "Other"];
+const LEAD_FOLLOW = ["Lead", "Co-lead", "Follow", "Flexible"];
+const CUSTOMER_TYPES = ["SMB", "Mid-market", "Enterprise", "Consumer", "Gov", "Hybrid"];
+const REVENUE_MODELS = ["Subscription", "Usage", "Transaction", "Licensing", "Services", "Ads"];
+const TRACTION_LEVELS = ["Idea", "Prototype", "Beta users", "Pilots", "Paid pilots", "$X MRR", "$X ARR", "Enterprise LOIs", "Other"];
+const METRICS = ["ARR/MRR", "Growth rate", "GRR/NRR", "Churn", "CAC payback", "LTV/CAC", "Gross margin", "Sales efficiency", "Cohort retention", "NPS/CSAT"];
+const DECISION_PROCESS = ["Partner-led", "IC", "Rolling", "Committee"];
+const RESPONSE_TIMES = ["24h", "48h", "1 week", "2 weeks", "Varies"];
+const DECISION_TIMES = ["2–4 wks", "4–8 wks", "8+ wks"];
+const BOARD_INVOLVEMENT = ["None", "Observer", "Board seat sometimes", "Usually"];
+const OPERATING_SUPPORT = ["Hiring (exec + IC)", "GTM / sales strategy", "Enterprise intros", "Fundraising strategy", "Product strategy", "Partnerships / distribution", "Compliance / security guidance", "Community / events"];
+const TALENT_NETWORKS = ["Engineering", "Growth", "Finance", "Operators"];
+const SUPPORT_STYLE = ["High-touch (weekly)", "Medium", "Light-touch", "On-demand"];
+const MESSAGE_FORMATS = ["Short email", "Memo", "Deck + metrics", "Intro call first"];
+const CONTACT_PATHS = ["In-Sync routed intro", "Direct email", "Assistant", "Portal"];
+const CONFLICTS_POLICY = ["Strict", "Case-by-case", "Flexible"];
+const FAST_SIGNALS = ["Customer pull", "Retention", "Revenue", "Pilots", "Technical moat", "Regulatory clearance", "Other"];
+const HARD_NOS = ["Geography restrictions", "Certain sectors", "Business model types", "Other"];
+const OUTREACH_INCLUDES = ["1-liner problem", "Traction", "Why now", "Raise amount", "Use of funds", "Metrics snapshot"];
 
 export default function InvestorApplication() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const [formData, setFormData] = useState({
-    contactName: "",
-    email: "",
+    // Section 1: Admin & Verification
     firmName: "",
     website: "",
-    firmType: "",
-    checkSize: "",
-    investmentStage: "",
-    investmentThesis: "",
-    portfolio: "",
-    whyPartner: "",
+    hqLocation: "",
+    geographiesCovered: [] as string[],
+    contactName: "",
+    contactTitle: "",
+    contactEmail: "",
+    publicProfile: true,
+    
+    // Section 2: Fund Overview
+    firmDescription: "",
+    aum: "",
+    fundVintage: "",
+    fundType: "",
+    ownershipTarget: "",
+    leadFollow: "",
+    checkSizes: [] as string[],
+    stageFocus: [] as string[],
+    sectorTags: [] as string[],
+    portfolioCount: "",
+    topInvestments: "",
+    bostonFocus: false,
+    bostonFocusDetail: "",
+    
+    // Section 3: Investment Thesis
+    thesisStatement: "",
+    subThemes: [] as string[],
+    subThemesOther: "",
+    nonNegotiables: {
+      category: false,
+      traction: false,
+      founderProfile: false,
+      businessModel: false,
+      complianceConstraints: false,
+    },
+    hardNos: [] as string[],
+    fastSignals: [] as string[],
+    
+    // Section 4: What You Look For
+    painSeverity: "",
+    buyerPersonaRequired: false,
+    buyerPersonaWho: "",
+    customerTypes: [] as string[],
+    regulatedIndustries: "",
+    b2bB2c: "",
+    b2bB2cWhy: "",
+    revenueModels: [] as string[],
+    minimumTraction: [] as string[],
+    topMetrics: [] as string[],
+    
+    // Section 5: Deal Mechanics
+    decisionProcess: "",
+    timeToFirstResponse: "",
+    timeToDecision: "",
+    givesNoWithFeedback: false,
+    feedbackWhen: "",
+    requiresWarmIntros: false,
+    followOnReserves: "",
+    followOnWhen: "",
+    boardInvolvement: "",
+    
+    // Section 6: Value-Add
+    operatingSupport: [] as string[],
+    customerVerticals: "",
+    partnerCategories: "",
+    talentNetworks: [] as string[],
+    supportStyle: "",
+    
+    // Section 7: Outreach Preferences
+    preferredFormat: "",
+    outreachIncludes: [] as string[],
+    turnOffs: "",
+    contactPath: "",
+    roleRouting: "",
+    
+    // Section 8: Portfolio & Conflicts
+    portfolioList: "",
+    conflictsPolicy: "",
+    investsInCompetitors: false,
+    signsNDAs: false,
+    ndaConditions: "",
   });
+
+  const handleChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleArrayToggle = (field: string, value: string) => {
+    setFormData(prev => {
+      const arr = prev[field as keyof typeof prev] as string[];
+      if (arr.includes(value)) {
+        return { ...prev, [field]: arr.filter(v => v !== value) };
+      }
+      return { ...prev, [field]: [...arr, value] };
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+    
     try {
-      const validated = applicationSchema.parse(formData);
-      
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
       toast({
         title: "Application Submitted!",
         description: "We'll review your partnership request and get back to you within 48 hours.",
       });
-      
-      navigate("/platform");
+      navigate("/");
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        const firstError = error.errors[0];
-        toast({
-          title: "Validation Error",
-          description: firstError.message,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 8));
+  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Admin & Verification</h2>
+              <p className="text-muted-foreground">Basic firm information and verification details</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="firmName">Firm / Fund Name *</Label>
+                <Input
+                  id="firmName"
+                  value={formData.firmName}
+                  onChange={(e) => handleChange("firmName", e.target.value)}
+                  placeholder="Acme Ventures"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="website">Website *</Label>
+                <Input
+                  id="website"
+                  type="url"
+                  value={formData.website}
+                  onChange={(e) => handleChange("website", e.target.value)}
+                  placeholder="https://acmeventures.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="hqLocation">HQ Location *</Label>
+                <Input
+                  id="hqLocation"
+                  value={formData.hqLocation}
+                  onChange={(e) => handleChange("hqLocation", e.target.value)}
+                  placeholder="Boston, MA"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Primary Geographies Covered</Label>
+                <Input
+                  value={formData.geographiesCovered.join(", ")}
+                  onChange={(e) => handleChange("geographiesCovered", e.target.value.split(", "))}
+                  placeholder="Northeast, US, Global..."
+                />
+              </div>
+            </div>
+
+            <div className="p-6 bg-muted/30 rounded-xl space-y-4">
+              <h3 className="font-semibold text-[hsl(var(--navy-deep))]">In-Sync Point of Contact</h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contactName">Name *</Label>
+                  <Input
+                    id="contactName"
+                    value={formData.contactName}
+                    onChange={(e) => handleChange("contactName", e.target.value)}
+                    placeholder="Jane Smith"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contactTitle">Title *</Label>
+                  <Input
+                    id="contactTitle"
+                    value={formData.contactTitle}
+                    onChange={(e) => handleChange("contactTitle", e.target.value)}
+                    placeholder="Partner"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contactEmail">Email *</Label>
+                  <Input
+                    id="contactEmail"
+                    type="email"
+                    value={formData.contactEmail}
+                    onChange={(e) => handleChange("contactEmail", e.target.value)}
+                    placeholder="jane@acmeventures.com"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
+              <div>
+                <Label htmlFor="publicProfile" className="font-semibold">Public Profile Visibility</Label>
+                <p className="text-sm text-muted-foreground">Show firm publicly or private invite-only</p>
+              </div>
+              <Switch
+                id="publicProfile"
+                checked={formData.publicProfile}
+                onCheckedChange={(checked) => handleChange("publicProfile", checked)}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <Label>Verification (Upload)</Label>
+              <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-8 text-center space-y-4 hover:border-primary/50 transition-colors">
+                <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-semibold">Proof of affiliation or domain email verification</p>
+                  <p className="text-xs text-muted-foreground">PDF, PNG, JPG up to 10MB</p>
+                </div>
+                <Button type="button" variant="outline" size="sm">Choose File</Button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Fund Overview</h2>
+              <p className="text-muted-foreground">The "firm card" founders will see</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="firmDescription">Firm Description (1-2 sentences) *</Label>
+              <Textarea
+                id="firmDescription"
+                value={formData.firmDescription}
+                onChange={(e) => handleChange("firmDescription", e.target.value)}
+                placeholder="We invest in early-stage B2B SaaS companies transforming enterprise workflows..."
+                rows={3}
+                required
+              />
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="aum">AUM / Fund Size</Label>
+                <Input
+                  id="aum"
+                  value={formData.aum}
+                  onChange={(e) => handleChange("aum", e.target.value)}
+                  placeholder="$50M - $100M"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fundVintage">Fund Vintage (Year)</Label>
+                <Input
+                  id="fundVintage"
+                  value={formData.fundVintage}
+                  onChange={(e) => handleChange("fundVintage", e.target.value)}
+                  placeholder="2023"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ownershipTarget">Typical Ownership Target (%)</Label>
+                <Input
+                  id="ownershipTarget"
+                  value={formData.ownershipTarget}
+                  onChange={(e) => handleChange("ownershipTarget", e.target.value)}
+                  placeholder="10-15%"
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Fund Type *</Label>
+                <Select value={formData.fundType} onValueChange={(v) => handleChange("fundType", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                  <SelectContent>
+                    {FUND_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Lead vs Follow *</Label>
+                <Select value={formData.leadFollow} onValueChange={(v) => handleChange("leadFollow", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select preference" /></SelectTrigger>
+                  <SelectContent>
+                    {LEAD_FOLLOW.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Typical Check Size (select all that apply) *</Label>
+              <div className="flex flex-wrap gap-2">
+                {CHECK_SIZES.map(size => (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => handleArrayToggle("checkSizes", size)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      formData.checkSizes.includes(size)
+                        ? "bg-[hsl(var(--navy-deep))] text-white"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Stage Focus (select all that apply) *</Label>
+              <div className="flex flex-wrap gap-2">
+                {STAGE_FOCUS.map(stage => (
+                  <button
+                    key={stage}
+                    type="button"
+                    onClick={() => handleArrayToggle("stageFocus", stage)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      formData.stageFocus.includes(stage)
+                        ? "bg-[hsl(var(--navy-deep))] text-white"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {stage}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Sector Tags (select all that apply)</Label>
+              <div className="flex flex-wrap gap-2">
+                {SECTOR_TAGS.map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => handleArrayToggle("sectorTags", tag)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      formData.sectorTags.includes(tag)
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="portfolioCount">Portfolio Count</Label>
+                <Input
+                  id="portfolioCount"
+                  type="number"
+                  value={formData.portfolioCount}
+                  onChange={(e) => handleChange("portfolioCount", e.target.value)}
+                  placeholder="25"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="topInvestments">Top 5 Representative Investments</Label>
+                <Textarea
+                  id="topInvestments"
+                  value={formData.topInvestments}
+                  onChange={(e) => handleChange("topInvestments", e.target.value)}
+                  placeholder="Company A, Company B, Company C..."
+                  rows={2}
+                />
+              </div>
+            </div>
+
+            <div className="p-4 bg-muted/30 rounded-xl space-y-4">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="bostonFocus"
+                  checked={formData.bostonFocus}
+                  onCheckedChange={(checked) => handleChange("bostonFocus", !!checked)}
+                />
+                <Label htmlFor="bostonFocus" className="font-semibold">Boston / Northeast Focus?</Label>
+              </div>
+              {formData.bostonFocus && (
+                <Input
+                  value={formData.bostonFocusDetail}
+                  onChange={(e) => handleChange("bostonFocusDetail", e.target.value)}
+                  placeholder="Describe your Boston/Northeast focus..."
+                />
+              )}
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Investment Thesis & "Why We Say Yes"</h2>
+              <p className="text-muted-foreground">Help founders understand what makes you move</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="thesisStatement">Thesis Statement (max 150 words) *</Label>
+              <Textarea
+                id="thesisStatement"
+                value={formData.thesisStatement}
+                onChange={(e) => handleChange("thesisStatement", e.target.value)}
+                placeholder="We believe the future of work will be powered by AI-native tools that augment human creativity..."
+                rows={4}
+                required
+              />
+              <p className="text-xs text-muted-foreground">{formData.thesisStatement.split(/\s+/).filter(Boolean).length}/150 words</p>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Sub-themes You're Actively Prioritizing</Label>
+              <Textarea
+                value={formData.subThemesOther}
+                onChange={(e) => handleChange("subThemesOther", e.target.value)}
+                placeholder="AI infrastructure, vertical SaaS for healthcare, developer productivity tools..."
+                rows={3}
+              />
+            </div>
+
+            <div className="p-6 bg-muted/30 rounded-xl space-y-4">
+              <Label className="font-semibold">Non-Negotiables</Label>
+              <div className="grid md:grid-cols-2 gap-4">
+                {Object.entries({
+                  category: "Category fit",
+                  traction: "Minimum traction",
+                  founderProfile: "Founder profile",
+                  businessModel: "Business model",
+                  complianceConstraints: "Compliance constraints",
+                }).map(([key, label]) => (
+                  <div key={key} className="flex items-center gap-3">
+                    <Checkbox
+                      id={key}
+                      checked={formData.nonNegotiables[key as keyof typeof formData.nonNegotiables]}
+                      onCheckedChange={(checked) => handleChange("nonNegotiables", {
+                        ...formData.nonNegotiables,
+                        [key]: !!checked
+                      })}
+                    />
+                    <Label htmlFor={key}>{label}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Hard "No's" / Exclusions</Label>
+              <div className="flex flex-wrap gap-2">
+                {HARD_NOS.map(no => (
+                  <button
+                    key={no}
+                    type="button"
+                    onClick={() => handleArrayToggle("hardNos", no)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      formData.hardNos.includes(no)
+                        ? "bg-destructive text-destructive-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {no}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label>What Signals Make You Move Fast?</Label>
+              <div className="flex flex-wrap gap-2">
+                {FAST_SIGNALS.map(signal => (
+                  <button
+                    key={signal}
+                    type="button"
+                    onClick={() => handleArrayToggle("fastSignals", signal)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      formData.fastSignals.includes(signal)
+                        ? "bg-green-600 text-white"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {signal}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">What You Look For</h2>
+              <p className="text-muted-foreground">Founder + company criteria</p>
+            </div>
+
+            <div className="p-6 bg-muted/30 rounded-xl space-y-6">
+              <h3 className="font-semibold text-lg">A) Problem & Customer Pain</h3>
+              
+              <div className="space-y-2">
+                <Label>Pain Severity You Prefer</Label>
+                <Select value={formData.painSeverity} onValueChange={(v) => handleChange("painSeverity", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select preference" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="must-have">Must-have</SelectItem>
+                    <SelectItem value="strongly-preferred">Strongly preferred</SelectItem>
+                    <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id="buyerPersona"
+                    checked={formData.buyerPersonaRequired}
+                    onCheckedChange={(checked) => handleChange("buyerPersonaRequired", !!checked)}
+                  />
+                  <Label htmlFor="buyerPersona">Buyer Persona / Budget Holder Required?</Label>
+                </div>
+                {formData.buyerPersonaRequired && (
+                  <Input
+                    value={formData.buyerPersonaWho}
+                    onChange={(e) => handleChange("buyerPersonaWho", e.target.value)}
+                    placeholder="Who? (e.g., CTO, VP Engineering)"
+                  />
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <Label>Customer Type</Label>
+                <div className="flex flex-wrap gap-2">
+                  {CUSTOMER_TYPES.map(type => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => handleArrayToggle("customerTypes", type)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        formData.customerTypes.includes(type)
+                          ? "bg-[hsl(var(--navy-deep))] text-white"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Regulated Industries</Label>
+                <Select value={formData.regulatedIndustries} onValueChange={(v) => handleChange("regulatedIndustries", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select preference" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="okay">Okay</SelectItem>
+                    <SelectItem value="preferred">Preferred</SelectItem>
+                    <SelectItem value="avoid">Avoid</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="p-6 bg-muted/30 rounded-xl space-y-6">
+              <h3 className="font-semibold text-lg">B) Business Model Preferences</h3>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label>B2B / B2C Preference</Label>
+                  <Select value={formData.b2bB2c} onValueChange={(v) => handleChange("b2bB2c", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="b2b">B2B</SelectItem>
+                      <SelectItem value="b2c">B2C</SelectItem>
+                      <SelectItem value="both">Both</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Why?</Label>
+                  <Input
+                    value={formData.b2bB2cWhy}
+                    onChange={(e) => handleChange("b2bB2cWhy", e.target.value)}
+                    placeholder="Expertise in enterprise sales..."
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Revenue Model</Label>
+                <div className="flex flex-wrap gap-2">
+                  {REVENUE_MODELS.map(model => (
+                    <button
+                      key={model}
+                      type="button"
+                      onClick={() => handleArrayToggle("revenueModels", model)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        formData.revenueModels.includes(model)
+                          ? "bg-[hsl(var(--navy-deep))] text-white"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {model}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Minimum Traction to Engage</Label>
+                <div className="flex flex-wrap gap-2">
+                  {TRACTION_LEVELS.map(level => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => handleArrayToggle("minimumTraction", level)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        formData.minimumTraction.includes(level)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-muted/30 rounded-xl space-y-4">
+              <h3 className="font-semibold text-lg">C) Metrics You Care About Most (select top 5)</h3>
+              <div className="flex flex-wrap gap-2">
+                {METRICS.map(metric => (
+                  <button
+                    key={metric}
+                    type="button"
+                    onClick={() => {
+                      if (formData.topMetrics.includes(metric)) {
+                        handleArrayToggle("topMetrics", metric);
+                      } else if (formData.topMetrics.length < 5) {
+                        handleArrayToggle("topMetrics", metric);
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      formData.topMetrics.includes(metric)
+                        ? "bg-[hsl(var(--navy-deep))] text-white"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {metric}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">{formData.topMetrics.length}/5 selected</p>
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Deal Mechanics & Process</h2>
+              <p className="text-muted-foreground">What founders really want to know</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Decision Process</Label>
+                <Select value={formData.decisionProcess} onValueChange={(v) => handleChange("decisionProcess", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {DECISION_PROCESS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Typical Time to First Response</Label>
+                <Select value={formData.timeToFirstResponse} onValueChange={(v) => handleChange("timeToFirstResponse", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {RESPONSE_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Typical Time to Decision</Label>
+                <Select value={formData.timeToDecision} onValueChange={(v) => handleChange("timeToDecision", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {DECISION_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Board Involvement</Label>
+                <Select value={formData.boardInvolvement} onValueChange={(v) => handleChange("boardInvolvement", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {BOARD_INVOLVEMENT.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="p-4 bg-muted/30 rounded-xl space-y-4">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="givesNo"
+                  checked={formData.givesNoWithFeedback}
+                  onCheckedChange={(checked) => handleChange("givesNoWithFeedback", !!checked)}
+                />
+                <Label htmlFor="givesNo">Do you give "No" with feedback?</Label>
+              </div>
+              {formData.givesNoWithFeedback && (
+                <Input
+                  value={formData.feedbackWhen}
+                  onChange={(e) => handleChange("feedbackWhen", e.target.value)}
+                  placeholder="When do you provide feedback? (e.g., After partner meeting)"
+                />
+              )}
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
+              <div>
+                <Label htmlFor="warmIntros" className="font-semibold">Require Warm Intros?</Label>
+                <p className="text-sm text-muted-foreground">In-Sync helps remove randomness via routing</p>
+              </div>
+              <Switch
+                id="warmIntros"
+                checked={formData.requiresWarmIntros}
+                onCheckedChange={(checked) => handleChange("requiresWarmIntros", checked)}
+              />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="reserves">Follow-on Policy: Reserves (% of fund)</Label>
+                <Input
+                  id="reserves"
+                  value={formData.followOnReserves}
+                  onChange={(e) => handleChange("followOnReserves", e.target.value)}
+                  placeholder="50%"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="followOnWhen">When Do You Follow?</Label>
+                <Input
+                  id="followOnWhen"
+                  value={formData.followOnWhen}
+                  onChange={(e) => handleChange("followOnWhen", e.target.value)}
+                  placeholder="Series A if hitting milestones"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 6:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Value-Add Menu</h2>
+              <p className="text-muted-foreground">What founders are hoping you'll do after "yes"</p>
+            </div>
+
+            <div className="p-6 bg-muted/30 rounded-xl space-y-4">
+              <h3 className="font-semibold text-lg">A) Operating Support You Actively Provide</h3>
+              <div className="flex flex-wrap gap-2">
+                {OPERATING_SUPPORT.map(support => (
+                  <button
+                    key={support}
+                    type="button"
+                    onClick={() => handleArrayToggle("operatingSupport", support)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      formData.operatingSupport.includes(support)
+                        ? "bg-[hsl(var(--navy-deep))] text-white"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {support}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-6 bg-muted/30 rounded-xl space-y-6">
+              <h3 className="font-semibold text-lg">B) Network Strengths</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="customerVerticals">Top 5 Customer Verticals You Can Introduce Into</Label>
+                <Textarea
+                  id="customerVerticals"
+                  value={formData.customerVerticals}
+                  onChange={(e) => handleChange("customerVerticals", e.target.value)}
+                  placeholder="Healthcare systems, Financial services, Manufacturing..."
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="partnerCategories">Top 5 Strategic Partner Categories You Can Unlock</Label>
+                <Textarea
+                  id="partnerCategories"
+                  value={formData.partnerCategories}
+                  onChange={(e) => handleChange("partnerCategories", e.target.value)}
+                  placeholder="Cloud providers, System integrators, Channel partners..."
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label>Talent Networks</Label>
+                <div className="flex flex-wrap gap-2">
+                  {TALENT_NETWORKS.map(network => (
+                    <button
+                      key={network}
+                      type="button"
+                      onClick={() => handleArrayToggle("talentNetworks", network)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        formData.talentNetworks.includes(network)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {network}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>C) Founder Support Style</Label>
+              <Select value={formData.supportStyle} onValueChange={(v) => handleChange("supportStyle", v)}>
+                <SelectTrigger><SelectValue placeholder="Select your style" /></SelectTrigger>
+                <SelectContent>
+                  {SUPPORT_STYLE.map(style => <SelectItem key={style} value={style}>{style}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        );
+
+      case 7:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Outreach Preferences</h2>
+              <p className="text-muted-foreground">So founders don't waste shots</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Preferred First Message Format</Label>
+                <Select value={formData.preferredFormat} onValueChange={(v) => handleChange("preferredFormat", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select format" /></SelectTrigger>
+                  <SelectContent>
+                    {MESSAGE_FORMATS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Best Contact Path</Label>
+                <Select value={formData.contactPath} onValueChange={(v) => handleChange("contactPath", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select path" /></SelectTrigger>
+                  <SelectContent>
+                    {CONTACT_PATHS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label>What Should Founders Include in First Outreach?</Label>
+              <div className="flex flex-wrap gap-2">
+                {OUTREACH_INCLUDES.map(item => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => handleArrayToggle("outreachIncludes", item)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      formData.outreachIncludes.includes(item)
+                        ? "bg-[hsl(var(--navy-deep))] text-white"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="turnOffs">What Turns You Off Immediately?</Label>
+              <Textarea
+                id="turnOffs"
+                value={formData.turnOffs}
+                onChange={(e) => handleChange("turnOffs", e.target.value)}
+                placeholder="Generic mass emails, No clear ask, Unrealistic valuations..."
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="roleRouting">Role Routing Rules (who should be contacted for what?)</Label>
+              <Textarea
+                id="roleRouting"
+                value={formData.roleRouting}
+                onChange={(e) => handleChange("roleRouting", e.target.value)}
+                placeholder="AI infra → Partner A, FinTech seed → Principal B..."
+                rows={3}
+              />
+            </div>
+          </div>
+        );
+
+      case 8:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Portfolio & Conflicts</h2>
+              <p className="text-muted-foreground">Protect founders + protect the fund</p>
+            </div>
+
+            <div className="space-y-4">
+              <Label>Current Portfolio List</Label>
+              <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-8 text-center space-y-4 hover:border-primary/50 transition-colors">
+                <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-semibold">Upload CSV or paste portfolio list</p>
+                  <p className="text-xs text-muted-foreground">CSV up to 5MB</p>
+                </div>
+                <Button type="button" variant="outline" size="sm">Choose File</Button>
+              </div>
+              <Textarea
+                value={formData.portfolioList}
+                onChange={(e) => handleChange("portfolioList", e.target.value)}
+                placeholder="Or paste company names here..."
+                rows={4}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Conflicts Policy</Label>
+              <Select value={formData.conflictsPolicy} onValueChange={(v) => handleChange("conflictsPolicy", v)}>
+                <SelectTrigger><SelectValue placeholder="Select policy" /></SelectTrigger>
+                <SelectContent>
+                  {CONFLICTS_POLICY.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
+              <div>
+                <Label htmlFor="competitors" className="font-semibold">Do You Invest in Direct Competitors?</Label>
+              </div>
+              <Switch
+                id="competitors"
+                checked={formData.investsInCompetitors}
+                onCheckedChange={(checked) => handleChange("investsInCompetitors", checked)}
+              />
+            </div>
+
+            <div className="p-4 bg-muted/30 rounded-xl space-y-4">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="signsNDAs"
+                  checked={formData.signsNDAs}
+                  onCheckedChange={(checked) => handleChange("signsNDAs", !!checked)}
+                />
+                <Label htmlFor="signsNDAs">Do You Sign NDAs?</Label>
+              </div>
+              {formData.signsNDAs && (
+                <Input
+                  value={formData.ndaConditions}
+                  onChange={(e) => handleChange("ndaConditions", e.target.value)}
+                  placeholder="Under what conditions? (e.g., After term sheet)"
+                />
+              )}
+            </div>
+
+            <div className="p-6 bg-gradient-to-r from-[hsl(var(--navy-deep))]/10 to-primary/10 rounded-xl border border-primary/20">
+              <p className="text-sm text-muted-foreground text-center">
+                By submitting, you agree to our Terms of Service and Privacy Policy. Your information will be shared with matched founders through the In-Sync platform.
+              </p>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
@@ -79,8 +1079,6 @@ export default function InvestorApplication() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] border border-white/20 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] border border-white/15 rounded-full translate-y-1/2 -translate-x-1/2" />
-        <div className="absolute top-1/2 left-1/4 w-2 h-40 bg-gradient-to-b from-white/30 to-transparent blur-sm" />
-        <div className="absolute bottom-1/4 right-1/3 w-40 h-2 bg-gradient-to-r from-white/30 to-transparent blur-sm" />
       </div>
 
       {/* Header */}
@@ -90,11 +1088,11 @@ export default function InvestorApplication() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/platform")}
+              onClick={() => navigate("/")}
               className="gap-2 text-white hover:text-white/80 hover:bg-white/5"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Platform
+              Back
             </Button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg" />
@@ -105,207 +1103,98 @@ export default function InvestorApplication() {
       </header>
 
       {/* Main Content */}
-      <main className="pt-32 pb-16 relative z-10">
-        <div className="container max-w-3xl mx-auto px-4 md:px-6">
-          <div className="space-y-12">
+      <main className="pt-24 pb-16 relative z-10">
+        <div className="container max-w-4xl mx-auto px-4 md:px-6">
+          <div className="space-y-8">
             {/* Header Section */}
-            <div className="text-center space-y-6">
+            <div className="text-center space-y-4">
               <div className="inline-block px-6 py-2 bg-white/10 backdrop-blur-sm border border-white/30 rounded-full text-sm font-medium text-white">
                 Investor Partnership Application
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tight">
+              <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
                 Become a Partner
               </h1>
-              <p className="text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg text-white/70 max-w-2xl mx-auto">
                 Access curated dealflow from Boston's most promising startups
               </p>
             </div>
 
+            {/* Progress Steps */}
+            <div className="hidden md:flex items-center justify-between bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
+              {STEPS.map((step, index) => {
+                const Icon = step.icon;
+                const isCompleted = currentStep > step.id;
+                const isCurrent = currentStep === step.id;
+                
+                return (
+                  <button
+                    key={step.id}
+                    onClick={() => setCurrentStep(step.id)}
+                    className={`flex flex-col items-center gap-2 p-2 rounded-xl transition-all ${
+                      isCurrent ? "bg-white/20" : "hover:bg-white/10"
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                      isCompleted ? "bg-green-500 text-white" :
+                      isCurrent ? "bg-white text-[hsl(var(--navy-deep))]" :
+                      "bg-white/20 text-white/60"
+                    }`}>
+                      {isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                    </div>
+                    <span className={`text-xs font-medium ${isCurrent ? "text-white" : "text-white/60"}`}>
+                      {step.title}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mobile Progress */}
+            <div className="md:hidden flex items-center justify-between bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+              <span className="text-white font-medium">Step {currentStep} of 8</span>
+              <span className="text-white/70 text-sm">{STEPS[currentStep - 1].title}</span>
+            </div>
+
             {/* Form */}
-            <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-sm border-2 border-white/20 rounded-2xl p-10 space-y-10 shadow-2xl">
-              {/* Contact Info */}
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Contact Information</h2>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="contactName">Full Name *</Label>
-                    <Input
-                      id="contactName"
-                      value={formData.contactName}
-                      onChange={(e) => handleChange("contactName", e.target.value)}
-                      placeholder="Jane Smith"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleChange("email", e.target.value)}
-                      placeholder="jane@vcfirm.com"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
+            <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-sm border-2 border-white/20 rounded-2xl p-8 md:p-10 shadow-2xl">
+              {renderStep()}
 
-              {/* Firm Info */}
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Firm Information</h2>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="firmName">Firm Name *</Label>
-                    <Input
-                      id="firmName"
-                      value={formData.firmName}
-                      onChange={(e) => handleChange("firmName", e.target.value)}
-                      placeholder="Your VC Firm"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      type="url"
-                      value={formData.website}
-                      onChange={(e) => handleChange("website", e.target.value)}
-                      placeholder="https://yourfirm.com"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="firmType">Firm Type *</Label>
-                    <Select value={formData.firmType} onValueChange={(value) => handleChange("firmType", value)}>
-                      <SelectTrigger id="firmType">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="vc">Venture Capital</SelectItem>
-                        <SelectItem value="angel">Angel Group</SelectItem>
-                        <SelectItem value="family-office">Family Office</SelectItem>
-                        <SelectItem value="corporate">Corporate VC</SelectItem>
-                        <SelectItem value="accelerator">Accelerator</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="checkSize">Typical Check Size *</Label>
-                    <Select value={formData.checkSize} onValueChange={(value) => handleChange("checkSize", value)}>
-                      <SelectTrigger id="checkSize">
-                        <SelectValue placeholder="Select range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="25k-100k">$25K - $100K</SelectItem>
-                        <SelectItem value="100k-250k">$100K - $250K</SelectItem>
-                        <SelectItem value="250k-500k">$250K - $500K</SelectItem>
-                        <SelectItem value="500k-1m">$500K - $1M</SelectItem>
-                        <SelectItem value="1m-plus">$1M+</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="investmentStage">Investment Stage *</Label>
-                    <Select value={formData.investmentStage} onValueChange={(value) => handleChange("investmentStage", value)}>
-                      <SelectTrigger id="investmentStage">
-                        <SelectValue placeholder="Select stage" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pre-seed">Pre-Seed</SelectItem>
-                        <SelectItem value="seed">Seed</SelectItem>
-                        <SelectItem value="series-a">Series A</SelectItem>
-                        <SelectItem value="series-b-plus">Series B+</SelectItem>
-                        <SelectItem value="stage-agnostic">Stage Agnostic</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Investment Details */}
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Investment Details</h2>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="investmentThesis">Investment Thesis * (min 50 characters)</Label>
-                  <Textarea
-                    id="investmentThesis"
-                    value={formData.investmentThesis}
-                    onChange={(e) => handleChange("investmentThesis", e.target.value)}
-                    placeholder="Describe your investment focus, sectors of interest, and what you look for in startups..."
-                    rows={4}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">{formData.investmentThesis.length}/1000</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="portfolio">Portfolio Examples * (min 20 characters)</Label>
-                  <Textarea
-                    id="portfolio"
-                    value={formData.portfolio}
-                    onChange={(e) => handleChange("portfolio", e.target.value)}
-                    placeholder="List 3-5 notable portfolio companies or past investments..."
-                    rows={3}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">{formData.portfolio.length}/500</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="whyPartner">Why Partner with In-Sync? * (min 20 characters)</Label>
-                  <Textarea
-                    id="whyPartner"
-                    value={formData.whyPartner}
-                    onChange={(e) => handleChange("whyPartner", e.target.value)}
-                    placeholder="What are you looking to gain from this partnership?"
-                    rows={3}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">{formData.whyPartner.length}/500</p>
-                </div>
-              </div>
-
-              {/* Upload Section */}
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Supporting Materials (Optional)</h2>
-                <div className="border-2 border-dashed border-white/30 rounded-xl p-8 text-center space-y-4 hover:border-white/50 transition-colors">
-                  <Upload className="h-12 w-12 mx-auto text-[hsl(var(--navy-deep))]/60" />
-                  <div>
-                    <p className="text-sm font-semibold text-[hsl(var(--navy-deep))]">Upload firm deck or one-pager</p>
-                    <p className="text-xs text-[hsl(var(--navy-deep))]/60">PDF, PPTX up to 10MB</p>
-                  </div>
-                  <Button type="button" variant="outline" size="sm" className="border-white/40 text-[hsl(var(--navy-deep))] hover:bg-white/10">
-                    Choose File
+              {/* Navigation Buttons */}
+              <div className="flex gap-4 pt-8 mt-8 border-t">
+                {currentStep > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    onClick={prevStep}
+                    className="gap-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Previous
                   </Button>
-                </div>
+                )}
+                
+                {currentStep < 8 ? (
+                  <Button
+                    type="button"
+                    size="lg"
+                    onClick={nextStep}
+                    className="flex-1 bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90 text-white gap-2"
+                  >
+                    Continue
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="flex-1 bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90 text-white"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Partnership Application"}
+                  </Button>
+                )}
               </div>
-
-              {/* Submit Button */}
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="flex-1 bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90 text-white border-2 border-white/30 shadow-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all text-lg py-6"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Submitting..." : "Submit Partnership Application"}
-                </Button>
-              </div>
-
-              <p className="text-xs text-[hsl(var(--navy-deep))]/60 text-center">
-                By submitting, you agree to our Terms of Service and Privacy Policy
-              </p>
             </form>
           </div>
         </div>
