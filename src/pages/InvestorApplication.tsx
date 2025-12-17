@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, ArrowRight, Upload, Check, Building2, Briefcase, Target, Users, Handshake, MessageSquare, FolderOpen, Shield } from "lucide-react";
+import { ArrowLeft, ArrowRight, Upload, Check, Building2, Briefcase, Target, Users, Handshake, FolderOpen, Shield, Plus, X, GripVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,8 +17,7 @@ const STEPS = [
   { id: 4, title: "What You Look For", icon: Users },
   { id: 5, title: "Deal Mechanics", icon: Briefcase },
   { id: 6, title: "Value-Add", icon: Handshake },
-  { id: 7, title: "Outreach Preferences", icon: MessageSquare },
-  { id: 8, title: "Portfolio & Conflicts", icon: FolderOpen },
+  { id: 7, title: "Portfolio & Conflicts", icon: FolderOpen },
 ];
 
 const FUND_TYPES = ["VC", "Micro-VC", "Seed Fund", "Angel Syndicate", "CVC", "Family Office", "Accelerator Fund"];
@@ -37,12 +36,15 @@ const BOARD_INVOLVEMENT = ["None", "Observer", "Board seat sometimes", "Usually"
 const OPERATING_SUPPORT = ["Hiring (exec + IC)", "GTM / sales strategy", "Enterprise intros", "Fundraising strategy", "Product strategy", "Partnerships / distribution", "Compliance / security guidance", "Community / events"];
 const TALENT_NETWORKS = ["Engineering", "Growth", "Finance", "Operators"];
 const SUPPORT_STYLE = ["High-touch (weekly)", "Medium", "Light-touch", "On-demand"];
-const MESSAGE_FORMATS = ["Short email", "Memo", "Deck + metrics", "Intro call first"];
-const CONTACT_PATHS = ["In-Sync routed intro", "Direct email", "Assistant", "Portal"];
 const CONFLICTS_POLICY = ["Strict", "Case-by-case", "Flexible"];
 const FAST_SIGNALS = ["Customer pull", "Retention", "Revenue", "Pilots", "Technical moat", "Regulatory clearance", "Other"];
 const HARD_NOS = ["Geography restrictions", "Certain sectors", "Business model types", "Other"];
-const OUTREACH_INCLUDES = ["1-liner problem", "Traction", "Why now", "Raise amount", "Use of funds", "Metrics snapshot"];
+
+interface Contact {
+  name: string;
+  title: string;
+  email: string;
+}
 
 export default function InvestorApplication() {
   const navigate = useNavigate();
@@ -57,9 +59,7 @@ export default function InvestorApplication() {
     website: "",
     hqLocation: "",
     geographiesCovered: [] as string[],
-    contactName: "",
-    contactTitle: "",
-    contactEmail: "",
+    contacts: [{ name: "", title: "", email: "" }] as Contact[],
     publicProfile: true,
     
     // Section 2: Fund Overview
@@ -74,8 +74,8 @@ export default function InvestorApplication() {
     sectorTags: [] as string[],
     portfolioCount: "",
     topInvestments: "",
-    bostonFocus: false,
-    bostonFocusDetail: "",
+    geographicFocus: "" as "" | "boston" | "other",
+    geographicFocusDetail: "",
     
     // Section 3: Investment Thesis
     thesisStatement: "",
@@ -101,15 +101,14 @@ export default function InvestorApplication() {
     b2bB2cWhy: "",
     revenueModels: [] as string[],
     minimumTraction: [] as string[],
-    topMetrics: [] as string[],
+    rankedMetrics: [] as string[],
     
     // Section 5: Deal Mechanics
     decisionProcess: "",
     timeToFirstResponse: "",
     timeToDecision: "",
-    givesNoWithFeedback: false,
+    givesNoWithFeedback: null as boolean | null,
     feedbackWhen: "",
-    requiresWarmIntros: false,
     followOnReserves: "",
     followOnWhen: "",
     boardInvolvement: "",
@@ -121,14 +120,7 @@ export default function InvestorApplication() {
     talentNetworks: [] as string[],
     supportStyle: "",
     
-    // Section 7: Outreach Preferences
-    preferredFormat: "",
-    outreachIncludes: [] as string[],
-    turnOffs: "",
-    contactPath: "",
-    roleRouting: "",
-    
-    // Section 8: Portfolio & Conflicts
+    // Section 7: Portfolio & Conflicts
     portfolioList: "",
     conflictsPolicy: "",
     investsInCompetitors: false,
@@ -150,11 +142,69 @@ export default function InvestorApplication() {
     });
   };
 
+  // Contact management
+  const addContact = () => {
+    setFormData(prev => ({
+      ...prev,
+      contacts: [...prev.contacts, { name: "", title: "", email: "" }]
+    }));
+  };
+
+  const removeContact = (index: number) => {
+    if (formData.contacts.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        contacts: prev.contacts.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  const updateContact = (index: number, field: keyof Contact, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      contacts: prev.contacts.map((contact, i) => 
+        i === index ? { ...contact, [field]: value } : contact
+      )
+    }));
+  };
+
+  // Metrics ranking
+  const handleMetricRank = (metric: string) => {
+    setFormData(prev => {
+      const ranked = [...prev.rankedMetrics];
+      if (ranked.includes(metric)) {
+        return { ...prev, rankedMetrics: ranked.filter(m => m !== metric) };
+      }
+      if (ranked.length < 5) {
+        return { ...prev, rankedMetrics: [...ranked, metric] };
+      }
+      return prev;
+    });
+  };
+
+  const moveMetricUp = (index: number) => {
+    if (index === 0) return;
+    setFormData(prev => {
+      const ranked = [...prev.rankedMetrics];
+      [ranked[index - 1], ranked[index]] = [ranked[index], ranked[index - 1]];
+      return { ...prev, rankedMetrics: ranked };
+    });
+  };
+
+  const moveMetricDown = (index: number) => {
+    if (index === formData.rankedMetrics.length - 1) return;
+    setFormData(prev => {
+      const ranked = [...prev.rankedMetrics];
+      [ranked[index], ranked[index + 1]] = [ranked[index + 1], ranked[index]];
+      return { ...prev, rankedMetrics: ranked };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate all steps before submission
-    for (let step = 1; step <= 8; step++) {
+    for (let step = 1; step <= 7; step++) {
       const validation = validateStep(step);
       if (!validation.isValid) {
         setCurrentStep(step);
@@ -172,10 +222,11 @@ export default function InvestorApplication() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
       toast({
-        title: "Application Submitted!",
-        description: "We'll review your partnership request and get back to you within 48 hours.",
+        title: "Welcome to In-Sync!",
+        description: "Your partnership application has been submitted. Redirecting to your dashboard...",
       });
-      navigate("/");
+      // Navigate directly to investor dashboard - no review needed
+      navigate("/investor-dashboard");
     } catch (error) {
       toast({
         title: "Error",
@@ -196,9 +247,10 @@ export default function InvestorApplication() {
         if (!formData.firmName.trim()) errors.push("Firm/Fund name is required");
         if (!formData.website.trim()) errors.push("Website is required");
         if (!formData.hqLocation.trim()) errors.push("HQ location is required");
-        if (!formData.contactName.trim()) errors.push("Contact name is required");
-        if (!formData.contactTitle.trim()) errors.push("Contact title is required");
-        if (!formData.contactEmail.trim()) errors.push("Contact email is required");
+        // Validate at least the first contact
+        if (!formData.contacts[0]?.name.trim()) errors.push("At least one contact name is required");
+        if (!formData.contacts[0]?.title.trim()) errors.push("At least one contact title is required");
+        if (!formData.contacts[0]?.email.trim()) errors.push("At least one contact email is required");
         break;
       case 2: // Fund Overview
         if (!formData.firmDescription.trim()) errors.push("Firm description is required");
@@ -206,6 +258,10 @@ export default function InvestorApplication() {
         if (!formData.leadFollow) errors.push("Lead vs Follow preference is required");
         if (formData.checkSizes.length === 0) errors.push("Select at least one check size");
         if (formData.stageFocus.length === 0) errors.push("Select at least one stage focus");
+        if (!formData.geographicFocus) errors.push("Geographic focus selection is required");
+        if (formData.geographicFocus === "other" && !formData.geographicFocusDetail.trim()) {
+          errors.push("Please specify your geographic focus");
+        }
         break;
       case 3: // Investment Thesis
         if (!formData.thesisStatement.trim()) errors.push("Thesis statement is required");
@@ -217,23 +273,23 @@ export default function InvestorApplication() {
         if (!formData.b2bB2c) errors.push("B2B/B2C preference is required");
         if (formData.revenueModels.length === 0) errors.push("Select at least one revenue model");
         if (formData.minimumTraction.length === 0) errors.push("Select at least one minimum traction level");
+        if (formData.rankedMetrics.length < 5) errors.push("Please rank exactly 5 metrics");
         break;
       case 5: // Deal Mechanics
         if (!formData.decisionProcess) errors.push("Decision process is required");
         if (!formData.timeToFirstResponse) errors.push("Time to first response is required");
         if (!formData.timeToDecision) errors.push("Time to decision is required");
         if (!formData.boardInvolvement) errors.push("Board involvement preference is required");
+        if (formData.givesNoWithFeedback === null) errors.push("Please indicate if you give 'no' with feedback");
+        if (formData.givesNoWithFeedback === true && !formData.feedbackWhen.trim()) {
+          errors.push("Please describe when you provide feedback");
+        }
         break;
       case 6: // Value-Add
         if (formData.operatingSupport.length === 0) errors.push("Select at least one operating support type");
         if (!formData.supportStyle) errors.push("Support style is required");
         break;
-      case 7: // Outreach Preferences
-        if (!formData.preferredFormat) errors.push("Preferred message format is required");
-        if (formData.outreachIncludes.length === 0) errors.push("Select at least one outreach requirement");
-        if (!formData.contactPath) errors.push("Best contact path is required");
-        break;
-      case 8: // Portfolio & Conflicts
+      case 7: // Portfolio & Conflicts
         if (!formData.conflictsPolicy) errors.push("Conflicts policy is required");
         break;
     }
@@ -261,20 +317,17 @@ export default function InvestorApplication() {
       setCompletedSteps(prev => [...prev, currentStep]);
     }
     
-    setCurrentStep(prev => Math.min(prev + 1, 8));
+    setCurrentStep(prev => Math.min(prev + 1, 7));
   };
 
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleStepClick = (stepId: number) => {
-    // Can only go to previous steps or current step
-    // Can only go forward if all previous steps are complete
     if (stepId < currentStep) {
       setCurrentStep(stepId);
     } else if (stepId === currentStep) {
       // Already on this step
     } else {
-      // Trying to go forward - check if all previous steps are complete
       let canProceed = true;
       for (let i = 1; i < stepId; i++) {
         if (!isStepComplete(i)) {
@@ -349,40 +402,68 @@ export default function InvestorApplication() {
             </div>
 
             <div className="p-6 bg-muted/30 rounded-xl space-y-4">
-              <h3 className="font-semibold text-[hsl(var(--navy-deep))]">In-Sync Point of Contact</h3>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contactName">Name *</Label>
-                  <Input
-                    id="contactName"
-                    value={formData.contactName}
-                    onChange={(e) => handleChange("contactName", e.target.value)}
-                    placeholder="Jane Smith"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contactTitle">Title *</Label>
-                  <Input
-                    id="contactTitle"
-                    value={formData.contactTitle}
-                    onChange={(e) => handleChange("contactTitle", e.target.value)}
-                    placeholder="Partner"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contactEmail">Email *</Label>
-                  <Input
-                    id="contactEmail"
-                    type="email"
-                    value={formData.contactEmail}
-                    onChange={(e) => handleChange("contactEmail", e.target.value)}
-                    placeholder="jane@acmeventures.com"
-                    required
-                  />
-                </div>
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-[hsl(var(--navy-deep))]">In-Sync Point(s) of Contact *</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addContact}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Contact
+                </Button>
               </div>
+              
+              {formData.contacts.map((contact, index) => (
+                <div key={index} className="p-4 bg-background rounded-lg border space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">Contact {index + 1}</span>
+                    {formData.contacts.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeContact(index)}
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Name *</Label>
+                      <Input
+                        value={contact.name}
+                        onChange={(e) => updateContact(index, "name", e.target.value)}
+                        placeholder="Jane Smith"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Title *</Label>
+                      <Input
+                        value={contact.title}
+                        onChange={(e) => updateContact(index, "title", e.target.value)}
+                        placeholder="Partner"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Email *</Label>
+                      <Input
+                        type="email"
+                        value={contact.email}
+                        onChange={(e) => updateContact(index, "email", e.target.value)}
+                        placeholder="jane@acmeventures.com"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
@@ -566,19 +647,39 @@ export default function InvestorApplication() {
             </div>
 
             <div className="p-4 bg-muted/30 rounded-xl space-y-4">
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  id="bostonFocus"
-                  checked={formData.bostonFocus}
-                  onCheckedChange={(checked) => handleChange("bostonFocus", !!checked)}
-                />
-                <Label htmlFor="bostonFocus" className="font-semibold">Boston / Northeast Focus?</Label>
+              <Label className="font-semibold">Geographic Focus *</Label>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleChange("geographicFocus", "boston")}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${
+                    formData.geographicFocus === "boston"
+                      ? "border-[hsl(var(--navy-deep))] bg-[hsl(var(--navy-deep))]/5"
+                      : "border-muted hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <div className="font-semibold">Boston / Northeast</div>
+                  <div className="text-sm text-muted-foreground">Primary focus on Boston and Northeast region</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleChange("geographicFocus", "other")}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${
+                    formData.geographicFocus === "other"
+                      ? "border-[hsl(var(--navy-deep))] bg-[hsl(var(--navy-deep))]/5"
+                      : "border-muted hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <div className="font-semibold">Other</div>
+                  <div className="text-sm text-muted-foreground">Different geographic focus</div>
+                </button>
               </div>
-              {formData.bostonFocus && (
+              {formData.geographicFocus === "other" && (
                 <Input
-                  value={formData.bostonFocusDetail}
-                  onChange={(e) => handleChange("bostonFocusDetail", e.target.value)}
-                  placeholder="Describe your Boston/Northeast focus..."
+                  value={formData.geographicFocusDetail}
+                  onChange={(e) => handleChange("geographicFocusDetail", e.target.value)}
+                  placeholder="Describe your geographic focus..."
+                  className="mt-4"
                 />
               )}
             </div>
@@ -662,7 +763,7 @@ export default function InvestorApplication() {
             </div>
 
             <div className="space-y-3">
-              <Label>What Signals Make You Move Fast?</Label>
+              <Label>What Signals Make You Move Fast? *</Label>
               <div className="flex flex-wrap gap-2">
                 {FAST_SIGNALS.map(signal => (
                   <button
@@ -695,7 +796,7 @@ export default function InvestorApplication() {
               <h3 className="font-semibold text-lg">A) Problem & Customer Pain</h3>
               
               <div className="space-y-2">
-                <Label>Pain Severity You Prefer</Label>
+                <Label>Pain Severity You Prefer *</Label>
                 <Select value={formData.painSeverity} onValueChange={(v) => handleChange("painSeverity", v)}>
                   <SelectTrigger><SelectValue placeholder="Select preference" /></SelectTrigger>
                   <SelectContent>
@@ -725,7 +826,7 @@ export default function InvestorApplication() {
               </div>
 
               <div className="space-y-3">
-                <Label>Customer Type</Label>
+                <Label>Customer Type *</Label>
                 <div className="flex flex-wrap gap-2">
                   {CUSTOMER_TYPES.map(type => (
                     <button
@@ -762,7 +863,7 @@ export default function InvestorApplication() {
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label>B2B / B2C Preference</Label>
+                  <Label>B2B / B2C Preference *</Label>
                   <Select value={formData.b2bB2c} onValueChange={(v) => handleChange("b2bB2c", v)}>
                     <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent>
@@ -783,7 +884,7 @@ export default function InvestorApplication() {
               </div>
 
               <div className="space-y-3">
-                <Label>Revenue Model</Label>
+                <Label>Revenue Model *</Label>
                 <div className="flex flex-wrap gap-2">
                   {REVENUE_MODELS.map(model => (
                     <button
@@ -803,7 +904,7 @@ export default function InvestorApplication() {
               </div>
 
               <div className="space-y-3">
-                <Label>Minimum Traction to Engage</Label>
+                <Label>Minimum Traction to Engage *</Label>
                 <div className="flex flex-wrap gap-2">
                   {TRACTION_LEVELS.map(level => (
                     <button
@@ -824,30 +925,88 @@ export default function InvestorApplication() {
             </div>
 
             <div className="p-6 bg-muted/30 rounded-xl space-y-4">
-              <h3 className="font-semibold text-lg">C) Metrics You Care About Most (select top 5)</h3>
-              <div className="flex flex-wrap gap-2">
-                {METRICS.map(metric => (
-                  <button
-                    key={metric}
-                    type="button"
-                    onClick={() => {
-                      if (formData.topMetrics.includes(metric)) {
-                        handleArrayToggle("topMetrics", metric);
-                      } else if (formData.topMetrics.length < 5) {
-                        handleArrayToggle("topMetrics", metric);
-                      }
-                    }}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      formData.topMetrics.includes(metric)
-                        ? "bg-[hsl(var(--navy-deep))] text-white"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
-                  >
-                    {metric}
-                  </button>
-                ))}
+              <div>
+                <h3 className="font-semibold text-lg">C) Metrics You Care About Most *</h3>
+                <p className="text-sm text-muted-foreground">Click to select, then use arrows to rank your top 5 in order of importance</p>
               </div>
-              <p className="text-xs text-muted-foreground">{formData.topMetrics.length}/5 selected</p>
+              
+              {/* Selected metrics with ranking */}
+              {formData.rankedMetrics.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Your Rankings:</Label>
+                  <div className="space-y-2">
+                    {formData.rankedMetrics.map((metric, index) => (
+                      <div
+                        key={metric}
+                        className="flex items-center gap-3 p-3 bg-[hsl(var(--navy-deep))] text-white rounded-lg"
+                      >
+                        <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full font-bold">
+                          {index + 1}
+                        </div>
+                        <span className="flex-1 font-medium">{metric}</span>
+                        <div className="flex gap-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => moveMetricUp(index)}
+                            disabled={index === 0}
+                            className="h-8 w-8 p-0 text-white hover:bg-white/20 disabled:opacity-30"
+                          >
+                            ↑
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => moveMetricDown(index)}
+                            disabled={index === formData.rankedMetrics.length - 1}
+                            className="h-8 w-8 p-0 text-white hover:bg-white/20 disabled:opacity-30"
+                          >
+                            ↓
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleMetricRank(metric)}
+                            className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Available metrics to select */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  {formData.rankedMetrics.length < 5 
+                    ? `Select ${5 - formData.rankedMetrics.length} more metric${5 - formData.rankedMetrics.length !== 1 ? 's' : ''}:`
+                    : "All 5 metrics selected"
+                  }
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {METRICS.filter(m => !formData.rankedMetrics.includes(m)).map(metric => (
+                    <button
+                      key={metric}
+                      type="button"
+                      onClick={() => handleMetricRank(metric)}
+                      disabled={formData.rankedMetrics.length >= 5}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        formData.rankedMetrics.length >= 5
+                          ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {metric}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -862,39 +1021,18 @@ export default function InvestorApplication() {
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label>Decision Process</Label>
+                <Label>Decision Process *</Label>
                 <Select value={formData.decisionProcess} onValueChange={(v) => handleChange("decisionProcess", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select process" /></SelectTrigger>
                   <SelectContent>
                     {DECISION_PROCESS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Typical Time to First Response</Label>
-                <Select value={formData.timeToFirstResponse} onValueChange={(v) => handleChange("timeToFirstResponse", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    {RESPONSE_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Typical Time to Decision</Label>
-                <Select value={formData.timeToDecision} onValueChange={(v) => handleChange("timeToDecision", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    {DECISION_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Board Involvement</Label>
+                <Label>Board Involvement *</Label>
                 <Select value={formData.boardInvolvement} onValueChange={(v) => handleChange("boardInvolvement", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select involvement" /></SelectTrigger>
                   <SelectContent>
                     {BOARD_INVOLVEMENT.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
                   </SelectContent>
@@ -902,34 +1040,66 @@ export default function InvestorApplication() {
               </div>
             </div>
 
-            <div className="p-4 bg-muted/30 rounded-xl space-y-4">
-              <div className="flex items-center gap-3">
-                <Checkbox
-                  id="givesNo"
-                  checked={formData.givesNoWithFeedback}
-                  onCheckedChange={(checked) => handleChange("givesNoWithFeedback", !!checked)}
-                />
-                <Label htmlFor="givesNo">Do you give "No" with feedback?</Label>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Typical Time to First Response *</Label>
+                <Select value={formData.timeToFirstResponse} onValueChange={(v) => handleChange("timeToFirstResponse", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select time" /></SelectTrigger>
+                  <SelectContent>
+                    {RESPONSE_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
-              {formData.givesNoWithFeedback && (
+              <div className="space-y-2">
+                <Label>Typical Time to Decision *</Label>
+                <Select value={formData.timeToDecision} onValueChange={(v) => handleChange("timeToDecision", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select time" /></SelectTrigger>
+                  <SelectContent>
+                    {DECISION_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="p-4 bg-muted/30 rounded-xl space-y-4">
+              <Label className="font-semibold">Do you give "No" with feedback? *</Label>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleChange("givesNoWithFeedback", true)}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                    formData.givesNoWithFeedback === true
+                      ? "border-green-500 bg-green-500/10"
+                      : "border-muted hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <div className="font-semibold">Yes</div>
+                  <div className="text-sm text-muted-foreground">We provide feedback with rejections</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleChange("givesNoWithFeedback", false);
+                    handleChange("feedbackWhen", "");
+                  }}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                    formData.givesNoWithFeedback === false
+                      ? "border-[hsl(var(--navy-deep))] bg-[hsl(var(--navy-deep))]/5"
+                      : "border-muted hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <div className="font-semibold">No</div>
+                  <div className="text-sm text-muted-foreground">We don't typically provide feedback</div>
+                </button>
+              </div>
+              {formData.givesNoWithFeedback === true && (
                 <Input
                   value={formData.feedbackWhen}
                   onChange={(e) => handleChange("feedbackWhen", e.target.value)}
-                  placeholder="When do you provide feedback? (e.g., After partner meeting)"
+                  placeholder="When do you provide feedback? (e.g., After partner meeting, Always, etc.)"
+                  className="mt-4"
                 />
               )}
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
-              <div>
-                <Label htmlFor="warmIntros" className="font-semibold">Require Warm Intros?</Label>
-                <p className="text-sm text-muted-foreground">In-Sync helps remove randomness via routing</p>
-              </div>
-              <Switch
-                id="warmIntros"
-                checked={formData.requiresWarmIntros}
-                onCheckedChange={(checked) => handleChange("requiresWarmIntros", checked)}
-              />
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -964,7 +1134,7 @@ export default function InvestorApplication() {
             </div>
 
             <div className="p-6 bg-muted/30 rounded-xl space-y-4">
-              <h3 className="font-semibold text-lg">A) Operating Support You Actively Provide</h3>
+              <h3 className="font-semibold text-lg">A) Operating Support You Actively Provide *</h3>
               <div className="flex flex-wrap gap-2">
                 {OPERATING_SUPPORT.map(support => (
                   <button
@@ -1030,7 +1200,7 @@ export default function InvestorApplication() {
             </div>
 
             <div className="space-y-2">
-              <Label>C) Founder Support Style</Label>
+              <Label>C) Founder Support Style *</Label>
               <Select value={formData.supportStyle} onValueChange={(v) => handleChange("supportStyle", v)}>
                 <SelectTrigger><SelectValue placeholder="Select your style" /></SelectTrigger>
                 <SelectContent>
@@ -1042,79 +1212,6 @@ export default function InvestorApplication() {
         );
 
       case 7:
-        return (
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Outreach Preferences</h2>
-              <p className="text-muted-foreground">So founders don't waste shots</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Preferred First Message Format</Label>
-                <Select value={formData.preferredFormat} onValueChange={(v) => handleChange("preferredFormat", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select format" /></SelectTrigger>
-                  <SelectContent>
-                    {MESSAGE_FORMATS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Best Contact Path</Label>
-                <Select value={formData.contactPath} onValueChange={(v) => handleChange("contactPath", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select path" /></SelectTrigger>
-                  <SelectContent>
-                    {CONTACT_PATHS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>What Should Founders Include in First Outreach?</Label>
-              <div className="flex flex-wrap gap-2">
-                {OUTREACH_INCLUDES.map(item => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => handleArrayToggle("outreachIncludes", item)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      formData.outreachIncludes.includes(item)
-                        ? "bg-[hsl(var(--navy-deep))] text-white"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="turnOffs">What Turns You Off Immediately?</Label>
-              <Textarea
-                id="turnOffs"
-                value={formData.turnOffs}
-                onChange={(e) => handleChange("turnOffs", e.target.value)}
-                placeholder="Generic mass emails, No clear ask, Unrealistic valuations..."
-                rows={3}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="roleRouting">Role Routing Rules (who should be contacted for what?)</Label>
-              <Textarea
-                id="roleRouting"
-                value={formData.roleRouting}
-                onChange={(e) => handleChange("roleRouting", e.target.value)}
-                placeholder="AI infra → Partner A, FinTech seed → Principal B..."
-                rows={3}
-              />
-            </div>
-          </div>
-        );
-
-      case 8:
         return (
           <div className="space-y-8">
             <div className="space-y-2">
@@ -1141,7 +1238,7 @@ export default function InvestorApplication() {
             </div>
 
             <div className="space-y-2">
-              <Label>Conflicts Policy</Label>
+              <Label>Conflicts Policy *</Label>
               <Select value={formData.conflictsPolicy} onValueChange={(v) => handleChange("conflictsPolicy", v)}>
                 <SelectTrigger><SelectValue placeholder="Select policy" /></SelectTrigger>
                 <SelectContent>
@@ -1273,7 +1370,7 @@ export default function InvestorApplication() {
 
             {/* Mobile Progress */}
             <div className="md:hidden flex items-center justify-between bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-              <span className="text-white font-medium">Step {currentStep} of 8</span>
+              <span className="text-white font-medium">Step {currentStep} of 7</span>
               <span className="text-white/70 text-sm">{STEPS[currentStep - 1].title}</span>
             </div>
 
@@ -1287,7 +1384,6 @@ export default function InvestorApplication() {
                   <Button
                     type="button"
                     variant="outline"
-                    size="lg"
                     onClick={prevStep}
                     className="gap-2"
                   >
@@ -1296,12 +1392,13 @@ export default function InvestorApplication() {
                   </Button>
                 )}
                 
-                {currentStep < 8 ? (
+                <div className="flex-1" />
+                
+                {currentStep < 7 ? (
                   <Button
                     type="button"
-                    size="lg"
                     onClick={nextStep}
-                    className="flex-1 bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90 text-white gap-2"
+                    className="gap-2 bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90"
                   >
                     Continue
                     <ArrowRight className="h-4 w-4" />
@@ -1309,11 +1406,11 @@ export default function InvestorApplication() {
                 ) : (
                   <Button
                     type="submit"
-                    size="lg"
-                    className="flex-1 bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90 text-white"
                     disabled={isSubmitting}
+                    className="gap-2 bg-gradient-to-r from-[hsl(var(--navy-deep))] to-primary hover:opacity-90"
                   >
-                    {isSubmitting ? "Submitting..." : "Submit Partnership Application"}
+                    {isSubmitting ? "Submitting..." : "Submit Application"}
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 )}
               </div>
