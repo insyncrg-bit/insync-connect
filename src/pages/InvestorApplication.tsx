@@ -49,6 +49,7 @@ export default function InvestorApplication() {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   
   const [formData, setFormData] = useState({
     // Section 1: Admin & Verification
@@ -151,6 +152,21 @@ export default function InvestorApplication() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate all steps before submission
+    for (let step = 1; step <= 8; step++) {
+      const validation = validateStep(step);
+      if (!validation.isValid) {
+        setCurrentStep(step);
+        toast({
+          title: "Please complete all sections",
+          description: `Section ${step}: ${validation.errors[0]}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -171,8 +187,111 @@ export default function InvestorApplication() {
     }
   };
 
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 8));
+  // Validation function for each step
+  const validateStep = (step: number): { isValid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+    
+    switch (step) {
+      case 1: // Admin & Verification
+        if (!formData.firmName.trim()) errors.push("Firm/Fund name is required");
+        if (!formData.website.trim()) errors.push("Website is required");
+        if (!formData.hqLocation.trim()) errors.push("HQ location is required");
+        if (!formData.contactName.trim()) errors.push("Contact name is required");
+        if (!formData.contactTitle.trim()) errors.push("Contact title is required");
+        if (!formData.contactEmail.trim()) errors.push("Contact email is required");
+        break;
+      case 2: // Fund Overview
+        if (!formData.firmDescription.trim()) errors.push("Firm description is required");
+        if (!formData.fundType) errors.push("Fund type is required");
+        if (!formData.leadFollow) errors.push("Lead vs Follow preference is required");
+        if (formData.checkSizes.length === 0) errors.push("Select at least one check size");
+        if (formData.stageFocus.length === 0) errors.push("Select at least one stage focus");
+        break;
+      case 3: // Investment Thesis
+        if (!formData.thesisStatement.trim()) errors.push("Thesis statement is required");
+        if (formData.fastSignals.length === 0) errors.push("Select at least one fast signal");
+        break;
+      case 4: // What You Look For
+        if (!formData.painSeverity) errors.push("Pain severity preference is required");
+        if (formData.customerTypes.length === 0) errors.push("Select at least one customer type");
+        if (!formData.b2bB2c) errors.push("B2B/B2C preference is required");
+        if (formData.revenueModels.length === 0) errors.push("Select at least one revenue model");
+        if (formData.minimumTraction.length === 0) errors.push("Select at least one minimum traction level");
+        break;
+      case 5: // Deal Mechanics
+        if (!formData.decisionProcess) errors.push("Decision process is required");
+        if (!formData.timeToFirstResponse) errors.push("Time to first response is required");
+        if (!formData.timeToDecision) errors.push("Time to decision is required");
+        if (!formData.boardInvolvement) errors.push("Board involvement preference is required");
+        break;
+      case 6: // Value-Add
+        if (formData.operatingSupport.length === 0) errors.push("Select at least one operating support type");
+        if (!formData.supportStyle) errors.push("Support style is required");
+        break;
+      case 7: // Outreach Preferences
+        if (!formData.preferredFormat) errors.push("Preferred message format is required");
+        if (formData.outreachIncludes.length === 0) errors.push("Select at least one outreach requirement");
+        if (!formData.contactPath) errors.push("Best contact path is required");
+        break;
+      case 8: // Portfolio & Conflicts
+        if (!formData.conflictsPolicy) errors.push("Conflicts policy is required");
+        break;
+    }
+    
+    return { isValid: errors.length === 0, errors };
+  };
+
+  const isStepComplete = (step: number): boolean => {
+    return validateStep(step).isValid;
+  };
+
+  const nextStep = () => {
+    const validation = validateStep(currentStep);
+    if (!validation.isValid) {
+      toast({
+        title: "Please complete required fields",
+        description: validation.errors[0],
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Mark current step as completed
+    if (!completedSteps.includes(currentStep)) {
+      setCompletedSteps(prev => [...prev, currentStep]);
+    }
+    
+    setCurrentStep(prev => Math.min(prev + 1, 8));
+  };
+
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+
+  const handleStepClick = (stepId: number) => {
+    // Can only go to previous steps or current step
+    // Can only go forward if all previous steps are complete
+    if (stepId < currentStep) {
+      setCurrentStep(stepId);
+    } else if (stepId === currentStep) {
+      // Already on this step
+    } else {
+      // Trying to go forward - check if all previous steps are complete
+      let canProceed = true;
+      for (let i = 1; i < stepId; i++) {
+        if (!isStepComplete(i)) {
+          canProceed = false;
+          toast({
+            title: "Complete previous sections first",
+            description: `Please complete section ${i} before proceeding.`,
+            variant: "destructive",
+          });
+          break;
+        }
+      }
+      if (canProceed) {
+        setCurrentStep(stepId);
+      }
+    }
+  };
 
   const renderStep = () => {
     switch (currentStep) {
@@ -1123,15 +1242,18 @@ export default function InvestorApplication() {
             <div className="hidden md:flex items-center justify-between bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
               {STEPS.map((step, index) => {
                 const Icon = step.icon;
-                const isCompleted = currentStep > step.id;
+                const isCompleted = isStepComplete(step.id) && (completedSteps.includes(step.id) || currentStep > step.id);
                 const isCurrent = currentStep === step.id;
+                const canAccess = step.id <= currentStep || completedSteps.includes(step.id - 1) || isStepComplete(step.id - 1);
                 
                 return (
                   <button
                     key={step.id}
-                    onClick={() => setCurrentStep(step.id)}
+                    onClick={() => handleStepClick(step.id)}
+                    disabled={!canAccess && step.id > currentStep}
                     className={`flex flex-col items-center gap-2 p-2 rounded-xl transition-all ${
-                      isCurrent ? "bg-white/20" : "hover:bg-white/10"
+                      isCurrent ? "bg-white/20" : 
+                      canAccess ? "hover:bg-white/10 cursor-pointer" : "cursor-not-allowed opacity-50"
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
