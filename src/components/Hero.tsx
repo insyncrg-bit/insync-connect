@@ -7,12 +7,6 @@ export const Hero = () => {
   
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
-      {/* Subtle background accents */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[10%] right-[5%] w-[400px] h-[400px] border border-cyan-glow/10 rounded-full shadow-[0_0_80px_rgba(6,182,212,0.1)]" style={{ animation: 'float 40s ease-in-out infinite' }} />
-        <div className="absolute bottom-[10%] left-[5%] w-[350px] h-[350px] border border-cyan-glow/10 rounded-full shadow-[0_0_80px_rgba(6,182,212,0.1)]" style={{ animation: 'float 45s ease-in-out infinite', animationDelay: '5s' }} />
-      </div>
-
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
         <div className="max-w-3xl mx-auto text-center space-y-6">
@@ -54,9 +48,6 @@ export const Hero = () => {
           </div>
         </div>
       </div>
-
-      {/* Subtle glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-cyan-glow/6 rounded-full blur-[120px] pointer-events-none" />
     </section>
   );
 };
