@@ -7,17 +7,24 @@ export const Hero = () => {
   
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-cyan-glow/8 blur-[150px]"></div>
+        <div className="absolute top-[30%] left-[20%] w-[400px] h-[300px] bg-cyan-glow/5 blur-[120px]"></div>
+        <div className="absolute bottom-[20%] right-[20%] w-[350px] h-[250px] bg-cyan-glow/5 blur-[100px]"></div>
+      </div>
+
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
+        <div className="max-w-4xl mx-auto text-center space-y-6">
           {/* Logo */}
           <div className="transition-all duration-500 relative">
             <img 
               src={inSyncLogo} 
               alt="In∞Sync" 
-              className="w-full max-w-2xl mx-auto"
+              className="w-full max-w-3xl mx-auto"
               style={{ 
-                filter: 'drop-shadow(0 0 40px rgba(6,182,212,0.4)) drop-shadow(0 0 80px rgba(6,182,212,0.2))',
+                filter: 'drop-shadow(0 0 60px rgba(6,182,212,0.5)) drop-shadow(0 0 120px rgba(6,182,212,0.3))',
               }}
             />
           </div>
