@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Plus, Trash2, Upload, CheckCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Trash2, Upload, CheckCircle, Check, Sparkles, Building2, Users, Target, Briefcase, TrendingUp, Map, Swords } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -13,6 +13,18 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Word count helper
 const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
+
+// Steps configuration
+const STEPS = [
+  { id: 0, title: "Welcome", icon: Sparkles },
+  { id: 1, title: "Company Info", icon: Building2 },
+  { id: 2, title: "Team & Overview", icon: Users },
+  { id: 3, title: "Value Proposition", icon: Target },
+  { id: 4, title: "Business Model", icon: Briefcase },
+  { id: 5, title: "Go-to-Market", icon: TrendingUp },
+  { id: 6, title: "Customer & Market", icon: Map },
+  { id: 7, title: "Competitors", icon: Swords },
+];
 
 // Team member type
 interface TeamMember {
@@ -35,7 +47,7 @@ export default function FounderApplication() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
-  const [sectionErrors, setSectionErrors] = useState<string[]>([]);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
   // Basic company info
   const [basicInfo, setBasicInfo] = useState({
@@ -62,9 +74,8 @@ export default function FounderApplication() {
   // Section 3 - Business Model
   const [customerType, setCustomerType] = useState<string[]>([]);
   const [customerTypeExplanation, setCustomerTypeExplanation] = useState("");
-  const [businessStructure, setBusinessStructure] = useState(""); // New: business structure breakdown
+  const [businessStructure, setBusinessStructure] = useState("");
   const [pricingStrategies, setPricingStrategies] = useState<string[]>([]);
-  // Dynamic pricing sub-fields
   const [subscriptionType, setSubscriptionType] = useState("");
   const [subscriptionBillingCycle, setSubscriptionBillingCycle] = useState("");
   const [subscriptionTiers, setSubscriptionTiers] = useState("");
@@ -73,7 +84,6 @@ export default function FounderApplication() {
   const [licensingModel, setLicensingModel] = useState("");
   const [adRevenueModel, setAdRevenueModel] = useState("");
   const [serviceType, setServiceType] = useState("");
-  // Revenue metrics
   const [revenueMetrics, setRevenueMetrics] = useState<string[]>([]);
   const [revenueMetricsValues, setRevenueMetricsValues] = useState("");
 
@@ -101,7 +111,7 @@ export default function FounderApplication() {
   ]);
   const [competitiveMoat, setCompetitiveMoat] = useState("");
 
-  // Value Proposition Options - Single multi-select dropdown
+  // Value Proposition Options
   const VALUE_DRIVER_OPTIONS = [
     { 
       value: "scalability", 
@@ -135,7 +145,6 @@ export default function FounderApplication() {
     },
   ];
 
-  // Value driver explanations state
   const [valueDriverExplanations, setValueDriverExplanations] = useState<Record<string, string>>({});
 
   const CUSTOMER_TYPES = ["B2B", "B2C", "Both"];
@@ -165,17 +174,6 @@ export default function FounderApplication() {
   const LICENSING_METRICS = ["Revenue per License", "Renewal Rate", "Number of Licenses Sold"];
   const AD_METRICS = ["DAU/MAU", "CPM", "Ad Revenue per User", "Engagement Rate"];
   const SERVICES_METRICS = ["Revenue per Project", "Utilization Rate", "Average Contract Value"];
-
-  const sections = [
-    "Welcome",
-    "Company Info",
-    "Team & Overview",
-    "Value Proposition",
-    "Business Model",
-    "Go-to-Market",
-    "Customer & Market",
-    "Competitors",
-  ];
 
   const getRelevantMetrics = () => {
     const metrics: string[] = [];
@@ -229,96 +227,114 @@ export default function FounderApplication() {
     }
   };
 
-  const validateSection = (sectionIndex: number): boolean => {
+  // Validation function for each step
+  const validateStep = (stepId: number): { isValid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
-    switch (sectionIndex) {
-      case 0:
+    switch (stepId) {
+      case 0: // Welcome - no validation needed
         break;
-      case 1:
+      case 1: // Company Info
         if (!basicInfo.companyName.trim()) errors.push("Company name is required");
         if (!basicInfo.vertical) errors.push("Vertical is required");
         if (!basicInfo.stage) errors.push("Stage is required");
         if (!basicInfo.location.trim()) errors.push("Location is required");
         break;
-      case 2:
+      case 2: // Team & Overview
         if (countWords(companyOverview) < 30) errors.push("Problem statement needs at least 30 words");
         if (!founderName.trim()) errors.push("Your name is required");
         if (!founderEmail.trim()) errors.push("Your email is required");
         if (!teamMembers[0]?.role?.trim()) errors.push("Your role is required");
         break;
-      case 3:
+      case 3: // Value Proposition
         if (countWords(currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
         if (valueDrivers.length === 0) errors.push("Select at least one value driver");
         break;
-      case 4:
+      case 4: // Business Model
         if (customerType.length === 0) errors.push("Select at least one customer type");
         if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
         break;
-      case 5:
+      case 5: // Go-to-Market
         if (!gtmAcquisition.trim()) errors.push("Customer acquisition strategy is required");
         break;
-      case 6:
+      case 6: // Customer & Market
         if (!targetGeography.trim()) errors.push("Target geography is required");
         if (countWords(targetCustomerDescription) < 20) errors.push("Customer description needs at least 20 words");
         if (!tamValue.trim()) errors.push("TAM value is required");
         if (!samValue.trim()) errors.push("SAM value is required");
         if (!somValue.trim()) errors.push("SOM value is required");
         break;
-      case 7:
+      case 7: // Competitors - optional but validate competitive moat
         break;
     }
 
-    setSectionErrors(errors);
+    return { isValid: errors.length === 0, errors };
+  };
 
-    if (errors.length > 0) {
+  const isStepComplete = (stepId: number): boolean => {
+    return validateStep(stepId).isValid;
+  };
+
+  const nextStep = () => {
+    const validation = validateStep(currentSection);
+    if (!validation.isValid) {
       toast({
         title: "Please complete required fields",
-        description: errors[0],
+        description: validation.errors[0],
         variant: "destructive",
       });
-      return false;
+      return;
     }
-    return true;
+    
+    // Mark current step as completed
+    if (!completedSteps.includes(currentSection)) {
+      setCompletedSteps(prev => [...prev, currentSection]);
+    }
+    
+    setCurrentSection(prev => Math.min(prev + 1, 7));
   };
 
-  const handleNextSection = () => {
-    setCurrentSection(currentSection + 1);
-  };
+  const prevStep = () => setCurrentSection(prev => Math.max(prev - 1, 0));
 
-  const validateAllSections = (): string[] => {
-    const errors: string[] = [];
-    
-    if (!basicInfo.companyName.trim()) errors.push("Company name is required");
-    if (!basicInfo.vertical) errors.push("Vertical is required");
-    if (!basicInfo.stage) errors.push("Stage is required");
-    if (!basicInfo.location.trim()) errors.push("Location is required");
-    if (countWords(companyOverview) < 30) errors.push("Problem statement needs at least 30 words");
-    if (!founderName.trim()) errors.push("Your name is required");
-    if (!founderEmail.trim()) errors.push("Your email is required");
-    if (countWords(currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
-    if (valueDrivers.length === 0) errors.push("Select at least one value driver");
-    if (customerType.length === 0) errors.push("Select at least one customer type");
-    if (pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
-    if (!gtmAcquisition.trim()) errors.push("Customer acquisition strategy is required");
-    if (!tamValue.trim()) errors.push("TAM value is required");
-    if (!samValue.trim()) errors.push("SAM value is required");
-    if (!somValue.trim()) errors.push("SOM value is required");
-    
-    return errors;
+  const handleStepClick = (stepId: number) => {
+    if (stepId < currentSection) {
+      setCurrentSection(stepId);
+    } else if (stepId === currentSection) {
+      // Already on this step
+    } else {
+      let canProceed = true;
+      for (let i = 0; i < stepId; i++) {
+        if (!isStepComplete(i)) {
+          canProceed = false;
+          toast({
+            title: "Complete previous sections first",
+            description: `Please complete "${STEPS[i].title}" before proceeding.`,
+            variant: "destructive",
+          });
+          break;
+        }
+      }
+      if (canProceed) {
+        setCurrentSection(stepId);
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const errors = validateAllSections();
-    if (errors.length > 0) {
-      toast({
-        title: "Please complete required fields",
-        description: errors[0],
-        variant: "destructive",
-      });
-      return;
+    // Validate all steps before submission
+    for (let step = 0; step <= 7; step++) {
+      const validation = validateStep(step);
+      if (!validation.isValid) {
+        setCurrentSection(step);
+        toast({
+          title: "Please complete all sections",
+          description: `Section "${STEPS[step].title}": ${validation.errors[0]}`,
+          variant: "destructive",
+        });
+        return;
+      }
     }
     
     setIsSubmitting(true);
@@ -798,65 +814,41 @@ export default function FounderApplication() {
                         : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
                     }`}
                     onClick={() => {
-                      toggleCheckbox(option.value, valueDrivers, setValueDrivers);
-                      // Clear explanation if unchecking
                       if (valueDrivers.includes(option.value)) {
-                        setValueDriverExplanations(prev => {
-                          const next = { ...prev };
-                          delete next[option.value];
-                          return next;
-                        });
+                        setValueDrivers(valueDrivers.filter(v => v !== option.value));
+                      } else {
+                        setValueDrivers([...valueDrivers, option.value]);
                       }
                     }}
                   >
-                    <div className="flex items-center gap-3">
-                      <Checkbox
-                        checked={valueDrivers.includes(option.value)}
-                        onCheckedChange={() => {
-                          toggleCheckbox(option.value, valueDrivers, setValueDrivers);
-                          if (valueDrivers.includes(option.value)) {
-                            setValueDriverExplanations(prev => {
-                              const next = { ...prev };
-                              delete next[option.value];
-                              return next;
-                            });
-                          }
-                        }}
-                      />
-                      <div>
-                        <p className="font-medium text-[hsl(var(--navy-deep))]">{option.label}</p>
-                        <p className="text-sm text-[hsl(var(--navy-deep))]/60">{option.description}</p>
+                    <div className="flex items-start gap-3">
+                      <Checkbox checked={valueDrivers.includes(option.value)} />
+                      <div className="flex-1">
+                        <div className="font-medium text-[hsl(var(--navy-deep))]">{option.label}</div>
+                        <div className="text-sm text-[hsl(var(--navy-deep))]/60">{option.description}</div>
                       </div>
                     </div>
+                    
+                    {valueDrivers.includes(option.value) && (
+                      <div className="mt-4 pt-4 border-t border-[hsl(var(--navy-deep))]/10">
+                        <Textarea
+                          value={valueDriverExplanations[option.value] || ""}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            setValueDriverExplanations({
+                              ...valueDriverExplanations,
+                              [option.value]: e.target.value,
+                            });
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          placeholder={option.prompt}
+                          rows={3}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
-
-              {/* Dynamic textboxes for selected value drivers */}
-              {valueDrivers.length > 0 && (
-                <div className="space-y-4 mt-6">
-                  <Label className="text-base font-semibold">Expand on your selected value drivers:</Label>
-                  {valueDrivers.map((driverValue) => {
-                    const driver = VALUE_DRIVER_OPTIONS.find(d => d.value === driverValue);
-                    if (!driver) return null;
-                    return (
-                      <div key={driverValue} className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-2">
-                        <Label className="font-semibold text-[hsl(var(--navy-deep))]">{driver.label}</Label>
-                        <Textarea
-                          value={valueDriverExplanations[driverValue] || ""}
-                          onChange={(e) => setValueDriverExplanations(prev => ({
-                            ...prev,
-                            [driverValue]: e.target.value
-                          }))}
-                          placeholder={driver.prompt}
-                          rows={3}
-                        />
-                        <WordCounter current={valueDriverExplanations[driverValue] || ""} min={20} max={100} />
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           </div>
         );
@@ -873,99 +865,94 @@ export default function FounderApplication() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-base font-semibold">3.1 Who is your customer?</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Select your primary customer type</p>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Select all that apply</p>
               </div>
               <div className="flex flex-wrap gap-3">
                 {CUSTOMER_TYPES.map((type) => (
-                  <div
+                  <Button
                     key={type}
-                    className={`px-4 py-2 border rounded-full cursor-pointer transition-all ${
-                      customerType.includes(type)
-                        ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--navy-deep))]"
-                        : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
-                    }`}
+                    type="button"
+                    variant={customerType.includes(type) ? "default" : "outline"}
                     onClick={() => toggleCheckbox(type, customerType, setCustomerType)}
+                    className={customerType.includes(type) ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]" : ""}
                   >
-                    <span className="text-sm font-medium">{type}</span>
-                  </div>
+                    {type}
+                  </Button>
                 ))}
               </div>
               {customerType.length > 0 && (
-                <div className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label>Explain your customer type choice</Label>
                   <Textarea
                     value={customerTypeExplanation}
                     onChange={(e) => setCustomerTypeExplanation(e.target.value)}
-                    placeholder="Briefly describe your buyer persona and decision-maker..."
+                    placeholder="Why did you choose this customer type? How does this affect your go-to-market?"
                     rows={2}
                   />
-                  
-                  {/* Business Structure Breakdown */}
-                  <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-3">
-                    <Label className="font-semibold text-[hsl(var(--navy-deep))]">Business Structure Breakdown</Label>
-                    <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                      {customerType.includes("B2B") && customerType.includes("B2C")
-                        ? "Since you serve both B2B and B2C customers, explain how your business structure supports both segments."
-                        : customerType.includes("B2B")
-                        ? "Explain your B2B business structure: sales cycle, deal sizes, key stakeholders, and how you engage enterprise customers."
-                        : "Explain your B2C business structure: acquisition channels, customer journey, retention strategy, and unit economics."}
-                    </p>
-                    <Textarea
-                      value={businessStructure}
-                      onChange={(e) => setBusinessStructure(e.target.value)}
-                      placeholder={
-                        customerType.includes("B2B")
-                          ? "Our sales cycle typically takes [X weeks/months]. Key stakeholders include [roles]. We engage customers through [channels]..."
-                          : "We acquire customers through [channels]. The typical customer journey involves [steps]. We retain customers by [strategy]..."
-                      }
-                      rows={4}
-                    />
-                    <WordCounter current={businessStructure} min={30} max={150} />
-                  </div>
                 </div>
               )}
             </div>
 
-            {/* 3.2 Pricing Strategy */}
+            {/* 3.2 Business Structure */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">3.2 Pricing Strategy</Label>
+                <Label className="text-base font-semibold">3.2 Business Structure</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">How is your business structured?</p>
+              </div>
+              <Textarea
+                value={businessStructure}
+                onChange={(e) => setBusinessStructure(e.target.value)}
+                placeholder="Describe your business structure, including revenue streams, cost structure, and key partnerships..."
+                rows={3}
+              />
+            </div>
+
+            {/* 3.3 Pricing Strategy */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">3.3 Pricing Strategy</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">How do you charge customers? Select all that apply.</p>
               </div>
-              <div className="space-y-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {PRICING_STRATEGIES.map((strategy) => (
-                  <div key={strategy.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`pricing-${strategy.id}`}
-                      checked={pricingStrategies.includes(strategy.id)}
-                      onCheckedChange={() => toggleCheckbox(strategy.id, pricingStrategies, setPricingStrategies)}
-                    />
-                    <Label htmlFor={`pricing-${strategy.id}`} className="cursor-pointer">{strategy.label}</Label>
+                  <div
+                    key={strategy.id}
+                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                      pricingStrategies.includes(strategy.id)
+                        ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
+                        : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
+                    }`}
+                    onClick={() => toggleCheckbox(strategy.id, pricingStrategies, setPricingStrategies)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Checkbox checked={pricingStrategies.includes(strategy.id)} />
+                      <span className="font-medium">{strategy.label}</span>
+                    </div>
                   </div>
                 ))}
               </div>
 
-              {/* Dynamic sub-fields based on pricing selection */}
+              {/* Dynamic sub-fields based on pricing strategy */}
               {pricingStrategies.includes("subscription") && (
                 <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
-                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Subscription Details</Label>
+                  <Label className="font-medium">Subscription Details</Label>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Subscription Type</Label>
+                      <Label className="text-sm">Type</Label>
                       <Select value={subscriptionType} onValueChange={setSubscriptionType}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="flat">Flat Rate</SelectItem>
-                          <SelectItem value="tiered">Tiered Pricing</SelectItem>
+                          <SelectItem value="tiered">Tiered</SelectItem>
+                          <SelectItem value="per-seat">Per Seat</SelectItem>
                           <SelectItem value="usage-based">Usage-Based</SelectItem>
-                          <SelectItem value="per-seat">Per-Seat</SelectItem>
-                          <SelectItem value="freemium">Freemium + Paid</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Billing Cycle</Label>
+                      <Label className="text-sm">Billing Cycle</Label>
                       <Select value={subscriptionBillingCycle} onValueChange={setSubscriptionBillingCycle}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select cycle" />
@@ -973,18 +960,17 @@ export default function FounderApplication() {
                         <SelectContent>
                           <SelectItem value="monthly">Monthly</SelectItem>
                           <SelectItem value="annual">Annual</SelectItem>
-                          <SelectItem value="both">Both (with annual discount)</SelectItem>
+                          <SelectItem value="both">Both</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Describe your tiers/pricing structure</Label>
-                    <Textarea
+                    <Label className="text-sm">Pricing Tiers</Label>
+                    <Input
                       value={subscriptionTiers}
                       onChange={(e) => setSubscriptionTiers(e.target.value)}
-                      placeholder="e.g., Free tier: X features, Pro: $29/mo with Y features, Enterprise: Custom pricing..."
-                      rows={2}
+                      placeholder="e.g., Free, Pro ($29/mo), Enterprise (custom)"
                     />
                   </div>
                 </div>
@@ -992,23 +978,23 @@ export default function FounderApplication() {
 
               {pricingStrategies.includes("transaction") && (
                 <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
-                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Transaction-Based Details</Label>
+                  <Label className="font-medium">Transaction Fee Details</Label>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Fee Type</Label>
+                      <Label className="text-sm">Fee Type</Label>
                       <Select value={transactionFeeType} onValueChange={setTransactionFeeType}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select fee type" />
+                          <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="percentage">Percentage (Take Rate)</SelectItem>
-                          <SelectItem value="flat-fee">Flat Fee per Transaction</SelectItem>
-                          <SelectItem value="hybrid">Hybrid (% + Flat)</SelectItem>
+                          <SelectItem value="percentage">Percentage</SelectItem>
+                          <SelectItem value="flat">Flat Fee</SelectItem>
+                          <SelectItem value="hybrid">Hybrid</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Fee Amount/Percentage</Label>
+                      <Label className="text-sm">Fee Amount</Label>
                       <Input
                         value={transactionFeePercentage}
                         onChange={(e) => setTransactionFeePercentage(e.target.value)}
@@ -1018,101 +1004,39 @@ export default function FounderApplication() {
                   </div>
                 </div>
               )}
-
-              {pricingStrategies.includes("licensing") && (
-                <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
-                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Licensing Details</Label>
-                  <div className="space-y-2">
-                    <Label>Licensing Model</Label>
-                    <Select value={licensingModel} onValueChange={setLicensingModel}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select model" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="perpetual">Perpetual License</SelectItem>
-                        <SelectItem value="term">Term License</SelectItem>
-                        <SelectItem value="enterprise">Enterprise Agreement</SelectItem>
-                        <SelectItem value="oem">OEM/White Label</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
-
-              {pricingStrategies.includes("advertising") && (
-                <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
-                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Advertising Revenue Details</Label>
-                  <div className="space-y-2">
-                    <Label>Ad Revenue Model</Label>
-                    <Select value={adRevenueModel} onValueChange={setAdRevenueModel}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select model" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="display">Display Ads (CPM)</SelectItem>
-                        <SelectItem value="sponsored">Sponsored Content</SelectItem>
-                        <SelectItem value="affiliate">Affiliate/Referral</SelectItem>
-                        <SelectItem value="native">Native Advertising</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
-
-              {pricingStrategies.includes("services") && (
-                <div className="p-4 bg-[hsl(var(--cyan-glow))]/5 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
-                  <Label className="font-semibold text-[hsl(var(--navy-deep))]">Services Details</Label>
-                  <div className="space-y-2">
-                    <Label>Service Type</Label>
-                    <Select value={serviceType} onValueChange={setServiceType}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="consulting">Consulting/Advisory</SelectItem>
-                        <SelectItem value="implementation">Implementation Services</SelectItem>
-                        <SelectItem value="managed">Managed Services</SelectItem>
-                        <SelectItem value="training">Training/Education</SelectItem>
-                        <SelectItem value="support">Premium Support</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* 3.3 Revenue & Metrics */}
+            {/* 3.4 Revenue Metrics */}
             {pricingStrategies.length > 0 && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-base font-semibold">3.3 Key Metrics</Label>
-                  <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                    Based on your pricing model, select the metrics you track (and share values if available)
-                  </p>
+                  <Label className="text-base font-semibold">3.4 Key Metrics</Label>
+                  <p className="text-sm text-[hsl(var(--navy-deep))]/60">Select the metrics you track</p>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="flex flex-wrap gap-2">
                   {getRelevantMetrics().map((metric) => (
-                    <div
+                    <Button
                       key={metric}
-                      className={`p-3 border rounded-lg cursor-pointer transition-all text-center ${
-                        revenueMetrics.includes(metric)
-                          ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
-                          : "border-[hsl(var(--navy-deep))]/20 hover:border-[hsl(var(--cyan-glow))]/50"
-                      }`}
+                      type="button"
+                      variant={revenueMetrics.includes(metric) ? "default" : "outline"}
+                      size="sm"
                       onClick={() => toggleCheckbox(metric, revenueMetrics, setRevenueMetrics)}
+                      className={revenueMetrics.includes(metric) ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]" : ""}
                     >
-                      <Checkbox checked={revenueMetrics.includes(metric)} className="mr-2" />
-                      <span className="text-sm font-medium">{metric}</span>
-                    </div>
+                      {metric}
+                    </Button>
                   ))}
                 </div>
                 {revenueMetrics.length > 0 && (
-                  <Textarea
-                    value={revenueMetricsValues}
-                    onChange={(e) => setRevenueMetricsValues(e.target.value)}
-                    placeholder="Share your current numbers for the selected metrics (e.g., ARR: $500K, Churn: 2%/mo, LTV: $2,400)..."
-                    rows={3}
-                  />
+                  <div className="space-y-2">
+                    <Label>Current Values (optional)</Label>
+                    <Textarea
+                      value={revenueMetricsValues}
+                      onChange={(e) => setRevenueMetricsValues(e.target.value)}
+                      placeholder="Share your current metrics (e.g., MRR: $10k, ARR: $120k, Churn: 5%)"
+                      rows={2}
+                    />
+                  </div>
                 )}
               </div>
             )}
@@ -1123,43 +1047,40 @@ export default function FounderApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 4 — Go-to-Market</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">How do you reach and acquire customers?</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 4 — Go-to-Market Strategy</h2>
+              <p className="text-[hsl(var(--navy-deep))]/70">How do you acquire and retain customers?</p>
             </div>
 
             {/* 4.1 Customer Acquisition */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">4.1 How do you acquire customers? *</Label>
+                <Label className="text-base font-semibold">4.1 How do you acquire customers?</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Describe your customer acquisition strategy in detail. Include your channels (paid ads, content marketing, sales team, partnerships, referrals, etc.), 
-                  your sales process, how you generate leads, and how you convert them to paying customers.
+                  Describe your primary customer acquisition channels and strategy.
                 </p>
               </div>
               <Textarea
                 value={gtmAcquisition}
                 onChange={(e) => setGtmAcquisition(e.target.value)}
-                placeholder="We acquire customers through [channels]. Our sales process involves [steps]. We generate leads by [methods] and convert them by [approach]. Our current customer acquisition cost is [CAC] and we expect to scale by [how]..."
-                rows={8}
+                placeholder="We acquire customers through [channels]. Our primary strategy is [approach]. Our customer journey looks like [description]..."
+                rows={4}
               />
-              <WordCounter current={gtmAcquisition} min={100} max={250} />
             </div>
 
             {/* 4.2 Timeline */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">4.2 What does your GTM timeline look like?</Label>
+                <Label className="text-base font-semibold">4.2 GTM Timeline</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Describe your go-to-market timeline. What are your milestones? When do you expect to hit key metrics?
+                  What are your near-term milestones?
                 </p>
               </div>
               <Textarea
                 value={gtmTimeline}
                 onChange={(e) => setGtmTimeline(e.target.value)}
-                placeholder="Month 1-3: Launch beta with [X] customers. Month 4-6: Scale to [Y] customers via [channel]. Month 7-12: Expand to [market/region]. Key milestones include..."
-                rows={5}
+                placeholder="In the next 6-12 months, we plan to [milestones]. Key targets include [goals]..."
+                rows={3}
               />
-              <WordCounter current={gtmTimeline} min={50} max={150} />
             </div>
           </div>
         );
@@ -1169,146 +1090,142 @@ export default function FounderApplication() {
           <div className="space-y-8">
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Section 5 — Target Customer & Market Sizing</h2>
-              <p className="text-[hsl(var(--navy-deep))]/70">Who are you selling to and how big is the opportunity?</p>
+              <p className="text-[hsl(var(--navy-deep))]/70">Who do you serve and how big is the opportunity?</p>
             </div>
 
-            {/* 5.1 Geography */}
+            {/* 5.1 Target Geography */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">5.1 Target Geography *</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Be specific about your geographic focus. Include regions, cities, states, or countries you're targeting.
-                </p>
+                <Label className="text-base font-semibold">5.1 Target Geography</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Where do you sell?</p>
               </div>
-              <Textarea
+              <Input
                 value={targetGeography}
                 onChange={(e) => setTargetGeography(e.target.value)}
-                placeholder="e.g., Initially focusing on the Northeast US corridor (Boston to Washington DC) due to high concentration of target enterprise customers. Expanding to Chicago and San Francisco metro areas in Year 2..."
-                rows={3}
+                placeholder="e.g., US, North America, Global, Boston Metro Area"
               />
             </div>
 
             {/* 5.2 Target Customer Description */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">5.2 Describe Your Target Customer *</Label>
+                <Label className="text-base font-semibold">5.2 Ideal Customer Profile</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  Paint a complete picture of who you're selling to. Include their role, what their day looks like, their pain points, and why they're the right fit.
+                  Describe your ideal customer in detail.
                 </p>
               </div>
               <Textarea
                 value={targetCustomerDescription}
                 onChange={(e) => setTargetCustomerDescription(e.target.value)}
-                placeholder="Our ideal customer is a VP of Operations at a mid-size manufacturing company (100-500 employees) who is frustrated by outdated inventory management. They spend 3+ hours daily reconciling spreadsheets..."
-                rows={5}
+                placeholder="Our ideal customer is [description]. They typically have [characteristics]. The decision maker is usually [role]..."
+                rows={4}
               />
-              <WordCounter current={targetCustomerDescription} min={20} max={200} />
+              <WordCounter current={targetCustomerDescription} min={20} max={150} />
             </div>
 
-            {/* 5.3 Market Sizing */}
-            <div className="space-y-6">
-              <Label className="text-base font-semibold">5.3 Market Sizing (TAM → SAM → SOM)</Label>
-              <p className="text-sm text-[hsl(var(--navy-deep))]/60 bg-blue-50 p-3 rounded-lg">
-                💡 <strong>Tip:</strong> TAM = Total market if you had 100% share. SAM = The portion you can actually serve (more narrow). SOM = What you can realistically capture.
-              </p>
-
-              {/* TAM */}
-              <div className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
-                <Label className="font-semibold text-[hsl(var(--navy-deep))]">TAM — Total Addressable Market</Label>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Market Size ($ value) *</Label>
-                    <Input
-                      value={tamValue}
-                      onChange={(e) => setTamValue(e.target.value)}
-                      placeholder="e.g., $50B"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Calculation Method</Label>
-                    <Select value={tamCalculationMethod} onValueChange={setTamCalculationMethod}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="How did you calculate?" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="top-down">Top-Down (industry reports)</SelectItem>
-                        <SelectItem value="bottom-up">Bottom-Up (# customers × price)</SelectItem>
-                        <SelectItem value="value-theory">Value Theory (problem cost × reach)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Show your work</Label>
-                  <Textarea
-                    value={tamBreakdown}
-                    onChange={(e) => setTamBreakdown(e.target.value)}
-                    placeholder="e.g., 476,000 new Lyme cases/year in US × $3,000 avg treatment cost = $1.4B direct treatment market..."
-                    rows={3}
-                  />
-                </div>
+            {/* 5.3 TAM */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">5.3 Total Addressable Market (TAM)</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  The total market demand for your product/service.
+                </p>
               </div>
-
-              {/* SAM */}
-              <div className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
-                <Label className="font-semibold text-[hsl(var(--navy-deep))]">SAM — Serviceable Addressable Market</Label>
-                <p className="text-xs text-[hsl(var(--navy-deep))]/60">The portion of TAM you can actually serve based on your product, geography, or segment focus.</p>
+              <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Serviceable Market Size *</Label>
+                  <Label>TAM Value *</Label>
                   <Input
-                    value={samValue}
-                    onChange={(e) => setSamValue(e.target.value)}
-                    placeholder="e.g., $5B"
+                    value={tamValue}
+                    onChange={(e) => setTamValue(e.target.value)}
+                    placeholder="e.g., $50B"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Show your work</Label>
-                  <Textarea
-                    value={samBreakdown}
-                    onChange={(e) => setSamBreakdown(e.target.value)}
-                    placeholder="e.g., Of the $1.4B TAM, we're focusing on high-risk outdoor workers in endemic regions (forestry, construction, landscaping) = 2.3M workers × $200/year = $460M..."
-                    rows={3}
+                  <Label>Calculation Method</Label>
+                  <Select value={tamCalculationMethod} onValueChange={setTamCalculationMethod}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="How did you calculate?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="top-down">Top-Down</SelectItem>
+                      <SelectItem value="bottom-up">Bottom-Up</SelectItem>
+                      <SelectItem value="value-theory">Value Theory</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>TAM Breakdown</Label>
+                <Textarea
+                  value={tamBreakdown}
+                  onChange={(e) => setTamBreakdown(e.target.value)}
+                  placeholder="Explain how you arrived at this number..."
+                  rows={2}
+                />
+              </div>
+            </div>
+
+            {/* 5.4 SAM */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">5.4 Serviceable Addressable Market (SAM)</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  The portion of TAM you can realistically target.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label>SAM Value *</Label>
+                <Input
+                  value={samValue}
+                  onChange={(e) => setSamValue(e.target.value)}
+                  placeholder="e.g., $5B"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>SAM Breakdown</Label>
+                <Textarea
+                  value={samBreakdown}
+                  onChange={(e) => setSamBreakdown(e.target.value)}
+                  placeholder="Explain your SAM calculation..."
+                  rows={2}
+                />
+              </div>
+            </div>
+
+            {/* 5.5 SOM */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">5.5 Serviceable Obtainable Market (SOM)</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">
+                  The realistic market share you can capture.
+                </p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>SOM Value *</Label>
+                  <Input
+                    value={somValue}
+                    onChange={(e) => setSomValue(e.target.value)}
+                    placeholder="e.g., $100M"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Timeframe</Label>
+                  <Input
+                    value={somTimeframe}
+                    onChange={(e) => setSomTimeframe(e.target.value)}
+                    placeholder="e.g., 5 years"
                   />
                 </div>
               </div>
-
-              {/* SOM */}
-              <div className="p-4 border border-[hsl(var(--cyan-glow))]/20 rounded-lg space-y-4">
-                <Label className="font-semibold text-[hsl(var(--navy-deep))]">SOM — Serviceable Obtainable Market</Label>
-                <p className="text-xs text-[hsl(var(--navy-deep))]/60">What you can realistically capture given your resources, competition, and timeline.</p>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Obtainable Market Size *</Label>
-                    <Input
-                      value={somValue}
-                      onChange={(e) => setSomValue(e.target.value)}
-                      placeholder="e.g., $50M"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Timeframe</Label>
-                    <Select value={somTimeframe} onValueChange={setSomTimeframe}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select timeframe" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1-year">1 Year</SelectItem>
-                        <SelectItem value="2-years">2 Years</SelectItem>
-                        <SelectItem value="3-years">3 Years</SelectItem>
-                        <SelectItem value="5-years">5 Years</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Show your work</Label>
-                  <Textarea
-                    value={somBreakdown}
-                    onChange={(e) => setSomBreakdown(e.target.value)}
-                    placeholder="e.g., With our current team and funding, we can realistically capture 10% of the forestry segment in the Northeast (50 companies, 15,000 workers) = $3M in Year 1, scaling to $15M by Year 3..."
-                    rows={3}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label>SOM Breakdown</Label>
+                <Textarea
+                  value={somBreakdown}
+                  onChange={(e) => setSomBreakdown(e.target.value)}
+                  placeholder="Explain how you plan to capture this market share..."
+                  rows={2}
+                />
               </div>
             </div>
           </div>
@@ -1322,63 +1239,60 @@ export default function FounderApplication() {
               <p className="text-[hsl(var(--navy-deep))]/70">Who else is solving this problem?</p>
             </div>
 
-            {/* Competitors */}
+            {/* 6.1 Competitors */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">6.1 Competitors</Label>
+                <Label className="text-base font-semibold">6.1 Key Competitors</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
-                  List 3-5 competitors. Describe what they do and how you're different.
+                  List 3-5 competitors and explain how you differ.
                 </p>
               </div>
               
-              <div className="space-y-4">
-                {competitors.map((competitor, index) => (
-                  <div key={index} className="p-4 border border-[hsl(var(--navy-deep))]/10 rounded-lg bg-white space-y-4">
-                    <div className="flex justify-between items-center">
-                      <Label className="font-medium text-[hsl(var(--navy-deep))]">Competitor {index + 1} {index < 3 && "*"}</Label>
-                      {competitors.length > 3 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeCompetitor(index)}
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
+              {competitors.map((competitor, index) => (
+                <div key={index} className="p-4 border border-[hsl(var(--navy-deep))]/10 rounded-lg space-y-4 bg-white">
+                  <div className="flex justify-between items-center">
+                    <Label className="font-medium">Competitor {index + 1}</Label>
+                    {competitors.length > 3 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeCompetitor(index)}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Name</Label>
+                      <Input
+                        value={competitor.name}
+                        onChange={(e) => updateCompetitor(index, "name", e.target.value)}
+                        placeholder="Competitor name"
+                      />
                     </div>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Company Name</Label>
-                        <Input
-                          value={competitor.name}
-                          onChange={(e) => updateCompetitor(index, "name", e.target.value)}
-                          placeholder="Competitor name"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>What They Do</Label>
-                        <Textarea
-                          value={competitor.description}
-                          onChange={(e) => updateCompetitor(index, "description", e.target.value)}
-                          placeholder="Describe their product/service, target market, and approach..."
-                          rows={2}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>How You Differ</Label>
-                        <Textarea
-                          value={competitor.howYouDiffer}
-                          onChange={(e) => updateCompetitor(index, "howYouDiffer", e.target.value)}
-                          placeholder="What's your key differentiator against this competitor?"
-                          rows={2}
-                        />
-                      </div>
+                    <div className="space-y-2">
+                      <Label>What they do</Label>
+                      <Input
+                        value={competitor.description}
+                        onChange={(e) => updateCompetitor(index, "description", e.target.value)}
+                        placeholder="Brief description"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>How you differ</Label>
+                      <Textarea
+                        value={competitor.howYouDiffer}
+                        onChange={(e) => updateCompetitor(index, "howYouDiffer", e.target.value)}
+                        placeholder="Your competitive advantage against them..."
+                        rows={2}
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
 
               {competitors.length < 5 && (
                 <Button
@@ -1388,15 +1302,15 @@ export default function FounderApplication() {
                   className="w-full border-dashed"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Competitor ({competitors.length}/5)
+                  Add Competitor
                 </Button>
               )}
             </div>
 
-            {/* Competitive Moat */}
+            {/* 6.2 Competitive Moat */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">6.2 Competitive Moat</Label>
+                <Label className="text-base font-semibold">6.2 Your Moat</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">
                   What is your defensible advantage over competitors?
                 </p>
@@ -1477,21 +1391,43 @@ export default function FounderApplication() {
               </p>
             </div>
 
-            {/* Progress Indicator */}
-            <div className="flex justify-center gap-2 flex-wrap">
-              {sections.map((section, index) => (
-                <button
-                  key={section}
-                  onClick={() => setCurrentSection(index)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    currentSection === index
-                      ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]"
-                      : "bg-white/10 text-white/70 hover:bg-white/20"
-                  }`}
-                >
-                  {index + 1}. {section}
-                </button>
-              ))}
+            {/* Progress Steps */}
+            <div className="hidden md:flex items-center justify-between bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
+              {STEPS.map((step) => {
+                const Icon = step.icon;
+                const isCompleted = isStepComplete(step.id) && (completedSteps.includes(step.id) || currentSection > step.id);
+                const isCurrent = currentSection === step.id;
+                const canAccess = step.id <= currentSection || completedSteps.includes(step.id - 1) || (step.id > 0 && isStepComplete(step.id - 1));
+                
+                return (
+                  <button
+                    key={step.id}
+                    onClick={() => handleStepClick(step.id)}
+                    disabled={!canAccess && step.id > currentSection}
+                    className={`flex flex-col items-center gap-2 p-2 rounded-xl transition-all ${
+                      isCurrent ? "bg-white/20" : 
+                      canAccess ? "hover:bg-white/10 cursor-pointer" : "cursor-not-allowed opacity-50"
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                      isCompleted ? "bg-green-500 text-white" :
+                      isCurrent ? "bg-white text-[hsl(var(--navy-deep))]" :
+                      "bg-white/20 text-white/60"
+                    }`}>
+                      {isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                    </div>
+                    <span className={`text-xs font-medium ${isCurrent ? "text-white" : "text-white/60"}`}>
+                      {step.title}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mobile Progress */}
+            <div className="md:hidden flex items-center justify-between bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+              <span className="text-white font-medium">Step {currentSection + 1} of 8</span>
+              <span className="text-white/70 text-sm">{STEPS[currentSection].title}</span>
             </div>
 
             {/* Form */}
@@ -1500,32 +1436,38 @@ export default function FounderApplication() {
                 {renderSection()}
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between mt-10 pt-6 border-t border-gray-200">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setCurrentSection(Math.max(0, currentSection - 1))}
-                    disabled={currentSection === 0}
-                    className="border-[hsl(var(--navy-deep))]/20"
-                  >
-                    Previous
-                  </Button>
-
-                  {currentSection < sections.length - 1 ? (
+                <div className="flex gap-4 pt-8 mt-8 border-t">
+                  {currentSection > 0 && (
                     <Button
                       type="button"
-                      onClick={handleNextSection}
-                      className="bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90"
+                      variant="outline"
+                      onClick={prevStep}
+                      className="gap-2 border-[hsl(var(--navy-deep))]/20"
                     >
-                      Next Section
+                      <ArrowLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                  )}
+                  
+                  <div className="flex-1" />
+                  
+                  {currentSection < 7 ? (
+                    <Button
+                      type="button"
+                      onClick={nextStep}
+                      className="gap-2 bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90"
+                    >
+                      Continue
+                      <ArrowRight className="h-4 w-4" />
                     </Button>
                   ) : (
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 font-semibold"
+                      className="gap-2 bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 font-semibold"
                     >
                       {isSubmitting ? "Submitting..." : "Submit Application"}
+                      <ArrowRight className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
