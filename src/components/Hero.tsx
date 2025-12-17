@@ -16,13 +16,13 @@ export const Hero = () => {
 
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
+        <div className="max-w-5xl mx-auto text-center space-y-6">
           {/* Logo */}
-          <div className="transition-all duration-500 relative">
+          <div className="transition-all duration-500 relative flex justify-center">
             <img 
               src={inSyncLogo} 
               alt="In∞Sync" 
-              className="w-full max-w-3xl mx-auto"
+              className="w-full max-w-4xl mx-auto"
               style={{ 
                 filter: 'drop-shadow(0 0 60px rgba(6,182,212,0.5)) drop-shadow(0 0 120px rgba(6,182,212,0.3))',
               }}
