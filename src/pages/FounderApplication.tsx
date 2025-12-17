@@ -440,7 +440,7 @@ export default function FounderApplication() {
     const words = countWords(current);
     const isValid = words >= min && words <= max;
     return (
-      <p className={`text-xs ${isValid ? "text-green-600" : "text-amber-600"}`}>
+      <p className={`text-xs ${isValid ? "text-[hsl(var(--cyan-glow))]" : "text-muted-foreground"}`}>
         {words} / {min}-{max} words
       </p>
     );
@@ -714,7 +714,7 @@ export default function FounderApplication() {
                         variant="ghost"
                         size="sm"
                         onClick={() => removeTeamMember(index)}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        className="text-muted-foreground hover:text-[hsl(var(--navy-deep))] hover:bg-muted"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -1258,7 +1258,7 @@ export default function FounderApplication() {
                         variant="ghost"
                         size="sm"
                         onClick={() => removeCompetitor(index)}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        className="text-muted-foreground hover:text-[hsl(var(--navy-deep))] hover:bg-muted"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -1410,7 +1410,7 @@ export default function FounderApplication() {
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                      isCompleted ? "bg-green-500 text-white" :
+                      isCompleted ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]" :
                       isCurrent ? "bg-white text-[hsl(var(--navy-deep))]" :
                       "bg-white/20 text-white/60"
                     }`}>
