@@ -797,7 +797,7 @@ export default function InvestorApplication() {
                     onClick={() => handleArrayToggle("hardNos", no)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       formData.hardNos.includes(no)
-                        ? "bg-destructive text-destructive-foreground"
+                        ? "bg-[hsl(var(--navy-deep))] text-white"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
@@ -817,7 +817,7 @@ export default function InvestorApplication() {
                     onClick={() => handleArrayToggle("fastSignals", signal)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       formData.fastSignals.includes(signal)
-                        ? "bg-green-600 text-white"
+                        ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
@@ -1114,7 +1114,7 @@ export default function InvestorApplication() {
                   onClick={() => handleChange("givesNoWithFeedback", true)}
                   className={`flex-1 p-4 rounded-xl border-2 transition-all ${
                     formData.givesNoWithFeedback === true
-                      ? "border-green-500 bg-green-500/10"
+                      ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
                       : "border-muted hover:border-muted-foreground/30"
                   }`}
                 >
@@ -1399,7 +1399,7 @@ export default function InvestorApplication() {
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                      isCompleted ? "bg-green-500 text-white" :
+                      isCompleted ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]" :
                       isCurrent ? "bg-white text-[hsl(var(--navy-deep))]" :
                       "bg-white/20 text-white/60"
                     }`}>

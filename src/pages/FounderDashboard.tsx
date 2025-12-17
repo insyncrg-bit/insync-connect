@@ -192,8 +192,8 @@ export default function FounderDashboard() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20">{investor.check_size}</Badge>
-                    <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">{investor.investment_stage}</Badge>
+                    <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20">{investor.check_size}</Badge>
+                    <Badge className="bg-white/10 text-white/80 border-white/20">{investor.investment_stage}</Badge>
                   </div>
                   <p className="text-sm text-white/70 mb-4 line-clamp-2">{investor.bio}</p>
                   <Button size="sm" variant="ghost" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
@@ -219,7 +219,7 @@ export default function FounderDashboard() {
                     <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                       <Calendar className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
                     </div>
-                    <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">{event.event_type}</Badge>
+                    <Badge className="bg-white/10 text-white/80 border-white/20">{event.event_type}</Badge>
                   </div>
                   <h4 className="font-semibold text-white mb-2">{event.title}</h4>
                   <p className="text-sm text-white/60 mb-4 line-clamp-2">{event.description}</p>
@@ -278,8 +278,8 @@ export default function FounderDashboard() {
 
               <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <Mail className="h-6 w-6 text-blue-400" />
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <Mail className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-white">0</p>
@@ -290,8 +290,8 @@ export default function FounderDashboard() {
 
               <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-green-400" />
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-bright))]/10 flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-bright))]" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-white">Pending</p>
@@ -302,8 +302,8 @@ export default function FounderDashboard() {
 
               <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                    <Calendar className="h-6 w-6 text-purple-400" />
+                  <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+                    <Calendar className="h-6 w-6 text-white/80" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-white">{events.length}</p>
@@ -327,12 +327,12 @@ export default function FounderDashboard() {
               </Card>
 
               <Card 
-                className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30 p-6 cursor-pointer hover:border-purple-500/50 transition-all"
+                className="bg-gradient-to-br from-[hsl(var(--navy-deep))]/50 to-[hsl(var(--cyan-glow))]/10 border-[hsl(var(--cyan-glow))]/20 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/40 transition-all"
                 onClick={() => navigate("/founder-dashboard?tab=investors")}
               >
                 <h3 className="text-xl font-bold text-white mb-2">🎯 Curated Investors</h3>
                 <p className="text-white/70 mb-4">Browse investors matched to your profile</p>
-                <Button size="sm" className="bg-purple-500 text-white hover:bg-purple-600">
+                <Button size="sm" className="bg-white/10 text-white hover:bg-white/20 border border-white/20">
                   View Investors <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Card>
@@ -365,8 +365,8 @@ export default function FounderDashboard() {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20">{investor.check_size}</Badge>
-                      <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">{investor.investment_stage}</Badge>
+                      <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20">{investor.check_size}</Badge>
+                      <Badge className="bg-white/10 text-white/80 border-white/20">{investor.investment_stage}</Badge>
                     </div>
                     <Button size="sm" variant="ghost" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
                       View Profile
@@ -392,7 +392,7 @@ export default function FounderDashboard() {
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
             <div className="flex-1" />
-            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+            <Badge className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30">
               {application?.company_name || "Demo Mode"}
             </Badge>
           </header>

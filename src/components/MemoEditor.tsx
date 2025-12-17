@@ -199,10 +199,10 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
                       <Badge className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30 text-sm">
                         {formData.vertical || "Vertical"}
                       </Badge>
-                      <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-sm">
+                      <Badge className="bg-white/10 text-white/80 border-white/20 text-sm">
                         {formData.stage || "Stage"}
                       </Badge>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-sm">
+                      <Badge className="bg-[hsl(var(--cyan-bright))]/20 text-[hsl(var(--cyan-bright))] border-[hsl(var(--cyan-bright))]/30 text-sm">
                         📍 {formData.location || "Location"}
                       </Badge>
                     </div>
@@ -221,9 +221,9 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
               <div className="grid grid-cols-3 gap-4">
                 <button 
                   onClick={() => setSelectedMetric("tam")}
-                  className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-blue-500/30"
+                  className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30"
                 >
-                  <p className="text-sm text-white/50 mb-1 group-hover:text-blue-400 transition-colors">TAM</p>
+                  <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">TAM</p>
                   <p className="text-2xl font-bold text-white">{sections.section5?.tamValue || "—"}</p>
                   <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
                     View breakdown <ChevronRight className="h-3 w-3" />
@@ -231,9 +231,9 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
                 </button>
                 <button 
                   onClick={() => setSelectedMetric("sam")}
-                  className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-purple-500/30"
+                  className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30"
                 >
-                  <p className="text-sm text-white/50 mb-1 group-hover:text-purple-400 transition-colors">SAM</p>
+                  <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">SAM</p>
                   <p className="text-2xl font-bold text-white">{sections.section5?.samValue || "—"}</p>
                   <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
                     View breakdown <ChevronRight className="h-3 w-3" />
@@ -241,9 +241,9 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
                 </button>
                 <button 
                   onClick={() => setSelectedMetric("som")}
-                  className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-green-500/30"
+                  className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30"
                 >
-                  <p className="text-sm text-white/50 mb-1 group-hover:text-green-400 transition-colors">SOM</p>
+                  <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">SOM</p>
                   <p className="text-2xl font-bold text-white">{sections.section5?.somValue || "—"}</p>
                   <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
                     View breakdown <ChevronRight className="h-3 w-3" />
@@ -257,8 +257,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-blue-400" />
+                <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
                 </div>
                 <div>
                   <p className="text-white/50 text-xs">Team Size</p>
@@ -268,8 +268,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </Card>
             <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <Target className="h-5 w-5 text-green-400" />
+                <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-bright))]/20 flex items-center justify-center">
+                  <Target className="h-5 w-5 text-[hsl(var(--cyan-bright))]" />
                 </div>
                 <div>
                   <p className="text-white/50 text-xs">Customer</p>
@@ -279,8 +279,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </Card>
             <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-orange-400" />
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-white/80" />
                 </div>
                 <div>
                   <p className="text-white/50 text-xs">Revenue Model</p>
@@ -290,8 +290,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </Card>
             <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Zap className="h-5 w-5 text-purple-400" />
+                <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
+                  <Zap className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
                 </div>
                 <div>
                   <p className="text-white/50 text-xs">Value Drivers</p>
@@ -305,8 +305,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           <div className="grid md:grid-cols-2 gap-6">
             <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
-                  <Target className="h-4 w-4 text-red-400" />
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <Target className="h-4 w-4 text-white/80" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">The Problem</h3>
               </div>
@@ -317,8 +317,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
 
             <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <Rocket className="h-4 w-4 text-green-400" />
+                <div className="w-8 h-8 rounded-lg bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
+                  <Rocket className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">The Solution</h3>
               </div>
@@ -360,8 +360,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           {/* Section 1: Problem & Value Proposition */}
           <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
-                <Target className="h-5 w-5 text-red-400" />
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                <Target className="h-5 w-5 text-white/80" />
               </div>
               <h2 className="text-2xl font-bold text-white">Problem & Value Proposition</h2>
             </div>
@@ -398,8 +398,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           {/* Section 2: Business Model */}
           <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-green-400" />
+              <div className="w-10 h-10 rounded-xl bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
               </div>
               <h2 className="text-2xl font-bold text-white">Business Model</h2>
             </div>
@@ -409,7 +409,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
                 <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Customer Type</h4>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {sections.section3?.customerType?.map((type: string, i: number) => (
-                    <Badge key={i} className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-sm px-3 py-1">
+                    <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30 text-sm px-3 py-1">
                       {type}
                     </Badge>
                   )) || <span className="text-white/50">Not specified</span>}
@@ -430,7 +430,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
                 <div className="space-y-2">
                   {sections.section3?.pricingStrategies?.map((strategy: string, i: number) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-400" />
+                      <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]" />
                       <span className="text-white capitalize">{strategy}</span>
                     </div>
                   )) || <span className="text-white/50">Not specified</span>}
@@ -442,8 +442,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           {/* Section 3: Go-to-Market */}
           <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                <Rocket className="h-5 w-5 text-purple-400" />
+              <div className="w-10 h-10 rounded-xl bg-[hsl(var(--cyan-bright))]/20 flex items-center justify-center">
+                <Rocket className="h-5 w-5 text-[hsl(var(--cyan-bright))]" />
               </div>
               <h2 className="text-2xl font-bold text-white">Go-to-Market Strategy</h2>
             </div>
@@ -470,8 +470,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           {/* Section 4: Market Opportunity */}
           <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-orange-400" />
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-white/80" />
               </div>
               <h2 className="text-2xl font-bold text-white">Market Opportunity</h2>
             </div>
@@ -479,9 +479,9 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             <div className="grid md:grid-cols-3 gap-6 mb-6">
               <button 
                 onClick={() => setSelectedMetric("tam")}
-                className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-xl p-6 border border-blue-500/20 text-center hover:border-blue-500/50 transition-all cursor-pointer group"
+                className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/10 to-[hsl(var(--cyan-glow))]/5 rounded-xl p-6 border border-[hsl(var(--cyan-glow))]/20 text-center hover:border-[hsl(var(--cyan-glow))]/50 transition-all cursor-pointer group"
               >
-                <p className="text-sm text-blue-400 font-semibold mb-2">Total Addressable Market</p>
+                <p className="text-sm text-[hsl(var(--cyan-glow))] font-semibold mb-2">Total Addressable Market</p>
                 <p className="text-4xl font-bold text-white mb-2">{sections.section5?.tamValue || "—"}</p>
                 <p className="text-xs text-white/40 group-hover:text-white/60 flex items-center justify-center gap-1">
                   <Calculator className="h-3 w-3" /> View calculation method
@@ -489,9 +489,9 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
               </button>
               <button 
                 onClick={() => setSelectedMetric("sam")}
-                className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 rounded-xl p-6 border border-purple-500/20 text-center hover:border-purple-500/50 transition-all cursor-pointer group"
+                className="bg-gradient-to-br from-[hsl(var(--cyan-bright))]/10 to-[hsl(var(--cyan-bright))]/5 rounded-xl p-6 border border-[hsl(var(--cyan-bright))]/20 text-center hover:border-[hsl(var(--cyan-bright))]/50 transition-all cursor-pointer group"
               >
-                <p className="text-sm text-purple-400 font-semibold mb-2">Serviceable Addressable Market</p>
+                <p className="text-sm text-[hsl(var(--cyan-bright))] font-semibold mb-2">Serviceable Addressable Market</p>
                 <p className="text-4xl font-bold text-white mb-2">{sections.section5?.samValue || "—"}</p>
                 <p className="text-xs text-white/40 group-hover:text-white/60 flex items-center justify-center gap-1">
                   <Calculator className="h-3 w-3" /> View calculation method
@@ -499,9 +499,9 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
               </button>
               <button 
                 onClick={() => setSelectedMetric("som")}
-                className="bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-xl p-6 border border-green-500/20 text-center hover:border-green-500/50 transition-all cursor-pointer group"
+                className="bg-gradient-to-br from-white/10 to-white/5 rounded-xl p-6 border border-white/20 text-center hover:border-white/50 transition-all cursor-pointer group"
               >
-                <p className="text-sm text-green-400 font-semibold mb-2">Serviceable Obtainable Market</p>
+                <p className="text-sm text-white/80 font-semibold mb-2">Serviceable Obtainable Market</p>
                 <p className="text-4xl font-bold text-white mb-2">{sections.section5?.somValue || "—"}</p>
                 <p className="text-xs text-white/40 group-hover:text-white/60 flex items-center justify-center gap-1">
                   <Calculator className="h-3 w-3" /> View calculation method
