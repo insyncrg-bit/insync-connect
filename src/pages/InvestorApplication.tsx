@@ -1373,10 +1373,10 @@ export default function InvestorApplication() {
                 Investor Application
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                Join In-Sync
+                Join the In-Sync Ecosystem
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                Access curated dealflow from Boston's most promising startups
+                Connect with Boston's most promising startups and become part of a curated investor community
               </p>
             </div>
 
