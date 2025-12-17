@@ -6,11 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, ArrowRight, Upload, Check, Building2, Briefcase, Target, Users, Handshake, FolderOpen, Shield, Plus, X, GripVertical } from "lucide-react";
+import { ArrowLeft, ArrowRight, Upload, Check, Building2, Briefcase, Target, Users, Handshake, FolderOpen, Shield, Plus, X, GripVertical, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const STEPS = [
+  { id: 0, title: "Welcome", icon: Sparkles },
   { id: 1, title: "Admin & Verification", icon: Shield },
   { id: 2, title: "Fund Overview", icon: Building2 },
   { id: 3, title: "Investment Thesis", icon: Target },
@@ -49,7 +50,7 @@ interface Contact {
 export default function InvestorApplication() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   
@@ -204,13 +205,13 @@ export default function InvestorApplication() {
     e.preventDefault();
     
     // Validate all steps before submission
-    for (let step = 1; step <= 7; step++) {
+    for (let step = 0; step <= 7; step++) {
       const validation = validateStep(step);
       if (!validation.isValid) {
         setCurrentStep(step);
         toast({
           title: "Please complete all sections",
-          description: `Section ${step}: ${validation.errors[0]}`,
+          description: `Section "${STEPS[step].title}": ${validation.errors[0]}`,
           variant: "destructive",
         });
         return;
@@ -243,6 +244,8 @@ export default function InvestorApplication() {
     const errors: string[] = [];
     
     switch (step) {
+      case 0: // Welcome - no validation needed
+        break;
       case 1: // Admin & Verification
         if (!formData.firmName.trim()) errors.push("Firm/Fund name is required");
         if (!formData.website.trim()) errors.push("Website is required");
@@ -320,7 +323,7 @@ export default function InvestorApplication() {
     setCurrentStep(prev => Math.min(prev + 1, 7));
   };
 
-  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
 
   const handleStepClick = (stepId: number) => {
     if (stepId < currentStep) {
@@ -329,12 +332,12 @@ export default function InvestorApplication() {
       // Already on this step
     } else {
       let canProceed = true;
-      for (let i = 1; i < stepId; i++) {
+      for (let i = 0; i < stepId; i++) {
         if (!isStepComplete(i)) {
           canProceed = false;
           toast({
             title: "Complete previous sections first",
-            description: `Please complete section ${i} before proceeding.`,
+            description: `Please complete "${STEPS[i].title}" before proceeding.`,
             variant: "destructive",
           });
           break;
@@ -348,6 +351,48 @@ export default function InvestorApplication() {
 
   const renderStep = () => {
     switch (currentStep) {
+      case 0:
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl font-bold text-[hsl(var(--navy-deep))]">Welcome</h2>
+              <p className="text-lg text-[hsl(var(--navy-deep))]/80 max-w-2xl mx-auto">
+                Help us understand the <strong>what</strong>, <strong>why</strong>, and <strong>how</strong> of your firm so we can match you with the right startups.
+              </p>
+            </div>
+
+            <div className="bg-[hsl(var(--cyan-glow))]/10 border border-[hsl(var(--cyan-glow))]/30 rounded-xl p-6 space-y-4">
+              <p className="text-[hsl(var(--navy-deep))]/80">
+                This application is structured so that, by the end, you will have effectively created a <strong>comprehensive investor profile</strong>.
+              </p>
+              <p className="text-[hsl(var(--navy-deep))]/70">Every question helps founders understand:</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">WHAT</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">Your investment thesis & focus</p>
+              </div>
+              <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">WHY</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">What makes you say yes</p>
+              </div>
+              <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">HOW</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">Your process & value-add</p>
+              </div>
+              <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">FIT</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">Stage, sector & check size</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-[hsl(var(--navy-deep))]/60 text-center italic">
+              Your profile will be shown to vetted founders seeking investment.
+            </p>
+          </div>
+        );
+
       case 1:
         return (
           <div className="space-y-8">
@@ -1370,8 +1415,8 @@ export default function InvestorApplication() {
 
             {/* Mobile Progress */}
             <div className="md:hidden flex items-center justify-between bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-              <span className="text-white font-medium">Step {currentStep} of 7</span>
-              <span className="text-white/70 text-sm">{STEPS[currentStep - 1].title}</span>
+              <span className="text-white font-medium">Step {currentStep + 1} of 8</span>
+              <span className="text-white/70 text-sm">{STEPS[currentStep].title}</span>
             </div>
 
             {/* Form */}
@@ -1380,7 +1425,7 @@ export default function InvestorApplication() {
 
               {/* Navigation Buttons */}
               <div className="flex gap-4 pt-8 mt-8 border-t">
-                {currentStep > 1 && (
+                {currentStep > 0 && (
                   <Button
                     type="button"
                     variant="outline"
