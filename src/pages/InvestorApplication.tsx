@@ -224,7 +224,7 @@ export default function InvestorApplication() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       toast({
         title: "Welcome to In-Sync!",
-        description: "Your partnership application has been submitted. Redirecting to your dashboard...",
+        description: "Your application has been submitted. Redirecting to your dashboard...",
       });
       // Navigate directly to investor dashboard - no review needed
       navigate("/investor-dashboard");
@@ -1370,10 +1370,10 @@ export default function InvestorApplication() {
             {/* Header Section */}
             <div className="text-center space-y-4">
               <div className="inline-block px-6 py-2 bg-white/10 backdrop-blur-sm border border-white/30 rounded-full text-sm font-medium text-white">
-                Investor Partnership Application
+                Investor Application
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                Become a Partner
+                Join In-Sync
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto">
                 Access curated dealflow from Boston's most promising startups
