@@ -305,10 +305,10 @@ export default function InvestorDashboard() {
             {/* Welcome Section */}
             <div className="mb-8 text-center">
               <h2 className="text-3xl font-bold text-white mb-2">
-                Welcome back, Investor!
+                Shape Tomorrow's Success
               </h2>
               <p className="text-white/60">
-                Discover and connect with promising startups
+                Where bold ideas meet strategic capital
               </p>
             </div>
 
