@@ -189,7 +189,7 @@ export default function InvestorDashboard() {
         return (
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
+              <div className="text-center md:text-left">
                 <h2 className="text-2xl font-bold text-white mb-2">Browse Startups</h2>
                 <p className="text-white/60">Discover promising investment opportunities</p>
               </div>
@@ -229,7 +229,7 @@ export default function InvestorDashboard() {
       case "saved":
         return (
           <div className="space-y-6">
-            <div>
+            <div className="text-center">
               <h2 className="text-2xl font-bold text-white mb-2">Saved Startups</h2>
               <p className="text-white/60">Your bookmarked investment opportunities</p>
             </div>
@@ -250,7 +250,7 @@ export default function InvestorDashboard() {
       case "events":
         return (
           <div className="space-y-6">
-            <div>
+            <div className="text-center">
               <h2 className="text-2xl font-bold text-white mb-2">Upcoming Events</h2>
               <p className="text-white/60">Networking and pitch events</p>
             </div>
@@ -289,7 +289,7 @@ export default function InvestorDashboard() {
       case "profile":
         return (
           <div className="space-y-6">
-            <div>
+            <div className="text-center">
               <h2 className="text-2xl font-bold text-white mb-2">Profile Settings</h2>
               <p className="text-white/60">Manage your investor profile</p>
             </div>
@@ -303,7 +303,7 @@ export default function InvestorDashboard() {
         return (
           <>
             {/* Welcome Section */}
-            <div className="mb-8">
+            <div className="mb-8 text-center">
               <h2 className="text-3xl font-bold text-white mb-2">
                 Welcome back, Investor!
               </h2>
@@ -391,7 +391,7 @@ export default function InvestorDashboard() {
             {/* Recent Startups Preview */}
             {applications.length > 0 && (
               <section>
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-center mb-6 gap-4">
                   <h3 className="text-2xl font-bold text-white">Recent Startups</h3>
                   <Button 
                     variant="ghost" 
