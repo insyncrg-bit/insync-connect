@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import inSyncLogo from "@/assets/in-sync-logo.png";
 
 export const Hero = () => {
   const navigate = useNavigate();
@@ -17,17 +16,15 @@ export const Hero = () => {
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
         <div className="max-w-5xl mx-auto text-center space-y-6">
-          {/* Logo */}
-          <div className="transition-all duration-500 relative flex justify-center">
-            <img 
-              src={inSyncLogo} 
-              alt="In∞Sync" 
-              className="w-full max-w-3xl mx-auto"
-              style={{ 
-                filter: 'drop-shadow(0 0 60px rgba(6,182,212,0.5)) drop-shadow(0 0 120px rgba(6,182,212,0.3))',
-              }}
-            />
-          </div>
+          {/* Title */}
+          <h1 
+            className="text-6xl md:text-8xl lg:text-9xl font-light text-cyan-glow tracking-tight"
+            style={{ 
+              filter: 'drop-shadow(0 0 60px rgba(6,182,212,0.5)) drop-shadow(0 0 120px rgba(6,182,212,0.3))',
+            }}
+          >
+            In<span className="font-bold">∞</span>Sync
+          </h1>
 
           {/* Tagline */}
           <p className="text-xl md:text-2xl text-white/90 font-light max-w-xl mx-auto leading-relaxed">
