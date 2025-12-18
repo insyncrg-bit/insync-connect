@@ -48,7 +48,7 @@ export function FounderSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-white/10 bg-[hsl(220,60%,8%)]">
+    <Sidebar className="border-r border-white/10 bg-navy-deep">
       <div className="p-4 border-b border-white/10">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] rounded-lg flex items-center justify-center shrink-0">
