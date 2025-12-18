@@ -41,7 +41,7 @@ export function InvestorSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-white/10 bg-[hsl(220,60%,8%)]">
+    <Sidebar className="border-r border-white/10 bg-navy-deep">
       <SidebarHeader className="p-4 border-b border-white/10">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center">

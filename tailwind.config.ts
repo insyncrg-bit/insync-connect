@@ -27,6 +27,8 @@ export default {
         "cyan-glow": "hsl(var(--cyan-glow))",
         "cyan-bright": "hsl(var(--cyan-bright))",
         "navy-deep": "hsl(var(--navy-deep))",
+        "navy-card": "hsl(var(--navy-card))",
+        "navy-header": "hsl(var(--navy-header))",
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",

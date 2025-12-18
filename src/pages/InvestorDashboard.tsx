@@ -121,14 +121,14 @@ export default function InvestorDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[hsl(220,60%,10%)] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--gradient-hero)' }}>
         <div className="text-white text-xl">Loading dashboard...</div>
       </div>
     );
   }
 
   const StartupCard = ({ app }: { app: FounderApplication }) => (
-    <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group cursor-pointer">
+    <Card className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group cursor-pointer">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
@@ -217,7 +217,7 @@ export default function InvestorDashboard() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-12 text-center">
+              <Card className="bg-navy-card border-white/10 p-12 text-center">
                 <Search className="h-12 w-12 text-white/20 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-white mb-2">No startups found</h3>
                 <p className="text-white/60">Try adjusting your search criteria</p>
@@ -233,7 +233,7 @@ export default function InvestorDashboard() {
               <h2 className="text-2xl font-bold text-white mb-2">Saved Startups</h2>
               <p className="text-white/60">Your bookmarked investment opportunities</p>
             </div>
-            <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-12 text-center">
+            <Card className="bg-navy-card border-white/10 p-12 text-center">
               <Heart className="h-12 w-12 text-white/20 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">No saved startups yet</h3>
               <p className="text-white/60 mb-4">Start browsing and save startups you're interested in</p>
@@ -257,7 +257,7 @@ export default function InvestorDashboard() {
             {events.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {events.map((event) => (
-                  <Card key={event.id} className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+                  <Card key={event.id} className="bg-navy-card border-white/10 p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                         <Calendar className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
@@ -277,7 +277,7 @@ export default function InvestorDashboard() {
                 ))}
               </div>
             ) : (
-              <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-12 text-center">
+              <Card className="bg-navy-card border-white/10 p-12 text-center">
                 <Calendar className="h-12 w-12 text-white/20 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-white mb-2">No upcoming events</h3>
                 <p className="text-white/60">Check back soon for new events</p>
@@ -293,7 +293,7 @@ export default function InvestorDashboard() {
               <h2 className="text-2xl font-bold text-white mb-2">Profile Settings</h2>
               <p className="text-white/60">Manage your investor profile</p>
             </div>
-            <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+            <Card className="bg-navy-card border-white/10 p-6">
               <p className="text-white/60">Profile settings coming soon...</p>
             </Card>
           </div>
@@ -314,7 +314,7 @@ export default function InvestorDashboard() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-[hsl(220,60%,15%)] border-[hsl(var(--cyan-glow))]/20 p-6">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/20 p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -326,7 +326,7 @@ export default function InvestorDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+              <Card className="bg-navy-card border-white/10 p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -338,7 +338,7 @@ export default function InvestorDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+              <Card className="bg-navy-card border-white/10 p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-bright))]/10 flex items-center justify-center">
                     <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-bright))]" />
@@ -350,7 +350,7 @@ export default function InvestorDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+              <Card className="bg-navy-card border-white/10 p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
                     <Calendar className="h-6 w-6 text-white/80" />
@@ -417,12 +417,12 @@ export default function InvestorDashboard() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[hsl(220,60%,10%)]">
+      <div className="min-h-screen flex w-full" style={{ background: 'var(--gradient-hero)' }}>
         <InvestorSidebar />
         
         <main className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="h-14 border-b border-white/10 bg-[hsl(220,60%,12%)] flex items-center px-4 gap-4">
+          <header className="h-14 border-b border-white/10 bg-navy-header flex items-center px-4 gap-4">
             <SidebarTrigger className="text-white hover:bg-white/10">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
