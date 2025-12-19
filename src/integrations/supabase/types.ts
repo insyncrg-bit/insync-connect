@@ -152,6 +152,189 @@ export type Database = {
         }
         Relationships: []
       }
+      investor_applications: {
+        Row: {
+          aum: string | null
+          b2b_b2c: string | null
+          b2b_b2c_why: string | null
+          board_involvement: string | null
+          buyer_persona_required: boolean | null
+          buyer_persona_who: string | null
+          check_sizes: Json | null
+          conflicts_policy: string | null
+          contacts: Json | null
+          created_at: string
+          customer_types: Json | null
+          customer_verticals: string | null
+          decision_process: string | null
+          fast_signals: Json | null
+          feedback_when: string | null
+          firm_description: string | null
+          firm_name: string
+          follow_on_reserves: string | null
+          follow_on_when: string | null
+          fund_type: string | null
+          fund_vintage: string | null
+          geographic_focus: string | null
+          geographic_focus_detail: string | null
+          geographies_covered: Json | null
+          gives_no_with_feedback: boolean | null
+          hard_nos: Json | null
+          hq_location: string | null
+          id: string
+          invests_in_competitors: boolean | null
+          lead_follow: string | null
+          minimum_traction: Json | null
+          nda_conditions: string | null
+          non_negotiables: Json | null
+          operating_support: Json | null
+          ownership_target: string | null
+          pain_severity: string | null
+          partner_categories: string | null
+          portfolio_count: string | null
+          portfolio_list: string | null
+          public_profile: boolean | null
+          ranked_metrics: Json | null
+          regulated_industries: string | null
+          revenue_models: Json | null
+          sector_tags: Json | null
+          signs_ndas: boolean | null
+          stage_focus: Json | null
+          status: string | null
+          sub_themes: Json | null
+          sub_themes_other: string | null
+          support_style: string | null
+          talent_networks: Json | null
+          thesis_statement: string | null
+          time_to_decision: string | null
+          time_to_first_response: string | null
+          top_investments: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          aum?: string | null
+          b2b_b2c?: string | null
+          b2b_b2c_why?: string | null
+          board_involvement?: string | null
+          buyer_persona_required?: boolean | null
+          buyer_persona_who?: string | null
+          check_sizes?: Json | null
+          conflicts_policy?: string | null
+          contacts?: Json | null
+          created_at?: string
+          customer_types?: Json | null
+          customer_verticals?: string | null
+          decision_process?: string | null
+          fast_signals?: Json | null
+          feedback_when?: string | null
+          firm_description?: string | null
+          firm_name: string
+          follow_on_reserves?: string | null
+          follow_on_when?: string | null
+          fund_type?: string | null
+          fund_vintage?: string | null
+          geographic_focus?: string | null
+          geographic_focus_detail?: string | null
+          geographies_covered?: Json | null
+          gives_no_with_feedback?: boolean | null
+          hard_nos?: Json | null
+          hq_location?: string | null
+          id?: string
+          invests_in_competitors?: boolean | null
+          lead_follow?: string | null
+          minimum_traction?: Json | null
+          nda_conditions?: string | null
+          non_negotiables?: Json | null
+          operating_support?: Json | null
+          ownership_target?: string | null
+          pain_severity?: string | null
+          partner_categories?: string | null
+          portfolio_count?: string | null
+          portfolio_list?: string | null
+          public_profile?: boolean | null
+          ranked_metrics?: Json | null
+          regulated_industries?: string | null
+          revenue_models?: Json | null
+          sector_tags?: Json | null
+          signs_ndas?: boolean | null
+          stage_focus?: Json | null
+          status?: string | null
+          sub_themes?: Json | null
+          sub_themes_other?: string | null
+          support_style?: string | null
+          talent_networks?: Json | null
+          thesis_statement?: string | null
+          time_to_decision?: string | null
+          time_to_first_response?: string | null
+          top_investments?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          aum?: string | null
+          b2b_b2c?: string | null
+          b2b_b2c_why?: string | null
+          board_involvement?: string | null
+          buyer_persona_required?: boolean | null
+          buyer_persona_who?: string | null
+          check_sizes?: Json | null
+          conflicts_policy?: string | null
+          contacts?: Json | null
+          created_at?: string
+          customer_types?: Json | null
+          customer_verticals?: string | null
+          decision_process?: string | null
+          fast_signals?: Json | null
+          feedback_when?: string | null
+          firm_description?: string | null
+          firm_name?: string
+          follow_on_reserves?: string | null
+          follow_on_when?: string | null
+          fund_type?: string | null
+          fund_vintage?: string | null
+          geographic_focus?: string | null
+          geographic_focus_detail?: string | null
+          geographies_covered?: Json | null
+          gives_no_with_feedback?: boolean | null
+          hard_nos?: Json | null
+          hq_location?: string | null
+          id?: string
+          invests_in_competitors?: boolean | null
+          lead_follow?: string | null
+          minimum_traction?: Json | null
+          nda_conditions?: string | null
+          non_negotiables?: Json | null
+          operating_support?: Json | null
+          ownership_target?: string | null
+          pain_severity?: string | null
+          partner_categories?: string | null
+          portfolio_count?: string | null
+          portfolio_list?: string | null
+          public_profile?: boolean | null
+          ranked_metrics?: Json | null
+          regulated_industries?: string | null
+          revenue_models?: Json | null
+          sector_tags?: Json | null
+          signs_ndas?: boolean | null
+          stage_focus?: Json | null
+          status?: string | null
+          sub_themes?: Json | null
+          sub_themes_other?: string | null
+          support_style?: string | null
+          talent_networks?: Json | null
+          thesis_statement?: string | null
+          time_to_decision?: string | null
+          time_to_first_response?: string | null
+          top_investments?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       investors: {
         Row: {
           active: boolean | null

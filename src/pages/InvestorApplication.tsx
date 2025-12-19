@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, ArrowRight, Upload, Check, Building2, Briefcase, Target, Users, Handshake, FolderOpen, Shield, Plus, X, GripVertical, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const STEPS = [
   { id: 0, title: "Welcome", icon: Sparkles },
@@ -221,14 +222,105 @@ export default function InvestorApplication() {
     setIsSubmitting(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to submit your application.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const applicationData = {
+        user_id: user.id,
+        firm_name: formData.firmName,
+        website: formData.website,
+        hq_location: formData.hqLocation,
+        geographies_covered: formData.geographiesCovered as unknown as null,
+        contacts: formData.contacts as unknown as null,
+        public_profile: formData.publicProfile,
+        firm_description: formData.firmDescription,
+        aum: formData.aum,
+        fund_vintage: formData.fundVintage,
+        fund_type: formData.fundType,
+        ownership_target: formData.ownershipTarget,
+        lead_follow: formData.leadFollow,
+        check_sizes: formData.checkSizes as unknown as null,
+        stage_focus: formData.stageFocus as unknown as null,
+        sector_tags: formData.sectorTags as unknown as null,
+        portfolio_count: formData.portfolioCount,
+        top_investments: formData.topInvestments,
+        geographic_focus: formData.geographicFocus,
+        geographic_focus_detail: formData.geographicFocusDetail,
+        thesis_statement: formData.thesisStatement,
+        sub_themes: formData.subThemes as unknown as null,
+        sub_themes_other: formData.subThemesOther,
+        non_negotiables: formData.nonNegotiables as unknown as null,
+        hard_nos: formData.hardNos as unknown as null,
+        fast_signals: formData.fastSignals as unknown as null,
+        pain_severity: formData.painSeverity,
+        buyer_persona_required: formData.buyerPersonaRequired,
+        buyer_persona_who: formData.buyerPersonaWho,
+        customer_types: formData.customerTypes as unknown as null,
+        regulated_industries: formData.regulatedIndustries,
+        b2b_b2c: formData.b2bB2c,
+        b2b_b2c_why: formData.b2bB2cWhy,
+        revenue_models: formData.revenueModels as unknown as null,
+        minimum_traction: formData.minimumTraction as unknown as null,
+        ranked_metrics: formData.rankedMetrics as unknown as null,
+        decision_process: formData.decisionProcess,
+        time_to_first_response: formData.timeToFirstResponse,
+        time_to_decision: formData.timeToDecision,
+        gives_no_with_feedback: formData.givesNoWithFeedback,
+        feedback_when: formData.feedbackWhen,
+        follow_on_reserves: formData.followOnReserves,
+        follow_on_when: formData.followOnWhen,
+        board_involvement: formData.boardInvolvement,
+        operating_support: formData.operatingSupport as unknown as null,
+        customer_verticals: formData.customerVerticals,
+        partner_categories: formData.partnerCategories,
+        talent_networks: formData.talentNetworks as unknown as null,
+        support_style: formData.supportStyle,
+        portfolio_list: formData.portfolioList,
+        conflicts_policy: formData.conflictsPolicy,
+        invests_in_competitors: formData.investsInCompetitors,
+        signs_ndas: formData.signsNDAs,
+        nda_conditions: formData.ndaConditions,
+      };
+
+      // Check if user already has an application
+      const { data: existing } = await supabase
+        .from("investor_applications")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existing) {
+        // Update existing application
+        const { error } = await supabase
+          .from("investor_applications")
+          .update(applicationData)
+          .eq("id", existing.id);
+        
+        if (error) throw error;
+      } else {
+        // Insert new application
+        const { error } = await supabase
+          .from("investor_applications")
+          .insert(applicationData);
+        
+        if (error) throw error;
+      }
+
       toast({
         title: "Welcome to In-Sync!",
         description: "Your application has been submitted. Redirecting to your dashboard...",
       });
-      // Navigate directly to investor dashboard - no review needed
       navigate("/investor-dashboard");
     } catch (error) {
+      console.error("Error submitting application:", error);
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
