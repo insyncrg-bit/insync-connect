@@ -753,41 +753,16 @@ export default function InvestorDashboard() {
 
     return (
       <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 group cursor-pointer">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
-              <Building2 className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
-                {app.company_name}
-              </h4>
-              <p className="text-sm text-white/60">{app.founder_name}</p>
-            </div>
+        <div className="flex items-start gap-4 mb-4">
+          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+            <Building2 className="h-6 w-6 text-white" />
           </div>
-          <Button 
-            size="icon" 
-            variant="ghost" 
-            className={isRequested 
-              ? "text-green-400 bg-green-500/10 cursor-default" 
-              : "text-white/40 hover:text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
-            }
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!isRequested && !isRequesting && app.user_id) {
-                handleRequestSync(app.user_id, app.company_name);
-              }
-            }}
-            disabled={isRequested || isRequesting}
-          >
-            {isRequesting ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : isRequested ? (
-              <Check className="h-5 w-5" />
-            ) : (
-              <TrendingUp className="h-5 w-5" />
-            )}
-          </Button>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors truncate">
+              {app.company_name}
+            </h4>
+            <p className="text-sm text-white/60 truncate">{app.founder_name}</p>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-4">
