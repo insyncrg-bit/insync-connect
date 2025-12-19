@@ -97,46 +97,37 @@ export default function InvestorDashboard() {
     setThesisLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Please sign in",
-          description: "You need to be signed in to view your thesis.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("investor_applications")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error) throw error;
       
-      if (data) {
-        setInvestorApplication({
-          ...data,
-          sub_themes: (data.sub_themes as string[]) || [],
-          fast_signals: (data.fast_signals as string[]) || [],
-          hard_nos: (data.hard_nos as string[]) || [],
-          check_sizes: (data.check_sizes as string[]) || [],
-          stage_focus: (data.stage_focus as string[]) || [],
-          sector_tags: (data.sector_tags as string[]) || [],
-          customer_types: (data.customer_types as string[]) || [],
-          operating_support: (data.operating_support as string[]) || [],
-          revenue_models: (data.revenue_models as string[]) || [],
-          minimum_traction: (data.minimum_traction as string[]) || [],
-        });
+      // If user is logged in, try to fetch their application
+      if (user) {
+        const { data, error } = await supabase
+          .from("investor_applications")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (!error && data) {
+          setInvestorApplication({
+            ...data,
+            sub_themes: (data.sub_themes as string[]) || [],
+            fast_signals: (data.fast_signals as string[]) || [],
+            hard_nos: (data.hard_nos as string[]) || [],
+            check_sizes: (data.check_sizes as string[]) || [],
+            stage_focus: (data.stage_focus as string[]) || [],
+            sector_tags: (data.sector_tags as string[]) || [],
+            customer_types: (data.customer_types as string[]) || [],
+            operating_support: (data.operating_support as string[]) || [],
+            revenue_models: (data.revenue_models as string[]) || [],
+            minimum_traction: (data.minimum_traction as string[]) || [],
+          });
+        }
       }
+      // Always open the modal - it will show sample data if no application exists
       setThesisModalOpen(true);
     } catch (error) {
       console.error("Error fetching thesis:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load your investment thesis.",
-        variant: "destructive",
-      });
+      // Still open modal with sample data on error
+      setThesisModalOpen(true);
     } finally {
       setThesisLoading(false);
     }
