@@ -134,6 +134,88 @@ export default function InvestorDashboard() {
     }
   };
 
+  // Demo curated startups for preview
+  const demoStartups: FounderApplication[] = [
+    {
+      id: "demo-1",
+      founder_name: "Sarah Chen",
+      company_name: "NeuralFlow AI",
+      vertical: "AI/ML Infrastructure",
+      stage: "Seed",
+      location: "San Francisco, CA",
+      website: "https://neuralflow.ai",
+      business_model: "B2B SaaS platform enabling enterprises to deploy and manage ML models at scale with automated MLOps pipelines.",
+      funding_goal: "$3M",
+      traction: "$120K ARR, 15 enterprise customers",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "demo-2",
+      founder_name: "Marcus Johnson",
+      company_name: "ClimateLedger",
+      vertical: "Climate Tech",
+      stage: "Pre-seed",
+      location: "Austin, TX",
+      website: "https://climateledger.io",
+      business_model: "Carbon credit verification platform using blockchain for transparent ESG reporting and compliance.",
+      funding_goal: "$1.5M",
+      traction: "3 pilot customers, LOIs from 2 Fortune 500 companies",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "demo-3",
+      founder_name: "Priya Patel",
+      company_name: "MedSync Health",
+      vertical: "Digital Health",
+      stage: "Seed",
+      location: "Boston, MA",
+      website: "https://medsynchealth.com",
+      business_model: "AI-powered patient engagement platform reducing hospital readmissions through predictive analytics and care coordination.",
+      funding_goal: "$4M",
+      traction: "$280K ARR, partnerships with 8 hospital systems",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "demo-4",
+      founder_name: "David Kim",
+      company_name: "FinanceOS",
+      vertical: "Fintech",
+      stage: "Series A",
+      location: "New York, NY",
+      website: "https://financeos.com",
+      business_model: "Embedded finance infrastructure enabling any SaaS company to offer banking, lending, and payment services to their customers.",
+      funding_goal: "$12M",
+      traction: "$1.2M ARR, 45 platform customers, $50M in transaction volume",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "demo-5",
+      founder_name: "Elena Rodriguez",
+      company_name: "SupplyChain360",
+      vertical: "Supply Chain & Logistics",
+      stage: "Seed",
+      location: "Miami, FL",
+      website: "https://supplychain360.io",
+      business_model: "Real-time supply chain visibility platform with AI-driven demand forecasting for mid-market manufacturers.",
+      funding_goal: "$2.5M",
+      traction: "$90K ARR, 12 manufacturing customers",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "demo-6",
+      founder_name: "James Wright",
+      company_name: "EdTech Pro",
+      vertical: "Education Technology",
+      stage: "Pre-seed",
+      location: "Seattle, WA",
+      website: "https://edtechpro.com",
+      business_model: "Personalized learning platform using AI tutors to help K-12 students master STEM subjects at their own pace.",
+      funding_goal: "$1M",
+      traction: "5,000 MAU, 92% student satisfaction score",
+      created_at: new Date().toISOString(),
+    },
+  ];
+
   const fetchDashboardData = async () => {
     try {
       // Fetch founder applications (in a real app, this would have proper RLS for investors)
@@ -166,6 +248,9 @@ export default function InvestorDashboard() {
       setLoading(false);
     }
   };
+
+  // Use demo data if no real applications exist
+  const curatedStartups = applications.length > 0 ? applications : demoStartups;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -473,45 +558,31 @@ export default function InvestorDashboard() {
                 </Button>
               </div>
 
-              {applications.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {applications
-                    .filter(app => {
-                      // If no investor thesis, show all
-                      if (!investorApplication) return true;
-                      
-                      // Match by stage
-                      const stageMatch = !investorApplication.stage_focus?.length || 
-                        investorApplication.stage_focus.some(stage => 
-                          app.stage.toLowerCase().includes(stage.toLowerCase())
-                        );
-                      
-                      // Match by sector/vertical
-                      const sectorMatch = !investorApplication.sector_tags?.length ||
-                        investorApplication.sector_tags.some(sector => 
-                          app.vertical.toLowerCase().includes(sector.toLowerCase())
-                        );
-                      
-                      return stageMatch || sectorMatch;
-                    })
-                    .slice(0, 6)
-                    .map((app) => (
-                      <StartupCard key={app.id} app={app} />
-                    ))}
-                </div>
-              ) : (
-                <Card className="bg-navy-card border-white/10 p-12 text-center">
-                  <Building2 className="h-12 w-12 text-white/20 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No curated startups yet</h3>
-                  <p className="text-white/60 mb-4">We're matching startups to your investment thesis</p>
-                  <Button 
-                    onClick={() => navigate("/investor-dashboard?tab=startups")}
-                    className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))]"
-                  >
-                    Browse All Startups
-                  </Button>
-                </Card>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {curatedStartups
+                  .filter(app => {
+                    // If no investor thesis, show all
+                    if (!investorApplication) return true;
+                    
+                    // Match by stage
+                    const stageMatch = !investorApplication.stage_focus?.length || 
+                      investorApplication.stage_focus.some(stage => 
+                        app.stage.toLowerCase().includes(stage.toLowerCase())
+                      );
+                    
+                    // Match by sector/vertical
+                    const sectorMatch = !investorApplication.sector_tags?.length ||
+                      investorApplication.sector_tags.some(sector => 
+                        app.vertical.toLowerCase().includes(sector.toLowerCase())
+                      );
+                    
+                    return stageMatch || sectorMatch;
+                  })
+                  .slice(0, 6)
+                  .map((app) => (
+                    <StartupCard key={app.id} app={app} />
+                  ))}
+              </div>
             </section>
           </>
         );
