@@ -141,7 +141,92 @@ export default function FounderDashboard() {
         .eq("public_profile", true)
         .limit(6);
       
-      setCuratedInvestors((investorApps || []).map(inv => ({
+      // Demo investors for preview
+      const demoInvestors: InvestorApplication[] = [
+        {
+          id: "demo-1",
+          user_id: "demo-user-1",
+          firm_name: "Horizon Ventures",
+          firm_description: "Early-stage VC focused on B2B SaaS and developer tools.",
+          thesis_statement: "We invest in technical founders building software that becomes critical infrastructure for enterprises. We look for companies solving hard problems with elegant solutions.",
+          sub_themes: ["Developer Tools", "AI/ML Infrastructure", "API-First Products"],
+          fast_signals: ["Technical founder with domain expertise", "Clear wedge into large market", "Early product-led growth"],
+          hard_nos: ["No clear path to $100M+ revenue", "Crowded market without differentiation"],
+          check_sizes: ["$500K - $2M"],
+          stage_focus: ["Pre-seed", "Seed"],
+          sector_tags: ["Enterprise SaaS", "Developer Tools", "AI/ML"],
+          customer_types: ["SMB", "Mid-Market", "Enterprise"],
+          lead_follow: "Lead",
+          operating_support: ["Go-to-Market Strategy", "Hiring", "Fundraising Prep"],
+          support_style: "Hands-on",
+          hq_location: "San Francisco, CA",
+          aum: "$75M",
+          fund_type: "Venture Capital",
+          geographic_focus: "US",
+          b2b_b2c: "B2B",
+          revenue_models: ["SaaS", "Usage-based"],
+          minimum_traction: ["$10K+ MRR"],
+          board_involvement: "Board seats on lead investments",
+          decision_process: "Partner meetings weekly",
+          time_to_decision: "2-3 weeks",
+        },
+        {
+          id: "demo-2",
+          user_id: "demo-user-2",
+          firm_name: "Climate Capital",
+          firm_description: "Dedicated to funding the transition to a sustainable economy.",
+          thesis_statement: "We back founders building solutions to the climate crisis. Focus on carbon reduction, clean energy, and sustainable supply chains.",
+          sub_themes: ["Clean Energy", "Carbon Tech", "Sustainable Supply Chain"],
+          fast_signals: ["Deep climate expertise", "Measurable carbon impact", "Clear regulatory tailwinds"],
+          hard_nos: ["Greenwashing", "No path to profitability"],
+          check_sizes: ["$1M - $5M"],
+          stage_focus: ["Seed", "Series A"],
+          sector_tags: ["Climate Tech", "Clean Energy", "AgTech"],
+          customer_types: ["Enterprise", "Government"],
+          lead_follow: "Lead or Co-lead",
+          operating_support: ["Climate Expertise", "Policy Connections", "Corporate Introductions"],
+          support_style: "Strategic",
+          hq_location: "New York, NY",
+          aum: "$200M",
+          fund_type: "Venture Capital",
+          geographic_focus: "Global",
+          b2b_b2c: "B2B",
+          revenue_models: ["SaaS", "Hardware"],
+          minimum_traction: ["Pilot customers"],
+          board_involvement: "Observer seats typical",
+          decision_process: "IC approval required",
+          time_to_decision: "3-4 weeks",
+        },
+        {
+          id: "demo-3",
+          user_id: "demo-user-3",
+          firm_name: "HealthTech Partners",
+          firm_description: "Investing in the future of healthcare and digital health.",
+          thesis_statement: "We partner with founders reimagining healthcare delivery, patient outcomes, and health system efficiency through technology.",
+          sub_themes: ["Digital Health", "Health AI", "Care Delivery"],
+          fast_signals: ["Clinical validation", "Health system partnerships", "Regulatory clarity"],
+          hard_nos: ["Consumer-only plays", "No clinical evidence"],
+          check_sizes: ["$2M - $8M"],
+          stage_focus: ["Seed", "Series A"],
+          sector_tags: ["Digital Health", "HealthTech", "BioTech"],
+          customer_types: ["Health Systems", "Payers", "Providers"],
+          lead_follow: "Lead",
+          operating_support: ["Health System Intros", "Regulatory Guidance", "Clinical Advisory"],
+          support_style: "Hands-on",
+          hq_location: "Boston, MA",
+          aum: "$150M",
+          fund_type: "Venture Capital",
+          geographic_focus: "US",
+          b2b_b2c: "B2B",
+          revenue_models: ["SaaS", "Per-patient"],
+          minimum_traction: ["1+ health system customer"],
+          board_involvement: "Board seats on all investments",
+          decision_process: "Partner consensus",
+          time_to_decision: "4-6 weeks",
+        },
+      ];
+
+      const realInvestors = (investorApps || []).map(inv => ({
         ...inv,
         sub_themes: (inv.sub_themes as string[]) || [],
         fast_signals: (inv.fast_signals as string[]) || [],
@@ -153,7 +238,10 @@ export default function FounderDashboard() {
         operating_support: (inv.operating_support as string[]) || [],
         revenue_models: (inv.revenue_models as string[]) || [],
         minimum_traction: (inv.minimum_traction as string[]) || [],
-      })));
+      }));
+
+      // Use real investors if available, otherwise show demo
+      setCuratedInvestors(realInvestors.length > 0 ? realInvestors : demoInvestors);
 
       const { data: eventsData } = await supabase
         .from("events")
