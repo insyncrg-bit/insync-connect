@@ -548,9 +548,12 @@ export default function InvestorApplication() {
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,60%,10%)] via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-4 left-0 right-0 text-center">
-                  <span className="text-white/80 text-sm font-medium bg-[hsl(220,60%,15%)]/90 px-4 py-2 rounded-full border border-white/10">
-                    Complete your application to unlock your dashboard
-                  </span>
+                  <Button 
+                    onClick={() => navigate("/investor-dashboard")}
+                    className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))] font-semibold"
+                  >
+                    Preview Dashboard →
+                  </Button>
                 </div>
               </div>
             </div>
