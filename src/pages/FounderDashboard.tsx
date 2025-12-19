@@ -635,7 +635,7 @@ export default function FounderDashboard() {
 
             {/* Memo Quick View */}
             <Card 
-              className="bg-[hsl(var(--navy-deep))]/80 border-white/10 p-6 mb-8 cursor-pointer hover:border-white/20 transition-all"
+              className="bg-[hsl(var(--navy-deep))]/80 border-[hsl(var(--cyan-glow))]/30 p-6 mb-8 cursor-pointer shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300"
               onClick={() => navigate("/founder-dashboard?tab=memo")}
             >
               <div className="flex items-center justify-between">
