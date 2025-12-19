@@ -11,6 +11,7 @@ import { InterestsModal } from "@/components/InterestsModal";
 import { SyncsModal } from "@/components/SyncsModal";
 import { PendingModal } from "@/components/PendingModal";
 import { MessagesModal } from "@/components/MessagesModal";
+import { MemoModal } from "@/components/MemoModal";
 import { 
   Building2, 
   Calendar, 
@@ -128,6 +129,10 @@ export default function InvestorDashboard() {
   const [messagesModalOpen, setMessagesModalOpen] = useState(false);
   const [messageThreads, setMessageThreads] = useState<any[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
+
+  // Memo modal state
+  const [memoModalOpen, setMemoModalOpen] = useState(false);
+  const [selectedStartup, setSelectedStartup] = useState<FounderApplication | null>(null);
 
   // Demo data for modals
   const demoInterests = [
@@ -749,82 +754,76 @@ export default function InvestorDashboard() {
 
   const StartupCard = ({ app }: { app: FounderApplication }) => {
     const isRequested = app.user_id ? pendingRequests.has(app.user_id) : false;
-    const isRequesting = requestingSync === app.user_id;
 
     return (
-      <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 group cursor-pointer">
+      <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 group">
+        {/* Header: Icon + Name + Location */}
         <div className="flex items-start gap-4 mb-4">
           <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
             <Building2 className="h-6 w-6 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-white mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors truncate">
+            <h4 className="font-semibold text-white text-lg mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
               {app.company_name}
             </h4>
-            <p className="text-sm text-white/60 truncate">{app.founder_name}</p>
+            <p className="text-sm text-white/60 flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              {app.location}
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20">
-            {app.vertical}
-          </Badge>
+        {/* Stage Badges */}
+        <div className="flex flex-wrap gap-2 mb-3">
           <Badge className={getStageColor(app.stage)}>
             {app.stage}
           </Badge>
+          <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20">
+            {app.vertical}
+          </Badge>
         </div>
 
+        {/* Funding Goal Badge */}
+        <div className="mb-4">
+          <Badge variant="outline" className="border-white/20 text-white/80 px-3 py-1">
+            <DollarSign className="h-3 w-3 mr-1" />
+            {app.funding_goal}
+          </Badge>
+        </div>
+
+        {/* Business Model Description */}
         <p className="text-sm text-white/70 mb-4 line-clamp-2">{app.business_model}</p>
 
-        <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
-          <span className="flex items-center gap-1">
-            <MapPin className="h-4 w-4" />
-            {app.location}
-          </span>
+        {/* Traction Tags */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Badge variant="outline" className="border-white/10 text-white/60 text-xs">
+            {app.traction.split(' ').slice(0, 3).join(' ')}...
+          </Badge>
           {app.website && (
-            <span className="flex items-center gap-1">
-              <Globe className="h-4 w-4" />
+            <Badge variant="outline" className="border-white/10 text-white/60 text-xs">
               Website
-            </span>
+            </Badge>
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-white/10">
-          <div className="flex items-center gap-2 text-sm">
-            <DollarSign className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
-            <span className="text-white/70">Raising: </span>
-            <span className="text-white font-medium">{app.funding_goal}</span>
+        {/* Sync Status or View Memo Button */}
+        {isRequested ? (
+          <div className="flex items-center justify-center gap-2 py-3 bg-green-500/10 rounded-lg border border-green-500/30">
+            <Check className="h-4 w-4 text-green-400" />
+            <span className="text-green-400 text-sm font-medium">Sync Requested</span>
           </div>
-          {isRequested ? (
-            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-              Sync Requested
-            </Badge>
-          ) : (
-            <Button 
-              size="sm" 
-              className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/30"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (app.user_id) {
-                  handleRequestSync(app.user_id, app.company_name);
-                } else {
-                  toast({
-                    title: "Demo startup",
-                    description: "This is a demo startup for preview purposes.",
-                  });
-                }
-              }}
-              disabled={isRequesting}
-            >
-              {isRequesting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <TrendingUp className="mr-2 h-4 w-4" />
-              )}
-              Request Sync
-            </Button>
-          )}
-        </div>
+        ) : (
+          <Button 
+            className="w-full bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30"
+            onClick={() => {
+              setSelectedStartup(app);
+              setMemoModalOpen(true);
+            }}
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            View Memo
+          </Button>
+        )}
       </Card>
     );
   };
@@ -1144,6 +1143,16 @@ export default function InvestorDashboard() {
         threads={messageThreads}
         loading={messagesLoading}
         userType="investor"
+      />
+
+      {/* Memo Modal */}
+      <MemoModal
+        open={memoModalOpen}
+        onOpenChange={setMemoModalOpen}
+        startup={selectedStartup}
+        onRequestSync={handleRequestSync}
+        isRequested={selectedStartup?.user_id ? pendingRequests.has(selectedStartup.user_id) : false}
+        isRequesting={requestingSync === selectedStartup?.user_id}
       />
     </SidebarProvider>
   );
