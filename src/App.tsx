@@ -9,7 +9,6 @@ import FounderApplication from "./pages/FounderApplication";
 import InvestorApplication from "./pages/InvestorApplication";
 import FounderDashboard from "./pages/FounderDashboard";
 import InvestorDashboard from "./pages/InvestorDashboard";
-import InvestorThesis from "./pages/InvestorThesis";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +24,6 @@ const App = () => (
           <Route path="/founder-dashboard" element={<FounderDashboard />} />
           <Route path="/investor-application" element={<InvestorApplication />} />
           <Route path="/investor-dashboard" element={<InvestorDashboard />} />
-          <Route path="/investor-thesis" element={<InvestorThesis />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

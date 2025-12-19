@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { InvestorSidebar } from "@/components/InvestorSidebar";
+import { InvestorThesisModal } from "@/components/InvestorThesisModal";
 import { 
   Building2, 
   Calendar, 
@@ -47,6 +48,33 @@ interface Event {
   max_attendees: number;
 }
 
+interface InvestorApplication {
+  id: string;
+  firm_name: string;
+  firm_description: string | null;
+  thesis_statement: string | null;
+  sub_themes: string[];
+  fast_signals: string[];
+  hard_nos: string[];
+  check_sizes: string[];
+  stage_focus: string[];
+  sector_tags: string[];
+  customer_types: string[];
+  lead_follow: string | null;
+  operating_support: string[];
+  support_style: string | null;
+  hq_location: string | null;
+  aum: string | null;
+  fund_type: string | null;
+  geographic_focus: string | null;
+  b2b_b2c: string | null;
+  revenue_models: string[];
+  minimum_traction: string[];
+  board_involvement: string | null;
+  decision_process: string | null;
+  time_to_decision: string | null;
+}
+
 export default function InvestorDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -55,12 +83,64 @@ export default function InvestorDashboard() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [thesisModalOpen, setThesisModalOpen] = useState(false);
+  const [investorApplication, setInvestorApplication] = useState<InvestorApplication | null>(null);
+  const [thesisLoading, setThesisLoading] = useState(false);
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const fetchInvestorThesis = async () => {
+    setThesisLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Please sign in",
+          description: "You need to be signed in to view your thesis.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("investor_applications")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      if (data) {
+        setInvestorApplication({
+          ...data,
+          sub_themes: (data.sub_themes as string[]) || [],
+          fast_signals: (data.fast_signals as string[]) || [],
+          hard_nos: (data.hard_nos as string[]) || [],
+          check_sizes: (data.check_sizes as string[]) || [],
+          stage_focus: (data.stage_focus as string[]) || [],
+          sector_tags: (data.sector_tags as string[]) || [],
+          customer_types: (data.customer_types as string[]) || [],
+          operating_support: (data.operating_support as string[]) || [],
+          revenue_models: (data.revenue_models as string[]) || [],
+          minimum_traction: (data.minimum_traction as string[]) || [],
+        });
+      }
+      setThesisModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching thesis:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load your investment thesis.",
+        variant: "destructive",
+      });
+    } finally {
+      setThesisLoading(false);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -311,12 +391,21 @@ export default function InvestorDashboard() {
                 Where bold ideas meet strategic capital
               </p>
               <button 
-                onClick={() => navigate("/investor-thesis")}
-                className="text-[hsl(var(--cyan-glow))] hover:text-[hsl(var(--cyan-glow))]/80 text-sm font-medium underline underline-offset-4 transition-colors"
+                onClick={fetchInvestorThesis}
+                disabled={thesisLoading}
+                className="text-[hsl(var(--cyan-glow))] hover:text-[hsl(var(--cyan-glow))]/80 text-sm font-medium underline underline-offset-4 transition-colors disabled:opacity-50"
               >
-                View Your Investment Thesis →
+                {thesisLoading ? "Loading..." : "View Your Investment Thesis →"}
               </button>
             </div>
+
+            {/* Thesis Modal */}
+            <InvestorThesisModal 
+              open={thesisModalOpen} 
+              onOpenChange={setThesisModalOpen}
+              application={investorApplication}
+              loading={thesisLoading}
+            />
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
