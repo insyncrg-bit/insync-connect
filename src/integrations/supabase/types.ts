@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      connection_requests: {
+        Row: {
+          created_at: string
+          id: string
+          requester_type: string
+          requester_user_id: string
+          status: string
+          target_type: string
+          target_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          requester_type: string
+          requester_user_id: string
+          status?: string
+          target_type: string
+          target_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          requester_type?: string
+          requester_user_id?: string
+          status?: string
+          target_type?: string
+          target_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       engagement_tracking: {
         Row: {
           action_date: string

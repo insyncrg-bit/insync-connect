@@ -13,9 +13,13 @@ import {
   Users, 
   TrendingUp, 
   Eye, 
-  Mail,
+  Heart,
   ArrowRight,
-  Menu
+  Menu,
+  Check,
+  X,
+  Loader2,
+  MessageSquare
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -50,6 +54,22 @@ interface Mentor {
   available: boolean;
 }
 
+interface ConnectionStats {
+  interests: number; // investors who want to sync with this founder
+  syncs: number; // mutual connections
+  pending: number; // founder's pending requests to investors
+}
+
+interface ConnectionRequest {
+  id: string;
+  requester_user_id: string;
+  requester_type: string;
+  target_user_id: string;
+  target_type: string;
+  status: string;
+  created_at: string;
+}
+
 export default function FounderDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -59,6 +79,10 @@ export default function FounderDashboard() {
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
   const [application, setApplication] = useState<any>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [connectionStats, setConnectionStats] = useState<ConnectionStats>({ interests: 0, syncs: 0, pending: 0 });
+  const [incomingInterests, setIncomingInterests] = useState<ConnectionRequest[]>([]);
+  const [respondingTo, setRespondingTo] = useState<string | null>(null);
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
@@ -70,18 +94,17 @@ export default function FounderDashboard() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Allow preview mode without auth
       if (user) {
-        // Fetch application
+        setCurrentUserId(user.id);
         const { data: appData } = await supabase
           .from("founder_applications")
           .select("*")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
         
         setApplication(appData);
+        await fetchConnectionStats(user.id);
       } else {
-        // Preview mode with mock data
         setApplication({
           id: "demo",
           founder_name: "Demo Founder",
@@ -90,22 +113,11 @@ export default function FounderDashboard() {
           stage: "Seed",
           location: "San Francisco, CA",
           website: "https://demo.com",
-          business_model: "We help businesses manage their finances more efficiently through AI-powered automation.",
-          application_sections: {
-            section2: {
-              currentPainPoint: "Businesses waste 20+ hours per week on manual financial reconciliation.",
-              valueDrivers: ["scalability", "unique-tech", "severity"]
-            },
-            section5: {
-              tamValue: "$50B",
-              samValue: "$5B",
-              somValue: "$500M"
-            }
-          }
+          business_model: "We help businesses manage their finances more efficiently.",
+          application_sections: {}
         });
       }
 
-      // Fetch investors
       const { data: investorsData } = await supabase
         .from("investors")
         .select("*")
@@ -117,7 +129,6 @@ export default function FounderDashboard() {
         sectors: Array.isArray(inv.sectors) ? inv.sectors as string[] : []
       })));
 
-      // Fetch events
       const { data: eventsData } = await supabase
         .from("events")
         .select("*")
@@ -127,7 +138,6 @@ export default function FounderDashboard() {
       
       setEvents(eventsData || []);
 
-      // Fetch mentors
       const { data: mentorsData } = await supabase
         .from("mentors")
         .select("*")
@@ -148,6 +158,35 @@ export default function FounderDashboard() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchConnectionStats = async (userId: string) => {
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .or(`requester_user_id.eq.${userId},target_user_id.eq.${userId}`);
+
+      // Interests: investors who requested to sync with this founder
+      const interests = (connections || []).filter(
+        c => c.target_user_id === userId && c.requester_type === 'investor' && c.status === 'pending'
+      ).length;
+
+      // Syncs: mutual connections
+      const syncs = (connections || []).filter(c => c.status === 'accepted').length;
+
+      // Pending: founder's pending requests to investors
+      const pending = (connections || []).filter(
+        c => c.requester_user_id === userId && c.requester_type === 'founder' && c.status === 'pending'
+      ).length;
+
+      setConnectionStats({ interests, syncs, pending });
+      setIncomingInterests((connections || []).filter(
+        c => c.target_user_id === userId && c.requester_type === 'investor' && c.status === 'pending'
+      ));
+    } catch (error) {
+      console.error("Error fetching connection stats:", error);
     }
   };
 
@@ -264,50 +303,50 @@ export default function FounderDashboard() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/20 p-6">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{connectionStats.interests}</p>
+                    <p className="text-sm text-white/60">Interests</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{connectionStats.syncs}</p>
+                    <p className="text-sm text-white/60">Syncs</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">0</p>
-                    <p className="text-sm text-white/60">Profile Views</p>
+                    <p className="text-2xl font-bold text-white">{connectionStats.pending}</p>
+                    <p className="text-sm text-white/60">Pending</p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-white/10 p-6">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <Mail className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                    <MessageSquare className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-white">0</p>
-                    <p className="text-sm text-white/60">Connections</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="bg-navy-card border-white/10 p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-bright))]/10 flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-bright))]" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">Pending</p>
-                    <p className="text-sm text-white/60">Status</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="bg-navy-card border-white/10 p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
-                    <Calendar className="h-6 w-6 text-white/80" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{events.length}</p>
-                    <p className="text-sm text-white/60">Upcoming Events</p>
+                    <p className="text-sm text-white/60">Messages</p>
                   </div>
                 </div>
               </Card>
