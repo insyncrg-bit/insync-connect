@@ -9,6 +9,8 @@ import { FounderSidebar } from "@/components/FounderSidebar";
 import { MemoEditor } from "@/components/MemoEditor";
 import { InvestorProfileModal } from "@/components/InvestorProfileModal";
 import { InterestsModal } from "@/components/InterestsModal";
+import { SyncsModal } from "@/components/SyncsModal";
+import { PendingModal } from "@/components/PendingModal";
 import { 
   Building2, 
   Calendar, 
@@ -98,6 +100,17 @@ export default function FounderDashboard() {
   const [incomingInterests, setIncomingInterests] = useState<InterestItem[]>([]);
   const [interestsLoading, setInterestsLoading] = useState(false);
   const [processingInterestId, setProcessingInterestId] = useState<string | null>(null);
+
+  // Syncs modal state
+  const [syncsModalOpen, setSyncsModalOpen] = useState(false);
+  const [activeSyncs, setActiveSyncs] = useState<any[]>([]);
+  const [syncsLoading, setSyncsLoading] = useState(false);
+
+  // Pending modal state
+  const [pendingModalOpen, setPendingModalOpen] = useState(false);
+  const [outgoingPending, setOutgoingPending] = useState<any[]>([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
@@ -462,6 +475,118 @@ export default function FounderDashboard() {
       });
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const fetchActiveSyncs = async () => {
+    if (!currentUserId) return;
+    setSyncsLoading(true);
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("status", "accepted")
+        .or(`requester_user_id.eq.${currentUserId},target_user_id.eq.${currentUserId}`);
+
+      if (connections && connections.length > 0) {
+        const investorIds = connections.map(c => 
+          c.requester_user_id === currentUserId ? c.target_user_id : c.requester_user_id
+        );
+        
+        const { data: investors } = await supabase
+          .from("investor_applications")
+          .select("user_id, firm_name, hq_location, stage_focus, sector_tags")
+          .in("user_id", investorIds);
+
+        const enriched = connections.map(conn => {
+          const otherUserId = conn.requester_user_id === currentUserId ? conn.target_user_id : conn.requester_user_id;
+          const inv = investors?.find(i => i.user_id === otherUserId);
+          return {
+            id: conn.id,
+            other_user_id: otherUserId,
+            other_user_type: 'investor',
+            created_at: conn.updated_at || conn.created_at,
+            firm_name: inv?.firm_name,
+            hq_location: inv?.hq_location,
+            stage_focus: inv?.stage_focus as string[] || [],
+            sector_tags: inv?.sector_tags as string[] || [],
+          };
+        });
+        setActiveSyncs(enriched);
+      } else {
+        setActiveSyncs([]);
+      }
+    } catch (error) {
+      console.error("Error fetching syncs:", error);
+    } finally {
+      setSyncsLoading(false);
+    }
+  };
+
+  const handleOpenSyncs = () => {
+    setSyncsModalOpen(true);
+    fetchActiveSyncs();
+  };
+
+  const fetchOutgoingPending = async () => {
+    if (!currentUserId) return;
+    setPendingLoading(true);
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("requester_user_id", currentUserId)
+        .eq("requester_type", "founder")
+        .eq("status", "pending");
+
+      if (connections && connections.length > 0) {
+        const investorIds = connections.map(c => c.target_user_id);
+        
+        const { data: investors } = await supabase
+          .from("investor_applications")
+          .select("user_id, firm_name, hq_location, stage_focus, sector_tags")
+          .in("user_id", investorIds);
+
+        const enriched = connections.map(conn => {
+          const inv = investors?.find(i => i.user_id === conn.target_user_id);
+          return {
+            id: conn.id,
+            target_user_id: conn.target_user_id,
+            sync_note: conn.sync_note,
+            created_at: conn.created_at,
+            firm_name: inv?.firm_name,
+            hq_location: inv?.hq_location,
+            stage_focus: inv?.stage_focus as string[] || [],
+            sector_tags: inv?.sector_tags as string[] || [],
+          };
+        });
+        setOutgoingPending(enriched);
+      } else {
+        setOutgoingPending([]);
+      }
+    } catch (error) {
+      console.error("Error fetching pending:", error);
+    } finally {
+      setPendingLoading(false);
+    }
+  };
+
+  const handleOpenPending = () => {
+    setPendingModalOpen(true);
+    fetchOutgoingPending();
+  };
+
+  const handleCancelPending = async (requestId: string) => {
+    setCancellingId(requestId);
+    try {
+      await supabase.from("connection_requests").delete().eq("id", requestId);
+      toast({ title: "Request cancelled" });
+      setOutgoingPending(prev => prev.filter(p => p.id !== requestId));
+      setConnectionStats(prev => ({ ...prev, pending: prev.pending - 1 }));
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to cancel request", variant: "destructive" });
+    } finally {
+      setCancellingId(null);
     }
   };
 
