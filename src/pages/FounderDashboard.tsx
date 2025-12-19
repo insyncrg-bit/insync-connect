@@ -538,7 +538,7 @@ export default function FounderDashboard() {
             {/* Welcome Section */}
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-white mb-2">
-                Welcome back, {application?.company_name || application?.founder_name?.split(" ")[0] || "Founder"}!
+                {application?.company_name || "Founder"} Dashboard
               </h2>
               <p className="text-white/60">
                 Track your connections, engagement, and opportunities
@@ -547,20 +547,20 @@ export default function FounderDashboard() {
 
             {/* Memo Quick View */}
             <Card 
-              className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/10 to-transparent border-[hsl(var(--cyan-glow))]/30 p-6 mb-8 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/50 transition-all"
+              className="bg-[hsl(var(--navy-deep))]/80 border-white/10 p-6 mb-8 cursor-pointer hover:border-white/20 transition-all"
               onClick={() => navigate("/founder-dashboard?tab=memo")}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
-                    <Building2 className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center">
+                    <Building2 className="h-6 w-6 text-white/70" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">{application?.company_name || "Your Memo"}</h3>
-                    <p className="text-white/60 text-sm">{application?.vertical} • {application?.stage}</p>
+                    <p className="text-white/50 text-sm">{application?.vertical} • {application?.stage}</p>
                   </div>
                 </div>
-                <Button size="sm" className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]">
+                <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/5">
                   View Memo <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
