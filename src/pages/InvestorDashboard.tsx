@@ -488,7 +488,7 @@ export default function InvestorDashboard() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/20 p-6">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -500,7 +500,7 @@ export default function InvestorDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-white/10 p-6">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -512,10 +512,10 @@ export default function InvestorDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-white/10 p-6">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-bright))]/10 flex items-center justify-center">
-                    <Eye className="h-6 w-6 text-[hsl(var(--cyan-bright))]" />
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-white">0</p>
@@ -524,10 +524,10 @@ export default function InvestorDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-white/10 p-6">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
-                    <MessageSquare className="h-6 w-6 text-white/80" />
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <MessageSquare className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-white">0</p>
