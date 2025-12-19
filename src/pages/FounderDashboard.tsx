@@ -796,7 +796,10 @@ export default function FounderDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenSyncs}
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -808,7 +811,10 @@ export default function FounderDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenPending}
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -903,6 +909,24 @@ export default function FounderDashboard() {
           onAccept={handleAcceptInterest}
           onDecline={handleDeclineInterest}
           processingId={processingInterestId}
+          userType="founder"
+        />
+
+        <SyncsModal
+          open={syncsModalOpen}
+          onOpenChange={setSyncsModalOpen}
+          syncs={activeSyncs}
+          loading={syncsLoading}
+          userType="founder"
+        />
+
+        <PendingModal
+          open={pendingModalOpen}
+          onOpenChange={setPendingModalOpen}
+          pending={outgoingPending}
+          loading={pendingLoading}
+          onCancel={handleCancelPending}
+          cancellingId={cancellingId}
           userType="founder"
         />
       </div>
