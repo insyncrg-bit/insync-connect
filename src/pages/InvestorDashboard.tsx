@@ -10,6 +10,7 @@ import { InvestorThesisModal } from "@/components/InvestorThesisModal";
 import { InterestsModal } from "@/components/InterestsModal";
 import { SyncsModal } from "@/components/SyncsModal";
 import { PendingModal } from "@/components/PendingModal";
+import { MessagesModal } from "@/components/MessagesModal";
 import { 
   Building2, 
   Calendar, 
@@ -122,6 +123,108 @@ export default function InvestorDashboard() {
   const [outgoingPending, setOutgoingPending] = useState<any[]>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  // Messages modal state
+  const [messagesModalOpen, setMessagesModalOpen] = useState(false);
+  const [messageThreads, setMessageThreads] = useState<any[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+
+  // Demo data for modals
+  const demoInterests = [
+    {
+      id: "demo-int-1",
+      requester_user_id: "demo-founder-1",
+      sync_note: "Your thesis on AI infrastructure aligns perfectly with our roadmap. Would love to discuss a potential partnership.",
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      company_name: "NeuralFlow AI",
+      founder_name: "Sarah Chen",
+      vertical: "AI/ML Infrastructure",
+      stage: "Seed",
+      location: "San Francisco, CA",
+      funding_goal: "$3M",
+    },
+    {
+      id: "demo-int-2",
+      requester_user_id: "demo-founder-2",
+      sync_note: null,
+      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      company_name: "ClimateLedger",
+      founder_name: "Marcus Johnson",
+      vertical: "Climate Tech",
+      stage: "Pre-seed",
+      location: "Austin, TX",
+      funding_goal: "$1.5M",
+    },
+  ];
+
+  const demoSyncs = [
+    {
+      id: "demo-sync-1",
+      other_user_id: "demo-founder-3",
+      other_user_type: "founder",
+      created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      company_name: "MedSync Health",
+      founder_name: "Priya Patel",
+      vertical: "Digital Health",
+      stage: "Seed",
+      location: "Boston, MA",
+    },
+    {
+      id: "demo-sync-2",
+      other_user_id: "demo-founder-4",
+      other_user_type: "founder",
+      created_at: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+      company_name: "FinanceOS",
+      founder_name: "David Kim",
+      vertical: "Fintech",
+      stage: "Series A",
+      location: "New York, NY",
+    },
+  ];
+
+  const demoPending = [
+    {
+      id: "demo-pend-1",
+      target_user_id: "demo-founder-5",
+      sync_note: "Your traction in the supply chain space is impressive. Would love to learn more about your expansion plans.",
+      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      company_name: "SupplyChain360",
+      founder_name: "Elena Rodriguez",
+      vertical: "Supply Chain & Logistics",
+      stage: "Seed",
+      location: "Miami, FL",
+    },
+  ];
+
+  const demoMessages = [
+    {
+      id: "demo-msg-1",
+      other_user_id: "demo-founder-3",
+      other_user_name: "Priya Patel",
+      other_user_company: "MedSync Health",
+      last_message: "Thanks for the intro to the health system. The meeting went great!",
+      last_message_time: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+      unread_count: 1,
+      messages: [
+        { id: "m1", sender: "self" as const, content: "I'd like to introduce you to our portfolio company's head of partnerships at a major health system.", timestamp: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString() },
+        { id: "m2", sender: "other" as const, content: "That would be amazing! We've been looking to expand our health system partnerships.", timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString() },
+        { id: "m3", sender: "self" as const, content: "I'll set up the intro. Expect an email from Sarah at Northeast Health.", timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() },
+        { id: "m4", sender: "other" as const, content: "Thanks for the intro to the health system. The meeting went great!", timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() },
+      ],
+    },
+    {
+      id: "demo-msg-2",
+      other_user_id: "demo-founder-4",
+      other_user_name: "David Kim",
+      other_user_company: "FinanceOS",
+      last_message: "The board deck is ready for your review.",
+      last_message_time: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+      unread_count: 0,
+      messages: [
+        { id: "m1", sender: "other" as const, content: "The board deck is ready for your review.", timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString() },
+      ],
+    },
+  ];
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
@@ -432,7 +535,16 @@ export default function InvestorDashboard() {
 
   const handleOpenInterests = () => {
     setInterestsModalOpen(true);
-    fetchIncomingInterests();
+    if (currentUserId) {
+      fetchIncomingInterests();
+    } else {
+      // Show demo data for preview
+      setInterestsLoading(true);
+      setTimeout(() => {
+        setIncomingInterests(demoInterests);
+        setInterestsLoading(false);
+      }, 500);
+    }
   };
 
   const handleAcceptInterest = async (requestId: string) => {
@@ -507,7 +619,16 @@ export default function InvestorDashboard() {
 
   const handleOpenSyncs = () => {
     setSyncsModalOpen(true);
-    fetchActiveSyncs();
+    if (currentUserId) {
+      fetchActiveSyncs();
+    } else {
+      // Show demo data for preview
+      setSyncsLoading(true);
+      setTimeout(() => {
+        setActiveSyncs(demoSyncs);
+        setSyncsLoading(false);
+      }, 500);
+    }
   };
 
   const fetchOutgoingPending = async () => {
@@ -549,7 +670,16 @@ export default function InvestorDashboard() {
 
   const handleOpenPending = () => {
     setPendingModalOpen(true);
-    fetchOutgoingPending();
+    if (currentUserId) {
+      fetchOutgoingPending();
+    } else {
+      // Show demo data for preview
+      setPendingLoading(true);
+      setTimeout(() => {
+        setOutgoingPending(demoPending);
+        setPendingLoading(false);
+      }, 500);
+    }
   };
 
   const handleCancelPending = async (requestId: string) => {
@@ -564,6 +694,23 @@ export default function InvestorDashboard() {
     } finally {
       setCancellingId(null);
     }
+  };
+
+  const handleOpenMessages = () => {
+    setMessagesModalOpen(true);
+    setMessagesLoading(true);
+    setTimeout(() => {
+      setMessageThreads(demoMessages);
+      setMessagesLoading(false);
+    }, 500);
+  };
+
+  // Get display counts (show demo counts when no real data)
+  const displayStats = {
+    interests: connectionStats.interests || (currentUserId ? 0 : demoInterests.length),
+    syncs: connectionStats.syncs || (currentUserId ? 0 : demoSyncs.length),
+    pending: connectionStats.pending || (currentUserId ? 0 : demoPending.length),
+    messages: currentUserId ? 0 : demoMessages.reduce((acc, t) => acc + t.unread_count, 0),
   };
 
   const curatedStartups = applications.length > 0 ? applications : demoStartups;
@@ -879,7 +1026,7 @@ export default function InvestorDashboard() {
                     <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">{connectionStats.interests}</p>
+                    <p className="text-2xl font-bold text-white">{displayStats.interests}</p>
                     <p className="text-sm text-white/60">Interests</p>
                   </div>
                 </div>
@@ -894,7 +1041,7 @@ export default function InvestorDashboard() {
                     <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">{connectionStats.syncs}</p>
+                    <p className="text-2xl font-bold text-white">{displayStats.syncs}</p>
                     <p className="text-sm text-white/60">Syncs</p>
                   </div>
                 </div>
@@ -909,19 +1056,22 @@ export default function InvestorDashboard() {
                     <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">{connectionStats.pending}</p>
+                    <p className="text-2xl font-bold text-white">{displayStats.pending}</p>
                     <p className="text-sm text-white/60">Pending</p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenMessages}
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <MessageSquare className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">0</p>
+                    <p className="text-2xl font-bold text-white">{displayStats.messages}</p>
                     <p className="text-sm text-white/60">Messages</p>
                   </div>
                 </div>
@@ -1009,6 +1159,15 @@ export default function InvestorDashboard() {
         loading={pendingLoading}
         onCancel={handleCancelPending}
         cancellingId={cancellingId}
+        userType="investor"
+      />
+
+      {/* Messages Modal */}
+      <MessagesModal
+        open={messagesModalOpen}
+        onOpenChange={setMessagesModalOpen}
+        threads={messageThreads}
+        loading={messagesLoading}
         userType="investor"
       />
     </SidebarProvider>
