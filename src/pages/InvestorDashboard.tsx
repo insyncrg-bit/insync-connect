@@ -379,7 +379,9 @@ export default function InvestorDashboard() {
                 First Look. First Move.
               </h2>
               <p className="text-white/60 mb-3">
-                Where bold ideas meet strategic capital
+                {investorApplication?.firm_name 
+                  ? `Welcome back, ${investorApplication.firm_name}`
+                  : "Your personalized investor dashboard"}
               </p>
               <button 
                 onClick={fetchInvestorThesis}
