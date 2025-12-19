@@ -8,6 +8,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { InvestorSidebar } from "@/components/InvestorSidebar";
 import { InvestorThesisModal } from "@/components/InvestorThesisModal";
 import { InterestsModal } from "@/components/InterestsModal";
+import { SyncsModal } from "@/components/SyncsModal";
+import { PendingModal } from "@/components/PendingModal";
 import { 
   Building2, 
   Calendar, 
@@ -24,7 +26,8 @@ import {
   MessageSquare,
   Check,
   X,
-  Loader2
+  Loader2,
+  FileText
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -108,6 +111,17 @@ export default function InvestorDashboard() {
   const [incomingInterests, setIncomingInterests] = useState<any[]>([]);
   const [interestsLoading, setInterestsLoading] = useState(false);
   const [processingInterestId, setProcessingInterestId] = useState<string | null>(null);
+
+  // Syncs modal state
+  const [syncsModalOpen, setSyncsModalOpen] = useState(false);
+  const [activeSyncs, setActiveSyncs] = useState<any[]>([]);
+  const [syncsLoading, setSyncsLoading] = useState(false);
+
+  // Pending modal state
+  const [pendingModalOpen, setPendingModalOpen] = useState(false);
+  const [outgoingPending, setOutgoingPending] = useState<any[]>([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
@@ -448,6 +462,110 @@ export default function InvestorDashboard() {
       setProcessingInterestId(null);
     }
   };
+
+  const fetchActiveSyncs = async () => {
+    if (!currentUserId) return;
+    setSyncsLoading(true);
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("status", "accepted")
+        .or(`requester_user_id.eq.${currentUserId},target_user_id.eq.${currentUserId}`);
+
+      if (connections && connections.length > 0) {
+        // Get founder user_ids (the other party)
+        const founderIds = connections.map(c => 
+          c.requester_user_id === currentUserId ? c.target_user_id : c.requester_user_id
+        );
+        
+        const { data: founders } = await supabase
+          .from("founder_applications")
+          .select("user_id, company_name, founder_name, vertical, stage, location")
+          .in("user_id", founderIds);
+
+        const enriched = connections.map(conn => {
+          const otherUserId = conn.requester_user_id === currentUserId ? conn.target_user_id : conn.requester_user_id;
+          return {
+            id: conn.id,
+            other_user_id: otherUserId,
+            other_user_type: 'founder',
+            created_at: conn.updated_at || conn.created_at,
+            ...(founders?.find(f => f.user_id === otherUserId) || {})
+          };
+        });
+        setActiveSyncs(enriched);
+      } else {
+        setActiveSyncs([]);
+      }
+    } catch (error) {
+      console.error("Error fetching syncs:", error);
+    } finally {
+      setSyncsLoading(false);
+    }
+  };
+
+  const handleOpenSyncs = () => {
+    setSyncsModalOpen(true);
+    fetchActiveSyncs();
+  };
+
+  const fetchOutgoingPending = async () => {
+    if (!currentUserId) return;
+    setPendingLoading(true);
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("requester_user_id", currentUserId)
+        .eq("requester_type", "investor")
+        .eq("status", "pending");
+
+      if (connections && connections.length > 0) {
+        const founderIds = connections.map(c => c.target_user_id);
+        
+        const { data: founders } = await supabase
+          .from("founder_applications")
+          .select("user_id, company_name, founder_name, vertical, stage, location")
+          .in("user_id", founderIds);
+
+        const enriched = connections.map(conn => ({
+          id: conn.id,
+          target_user_id: conn.target_user_id,
+          sync_note: conn.sync_note,
+          created_at: conn.created_at,
+          ...(founders?.find(f => f.user_id === conn.target_user_id) || {})
+        }));
+        setOutgoingPending(enriched);
+      } else {
+        setOutgoingPending([]);
+      }
+    } catch (error) {
+      console.error("Error fetching pending:", error);
+    } finally {
+      setPendingLoading(false);
+    }
+  };
+
+  const handleOpenPending = () => {
+    setPendingModalOpen(true);
+    fetchOutgoingPending();
+  };
+
+  const handleCancelPending = async (requestId: string) => {
+    setCancellingId(requestId);
+    try {
+      await supabase.from("connection_requests").delete().eq("id", requestId);
+      toast({ title: "Request cancelled" });
+      setOutgoingPending(prev => prev.filter(p => p.id !== requestId));
+      setConnectionStats(prev => ({ ...prev, pending: prev.pending - 1 }));
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to cancel request", variant: "destructive" });
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
   const curatedStartups = applications.length > 0 ? applications : demoStartups;
 
   const formatDate = (dateString: string) => {
@@ -487,7 +605,7 @@ export default function InvestorDashboard() {
     const isRequesting = requestingSync === app.user_id;
 
     return (
-      <Card className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group cursor-pointer">
+      <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 group cursor-pointer">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
@@ -709,23 +827,38 @@ export default function InvestorDashboard() {
         return (
           <>
             {/* Welcome Section */}
-            <div className="mb-8 text-center">
+            <div className="mb-8">
               <h2 className="text-3xl font-bold text-white mb-2">
-                First Look. First Move.
+                {investorApplication?.firm_name || "Investor"} Dashboard
               </h2>
-              <p className="text-white/60 mb-3">
-                {investorApplication?.firm_name 
-                  ? `Welcome back, ${investorApplication.firm_name}`
-                  : "Your personalized investor dashboard"}
+              <p className="text-white/60">
+                Discover and connect with promising startups
               </p>
-              <button 
-                onClick={fetchInvestorThesis}
-                disabled={thesisLoading}
-                className="text-[hsl(var(--cyan-glow))] hover:text-[hsl(var(--cyan-glow))]/80 text-sm font-medium underline underline-offset-4 transition-colors disabled:opacity-50"
-              >
-                {thesisLoading ? "Loading..." : "View Your Investment Thesis →"}
-              </button>
             </div>
+
+            {/* Thesis Quick View */}
+            <Card 
+              className="bg-[hsl(var(--navy-deep))]/80 border-[hsl(var(--cyan-glow))]/30 p-6 mb-8 cursor-pointer shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300"
+              onClick={fetchInvestorThesis}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center">
+                    <FileText className="h-6 w-6 text-white/70" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">{investorApplication?.firm_name || "Your Thesis"}</h3>
+                    <p className="text-white/50 text-sm">
+                      {investorApplication?.stage_focus?.slice(0, 2).join(" • ") || "Investment Thesis"} 
+                      {investorApplication?.check_sizes?.[0] && ` • ${investorApplication.check_sizes[0]}`}
+                    </p>
+                  </div>
+                </div>
+                <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/5">
+                  View Thesis <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </Card>
 
             {/* Thesis Modal */}
             <InvestorThesisModal 
@@ -752,7 +885,10 @@ export default function InvestorDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenSyncs}
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -764,7 +900,10 @@ export default function InvestorDashboard() {
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenPending}
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -794,11 +933,7 @@ export default function InvestorDashboard() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-2xl font-bold text-white">Curated Startups</h3>
-                  <p className="text-white/60 text-sm mt-1">
-                    {investorApplication?.firm_name 
-                      ? "Startups aligned with your investment thesis"
-                      : "Promising startups that may match your criteria"}
-                  </p>
+                  <p className="text-white/60 text-sm mt-1">Startups aligned with your thesis</p>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -810,30 +945,10 @@ export default function InvestorDashboard() {
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {curatedStartups
-                  .filter(app => {
-                    // If no investor thesis, show all
-                    if (!investorApplication) return true;
-                    
-                    // Match by stage
-                    const stageMatch = !investorApplication.stage_focus?.length || 
-                      investorApplication.stage_focus.some(stage => 
-                        app.stage.toLowerCase().includes(stage.toLowerCase())
-                      );
-                    
-                    // Match by sector/vertical
-                    const sectorMatch = !investorApplication.sector_tags?.length ||
-                      investorApplication.sector_tags.some(sector => 
-                        app.vertical.toLowerCase().includes(sector.toLowerCase())
-                      );
-                    
-                    return stageMatch || sectorMatch;
-                  })
-                  .slice(0, 6)
-                  .map((app) => (
-                    <StartupCard key={app.id} app={app} />
-                  ))}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {curatedStartups.slice(0, 3).map((app) => (
+                  <StartupCard key={app.id} app={app} />
+                ))}
               </div>
             </section>
           </>
@@ -874,6 +989,26 @@ export default function InvestorDashboard() {
         onAccept={handleAcceptInterest}
         onDecline={handleDeclineInterest}
         processingId={processingInterestId}
+        userType="investor"
+      />
+
+      {/* Syncs Modal */}
+      <SyncsModal
+        open={syncsModalOpen}
+        onOpenChange={setSyncsModalOpen}
+        syncs={activeSyncs}
+        loading={syncsLoading}
+        userType="investor"
+      />
+
+      {/* Pending Modal */}
+      <PendingModal
+        open={pendingModalOpen}
+        onOpenChange={setPendingModalOpen}
+        pending={outgoingPending}
+        loading={pendingLoading}
+        onCancel={handleCancelPending}
+        cancellingId={cancellingId}
         userType="investor"
       />
     </SidebarProvider>
