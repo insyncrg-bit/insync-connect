@@ -446,6 +446,17 @@ export default function InvestorApplication() {
       case 0:
         return (
           <div className="space-y-8">
+            {/* Preview Dashboard Button - Prominent at top */}
+            <div className="flex justify-center">
+              <Button 
+                onClick={() => navigate("/investor-dashboard")}
+                size="lg"
+                className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))] font-semibold shadow-lg"
+              >
+                👀 Preview Dashboard with Demo Data →
+              </Button>
+            </div>
+
             <div className="text-center space-y-6">
               <h2 className="text-3xl font-bold text-[hsl(var(--navy-deep))]">Welcome</h2>
               <p className="text-lg text-[hsl(var(--navy-deep))]/80 max-w-2xl mx-auto">
