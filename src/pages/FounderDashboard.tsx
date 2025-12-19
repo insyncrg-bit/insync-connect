@@ -486,7 +486,7 @@ export default function FounderDashboard() {
 
     return (
       <Card 
-        className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group cursor-pointer"
+        className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 group cursor-pointer"
         onClick={() => handleOpenInvestorProfile(investor)}
       >
         <div className="flex items-start gap-4 mb-4">
