@@ -20,7 +20,10 @@ import {
   Menu,
   Search,
   Filter,
-  MessageSquare
+  MessageSquare,
+  Check,
+  X,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -37,6 +40,7 @@ interface FounderApplication {
   funding_goal: string;
   traction: string;
   created_at: string;
+  user_id?: string | null;
 }
 
 interface Event {
@@ -76,6 +80,12 @@ interface InvestorApplication {
   time_to_decision: string | null;
 }
 
+interface ConnectionStats {
+  interests: number; // founders who want to sync with this investor
+  syncs: number; // mutual connections
+  pending: number; // investor's pending requests to founders
+}
+
 export default function InvestorDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -87,6 +97,10 @@ export default function InvestorDashboard() {
   const [thesisModalOpen, setThesisModalOpen] = useState(false);
   const [investorApplication, setInvestorApplication] = useState<InvestorApplication | null>(null);
   const [thesisLoading, setThesisLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [connectionStats, setConnectionStats] = useState<ConnectionStats>({ interests: 0, syncs: 0, pending: 0 });
+  const [pendingRequests, setPendingRequests] = useState<Set<string>>(new Set());
+  const [requestingSync, setRequestingSync] = useState<string | null>(null);
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
@@ -218,6 +232,11 @@ export default function InvestorDashboard() {
 
   const fetchDashboardData = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      }
+
       // Fetch founder applications (in a real app, this would have proper RLS for investors)
       const { data: appsData } = await supabase
         .from("founder_applications")
@@ -237,6 +256,11 @@ export default function InvestorDashboard() {
       
       setEvents(eventsData || []);
 
+      // Fetch connection stats for the investor
+      if (user) {
+        await fetchConnectionStats(user.id);
+      }
+
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       toast({
@@ -246,6 +270,106 @@ export default function InvestorDashboard() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchConnectionStats = async (userId: string) => {
+    try {
+      // Fetch all connection requests involving this investor
+      const { data: connections, error } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .or(`requester_user_id.eq.${userId},target_user_id.eq.${userId}`);
+
+      if (error) {
+        console.error("Error fetching connections:", error);
+        return;
+      }
+
+      // Calculate stats
+      // Interests: founders who requested to sync with this investor (pending requests where investor is target)
+      const interests = (connections || []).filter(
+        c => c.target_user_id === userId && c.requester_type === 'founder' && c.status === 'pending'
+      ).length;
+
+      // Syncs: mutual connections (accepted requests)
+      const syncs = (connections || []).filter(c => c.status === 'accepted').length;
+
+      // Pending: investor's pending requests to founders (investor is requester, status pending)
+      const pending = (connections || []).filter(
+        c => c.requester_user_id === userId && c.requester_type === 'investor' && c.status === 'pending'
+      ).length;
+
+      // Track which founder user_ids the investor has already requested
+      const pendingFounderIds = new Set(
+        (connections || [])
+          .filter(c => c.requester_user_id === userId && c.requester_type === 'investor')
+          .map(c => c.target_user_id)
+      );
+
+      setConnectionStats({ interests, syncs, pending });
+      setPendingRequests(pendingFounderIds);
+    } catch (error) {
+      console.error("Error calculating connection stats:", error);
+    }
+  };
+
+  const handleRequestSync = async (founderUserId: string, companyName: string) => {
+    if (!currentUserId) {
+      toast({
+        title: "Login required",
+        description: "Please log in to request a sync",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!founderUserId) {
+      toast({
+        title: "Demo startup",
+        description: "This is a demo startup. Real sync requests require actual founder data.",
+      });
+      return;
+    }
+
+    setRequestingSync(founderUserId);
+    try {
+      const { error } = await supabase
+        .from("connection_requests")
+        .insert({
+          requester_user_id: currentUserId,
+          requester_type: 'investor',
+          target_user_id: founderUserId,
+          target_type: 'founder',
+          status: 'pending'
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Already requested",
+            description: `You've already sent a sync request to ${companyName}`,
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Sync requested!",
+          description: `Your request to connect with ${companyName} has been sent.`,
+        });
+        setPendingRequests(prev => new Set([...prev, founderUserId]));
+        setConnectionStats(prev => ({ ...prev, pending: prev.pending + 1 }));
+      }
+    } catch (error) {
+      console.error("Error requesting sync:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send sync request",
+        variant: "destructive",
+      });
+    } finally {
+      setRequestingSync(null);
     }
   };
 
@@ -284,61 +408,112 @@ export default function InvestorDashboard() {
     );
   }
 
-  const StartupCard = ({ app }: { app: FounderApplication }) => (
-    <Card className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group cursor-pointer">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
-            <Building2 className="h-6 w-6 text-white" />
+  const StartupCard = ({ app }: { app: FounderApplication }) => {
+    const isRequested = app.user_id ? pendingRequests.has(app.user_id) : false;
+    const isRequesting = requestingSync === app.user_id;
+
+    return (
+      <Card className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group cursor-pointer">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+              <Building2 className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                {app.company_name}
+              </h4>
+              <p className="text-sm text-white/60">{app.founder_name}</p>
+            </div>
           </div>
-          <div>
-            <h4 className="font-semibold text-white mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
-              {app.company_name}
-            </h4>
-            <p className="text-sm text-white/60">{app.founder_name}</p>
-          </div>
+          <Button 
+            size="icon" 
+            variant="ghost" 
+            className={isRequested 
+              ? "text-green-400 bg-green-500/10 cursor-default" 
+              : "text-white/40 hover:text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+            }
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isRequested && !isRequesting && app.user_id) {
+                handleRequestSync(app.user_id, app.company_name);
+              }
+            }}
+            disabled={isRequested || isRequesting}
+          >
+            {isRequesting ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : isRequested ? (
+              <Check className="h-5 w-5" />
+            ) : (
+              <TrendingUp className="h-5 w-5" />
+            )}
+          </Button>
         </div>
-        <Button size="icon" variant="ghost" className="text-white/40 hover:text-red-400 hover:bg-red-500/10">
-          <Heart className="h-5 w-5" />
-        </Button>
-      </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20">
-          {app.vertical}
-        </Badge>
-        <Badge className={getStageColor(app.stage)}>
-          {app.stage}
-        </Badge>
-      </div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20">
+            {app.vertical}
+          </Badge>
+          <Badge className={getStageColor(app.stage)}>
+            {app.stage}
+          </Badge>
+        </div>
 
-      <p className="text-sm text-white/70 mb-4 line-clamp-2">{app.business_model}</p>
+        <p className="text-sm text-white/70 mb-4 line-clamp-2">{app.business_model}</p>
 
-      <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
-        <span className="flex items-center gap-1">
-          <MapPin className="h-4 w-4" />
-          {app.location}
-        </span>
-        {app.website && (
+        <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
           <span className="flex items-center gap-1">
-            <Globe className="h-4 w-4" />
-            Website
+            <MapPin className="h-4 w-4" />
+            {app.location}
           </span>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between pt-4 border-t border-white/10">
-        <div className="flex items-center gap-2 text-sm">
-          <DollarSign className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
-          <span className="text-white/70">Raising: </span>
-          <span className="text-white font-medium">{app.funding_goal}</span>
+          {app.website && (
+            <span className="flex items-center gap-1">
+              <Globe className="h-4 w-4" />
+              Website
+            </span>
+          )}
         </div>
-        <Button size="sm" variant="ghost" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
-          View Details <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
-    </Card>
-  );
+
+        <div className="flex items-center justify-between pt-4 border-t border-white/10">
+          <div className="flex items-center gap-2 text-sm">
+            <DollarSign className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+            <span className="text-white/70">Raising: </span>
+            <span className="text-white font-medium">{app.funding_goal}</span>
+          </div>
+          {isRequested ? (
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+              Sync Requested
+            </Badge>
+          ) : (
+            <Button 
+              size="sm" 
+              className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/30"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (app.user_id) {
+                  handleRequestSync(app.user_id, app.company_name);
+                } else {
+                  toast({
+                    title: "Demo startup",
+                    description: "This is a demo startup for preview purposes.",
+                  });
+                }
+              }}
+              disabled={isRequesting}
+            >
+              {isRequesting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <TrendingUp className="mr-2 h-4 w-4" />
+              )}
+              Request Sync
+            </Button>
+          )}
+        </div>
+      </Card>
+    );
+  };
 
   const renderContent = () => {
     switch (currentTab) {
@@ -488,43 +663,43 @@ export default function InvestorDashboard() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">0</p>
+                    <p className="text-2xl font-bold text-white">{connectionStats.interests}</p>
                     <p className="text-sm text-white/60">Interests</p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">0</p>
+                    <p className="text-2xl font-bold text-white">{connectionStats.syncs}</p>
                     <p className="text-sm text-white/60">Syncs</p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">0</p>
+                    <p className="text-2xl font-bold text-white">{connectionStats.pending}</p>
                     <p className="text-sm text-white/60">Pending</p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300">
+              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <MessageSquare className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
