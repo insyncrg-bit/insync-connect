@@ -307,9 +307,15 @@ export default function InvestorDashboard() {
               <h2 className="text-3xl font-bold text-white mb-2">
                 First Look. First Move.
               </h2>
-              <p className="text-white/60">
+              <p className="text-white/60 mb-3">
                 Where bold ideas meet strategic capital
               </p>
+              <button 
+                onClick={() => navigate("/investor-thesis")}
+                className="text-[hsl(var(--cyan-glow))] hover:text-[hsl(var(--cyan-glow))]/80 text-sm font-medium underline underline-offset-4 transition-colors"
+              >
+                View Your Investment Thesis →
+              </button>
             </div>
 
             {/* Stats Cards */}
