@@ -7,31 +7,49 @@ import { Badge } from "@/components/ui/badge";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { FounderSidebar } from "@/components/FounderSidebar";
 import { MemoEditor } from "@/components/MemoEditor";
+import { InvestorProfileModal } from "@/components/InvestorProfileModal";
+import { InterestsModal } from "@/components/InterestsModal";
 import { 
   Building2, 
   Calendar, 
-  Users, 
   TrendingUp, 
   Eye, 
   Heart,
   ArrowRight,
   Menu,
-  Check,
-  X,
-  Loader2,
-  MessageSquare
+  MessageSquare,
+  MapPin,
+  DollarSign,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-interface Investor {
+interface InvestorApplication {
   id: string;
-  name: string;
+  user_id: string;
   firm_name: string;
-  check_size: string;
-  investment_stage: string;
-  sectors: string[];
-  bio: string;
-  portfolio_count: number;
+  firm_description: string | null;
+  thesis_statement: string | null;
+  sub_themes: string[];
+  fast_signals: string[];
+  hard_nos: string[];
+  check_sizes: string[];
+  stage_focus: string[];
+  sector_tags: string[];
+  customer_types: string[];
+  lead_follow: string | null;
+  operating_support: string[];
+  support_style: string | null;
+  hq_location: string | null;
+  aum: string | null;
+  fund_type: string | null;
+  geographic_focus: string | null;
+  b2b_b2c: string | null;
+  revenue_models: string[];
+  minimum_traction: string[];
+  board_involvement: string | null;
+  decision_process: string | null;
+  time_to_decision: string | null;
 }
 
 interface Event {
@@ -44,45 +62,42 @@ interface Event {
   max_attendees: number;
 }
 
-interface Mentor {
-  id: string;
-  name: string;
-  title: string;
-  company: string;
-  expertise: string[];
-  bio: string;
-  available: boolean;
-}
-
 interface ConnectionStats {
-  interests: number; // investors who want to sync with this founder
-  syncs: number; // mutual connections
-  pending: number; // founder's pending requests to investors
+  interests: number;
+  syncs: number;
+  pending: number;
 }
 
-interface ConnectionRequest {
+interface InterestItem {
   id: string;
   requester_user_id: string;
-  requester_type: string;
-  target_user_id: string;
-  target_type: string;
-  status: string;
+  sync_note: string | null;
   created_at: string;
+  firm_name?: string;
 }
 
 export default function FounderDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const [investors, setInvestors] = useState<Investor[]>([]);
+  const [curatedInvestors, setCuratedInvestors] = useState<InvestorApplication[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
-  const [mentors, setMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
   const [application, setApplication] = useState<any>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [connectionStats, setConnectionStats] = useState<ConnectionStats>({ interests: 0, syncs: 0, pending: 0 });
-  const [incomingInterests, setIncomingInterests] = useState<ConnectionRequest[]>([]);
-  const [respondingTo, setRespondingTo] = useState<string | null>(null);
+  const [pendingRequests, setPendingRequests] = useState<Set<string>>(new Set());
+  
+  // Modal states
+  const [selectedInvestor, setSelectedInvestor] = useState<InvestorApplication | null>(null);
+  const [investorModalOpen, setInvestorModalOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  
+  // Interests modal
+  const [interestsModalOpen, setInterestsModalOpen] = useState(false);
+  const [incomingInterests, setIncomingInterests] = useState<InterestItem[]>([]);
+  const [interestsLoading, setInterestsLoading] = useState(false);
+  const [processingInterestId, setProcessingInterestId] = useState<string | null>(null);
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
@@ -118,15 +133,26 @@ export default function FounderDashboard() {
         });
       }
 
-      const { data: investorsData } = await supabase
-        .from("investors")
+      // Fetch curated investor applications
+      const { data: investorApps } = await supabase
+        .from("investor_applications")
         .select("*")
-        .eq("active", true)
+        .eq("status", "active")
+        .eq("public_profile", true)
         .limit(6);
       
-      setInvestors((investorsData || []).map(inv => ({
+      setCuratedInvestors((investorApps || []).map(inv => ({
         ...inv,
-        sectors: Array.isArray(inv.sectors) ? inv.sectors as string[] : []
+        sub_themes: (inv.sub_themes as string[]) || [],
+        fast_signals: (inv.fast_signals as string[]) || [],
+        hard_nos: (inv.hard_nos as string[]) || [],
+        check_sizes: (inv.check_sizes as string[]) || [],
+        stage_focus: (inv.stage_focus as string[]) || [],
+        sector_tags: (inv.sector_tags as string[]) || [],
+        customer_types: (inv.customer_types as string[]) || [],
+        operating_support: (inv.operating_support as string[]) || [],
+        revenue_models: (inv.revenue_models as string[]) || [],
+        minimum_traction: (inv.minimum_traction as string[]) || [],
       })));
 
       const { data: eventsData } = await supabase
@@ -137,17 +163,6 @@ export default function FounderDashboard() {
         .limit(3);
       
       setEvents(eventsData || []);
-
-      const { data: mentorsData } = await supabase
-        .from("mentors")
-        .select("*")
-        .eq("available", true)
-        .limit(3);
-      
-      setMentors((mentorsData || []).map(mentor => ({
-        ...mentor,
-        expertise: Array.isArray(mentor.expertise) ? mentor.expertise as string[] : []
-      })));
 
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -181,12 +196,184 @@ export default function FounderDashboard() {
         c => c.requester_user_id === userId && c.requester_type === 'founder' && c.status === 'pending'
       ).length;
 
+      // Track which investor user_ids the founder has already requested
+      const pendingInvestorIds = new Set(
+        (connections || [])
+          .filter(c => c.requester_user_id === userId && c.requester_type === 'founder')
+          .map(c => c.target_user_id)
+      );
+
       setConnectionStats({ interests, syncs, pending });
-      setIncomingInterests((connections || []).filter(
-        c => c.target_user_id === userId && c.requester_type === 'investor' && c.status === 'pending'
-      ));
+      setPendingRequests(pendingInvestorIds);
     } catch (error) {
       console.error("Error fetching connection stats:", error);
+    }
+  };
+
+  const fetchIncomingInterests = async () => {
+    if (!currentUserId) return;
+    
+    setInterestsLoading(true);
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("target_user_id", currentUserId)
+        .eq("requester_type", "investor")
+        .eq("status", "pending");
+
+      if (connections && connections.length > 0) {
+        // Fetch investor details for each connection
+        const investorIds = connections.map(c => c.requester_user_id);
+        const { data: investors } = await supabase
+          .from("investor_applications")
+          .select("user_id, firm_name")
+          .in("user_id", investorIds);
+
+        const enrichedInterests = connections.map(conn => ({
+          id: conn.id,
+          requester_user_id: conn.requester_user_id,
+          sync_note: conn.sync_note as string | null,
+          created_at: conn.created_at,
+          firm_name: investors?.find(i => i.user_id === conn.requester_user_id)?.firm_name || "Unknown Investor"
+        }));
+
+        setIncomingInterests(enrichedInterests);
+      } else {
+        setIncomingInterests([]);
+      }
+    } catch (error) {
+      console.error("Error fetching interests:", error);
+    } finally {
+      setInterestsLoading(false);
+    }
+  };
+
+  const handleOpenInterests = () => {
+    setInterestsModalOpen(true);
+    fetchIncomingInterests();
+  };
+
+  const handleAcceptInterest = async (requestId: string) => {
+    setProcessingInterestId(requestId);
+    try {
+      const { error } = await supabase
+        .from("connection_requests")
+        .update({ status: "accepted" })
+        .eq("id", requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Connection accepted!",
+        description: "You are now synced with this investor.",
+      });
+
+      // Update stats and list
+      setIncomingInterests(prev => prev.filter(i => i.id !== requestId));
+      setConnectionStats(prev => ({
+        ...prev,
+        interests: prev.interests - 1,
+        syncs: prev.syncs + 1
+      }));
+    } catch (error) {
+      console.error("Error accepting interest:", error);
+      toast({
+        title: "Error",
+        description: "Failed to accept connection",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingInterestId(null);
+    }
+  };
+
+  const handleDeclineInterest = async (requestId: string) => {
+    setProcessingInterestId(requestId);
+    try {
+      const { error } = await supabase
+        .from("connection_requests")
+        .update({ status: "declined" })
+        .eq("id", requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Connection declined",
+      });
+
+      setIncomingInterests(prev => prev.filter(i => i.id !== requestId));
+      setConnectionStats(prev => ({
+        ...prev,
+        interests: prev.interests - 1
+      }));
+    } catch (error) {
+      console.error("Error declining interest:", error);
+      toast({
+        title: "Error",
+        description: "Failed to decline connection",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingInterestId(null);
+    }
+  };
+
+  const handleOpenInvestorProfile = (investor: InvestorApplication) => {
+    setSelectedInvestor(investor);
+    setInvestorModalOpen(true);
+  };
+
+  const handleSyncWithInvestor = async (investorUserId: string, note: string) => {
+    if (!currentUserId) {
+      toast({
+        title: "Login required",
+        description: "Please log in to request a sync",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSyncing(true);
+    try {
+      const { error } = await supabase
+        .from("connection_requests")
+        .insert({
+          requester_user_id: currentUserId,
+          requester_type: 'founder',
+          target_user_id: investorUserId,
+          target_type: 'investor',
+          status: 'pending',
+          sync_note: note || null
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Already requested",
+            description: "You've already sent a sync request to this investor",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Sync requested!",
+          description: "Your request has been sent to the investor.",
+        });
+        setPendingRequests(prev => new Set([...prev, investorUserId]));
+        setConnectionStats(prev => ({ ...prev, pending: prev.pending + 1 }));
+        setInvestorModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error requesting sync:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send sync request",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -206,6 +393,81 @@ export default function FounderDashboard() {
     );
   }
 
+  const InvestorCard = ({ investor }: { investor: InvestorApplication }) => {
+    const isRequested = pendingRequests.has(investor.user_id);
+
+    return (
+      <Card 
+        className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group cursor-pointer"
+        onClick={() => handleOpenInvestorProfile(investor)}
+      >
+        <div className="flex items-start gap-4 mb-4">
+          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+            <Building2 className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
+              {investor.firm_name}
+            </h4>
+            {investor.hq_location && (
+              <p className="text-sm text-white/60 flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {investor.hq_location}
+              </p>
+            )}
+          </div>
+          {isRequested && (
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+              Pending
+            </Badge>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          {investor.stage_focus.slice(0, 2).map((stage, i) => (
+            <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20 text-xs">
+              {stage}
+            </Badge>
+          ))}
+          {investor.check_sizes.length > 0 && (
+            <Badge className="bg-white/10 text-white/80 border-white/20 text-xs flex items-center gap-1">
+              <DollarSign className="h-3 w-3" />
+              {investor.check_sizes[0]}
+            </Badge>
+          )}
+        </div>
+
+        <p className="text-sm text-white/70 mb-4 line-clamp-2">
+          {investor.thesis_statement || investor.firm_description || "Investment thesis not provided."}
+        </p>
+
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {investor.sector_tags.slice(0, 3).map((sector, i) => (
+            <Badge key={i} variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
+              {sector}
+            </Badge>
+          ))}
+          {investor.sector_tags.length > 3 && (
+            <Badge variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
+              +{investor.sector_tags.length - 3}
+            </Badge>
+          )}
+        </div>
+
+        <Button 
+          size="sm" 
+          className="w-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/30"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenInvestorProfile(investor);
+          }}
+        >
+          View Thesis
+        </Button>
+      </Card>
+    );
+  };
+
   const renderContent = () => {
     switch (currentTab) {
       case "memo":
@@ -219,26 +481,8 @@ export default function FounderDashboard() {
               <p className="text-white/60">Investors matched to your company profile</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {investors.map((investor) => (
-                <Card key={investor.id} className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
-                      <Building2 className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-white mb-1">{investor.name}</h4>
-                      <p className="text-sm text-white/60">{investor.firm_name}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20">{investor.check_size}</Badge>
-                    <Badge className="bg-white/10 text-white/80 border-white/20">{investor.investment_stage}</Badge>
-                  </div>
-                  <p className="text-sm text-white/70 mb-4 line-clamp-2">{investor.bio}</p>
-                  <Button size="sm" variant="ghost" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
-                    View Profile
-                  </Button>
-                </Card>
+              {curatedInvestors.map((investor) => (
+                <InvestorCard key={investor.id} investor={investor} />
               ))}
             </div>
           </div>
@@ -294,16 +538,40 @@ export default function FounderDashboard() {
             {/* Welcome Section */}
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-white mb-2">
-                Welcome back, {application?.founder_name?.split(" ")[0] || "Founder"}!
+                Welcome back, {application?.company_name || application?.founder_name?.split(" ")[0] || "Founder"}!
               </h2>
               <p className="text-white/60">
                 Track your connections, engagement, and opportunities
               </p>
             </div>
 
+            {/* Memo Quick View */}
+            <Card 
+              className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/10 to-transparent border-[hsl(var(--cyan-glow))]/30 p-6 mb-8 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/50 transition-all"
+              onClick={() => navigate("/founder-dashboard?tab=memo")}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
+                    <Building2 className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">{application?.company_name || "Your Memo"}</h3>
+                    <p className="text-white/60 text-sm">{application?.vertical} • {application?.stage}</p>
+                  </div>
+                </div>
+                <Button size="sm" className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]">
+                  View Memo <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </Card>
+
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenInterests}
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -352,35 +620,13 @@ export default function FounderDashboard() {
               </Card>
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card 
-                className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/20 to-[hsl(var(--primary))]/20 border-[hsl(var(--cyan-glow))]/30 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/50 transition-all"
-                onClick={() => navigate("/founder-dashboard?tab=memo")}
-              >
-                <h3 className="text-xl font-bold text-white mb-2">📄 View Your Memo</h3>
-                <p className="text-white/70 mb-4">Review and update your company information</p>
-                <Button size="sm" className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]">
-                  Edit Memo <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Card>
-
-              <Card 
-                className="bg-gradient-to-br from-[hsl(var(--navy-deep))]/50 to-[hsl(var(--cyan-glow))]/10 border-[hsl(var(--cyan-glow))]/20 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/40 transition-all"
-                onClick={() => navigate("/founder-dashboard?tab=investors")}
-              >
-                <h3 className="text-xl font-bold text-white mb-2">🎯 Curated Investors</h3>
-                <p className="text-white/70 mb-4">Browse investors matched to your profile</p>
-                <Button size="sm" className="bg-white/10 text-white hover:bg-white/20 border border-white/20">
-                  View Investors <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Card>
-            </div>
-
-            {/* Recent Investors Preview */}
+            {/* Curated Investors Section */}
             <section>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-white">Recent Investors</h3>
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Curated Investors</h3>
+                  <p className="text-white/60 text-sm mt-1">Investors aligned with your profile</p>
+                </div>
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -392,25 +638,8 @@ export default function FounderDashboard() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {investors.slice(0, 3).map((investor) => (
-                  <Card key={investor.id} className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
-                        <Building2 className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-white mb-1">{investor.name}</h4>
-                        <p className="text-sm text-white/60">{investor.firm_name}</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20">{investor.check_size}</Badge>
-                      <Badge className="bg-white/10 text-white/80 border-white/20">{investor.investment_stage}</Badge>
-                    </div>
-                    <Button size="sm" variant="ghost" className="text-[hsl(var(--cyan-glow))] hover:bg-white/5">
-                      View Profile
-                    </Button>
-                  </Card>
+                {curatedInvestors.slice(0, 3).map((investor) => (
+                  <InvestorCard key={investor.id} investor={investor} />
                 ))}
               </div>
             </section>
@@ -432,7 +661,7 @@ export default function FounderDashboard() {
             </SidebarTrigger>
             <div className="flex-1" />
             <Badge className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30">
-              {application?.company_name || "Demo Mode"}
+              Founder Portal
             </Badge>
           </header>
 
@@ -441,6 +670,28 @@ export default function FounderDashboard() {
             {renderContent()}
           </div>
         </main>
+
+        {/* Modals */}
+        <InvestorProfileModal
+          open={investorModalOpen}
+          onOpenChange={setInvestorModalOpen}
+          investor={selectedInvestor}
+          loading={false}
+          onSync={handleSyncWithInvestor}
+          isSyncing={isSyncing}
+          alreadySynced={selectedInvestor ? pendingRequests.has(selectedInvestor.user_id) : false}
+        />
+
+        <InterestsModal
+          open={interestsModalOpen}
+          onOpenChange={setInterestsModalOpen}
+          interests={incomingInterests}
+          loading={interestsLoading}
+          onAccept={handleAcceptInterest}
+          onDecline={handleDeclineInterest}
+          processingId={processingInterestId}
+          userType="founder"
+        />
       </div>
     </SidebarProvider>
   );

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { InvestorSidebar } from "@/components/InvestorSidebar";
 import { InvestorThesisModal } from "@/components/InvestorThesisModal";
+import { InterestsModal } from "@/components/InterestsModal";
 import { 
   Building2, 
   Calendar, 
@@ -101,6 +102,12 @@ export default function InvestorDashboard() {
   const [connectionStats, setConnectionStats] = useState<ConnectionStats>({ interests: 0, syncs: 0, pending: 0 });
   const [pendingRequests, setPendingRequests] = useState<Set<string>>(new Set());
   const [requestingSync, setRequestingSync] = useState<string | null>(null);
+  
+  // Interests modal state
+  const [interestsModalOpen, setInterestsModalOpen] = useState(false);
+  const [incomingInterests, setIncomingInterests] = useState<any[]>([]);
+  const [interestsLoading, setInterestsLoading] = useState(false);
+  const [processingInterestId, setProcessingInterestId] = useState<string | null>(null);
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
@@ -373,7 +380,74 @@ export default function InvestorDashboard() {
     }
   };
 
-  // Use demo data if no real applications exist
+  const fetchIncomingInterests = async () => {
+    if (!currentUserId) return;
+    setInterestsLoading(true);
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("target_user_id", currentUserId)
+        .eq("requester_type", "founder")
+        .eq("status", "pending");
+
+      if (connections && connections.length > 0) {
+        const founderIds = connections.map(c => c.requester_user_id);
+        const { data: founders } = await supabase
+          .from("founder_applications")
+          .select("user_id, company_name, founder_name, vertical, stage, location, funding_goal")
+          .in("user_id", founderIds);
+
+        const enriched = connections.map(conn => ({
+          id: conn.id,
+          requester_user_id: conn.requester_user_id,
+          sync_note: conn.sync_note as string | null,
+          created_at: conn.created_at,
+          ...(founders?.find(f => f.user_id === conn.requester_user_id) || {})
+        }));
+        setIncomingInterests(enriched);
+      } else {
+        setIncomingInterests([]);
+      }
+    } catch (error) {
+      console.error("Error fetching interests:", error);
+    } finally {
+      setInterestsLoading(false);
+    }
+  };
+
+  const handleOpenInterests = () => {
+    setInterestsModalOpen(true);
+    fetchIncomingInterests();
+  };
+
+  const handleAcceptInterest = async (requestId: string) => {
+    setProcessingInterestId(requestId);
+    try {
+      await supabase.from("connection_requests").update({ status: "accepted" }).eq("id", requestId);
+      toast({ title: "Connection accepted!", description: "You are now synced with this founder." });
+      setIncomingInterests(prev => prev.filter(i => i.id !== requestId));
+      setConnectionStats(prev => ({ ...prev, interests: prev.interests - 1, syncs: prev.syncs + 1 }));
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to accept", variant: "destructive" });
+    } finally {
+      setProcessingInterestId(null);
+    }
+  };
+
+  const handleDeclineInterest = async (requestId: string) => {
+    setProcessingInterestId(requestId);
+    try {
+      await supabase.from("connection_requests").update({ status: "declined" }).eq("id", requestId);
+      toast({ title: "Connection declined" });
+      setIncomingInterests(prev => prev.filter(i => i.id !== requestId));
+      setConnectionStats(prev => ({ ...prev, interests: prev.interests - 1 }));
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to decline", variant: "destructive" });
+    } finally {
+      setProcessingInterestId(null);
+    }
+  };
   const curatedStartups = applications.length > 0 ? applications : demoStartups;
 
   const formatDate = (dateString: string) => {
@@ -663,7 +737,10 @@ export default function InvestorDashboard() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer">
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenInterests}
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                     <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -787,6 +864,18 @@ export default function InvestorDashboard() {
           </div>
         </main>
       </div>
+
+      {/* Interests Modal */}
+      <InterestsModal
+        open={interestsModalOpen}
+        onOpenChange={setInterestsModalOpen}
+        interests={incomingInterests}
+        loading={interestsLoading}
+        onAccept={handleAcceptInterest}
+        onDecline={handleDeclineInterest}
+        processingId={processingInterestId}
+        userType="investor"
+      />
     </SidebarProvider>
   );
 }

@@ -21,6 +21,7 @@ export type Database = {
           requester_type: string
           requester_user_id: string
           status: string
+          sync_note: string | null
           target_type: string
           target_user_id: string
           updated_at: string
@@ -31,6 +32,7 @@ export type Database = {
           requester_type: string
           requester_user_id: string
           status?: string
+          sync_note?: string | null
           target_type: string
           target_user_id: string
           updated_at?: string
@@ -41,6 +43,7 @@ export type Database = {
           requester_type?: string
           requester_user_id?: string
           status?: string
+          sync_note?: string | null
           target_type?: string
           target_user_id?: string
           updated_at?: string
