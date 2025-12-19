@@ -452,53 +452,67 @@ export default function InvestorDashboard() {
               </Card>
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card 
-                className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/20 to-[hsl(var(--primary))]/20 border-[hsl(var(--cyan-glow))]/30 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/50 transition-all"
-                onClick={() => navigate("/investor-dashboard?tab=startups")}
-              >
-                <h3 className="text-xl font-bold text-white mb-2">🚀 Browse Startups</h3>
-                <p className="text-white/70 mb-4">Discover new investment opportunities</p>
-                <Button size="sm" className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]">
-                  Explore <ArrowRight className="ml-2 h-4 w-4" />
+            {/* Curated Startups Section */}
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Curated Startups</h3>
+                  <p className="text-white/60 text-sm mt-1">
+                    {investorApplication?.firm_name 
+                      ? "Startups aligned with your investment thesis"
+                      : "Promising startups that may match your criteria"}
+                  </p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-[hsl(var(--cyan-glow))] hover:bg-white/5"
+                  onClick={() => navigate("/investor-dashboard?tab=startups")}
+                >
+                  View All <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-              </Card>
+              </div>
 
-              <Card 
-                className="bg-gradient-to-br from-[hsl(var(--navy-deep))]/50 to-[hsl(var(--cyan-glow))]/10 border-[hsl(var(--cyan-glow))]/20 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/40 transition-all"
-                onClick={() => navigate("/investor-dashboard?tab=events")}
-              >
-                <h3 className="text-xl font-bold text-white mb-2">📅 Upcoming Events</h3>
-                <p className="text-white/70 mb-4">Join pitch sessions and networking events</p>
-                <Button size="sm" className="bg-white/10 text-white hover:bg-white/20 border border-white/20">
-                  View Events <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Card>
-            </div>
-
-            {/* Recent Startups Preview */}
-            {applications.length > 0 && (
-              <section>
-                <div className="flex items-center justify-center mb-6 gap-4">
-                  <h3 className="text-2xl font-bold text-white">Recent Startups</h3>
+              {applications.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {applications
+                    .filter(app => {
+                      // If no investor thesis, show all
+                      if (!investorApplication) return true;
+                      
+                      // Match by stage
+                      const stageMatch = !investorApplication.stage_focus?.length || 
+                        investorApplication.stage_focus.some(stage => 
+                          app.stage.toLowerCase().includes(stage.toLowerCase())
+                        );
+                      
+                      // Match by sector/vertical
+                      const sectorMatch = !investorApplication.sector_tags?.length ||
+                        investorApplication.sector_tags.some(sector => 
+                          app.vertical.toLowerCase().includes(sector.toLowerCase())
+                        );
+                      
+                      return stageMatch || sectorMatch;
+                    })
+                    .slice(0, 6)
+                    .map((app) => (
+                      <StartupCard key={app.id} app={app} />
+                    ))}
+                </div>
+              ) : (
+                <Card className="bg-navy-card border-white/10 p-12 text-center">
+                  <Building2 className="h-12 w-12 text-white/20 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">No curated startups yet</h3>
+                  <p className="text-white/60 mb-4">We're matching startups to your investment thesis</p>
                   <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-[hsl(var(--cyan-glow))] hover:bg-white/5"
                     onClick={() => navigate("/investor-dashboard?tab=startups")}
+                    className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))]"
                   >
-                    View All <ArrowRight className="ml-2 h-4 w-4" />
+                    Browse All Startups
                   </Button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {applications.slice(0, 3).map((app) => (
-                    <StartupCard key={app.id} app={app} />
-                  ))}
-                </div>
-              </section>
-            )}
+                </Card>
+              )}
+            </section>
           </>
         );
     }
