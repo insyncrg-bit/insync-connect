@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Zap, XCircle, DollarSign, Briefcase, Users, Handshake, Building2, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { Target, Zap, XCircle, DollarSign, Briefcase, Users, Handshake, Building2, MapPin, TrendingUp, Loader2 } from "lucide-react";
 
 interface InvestorApplication {
   id: string;
@@ -55,7 +55,6 @@ export function InvestorProfileModal({
 }: InvestorProfileModalProps) {
   const [syncNote, setSyncNote] = useState("");
   const [showSyncForm, setShowSyncForm] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const wordCount = syncNote.trim().split(/\s+/).filter(Boolean).length;
   const isOverLimit = wordCount > 60;
@@ -68,19 +67,10 @@ export function InvestorProfileModal({
     }
   };
 
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      setIsExpanded(false);
-      setShowSyncForm(false);
-      setSyncNote("");
-    }
-    onOpenChange(newOpen);
-  };
-
   if (loading) {
     return (
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[85vh] bg-[hsl(var(--navy-deep))] border-white/10">
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[90vh] bg-[hsl(var(--navy-deep))] border-white/10">
           <div className="flex items-center justify-center py-12">
             <div className="text-white/60">Loading investor profile...</div>
           </div>
@@ -94,209 +84,337 @@ export function InvestorProfileModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] bg-[hsl(var(--navy-deep))] border-white/10 p-0 overflow-hidden">
-        <ScrollArea className="max-h-[85vh]">
-          <div className="p-6">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden">
+        <ScrollArea className="max-h-[90vh]">
+          <div className="p-8">
             {/* Header */}
-            <DialogHeader className="mb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-lg bg-white/5 flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-white/70" />
+            <DialogHeader className="mb-8">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-xl bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
+                  <Building2 className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                 </div>
                 <div>
-                  <DialogTitle className="text-xl font-bold text-white">
+                  <DialogTitle className="text-2xl font-bold text-white">
                     {investor.firm_name}
                   </DialogTitle>
-                  <p className="text-white/50 text-sm">
-                    {investor.hq_location && `${investor.hq_location}`}
-                    {investor.hq_location && investor.fund_type && " • "}
-                    {investor.fund_type}
-                  </p>
+                  <p className="text-white/60 text-sm">Investment Thesis</p>
                 </div>
               </div>
+              {investor.firm_description && (
+                <p className="text-white/70 text-sm mt-4 leading-relaxed">
+                  {investor.firm_description}
+                </p>
+              )}
             </DialogHeader>
 
-            {/* Quick Stats */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {investor.check_sizes.slice(0, 1).map((size, i) => (
-                <Badge key={i} className="bg-white/5 border-white/10 text-white/80 text-xs">
-                  <DollarSign className="h-3 w-3 mr-1" />{size}
-                </Badge>
-              ))}
-              {investor.stage_focus.slice(0, 2).map((stage, i) => (
-                <Badge key={i} className="bg-white/5 border-white/10 text-white/80 text-xs">
-                  {stage}
-                </Badge>
-              ))}
+            {/* Quick Stats Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+              {investor.hq_location && (
+                <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                  <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
+                    <MapPin className="h-3 w-3" />
+                    Location
+                  </div>
+                  <p className="text-white text-sm font-medium">{investor.hq_location}</p>
+                </div>
+              )}
+              {investor.fund_type && (
+                <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                  <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
+                    <Briefcase className="h-3 w-3" />
+                    Fund Type
+                  </div>
+                  <p className="text-white text-sm font-medium">{investor.fund_type}</p>
+                </div>
+              )}
+              {investor.aum && (
+                <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                  <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
+                    <DollarSign className="h-3 w-3" />
+                    AUM
+                  </div>
+                  <p className="text-white text-sm font-medium">{investor.aum}</p>
+                </div>
+              )}
               {investor.lead_follow && (
-                <Badge className="bg-[hsl(var(--cyan-glow))]/10 border-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] text-xs">
-                  {investor.lead_follow}
-                </Badge>
+                <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                  <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
+                    <TrendingUp className="h-3 w-3" />
+                    Role
+                  </div>
+                  <p className="text-white text-sm font-medium">{investor.lead_follow}</p>
+                </div>
               )}
             </div>
 
-            {/* Condensed Thesis */}
-            <div className="bg-white/5 rounded-lg p-4 border border-white/10 mb-3">
-              <p className="text-white/50 text-xs uppercase tracking-wider mb-2">Investment Thesis</p>
-              <p className="text-white/90 text-sm leading-relaxed">
-                {investor.thesis_statement || investor.firm_description || "No thesis provided."}
+            {/* Core Thesis */}
+            <div className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/10 to-transparent rounded-xl p-6 border border-[hsl(var(--cyan-glow))]/30 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
+                  <Target className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+                </div>
+                <h3 className="text-lg font-semibold text-white">Core Thesis</h3>
+              </div>
+              <p className="text-white/90 leading-relaxed text-lg">
+                {investor.thesis_statement || "No thesis statement provided."}
               </p>
               
               {investor.sub_themes.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                  {investor.sub_themes.slice(0, 3).map((theme, i) => (
-                    <Badge key={i} variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
-                      {theme}
-                    </Badge>
-                  ))}
-                  {investor.sub_themes.length > 3 && (
-                    <Badge variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
-                      +{investor.sub_themes.length - 3}
-                    </Badge>
-                  )}
+                <div className="mt-5 pt-5 border-t border-white/10">
+                  <p className="text-white/50 text-xs uppercase tracking-wider mb-3">Focus Areas</p>
+                  <div className="flex flex-wrap gap-2">
+                    {investor.sub_themes.map((theme, i) => (
+                      <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/20 border-[hsl(var(--cyan-glow))]/40 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30">
+                        {theme}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Expand Toggle */}
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center justify-center gap-1 w-full text-[hsl(var(--cyan-glow))] text-xs hover:underline mb-4 py-1"
-            >
-              {isExpanded ? (
-                <>Show less <ChevronUp className="h-3 w-3" /></>
-              ) : (
-                <>View full thesis <ChevronDown className="h-3 w-3" /></>
-              )}
-            </button>
-
-            {/* Expanded Details */}
-            {isExpanded && (
-              <div className="space-y-3 mb-4 animate-in fade-in duration-200">
-                {/* Fast Signals & Hard Nos */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-green-500/5 rounded-lg p-3 border border-green-500/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Zap className="h-3.5 w-3.5 text-green-400" />
-                      <h4 className="font-medium text-white text-sm">Fast Signals</h4>
-                    </div>
-                    <div className="space-y-1">
-                      {investor.fast_signals.slice(0, 3).map((signal, i) => (
-                        <p key={i} className="text-white/70 text-xs flex items-start gap-1.5">
-                          <span className="text-green-400 mt-0.5">•</span>
-                          {signal}
-                        </p>
-                      ))}
-                      {investor.fast_signals.length === 0 && (
-                        <p className="text-white/40 text-xs italic">Not specified</p>
-                      )}
-                    </div>
+            {/* Investment Criteria Grid */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              {/* Fast Signals */}
+              <div className="bg-green-500/5 rounded-xl p-5 border border-green-500/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center">
+                    <Zap className="h-4 w-4 text-green-400" />
                   </div>
-
-                  <div className="bg-red-500/5 rounded-lg p-3 border border-red-500/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <XCircle className="h-3.5 w-3.5 text-red-400" />
-                      <h4 className="font-medium text-white text-sm">Hard Nos</h4>
-                    </div>
-                    <div className="space-y-1">
-                      {investor.hard_nos.slice(0, 3).map((no, i) => (
-                        <p key={i} className="text-white/70 text-xs flex items-start gap-1.5">
-                          <span className="text-red-400 mt-0.5">•</span>
-                          {no}
-                        </p>
-                      ))}
-                      {investor.hard_nos.length === 0 && (
-                        <p className="text-white/40 text-xs italic">Not specified</p>
-                      )}
-                    </div>
+                  <div>
+                    <h4 className="font-semibold text-white">Fast Signals</h4>
+                    <p className="text-white/40 text-xs">What makes them move quickly</p>
                   </div>
                 </div>
+                <div className="space-y-2">
+                  {investor.fast_signals.length > 0 ? (
+                    investor.fast_signals.map((signal, i) => (
+                      <div key={i} className="flex items-start gap-2 text-white/80 text-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 flex-shrink-0" />
+                        <span>{signal}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-white/40 text-sm italic">Not specified</p>
+                  )}
+                </div>
+              </div>
 
-                {/* Sectors */}
-                <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Briefcase className="h-3.5 w-3.5 text-white/60" />
-                    <h4 className="font-medium text-white text-sm">Sectors</h4>
+              {/* Hard Nos */}
+              <div className="bg-red-500/5 rounded-xl p-5 border border-red-500/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-lg bg-red-500/20 flex items-center justify-center">
+                    <XCircle className="h-4 w-4 text-red-400" />
                   </div>
+                  <div>
+                    <h4 className="font-semibold text-white">Hard Nos</h4>
+                    <p className="text-white/40 text-xs">Dealbreakers</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {investor.hard_nos.length > 0 ? (
+                    investor.hard_nos.map((no, i) => (
+                      <div key={i} className="flex items-start gap-2 text-white/80 text-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
+                        <span>{no}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-white/40 text-sm italic">Not specified</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Investment Parameters */}
+            <div className="bg-white/5 rounded-xl p-5 border border-white/10 mb-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+                  <DollarSign className="h-4 w-4 text-white/80" />
+                </div>
+                <h4 className="font-semibold text-white">Investment Parameters</h4>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-5">
+                <div>
+                  <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Check Size</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {investor.sector_tags.map((sector, i) => (
-                      <Badge key={i} variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
-                        {sector}
-                      </Badge>
-                    ))}
-                    {investor.sector_tags.length === 0 && (
-                      <span className="text-white/40 text-xs italic">Sector agnostic</span>
+                    {investor.check_sizes.length > 0 ? (
+                      investor.check_sizes.map((size, i) => (
+                        <Badge key={i} variant="outline" className="bg-white/5 border-white/20 text-white text-xs">
+                          {size}
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-white/40 text-sm italic">Not specified</span>
+                    )}
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Stage Focus</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {investor.stage_focus.length > 0 ? (
+                      investor.stage_focus.map((stage, i) => (
+                        <Badge key={i} variant="outline" className="bg-white/5 border-white/20 text-white text-xs">
+                          {stage}
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-white/40 text-sm italic">Not specified</span>
                     )}
                   </div>
                 </div>
 
-                {/* Value Add */}
-                {investor.operating_support.length > 0 && (
-                  <div className="bg-amber-500/5 rounded-lg p-3 border border-amber-500/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Handshake className="h-3.5 w-3.5 text-amber-400" />
-                      <h4 className="font-medium text-white text-sm">How They Help</h4>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {investor.operating_support.map((support, i) => (
-                        <Badge key={i} className="bg-amber-500/10 border-amber-500/30 text-amber-300 text-xs">
-                          {support}
-                        </Badge>
-                      ))}
-                    </div>
+                <div>
+                  <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Decision Timeline</p>
+                  <span className="text-white/80 text-sm">{investor.time_to_decision || "Not specified"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Sectors & Target Customers */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="bg-purple-500/5 rounded-xl p-5 border border-purple-500/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                    <Briefcase className="h-4 w-4 text-purple-400" />
                   </div>
+                  <h4 className="font-semibold text-white">Sectors</h4>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {investor.sector_tags.length > 0 ? (
+                    investor.sector_tags.map((sector, i) => (
+                      <Badge key={i} className="bg-purple-500/20 border-purple-500/40 text-purple-300 text-xs">
+                        {sector}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="text-white/40 text-sm italic">Sector agnostic</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-blue-500/5 rounded-xl p-5 border border-blue-500/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <Users className="h-4 w-4 text-blue-400" />
+                  </div>
+                  <h4 className="font-semibold text-white">Target Customers</h4>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {investor.customer_types.length > 0 ? (
+                    investor.customer_types.map((type, i) => (
+                      <Badge key={i} className="bg-blue-500/20 border-blue-500/40 text-blue-300 text-xs">
+                        {type}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="text-white/40 text-sm italic">Not specified</span>
+                  )}
+                </div>
+                {investor.b2b_b2c && (
+                  <p className="text-white/60 text-sm mt-3">
+                    <span className="text-white/40">Focus:</span> {investor.b2b_b2c}
+                  </p>
                 )}
               </div>
-            )}
+            </div>
+
+            {/* Value-Add */}
+            <div className="bg-amber-500/5 rounded-xl p-5 border border-amber-500/20 mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                  <Handshake className="h-4 w-4 text-amber-400" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white">How They Add Value</h4>
+                  {investor.support_style && (
+                    <p className="text-white/40 text-xs">{investor.support_style} engagement</p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-1.5">
+                {investor.operating_support.length > 0 ? (
+                  investor.operating_support.map((support, i) => (
+                    <Badge key={i} className="bg-amber-500/20 border-amber-500/40 text-amber-300 text-xs">
+                      {support}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-white/40 text-sm italic">Not specified</span>
+                )}
+              </div>
+
+              {investor.board_involvement && (
+                <p className="text-white/60 text-sm mt-4">
+                  <span className="text-white/40">Board involvement:</span> {investor.board_involvement}
+                </p>
+              )}
+            </div>
 
             {/* Sync Section */}
-            <div className="pt-4 border-t border-white/10">
+            <div className="border-t border-white/10 pt-6">
               {alreadySynced ? (
-                <div className="bg-green-500/10 border border-green-500/30 rounded-full py-2 px-4 text-center">
-                  <p className="text-green-400 text-sm">Sync request sent</p>
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-center">
+                  <p className="text-green-400 font-medium">Sync request sent! Waiting for response.</p>
                 </div>
               ) : showSyncForm ? (
-                <div className="space-y-3">
-                  <Textarea
-                    value={syncNote}
-                    onChange={(e) => setSyncNote(e.target.value)}
-                    placeholder="Add a note (optional, max 60 words)..."
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40 text-sm min-h-[80px]"
-                  />
-                  <div className="flex items-center justify-between">
-                    <span className={`text-xs ${isOverLimit ? 'text-red-400' : 'text-white/40'}`}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-white/70 text-sm mb-2">
+                      Add a note (optional, max 60 words)
+                    </label>
+                    <Textarea
+                      value={syncNote}
+                      onChange={(e) => setSyncNote(e.target.value)}
+                      placeholder="Briefly explain why you think you'd be a great fit..."
+                      className="bg-white/5 border-white/20 text-white placeholder:text-white/40 min-h-[100px]"
+                    />
+                    <p className={`text-xs mt-1 ${isOverLimit ? 'text-red-400' : 'text-white/40'}`}>
                       {wordCount}/60 words
-                    </span>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => { setShowSyncForm(false); setSyncNote(""); }}
-                        className="text-white/60 hover:text-white hover:bg-white/5 text-xs"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={handleSync}
-                        disabled={isSyncing || isOverLimit}
-                        className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))] rounded-full px-5 text-xs"
-                      >
-                        {isSyncing ? <Loader2 className="h-3 w-3 animate-spin" /> : "Send"}
-                      </Button>
-                    </div>
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={handleSync}
+                      disabled={isSyncing || isOverLimit}
+                      className="flex-1 bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))]"
+                    >
+                      {isSyncing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <TrendingUp className="mr-2 h-4 w-4" />
+                          Send Sync Request
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowSyncForm(false);
+                        setSyncNote("");
+                      }}
+                      className="border-white/20 text-white hover:bg-white/5"
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <div className="flex justify-center">
-                  <Button
-                    onClick={() => setShowSyncForm(true)}
-                    className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))] rounded-full px-8 py-2 text-sm font-medium"
-                  >
-                    Sync
-                  </Button>
-                </div>
+                <Button
+                  onClick={() => setShowSyncForm(true)}
+                  className="w-full bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))] py-6 text-lg"
+                >
+                  <TrendingUp className="mr-2 h-5 w-5" />
+                  Sync with {investor.firm_name}
+                </Button>
               )}
             </div>
           </div>
