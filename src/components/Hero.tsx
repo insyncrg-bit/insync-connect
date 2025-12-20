@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { AnimatedInfinity } from "./AnimatedInfinity";
 import { FloatingParticles } from "./FloatingParticles";
 import { ArrowRight } from "lucide-react";
 import inSyncLogo from "@/assets/in-sync-logo.png";
@@ -12,13 +11,6 @@ export const Hero = () => {
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Floating particles background */}
       <FloatingParticles />
-      
-      {/* Animated infinity behind logo */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-full max-w-4xl h-96">
-          <AnimatedInfinity />
-        </div>
-      </div>
       
       {/* Gradient orbs */}
       <div className="absolute inset-0 pointer-events-none">
@@ -42,14 +34,21 @@ export const Hero = () => {
       <div className="container relative z-10 px-4 md:px-6">
         <div className="max-w-5xl mx-auto text-center space-y-6">
           
-          {/* Original Logo */}
-          <div className="animate-fade-in">
+          {/* Logo with pulsing glow */}
+          <div className="relative animate-fade-in">
+            {/* Pulsing glow behind logo */}
+            <div 
+              className="absolute inset-0 blur-[80px] animate-glow-pulse"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(6,182,212,0.5) 0%, rgba(6,182,212,0.2) 40%, transparent 70%)',
+              }}
+            />
             <img 
               src={inSyncLogo} 
               alt="In∞Sync" 
-              className="w-full max-w-4xl mx-auto"
+              className="relative w-full max-w-4xl mx-auto"
               style={{ 
-                filter: 'drop-shadow(0 0 60px rgba(6,182,212,0.5)) drop-shadow(0 0 120px rgba(6,182,212,0.3))',
+                filter: 'drop-shadow(0 0 40px rgba(6,182,212,0.4)) drop-shadow(0 0 80px rgba(6,182,212,0.2))',
               }}
             />
           </div>
@@ -101,6 +100,22 @@ export const Hero = () => {
 
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-navy-deep to-transparent pointer-events-none" />
+
+      <style>{`
+        @keyframes glow-pulse {
+          0%, 100% {
+            opacity: 0.6;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.05);
+          }
+        }
+        .animate-glow-pulse {
+          animation: glow-pulse 3s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   );
 };
