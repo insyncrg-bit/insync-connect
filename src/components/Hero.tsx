@@ -8,7 +8,7 @@ export const Hero = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pb-24">
       {/* Floating particles background */}
       <FloatingParticles />
       
@@ -28,8 +28,8 @@ export const Hero = () => {
           `,
           backgroundSize: '80px 80px',
           opacity: 0.03,
-          maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
+          maskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 95%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 95%)',
         }}
       />
 
