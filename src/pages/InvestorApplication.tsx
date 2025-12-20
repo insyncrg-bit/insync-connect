@@ -397,15 +397,16 @@ export default function InvestorApplication() {
   };
 
   const nextStep = () => {
-    const validation = validateStep(currentStep);
-    if (!validation.isValid) {
-      toast({
-        title: "Please complete required fields",
-        description: validation.errors[0],
-        variant: "destructive",
-      });
-      return;
-    }
+    // TESTING MODE: Skip validation for testing purposes
+    // const validation = validateStep(currentStep);
+    // if (!validation.isValid) {
+    //   toast({
+    //     title: "Please complete required fields",
+    //     description: validation.errors[0],
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
     
     // Mark current step as completed
     if (!completedSteps.includes(currentStep)) {
