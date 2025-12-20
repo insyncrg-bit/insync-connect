@@ -20,8 +20,16 @@ const steps = [
 
 export const HowItWorks = () => {
   return (
-    <section className="py-20 px-4 md:px-6">
-      <div className="container max-w-4xl mx-auto">
+    <section className="relative py-24 px-4 md:px-6">
+      {/* Top fade for smooth transition from hero */}
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-transparent to-transparent pointer-events-none" />
+      
+      {/* Subtle background glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-cyan-glow/5 blur-[120px] rounded-full" />
+      </div>
+      
+      <div className="container max-w-4xl mx-auto relative z-10">
         <h2 className="text-center text-white/60 text-sm font-medium uppercase tracking-widest mb-12">
           How it works
         </h2>
