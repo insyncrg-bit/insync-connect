@@ -12,6 +12,9 @@ import { InterestsModal } from "@/components/InterestsModal";
 import { SyncsModal } from "@/components/SyncsModal";
 import { PendingModal } from "@/components/PendingModal";
 import { MessagesModal } from "@/components/MessagesModal";
+import { MatchScoreBadge } from "@/components/MatchScoreBadge";
+import { MatchExplainer } from "@/components/MatchExplainer";
+import { useMatchmaking, MatchResult } from "@/hooks/useMatchmaking";
 import { 
   Building2, 
   Calendar, 
@@ -23,7 +26,8 @@ import {
   MessageSquare,
   MapPin,
   DollarSign,
-  Loader2
+  Loader2,
+  Sparkles
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -84,12 +88,16 @@ export default function FounderDashboard() {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [curatedInvestors, setCuratedInvestors] = useState<InvestorApplication[]>([]);
+  const [matchedInvestors, setMatchedInvestors] = useState<MatchResult[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [application, setApplication] = useState<any>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [connectionStats, setConnectionStats] = useState<ConnectionStats>({ interests: 0, syncs: 0, pending: 0 });
   const [pendingRequests, setPendingRequests] = useState<Set<string>>(new Set());
+  
+  // Matchmaking hook
+  const { matches, loading: matchLoading, error: matchError, fetchMatches } = useMatchmaking();
   
   // Modal states
   const [selectedInvestor, setSelectedInvestor] = useState<InvestorApplication | null>(null);
@@ -208,6 +216,20 @@ export default function FounderDashboard() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // Fetch matches when we have a user
+  useEffect(() => {
+    if (currentUserId) {
+      fetchMatches('founder', currentUserId);
+    }
+  }, [currentUserId, fetchMatches]);
+
+  // Update matched investors when matches change
+  useEffect(() => {
+    if (matches.length > 0) {
+      setMatchedInvestors(matches);
+    }
+  }, [matches]);
 
   const fetchDashboardData = async () => {
     try {
@@ -734,14 +756,94 @@ export default function FounderDashboard() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--gradient-hero)' }}>
-        <div className="text-white text-xl">Loading dashboard...</div>
-      </div>
-    );
-  }
+  // Match-aware investor card
+  const MatchedInvestorCard = ({ match }: { match: MatchResult }) => {
+    const investor = match.investor;
+    if (!investor) return null;
+    
+    const isRequested = pendingRequests.has(investor.user_id);
 
+    return (
+      <Card 
+        className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 group cursor-pointer"
+        onClick={() => handleOpenInvestorProfile(investor as InvestorApplication)}
+      >
+        <div className="flex items-start gap-4 mb-3">
+          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+            <Building2 className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
+              {investor.firm_name}
+            </h4>
+            {investor.hq_location && (
+              <p className="text-sm text-white/60 flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {investor.hq_location}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <MatchScoreBadge score={match.match_score} label={match.match_label} />
+            {isRequested && (
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                Pending
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-3">
+          {investor.stage_focus.slice(0, 2).map((stage, i) => (
+            <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20 text-xs">
+              {stage}
+            </Badge>
+          ))}
+          {investor.check_sizes.length > 0 && (
+            <Badge className="bg-white/10 text-white/80 border-white/20 text-xs flex items-center gap-1">
+              <DollarSign className="h-3 w-3" />
+              {investor.check_sizes[0]}
+            </Badge>
+          )}
+        </div>
+
+        {/* Match explainer */}
+        <div className="mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
+          <MatchExplainer 
+            whyThisMatch={match.why_this_match} 
+            potentialConcerns={match.potential_concerns}
+            compact
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {investor.sector_tags.slice(0, 3).map((sector, i) => (
+            <Badge key={i} variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
+              {sector}
+            </Badge>
+          ))}
+          {investor.sector_tags.length > 3 && (
+            <Badge variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
+              +{investor.sector_tags.length - 3}
+            </Badge>
+          )}
+        </div>
+
+        <Button 
+          size="sm" 
+          className="w-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/30"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenInvestorProfile(investor as InvestorApplication);
+          }}
+        >
+          View Thesis
+        </Button>
+      </Card>
+    );
+  };
+
+  // Fallback investor card (when no match data)
   const InvestorCard = ({ investor }: { investor: InvestorApplication }) => {
     const isRequested = pendingRequests.has(investor.user_id);
 
@@ -825,14 +927,40 @@ export default function FounderDashboard() {
       case "investors":
         return (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-2">Curated Investors</h2>
-              <p className="text-white/60">Investors matched to your company profile</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  Curated Investors
+                </h2>
+                <p className="text-white/60">AI-matched investors based on your company profile</p>
+              </div>
+              {matchLoading && (
+                <div className="flex items-center gap-2 text-white/60">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Finding matches...
+                </div>
+              )}
             </div>
+            
+            {matchError && (
+              <Card className="bg-amber-500/10 border-amber-500/30 p-4">
+                <p className="text-amber-400 text-sm">
+                  Unable to load personalized matches. Showing default investors.
+                </p>
+              </Card>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {curatedInvestors.map((investor) => (
-                <InvestorCard key={investor.id} investor={investor} />
-              ))}
+              {matchedInvestors.length > 0 ? (
+                matchedInvestors.map((match) => (
+                  <MatchedInvestorCard key={match.id} match={match} />
+                ))
+              ) : (
+                curatedInvestors.map((investor) => (
+                  <InvestorCard key={investor.id} investor={investor} />
+                ))
+              )}
             </div>
           </div>
         );

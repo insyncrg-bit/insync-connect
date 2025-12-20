@@ -12,6 +12,9 @@ import { SyncsModal } from "@/components/SyncsModal";
 import { PendingModal } from "@/components/PendingModal";
 import { MessagesModal } from "@/components/MessagesModal";
 import { MemoModal } from "@/components/MemoModal";
+import { MatchScoreBadge } from "@/components/MatchScoreBadge";
+import { MatchExplainer } from "@/components/MatchExplainer";
+import { useMatchmaking, MatchResult } from "@/hooks/useMatchmaking";
 import { 
   Building2, 
   Calendar, 
@@ -29,7 +32,8 @@ import {
   Check,
   X,
   Loader2,
-  FileText
+  FileText,
+  Sparkles
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -97,6 +101,7 @@ export default function InvestorDashboard() {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [applications, setApplications] = useState<FounderApplication[]>([]);
+  const [matchedStartups, setMatchedStartups] = useState<MatchResult[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,6 +112,9 @@ export default function InvestorDashboard() {
   const [connectionStats, setConnectionStats] = useState<ConnectionStats>({ interests: 0, syncs: 0, pending: 0 });
   const [pendingRequests, setPendingRequests] = useState<Set<string>>(new Set());
   const [requestingSync, setRequestingSync] = useState<string | null>(null);
+  
+  // Matchmaking hook
+  const { matches, loading: matchLoading, error: matchError, fetchMatches } = useMatchmaking();
   
   // Interests modal state
   const [interestsModalOpen, setInterestsModalOpen] = useState(false);
@@ -236,6 +244,20 @@ export default function InvestorDashboard() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // Fetch matches when we have a user
+  useEffect(() => {
+    if (currentUserId) {
+      fetchMatches('investor', currentUserId);
+    }
+  }, [currentUserId, fetchMatches]);
+
+  // Update matched startups when matches change
+  useEffect(() => {
+    if (matches.length > 0) {
+      setMatchedStartups(matches);
+    }
+  }, [matches]);
 
   const fetchInvestorThesis = async () => {
     setThesisLoading(true);
@@ -752,6 +774,95 @@ export default function InvestorDashboard() {
     );
   }
 
+  // Match-aware startup card
+  const MatchedStartupCard = ({ match }: { match: MatchResult }) => {
+    const founder = match.founder;
+    if (!founder) return null;
+    
+    const isRequested = founder.user_id ? pendingRequests.has(founder.user_id) : false;
+
+    return (
+      <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 group">
+        {/* Header: Icon + Name + Location + Match Score */}
+        <div className="flex items-start gap-4 mb-3">
+          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+            <Building2 className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white text-lg mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
+              {founder.company_name}
+            </h4>
+            <p className="text-sm text-white/60 flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              {founder.location}
+            </p>
+          </div>
+          <MatchScoreBadge score={match.match_score} label={match.match_label} />
+        </div>
+
+        {/* Stage Badges */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Badge className={getStageColor(founder.stage)}>
+            {founder.stage}
+          </Badge>
+          <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20">
+            {founder.vertical}
+          </Badge>
+        </div>
+
+        {/* Funding Goal Badge */}
+        <div className="mb-3">
+          <Badge variant="outline" className="border-white/20 text-white/80 px-3 py-1">
+            <DollarSign className="h-3 w-3 mr-1" />
+            {founder.funding_goal}
+          </Badge>
+        </div>
+
+        {/* Match explainer */}
+        <div className="mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
+          <MatchExplainer 
+            whyThisMatch={match.why_this_match} 
+            potentialConcerns={match.potential_concerns}
+            compact
+          />
+        </div>
+
+        {/* Sync Status or View Memo Button */}
+        {isRequested ? (
+          <div className="flex items-center justify-center gap-2 py-3 bg-green-500/10 rounded-lg border border-green-500/30">
+            <Check className="h-4 w-4 text-green-400" />
+            <span className="text-green-400 text-sm font-medium">Sync Requested</span>
+          </div>
+        ) : (
+          <Button 
+            className="w-full bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30"
+            onClick={() => {
+              setSelectedStartup({
+                id: founder.id,
+                founder_name: founder.founder_name,
+                company_name: founder.company_name,
+                vertical: founder.vertical,
+                stage: founder.stage,
+                location: founder.location,
+                website: founder.website,
+                business_model: founder.business_model,
+                funding_goal: founder.funding_goal,
+                traction: founder.traction,
+                created_at: new Date().toISOString(),
+                user_id: founder.user_id,
+              });
+              setMemoModalOpen(true);
+            }}
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            View Memo
+          </Button>
+        )}
+      </Card>
+    );
+  };
+
+  // Fallback startup card (when no match data)
   const StartupCard = ({ app }: { app: FounderApplication }) => {
     const isRequested = app.user_id ? pendingRequests.has(app.user_id) : false;
 
@@ -835,10 +946,19 @@ export default function InvestorDashboard() {
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="text-center md:text-left">
-                <h2 className="text-2xl font-bold text-white mb-2">Browse Startups</h2>
-                <p className="text-white/60">Discover promising investment opportunities</p>
+                <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  Curated Startups
+                </h2>
+                <p className="text-white/60">AI-matched startups based on your investment thesis</p>
               </div>
               <div className="flex items-center gap-3">
+                {matchLoading && (
+                  <div className="flex items-center gap-2 text-white/60">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Finding matches...
+                  </div>
+                )}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
                   <Input 
@@ -855,7 +975,21 @@ export default function InvestorDashboard() {
               </div>
             </div>
 
-            {filteredApplications.length > 0 ? (
+            {matchError && (
+              <Card className="bg-amber-500/10 border-amber-500/30 p-4">
+                <p className="text-amber-400 text-sm">
+                  Unable to load personalized matches. Showing all startups.
+                </p>
+              </Card>
+            )}
+
+            {matchedStartups.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {matchedStartups.map((match) => (
+                  <MatchedStartupCard key={match.id} match={match} />
+                ))}
+              </div>
+            ) : filteredApplications.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredApplications.map((app) => (
                   <StartupCard key={app.id} app={app} />
