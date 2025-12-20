@@ -276,15 +276,16 @@ export default function FounderApplication() {
   };
 
   const nextStep = () => {
-    const validation = validateStep(currentSection);
-    if (!validation.isValid) {
-      toast({
-        title: "Please complete required fields",
-        description: validation.errors[0],
-        variant: "destructive",
-      });
-      return;
-    }
+    // TESTING MODE: Skip validation for testing purposes
+    // const validation = validateStep(currentSection);
+    // if (!validation.isValid) {
+    //   toast({
+    //     title: "Please complete required fields",
+    //     description: validation.errors[0],
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
     
     // Mark current step as completed
     if (!completedSteps.includes(currentSection)) {
