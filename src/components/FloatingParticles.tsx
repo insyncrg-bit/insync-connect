@@ -30,8 +30,8 @@ export const FloatingParticles = () => {
     <div 
       className="absolute inset-0 overflow-hidden pointer-events-none"
       style={{
-        maskImage: 'linear-gradient(to bottom, black 0%, black 40%, transparent 90%)',
-        WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 40%, transparent 90%)',
+        maskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 95%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 95%)',
       }}
     >
       {particles.map((particle) => (
