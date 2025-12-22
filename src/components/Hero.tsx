@@ -1,187 +1,167 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { FloatingParticles } from "./FloatingParticles";
+import { ArrowRight, Users, Briefcase } from "lucide-react";
 import inSyncLogo from "@/assets/in-sync-logo.png";
 
 export const Hero = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Soft gradient background - Atlas inspired */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pb-24">
+      {/* Floating particles background */}
+      <FloatingParticles />
+      
+      {/* Gradient orbs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-glow/10 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cyan-glow/8 blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+
+      {/* Grid pattern overlay with fade */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, hsl(200 80% 70% / 0.3) 0%, hsl(var(--navy-deep)) 50%, hsl(var(--navy-deep)) 100%)',
+          backgroundImage: `
+            linear-gradient(to right, hsl(var(--cyan-glow)) 1px, transparent 1px),
+            linear-gradient(to bottom, hsl(var(--cyan-glow)) 1px, transparent 1px)
+          `,
+          backgroundSize: '80px 80px',
+          opacity: 0.03,
+          maskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 95%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 95%)',
         }}
       />
-      
-      {/* Floating preview windows - left side */}
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden lg:block pointer-events-none">
-        <div 
-          className="relative -left-20 xl:-left-10"
-          style={{ transform: 'perspective(1000px) rotateY(15deg) translateY(-20px)' }}
-        >
-          <div className="w-72 h-48 rounded-xl bg-gradient-to-br from-cyan-glow/20 to-cyan-glow/5 backdrop-blur-sm border border-white/10 p-4 shadow-2xl">
-            <div className="flex gap-1.5 mb-3">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-green-400/60" />
-            </div>
-            <div className="space-y-2">
-              <div className="text-xs text-cyan-glow font-medium">🚀 Founder Dashboard</div>
-              <div className="h-2 w-3/4 rounded bg-white/10" />
-              <div className="h-2 w-1/2 rounded bg-white/10" />
-              <div className="flex gap-2 mt-4">
-                <div className="h-8 w-16 rounded bg-cyan-glow/30 flex items-center justify-center">
-                  <span className="text-[10px] text-cyan-glow">92%</span>
-                </div>
-                <div className="h-8 flex-1 rounded bg-white/5" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div 
-          className="relative -left-8 xl:left-4 mt-6"
-          style={{ transform: 'perspective(1000px) rotateY(10deg)' }}
-        >
-          <div className="w-64 h-36 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/10 p-4 shadow-xl">
-            <div className="flex gap-1.5 mb-3">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-green-400/60" />
-            </div>
-            <div className="text-xs text-white/60 mb-2">Match Found</div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-cyan-glow/20" />
-              <div>
-                <div className="h-2 w-20 rounded bg-white/20" />
-                <div className="h-1.5 w-14 rounded bg-white/10 mt-1" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Floating preview windows - right side */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden lg:block pointer-events-none">
-        <div 
-          className="relative -right-20 xl:-right-10"
-          style={{ transform: 'perspective(1000px) rotateY(-15deg) translateY(-20px)' }}
-        >
-          <div className="w-72 h-48 rounded-xl bg-gradient-to-br from-cyan-glow/20 to-cyan-glow/5 backdrop-blur-sm border border-white/10 p-4 shadow-2xl">
-            <div className="flex gap-1.5 mb-3">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-green-400/60" />
-            </div>
-            <div className="space-y-2">
-              <div className="text-xs text-cyan-glow font-medium">💼 Investor Dashboard</div>
-              <div className="h-2 w-3/4 rounded bg-white/10" />
-              <div className="h-2 w-1/2 rounded bg-white/10" />
-              <div className="flex gap-2 mt-4">
-                <div className="h-8 w-20 rounded bg-cyan-glow/30 flex items-center justify-center">
-                  <span className="text-[10px] text-cyan-glow">12 matches</span>
-                </div>
-                <div className="h-8 flex-1 rounded bg-white/5" />
-              </div>
-            </div>
+      {/* Content */}
+      <div className="container relative z-10 px-4 md:px-6">
+        <div className="max-w-5xl mx-auto text-center space-y-10">
+          
+          {/* Logo with pulsing glow */}
+          <div className="relative animate-fade-in">
+            <div 
+              className="absolute inset-0 blur-[80px] animate-glow-pulse"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(6,182,212,0.5) 0%, rgba(6,182,212,0.2) 40%, transparent 70%)',
+              }}
+            />
+            <img 
+              src={inSyncLogo} 
+              alt="In∞Sync" 
+              className="relative w-full max-w-2xl mx-auto"
+              style={{ 
+                filter: 'drop-shadow(0 0 40px rgba(6,182,212,0.4)) drop-shadow(0 0 80px rgba(6,182,212,0.2))',
+              }}
+            />
           </div>
-        </div>
-        <div 
-          className="relative -right-8 xl:right-4 mt-6"
-          style={{ transform: 'perspective(1000px) rotateY(-10deg)' }}
-        >
-          <div className="w-64 h-36 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/10 p-4 shadow-xl">
-            <div className="flex gap-1.5 mb-3">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-green-400/60" />
-            </div>
-            <div className="text-xs text-white/60 mb-2">Thesis Match</div>
-            <div className="flex flex-wrap gap-1">
-              <span className="text-[9px] px-2 py-0.5 rounded-full bg-cyan-glow/20 text-cyan-glow">SaaS</span>
-              <span className="text-[9px] px-2 py-0.5 rounded-full bg-cyan-glow/20 text-cyan-glow">Seed</span>
-              <span className="text-[9px] px-2 py-0.5 rounded-full bg-cyan-glow/20 text-cyan-glow">B2B</span>
-            </div>
+
+          {/* Universal value proposition - works for both audiences */}
+          <div className="space-y-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-white/95 leading-tight tracking-tight">
+              Where founders and investors <br className="hidden sm:block" />
+              <span className="text-cyan-glow font-medium">find their perfect match</span>
+            </h1>
+            <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto">
+              AI-powered matching based on thesis, stage, and sector alignment. 
+              No more cold outreach. Just warm intros that make sense.
+            </p>
           </div>
-        </div>
-      </div>
 
-      {/* Main content - centered */}
-      <div className="relative z-10 px-4 md:px-6 max-w-3xl mx-auto text-center">
-        {/* Logo */}
-        <div className="mb-8 animate-fade-in">
-          <img 
-            src={inSyncLogo} 
-            alt="In∞Sync" 
-            className="w-full max-w-md mx-auto"
-            style={{ 
-              filter: 'drop-shadow(0 0 60px rgba(6,182,212,0.3))',
-            }}
-          />
-        </div>
-
-        {/* Single clear headline */}
-        <h1 
-          className="text-xl md:text-2xl lg:text-3xl font-light text-white/90 leading-relaxed mb-8 animate-fade-in"
-          style={{ animationDelay: '0.1s' }}
-        >
-          The AI-powered platform where <span className="text-cyan-glow font-medium">founders</span> meet <span className="text-cyan-glow font-medium">VCs</span> who actually fit their thesis, stage, and sector.
-        </h1>
-
-        {/* Dual CTAs - clean and minimal */}
-        <div 
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 animate-fade-in"
-          style={{ animationDelay: '0.2s' }}
-        >
-          <Button
-            size="lg"
-            onClick={() => navigate("/founder-application")}
-            className="group text-base px-8 py-6 font-medium bg-foreground text-background hover:bg-foreground/90 rounded-full transition-all duration-300 w-full sm:w-auto"
+          {/* Dual CTA - Equal weight for both audiences */}
+          <div 
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 animate-fade-in"
+            style={{ animationDelay: '0.2s' }}
           >
-            I'm a Founder
-            <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-          </Button>
+            {/* Founder CTA */}
+            <Button
+              size="lg"
+              onClick={() => navigate("/founder-application")}
+              className="group relative text-base px-8 py-6 font-semibold bg-cyan-glow text-navy-deep hover:bg-cyan-bright overflow-hidden transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+              style={{
+                boxShadow: '0 0 30px hsl(var(--cyan-glow) / 0.4)',
+              }}
+            >
+              <Users className="w-5 h-5 mr-2" />
+              <span>Join as a Startup</span>
+              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+            </Button>
 
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => navigate("/investor-application")}
-            className="group text-base px-8 py-6 font-medium border-white/20 text-white hover:bg-white/10 rounded-full transition-all duration-300 w-full sm:w-auto"
+            {/* Investor CTA */}
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => navigate("/investor-application")}
+              className="group relative text-base px-8 py-6 font-semibold border-cyan-glow/40 text-cyan-glow hover:bg-cyan-glow/10 hover:border-cyan-glow transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+            >
+              <Briefcase className="w-5 h-5 mr-2" />
+              <span>Join as a VC</span>
+              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </div>
+
+          {/* Dual value props - side by side */}
+          <div 
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto pt-8 animate-fade-in"
+            style={{ animationDelay: '0.3s' }}
           >
-            I'm an Investor
-            <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-          </Button>
-        </div>
+            {/* Founders perspective */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-left hover:border-cyan-glow/30 transition-colors">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-cyan-glow/20 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-cyan-glow" />
+                </div>
+                <span className="text-sm font-medium text-cyan-glow">For Founders</span>
+              </div>
+              <h3 className="text-white font-medium mb-2">
+                Stop chasing. Start matching.
+              </h3>
+              <p className="text-white/50 text-sm leading-relaxed">
+                Get introduced to VCs who are actively looking for your stage, sector, and business model. Free to use.
+              </p>
+            </div>
 
-        {/* Simple trust line */}
-        <p 
-          className="text-sm text-white/40 mb-16 animate-fade-in"
-          style={{ animationDelay: '0.3s' }}
-        >
-          5-minute setup · Free for founders
-        </p>
+            {/* Investors perspective */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-left hover:border-cyan-glow/30 transition-colors">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-cyan-glow/20 flex items-center justify-center">
+                  <Briefcase className="w-4 h-4 text-cyan-glow" />
+                </div>
+                <span className="text-sm font-medium text-cyan-glow">For Investors</span>
+              </div>
+              <h3 className="text-white font-medium mb-2">
+                See only what fits your thesis.
+              </h3>
+              <p className="text-white/50 text-sm leading-relaxed">
+                No more filtering through noise. Get curated deal flow that matches your investment criteria exactly.
+              </p>
+            </div>
+          </div>
 
-        {/* Value props - horizontal pills */}
-        <div 
-          className="flex flex-wrap items-center justify-center gap-3 animate-fade-in"
-          style={{ animationDelay: '0.4s' }}
-        >
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-            <span className="text-cyan-glow">✓</span>
-            <span className="text-sm text-white/70">Thesis-matched intros</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-            <span className="text-cyan-glow">✓</span>
-            <span className="text-sm text-white/70">No cold outreach</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-            <span className="text-cyan-glow">✓</span>
-            <span className="text-sm text-white/70">Stage & sector aligned</span>
-          </div>
+          {/* Trust element */}
+          <p 
+            className="text-xs text-white/40 animate-fade-in"
+            style={{ animationDelay: '0.4s' }}
+          >
+            5-minute setup • AI-powered matching • Quality over quantity
+          </p>
         </div>
       </div>
+
+      <style>{`
+        @keyframes glow-pulse {
+          0%, 100% {
+            opacity: 0.6;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.05);
+          }
+        }
+        .animate-glow-pulse {
+          animation: glow-pulse 3s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   );
 };
