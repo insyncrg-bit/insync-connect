@@ -756,7 +756,17 @@ export default function FounderDashboard() {
     });
   };
 
-  // Match-aware investor card - Clean minimalist design
+  const getStageColor = (stage: string) => {
+    const colors: Record<string, string> = {
+      "Pre-seed": "bg-purple-500/20 text-purple-400 border-purple-500/30",
+      "Seed": "bg-green-500/20 text-green-400 border-green-500/30",
+      "Series A": "bg-blue-500/20 text-blue-400 border-blue-500/30",
+      "Series B": "bg-orange-500/20 text-orange-400 border-orange-500/30",
+    };
+    return colors[stage] || "bg-white/10 text-white/80 border-white/20";
+  };
+
+  // Match-aware investor card - Clean minimalist design (matches InvestorDashboard's MatchedStartupCard)
   const MatchedInvestorCard = ({ match }: { match: MatchResult }) => {
     const investor = match.investor;
     if (!investor) return null;
@@ -764,10 +774,7 @@ export default function FounderDashboard() {
     const isRequested = pendingRequests.has(investor.user_id);
 
     return (
-      <Card 
-        className="bg-card/50 backdrop-blur-sm border-border/50 p-5 hover:border-primary/50 transition-all duration-200 cursor-pointer group"
-        onClick={() => handleOpenInvestorProfile(investor as InvestorApplication)}
-      >
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50 p-5 hover:border-primary/50 transition-all duration-200 group">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -789,9 +796,14 @@ export default function FounderDashboard() {
         </div>
 
         <div className="flex flex-wrap gap-1.5 mb-4">
-          {investor.stage_focus.slice(0, 2).map((stage, i) => (
-            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+          {investor.stage_focus.slice(0, 1).map((stage, i) => (
+            <span key={i} className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(stage)}`}>
               {stage}
+            </span>
+          ))}
+          {investor.sector_tags.slice(0, 1).map((sector, i) => (
+            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+              {sector}
             </span>
           ))}
           {investor.check_sizes.length > 0 && (
@@ -805,34 +817,34 @@ export default function FounderDashboard() {
           {investor.thesis_statement || investor.firm_description || "Investment thesis available"}
         </p>
 
-        <div className="flex items-center justify-between pt-3 border-t border-border/50">
-          <div className="flex gap-1">
-            {investor.sector_tags.slice(0, 2).map((sector, i) => (
-              <span key={i} className="text-xs text-muted-foreground">
-                {sector}{i < Math.min(investor.sector_tags.length - 1, 1) ? "," : ""}
-              </span>
-            ))}
-            {investor.sector_tags.length > 2 && (
-              <span className="text-xs text-muted-foreground">+{investor.sector_tags.length - 2}</span>
-            )}
-          </div>
-          {isRequested && (
-            <span className="text-xs text-green-500">Pending</span>
+        <div className="pt-3 border-t border-border/50">
+          {isRequested ? (
+            <div className="flex items-center gap-2 text-green-500 text-sm">
+              <Heart className="h-4 w-4" />
+              Sync Requested
+            </div>
+          ) : (
+            <Button 
+              variant="ghost"
+              size="sm"
+              className="w-full text-primary hover:bg-primary/10"
+              onClick={() => handleOpenInvestorProfile(investor as InvestorApplication)}
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              View Profile
+            </Button>
           )}
         </div>
       </Card>
     );
   };
 
-  // Fallback investor card - Clean minimalist design
+  // Fallback investor card - Clean minimalist design (matches InvestorDashboard's StartupCard)
   const InvestorCard = ({ investor }: { investor: InvestorApplication }) => {
     const isRequested = pendingRequests.has(investor.user_id);
 
     return (
-      <Card 
-        className="bg-card/50 backdrop-blur-sm border-border/50 p-5 hover:border-primary/50 transition-all duration-200 cursor-pointer group"
-        onClick={() => handleOpenInvestorProfile(investor)}
-      >
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50 p-5 hover:border-primary/50 transition-all duration-200 group">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -850,15 +862,17 @@ export default function FounderDashboard() {
               )}
             </div>
           </div>
-          {isRequested && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500">Pending</span>
-          )}
         </div>
 
         <div className="flex flex-wrap gap-1.5 mb-4">
-          {investor.stage_focus.slice(0, 2).map((stage, i) => (
-            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+          {investor.stage_focus.slice(0, 1).map((stage, i) => (
+            <span key={i} className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(stage)}`}>
               {stage}
+            </span>
+          ))}
+          {investor.sector_tags.slice(0, 1).map((sector, i) => (
+            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+              {sector}
             </span>
           ))}
           {investor.check_sizes.length > 0 && (
@@ -872,14 +886,25 @@ export default function FounderDashboard() {
           {investor.thesis_statement || investor.firm_description || "Investment thesis available"}
         </p>
 
-        <div className="flex gap-1 pt-3 border-t border-border/50">
-          {investor.sector_tags.slice(0, 2).map((sector, i) => (
-            <span key={i} className="text-xs text-muted-foreground">
-              {sector}{i < Math.min(investor.sector_tags.length - 1, 1) ? "," : ""}
-            </span>
-          ))}
-          {investor.sector_tags.length > 2 && (
-            <span className="text-xs text-muted-foreground">+{investor.sector_tags.length - 2}</span>
+        <div className="pt-3 border-t border-border/50">
+          {isRequested ? (
+            <div className="flex items-center gap-2 text-green-500 text-sm">
+              <Heart className="h-4 w-4" />
+              Sync Requested
+            </div>
+          ) : (
+            <Button 
+              variant="ghost"
+              size="sm"
+              className="w-full text-primary hover:bg-primary/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleOpenInvestorProfile(investor);
+              }}
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              View Profile
+            </Button>
           )}
         </div>
       </Card>
