@@ -756,7 +756,7 @@ export default function FounderDashboard() {
     });
   };
 
-  // Match-aware investor card - Clean minimalist design
+  // Match-aware investor card
   const MatchedInvestorCard = ({ match }: { match: MatchResult }) => {
     const investor = match.investor;
     if (!investor) return null;
@@ -765,123 +765,156 @@ export default function FounderDashboard() {
 
     return (
       <Card 
-        className="bg-card/50 backdrop-blur-sm border-border/50 p-5 hover:border-primary/50 transition-all duration-200 cursor-pointer group"
+        className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 group cursor-pointer"
         onClick={() => handleOpenInvestorProfile(investor as InvestorApplication)}
       >
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">
-                {investor.firm_name}
-              </h4>
-              {investor.hq_location && (
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {investor.hq_location}
-                </p>
-              )}
-            </div>
+        <div className="flex items-start gap-4 mb-3">
+          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+            <Building2 className="h-6 w-6 text-white" />
           </div>
-          <MatchScoreBadge score={match.match_score} label={match.match_label} />
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
+              {investor.firm_name}
+            </h4>
+            {investor.hq_location && (
+              <p className="text-sm text-white/60 flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {investor.hq_location}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <MatchScoreBadge score={match.match_score} label={match.match_label} />
+            {isRequested && (
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                Pending
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-3">
+          {investor.stage_focus.slice(0, 2).map((stage, i) => (
+            <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20 text-xs">
+              {stage}
+            </Badge>
+          ))}
+          {investor.check_sizes.length > 0 && (
+            <Badge className="bg-white/10 text-white/80 border-white/20 text-xs flex items-center gap-1">
+              <DollarSign className="h-3 w-3" />
+              {investor.check_sizes[0]}
+            </Badge>
+          )}
+        </div>
+
+        {/* Match explainer */}
+        <div className="mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
+          <MatchExplainer 
+            whyThisMatch={match.why_this_match} 
+            potentialConcerns={match.potential_concerns}
+            compact
+          />
         </div>
 
         <div className="flex flex-wrap gap-1.5 mb-4">
-          {investor.stage_focus.slice(0, 2).map((stage, i) => (
-            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-              {stage}
-            </span>
+          {investor.sector_tags.slice(0, 3).map((sector, i) => (
+            <Badge key={i} variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
+              {sector}
+            </Badge>
           ))}
-          {investor.check_sizes.length > 0 && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-              {investor.check_sizes[0]}
-            </span>
+          {investor.sector_tags.length > 3 && (
+            <Badge variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
+              +{investor.sector_tags.length - 3}
+            </Badge>
           )}
         </div>
 
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-          {investor.thesis_statement || investor.firm_description || "Investment thesis available"}
-        </p>
-
-        <div className="flex items-center justify-between pt-3 border-t border-border/50">
-          <div className="flex gap-1">
-            {investor.sector_tags.slice(0, 2).map((sector, i) => (
-              <span key={i} className="text-xs text-muted-foreground">
-                {sector}{i < Math.min(investor.sector_tags.length - 1, 1) ? "," : ""}
-              </span>
-            ))}
-            {investor.sector_tags.length > 2 && (
-              <span className="text-xs text-muted-foreground">+{investor.sector_tags.length - 2}</span>
-            )}
-          </div>
-          {isRequested && (
-            <span className="text-xs text-green-500">Pending</span>
-          )}
-        </div>
+        <Button 
+          size="sm" 
+          className="w-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/30"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenInvestorProfile(investor as InvestorApplication);
+          }}
+        >
+          View Thesis
+        </Button>
       </Card>
     );
   };
 
-  // Fallback investor card - Clean minimalist design
+  // Fallback investor card (when no match data)
   const InvestorCard = ({ investor }: { investor: InvestorApplication }) => {
     const isRequested = pendingRequests.has(investor.user_id);
 
     return (
       <Card 
-        className="bg-card/50 backdrop-blur-sm border-border/50 p-5 hover:border-primary/50 transition-all duration-200 cursor-pointer group"
+        className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 group cursor-pointer"
         onClick={() => handleOpenInvestorProfile(investor)}
       >
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">
-                {investor.firm_name}
-              </h4>
-              {investor.hq_location && (
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {investor.hq_location}
-                </p>
-              )}
-            </div>
+        <div className="flex items-start gap-4 mb-4">
+          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+            <Building2 className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
+              {investor.firm_name}
+            </h4>
+            {investor.hq_location && (
+              <p className="text-sm text-white/60 flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {investor.hq_location}
+              </p>
+            )}
           </div>
           {isRequested && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500">Pending</span>
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+              Pending
+            </Badge>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-1.5 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4">
           {investor.stage_focus.slice(0, 2).map((stage, i) => (
-            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+            <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20 text-xs">
               {stage}
-            </span>
+            </Badge>
           ))}
           {investor.check_sizes.length > 0 && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+            <Badge className="bg-white/10 text-white/80 border-white/20 text-xs flex items-center gap-1">
+              <DollarSign className="h-3 w-3" />
               {investor.check_sizes[0]}
-            </span>
+            </Badge>
           )}
         </div>
 
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-          {investor.thesis_statement || investor.firm_description || "Investment thesis available"}
+        <p className="text-sm text-white/70 mb-4 line-clamp-2">
+          {investor.thesis_statement || investor.firm_description || "Investment thesis not provided."}
         </p>
 
-        <div className="flex gap-1 pt-3 border-t border-border/50">
-          {investor.sector_tags.slice(0, 2).map((sector, i) => (
-            <span key={i} className="text-xs text-muted-foreground">
-              {sector}{i < Math.min(investor.sector_tags.length - 1, 1) ? "," : ""}
-            </span>
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {investor.sector_tags.slice(0, 3).map((sector, i) => (
+            <Badge key={i} variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
+              {sector}
+            </Badge>
           ))}
-          {investor.sector_tags.length > 2 && (
-            <span className="text-xs text-muted-foreground">+{investor.sector_tags.length - 2}</span>
+          {investor.sector_tags.length > 3 && (
+            <Badge variant="outline" className="bg-transparent border-white/20 text-white/60 text-xs">
+              +{investor.sector_tags.length - 3}
+            </Badge>
           )}
         </div>
+
+        <Button 
+          size="sm" 
+          className="w-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/30"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenInvestorProfile(investor);
+          }}
+        >
+          View Thesis
+        </Button>
       </Card>
     );
   };
@@ -978,100 +1011,148 @@ export default function FounderDashboard() {
 
       default:
         return (
-          <div className="max-w-6xl mx-auto space-y-8">
-            {/* Welcome Section - Clean */}
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground">
-                {application?.company_name || "Dashboard"}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Track your connections and opportunities
+          <>
+            {/* Welcome Section */}
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2">
+                {application?.company_name || "Founder"} Dashboard
+              </h2>
+              <p className="text-white/60">
+                Track your connections, engagement, and opportunities
               </p>
             </div>
 
-            {/* Memo Quick Access - Minimal */}
+            {/* Memo Quick View */}
             <Card 
-              className="bg-card/50 backdrop-blur-sm border-border/50 p-4 hover:border-primary/30 transition-all duration-200 cursor-pointer"
+              className="bg-[hsl(var(--navy-deep))]/80 border-[hsl(var(--cyan-glow))]/30 p-6 mb-8 cursor-pointer shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300"
               onClick={() => navigate("/founder-dashboard?tab=memo")}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Building2 className="h-4 w-4 text-primary" />
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center">
+                    <Building2 className="h-6 w-6 text-white/70" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">{application?.company_name || "Your Memo"}</p>
-                    <p className="text-xs text-muted-foreground">{application?.vertical} • {application?.stage}</p>
+                    <h3 className="text-xl font-bold text-white">{application?.company_name || "Your Memo"}</h3>
+                    <p className="text-white/50 text-sm">{application?.vertical} • {application?.stage}</p>
                   </div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/5">
+                  View Memo <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </div>
             </Card>
 
-            {/* Stats - Clean horizontal layout */}
-            <div className="grid grid-cols-4 gap-3">
-              {[
-                { label: "Interests", value: displayStats.interests, icon: Heart, onClick: handleOpenInterests },
-                { label: "Syncs", value: displayStats.syncs, icon: TrendingUp, onClick: handleOpenSyncs },
-                { label: "Pending", value: displayStats.pending, icon: Eye, onClick: handleOpenPending },
-                { label: "Messages", value: displayStats.messages, icon: MessageSquare, onClick: handleOpenMessages },
-              ].map((stat) => (
-                <Card 
-                  key={stat.label}
-                  className="bg-card/50 backdrop-blur-sm border-border/50 p-4 hover:border-primary/30 transition-all duration-200 cursor-pointer"
-                  onClick={stat.onClick}
-                >
-                  <div className="flex items-center gap-3">
-                    <stat.icon className="h-4 w-4 text-primary" />
-                    <div>
-                      <p className="text-xl font-semibold text-foreground">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.label}</p>
-                    </div>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenInterests}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   </div>
-                </Card>
-              ))}
+                  <div>
+                    <p className="text-2xl font-bold text-white">{displayStats.interests}</p>
+                    <p className="text-sm text-white/60">Interests</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenSyncs}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{displayStats.syncs}</p>
+                    <p className="text-sm text-white/60">Syncs</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenPending}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{displayStats.pending}</p>
+                    <p className="text-sm text-white/60">Pending</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card 
+                className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-6 shadow-[0_0_20px_hsl(var(--cyan-glow)/0.15)] hover:shadow-[0_0_30px_hsl(var(--cyan-glow)/0.25)] transition-all duration-300 cursor-pointer"
+                onClick={handleOpenMessages}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <MessageSquare className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{displayStats.messages}</p>
+                    <p className="text-sm text-white/60">Messages</p>
+                  </div>
+                </div>
+              </Card>
             </div>
 
-            {/* Curated Investors - Clean section */}
+            {/* Curated Investors Section */}
             <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium text-foreground">Curated Investors</h2>
-                <button 
-                  className="text-sm text-primary hover:underline flex items-center gap-1"
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Curated Investors</h3>
+                  <p className="text-white/60 text-sm mt-1">Investors aligned with your profile</p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-[hsl(var(--cyan-glow))] hover:bg-white/5"
                   onClick={() => navigate("/founder-dashboard?tab=investors")}
                 >
-                  View all <ArrowRight className="h-3 w-3" />
-                </button>
+                  View All <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {curatedInvestors.slice(0, 3).map((investor) => (
                   <InvestorCard key={investor.id} investor={investor} />
                 ))}
               </div>
             </section>
-          </div>
+          </>
         );
     }
   };
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full" style={{ background: 'var(--gradient-hero)' }}>
         <FounderSidebar />
         
         <main className="flex-1 flex flex-col">
-          {/* Header - Clean */}
-          <header className="h-12 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center px-4 gap-4">
-            <SidebarTrigger className="text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md p-1.5">
-              <Menu className="h-4 w-4" />
+          {/* Header */}
+          <header className="h-14 border-b border-white/10 bg-navy-header flex items-center px-4 gap-4">
+            <SidebarTrigger className="text-white hover:bg-white/10">
+              <Menu className="h-5 w-5" />
             </SidebarTrigger>
             <div className="flex-1" />
-            <span className="text-xs text-muted-foreground">Founder Portal</span>
+            <Badge className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30">
+              Founder Portal
+            </Badge>
           </header>
 
-          {/* Content - Clean padding */}
-          <div className="flex-1 p-6 md:p-8 overflow-auto">
+          {/* Content */}
+          <div className="flex-1 p-6 overflow-auto">
             {renderContent()}
           </div>
         </main>
