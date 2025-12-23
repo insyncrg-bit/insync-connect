@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,7 @@ interface MemoEditorProps {
 type MarketMetric = "tam" | "sam" | "som" | null;
 
 export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -121,6 +123,14 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
 
   return (
     <div className="space-y-6">
+      {/* Back Button */}
+      <Button
+        onClick={() => navigate("/founder-dashboard")}
+        className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
+      >
+        ← Back to Your Dashboard
+      </Button>
+
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
