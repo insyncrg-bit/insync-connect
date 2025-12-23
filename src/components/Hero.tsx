@@ -8,7 +8,7 @@ export const Hero = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden -mt-16">
       {/* Floating particles background */}
       <FloatingParticles />
       
@@ -35,7 +35,7 @@ export const Hero = () => {
 
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
-        <div className="max-w-5xl mx-auto text-center space-y-6">
+        <div className="max-w-5xl mx-auto text-center space-y-4">
           
           {/* Logo with pulsing glow */}
           <div className="relative animate-fade-in">
