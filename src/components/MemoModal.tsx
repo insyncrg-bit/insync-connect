@@ -230,7 +230,7 @@ export function MemoModal({
                       </>
                     ) : (
                       <>
-                        <img src={insyncInfinity} alt="Sync" className="mr-2 h-5 w-5 object-contain" />
+                        <img src={insyncInfinity} alt="Sync" className="mr-3 h-8 w-12 object-contain" />
                         Request to Sync
                       </>
                     )}
