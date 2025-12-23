@@ -1171,6 +1171,24 @@ export default function InvestorDashboard() {
         onDecline={handleDeclineInterest}
         processingId={processingInterestId}
         userType="investor"
+        onViewProfile={(userId, interest) => {
+          const founderData: FounderApplication = {
+            id: interest.id,
+            founder_name: interest.founder_name || "Unknown Founder",
+            company_name: interest.company_name || "Unknown Company",
+            vertical: interest.vertical || "",
+            stage: interest.stage || "",
+            location: interest.location || "",
+            website: null,
+            business_model: "",
+            funding_goal: interest.funding_goal || "",
+            traction: "",
+            created_at: interest.created_at,
+            user_id: userId,
+          };
+          setSelectedStartup(founderData);
+          setMemoModalOpen(true);
+        }}
       />
 
       {/* Syncs Modal */}
@@ -1180,6 +1198,24 @@ export default function InvestorDashboard() {
         syncs={activeSyncs}
         loading={syncsLoading}
         userType="investor"
+        onViewProfile={(userId, sync) => {
+          const founderData: FounderApplication = {
+            id: sync.id,
+            founder_name: sync.founder_name || "Unknown Founder",
+            company_name: sync.company_name || "Unknown Company",
+            vertical: sync.vertical || "",
+            stage: sync.stage || "",
+            location: sync.location || "",
+            website: null,
+            business_model: "",
+            funding_goal: "",
+            traction: "",
+            created_at: sync.created_at,
+            user_id: userId,
+          };
+          setSelectedStartup(founderData);
+          setMemoModalOpen(true);
+        }}
       />
 
       {/* Pending Modal */}
@@ -1191,6 +1227,24 @@ export default function InvestorDashboard() {
         onCancel={handleCancelPending}
         cancellingId={cancellingId}
         userType="investor"
+        onViewProfile={(userId, item) => {
+          const founderData: FounderApplication = {
+            id: item.id,
+            founder_name: item.founder_name || "Unknown Founder",
+            company_name: item.company_name || "Unknown Company",
+            vertical: item.vertical || "",
+            stage: item.stage || "",
+            location: item.location || "",
+            website: null,
+            business_model: "",
+            funding_goal: "",
+            traction: "",
+            created_at: item.created_at,
+            user_id: userId,
+          };
+          setSelectedStartup(founderData);
+          setMemoModalOpen(true);
+        }}
       />
 
       {/* Messages Modal */}
