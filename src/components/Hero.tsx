@@ -48,7 +48,7 @@ export const Hero = () => {
             <img 
               src={inSyncLogo} 
               alt="In∞Sync" 
-              className="relative w-full max-w-2xl mx-auto"
+              className="relative w-full max-w-4xl mx-auto"
               style={{ 
                 filter: 'drop-shadow(0 0 40px rgba(6,182,212,0.4)) drop-shadow(0 0 80px rgba(6,182,212,0.2))',
               }}
