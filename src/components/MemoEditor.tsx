@@ -175,7 +175,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
       {viewMode === "condensed" && (
         <div className="space-y-6">
           {/* Executive Summary Card */}
-          <Card className="bg-gradient-to-br from-[hsl(220,60%,15%)] to-[hsl(220,60%,12%)] border-[hsl(var(--cyan-glow))]/30 p-8 relative overflow-hidden">
+          <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 relative overflow-hidden shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[hsl(var(--cyan-glow))]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
             
             <div className="relative z-10">
@@ -255,7 +255,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
 
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-4">
+            <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
                   <Users className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
@@ -266,7 +266,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
                 </div>
               </div>
             </Card>
-            <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-4">
+            <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-bright))]/20 flex items-center justify-center">
                   <Target className="h-5 w-5 text-[hsl(var(--cyan-bright))]" />
@@ -277,7 +277,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
                 </div>
               </div>
             </Card>
-            <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-4">
+            <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
                   <DollarSign className="h-5 w-5 text-white/80" />
@@ -288,7 +288,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
                 </div>
               </div>
             </Card>
-            <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-4">
+            <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
                   <Zap className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
@@ -303,7 +303,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
 
           {/* Problem & Solution */}
           <div className="grid md:grid-cols-2 gap-6">
-            <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+            <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
                   <Target className="h-4 w-4 text-white/80" />
@@ -315,7 +315,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
               </p>
             </Card>
 
-            <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-6">
+            <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
                   <Rocket className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
@@ -334,7 +334,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
       {viewMode === "full" && (
         <div className="space-y-8">
           {/* Header Section */}
-          <Card className="bg-gradient-to-br from-[hsl(220,60%,15%)] to-[hsl(220,60%,12%)] border-[hsl(var(--cyan-glow))]/30 p-8">
+          <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="text-center mb-8">
               <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4">
                 <Building2 className="h-12 w-12 text-white" />
@@ -358,7 +358,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           </Card>
 
           {/* Section 1: Problem & Value Proposition */}
-          <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                 <Target className="h-5 w-5 text-white/80" />
@@ -396,7 +396,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           </Card>
 
           {/* Section 2: Business Model */}
-          <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
                 <DollarSign className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
@@ -440,7 +440,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           </Card>
 
           {/* Section 3: Go-to-Market */}
-          <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-[hsl(var(--cyan-bright))]/20 flex items-center justify-center">
                 <Rocket className="h-5 w-5 text-[hsl(var(--cyan-bright))]" />
@@ -468,7 +468,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           </Card>
 
           {/* Section 4: Market Opportunity */}
-          <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                 <BarChart3 className="h-5 w-5 text-white/80" />
@@ -518,7 +518,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           </Card>
 
           {/* Section 5: Competitive Landscape */}
-          <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
                 <Shield className="h-5 w-5 text-cyan-400" />
@@ -554,7 +554,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           </Card>
 
           {/* Section 6: Team */}
-          <Card className="bg-[hsl(220,60%,15%)] border-white/10 p-8">
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
                 <Users className="h-5 w-5 text-pink-400" />
@@ -593,7 +593,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
 
       {/* Market Sizing Dialog */}
       <Dialog open={selectedMetric !== null} onOpenChange={() => setSelectedMetric(null)}>
-        <DialogContent className="bg-[hsl(220,60%,12%)] border-white/20 text-white max-w-2xl">
+        <DialogContent className="bg-navy-card border-white/20 text-white max-w-2xl shadow-[0_0_30px_rgba(6,182,212,0.15)]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-2xl">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
