@@ -8,7 +8,13 @@ import {
   TrendingUp,
   ArrowRight,
   FileText,
-  ClipboardList
+  Sparkles,
+  Users,
+  Target,
+  Briefcase,
+  Map,
+  Swords,
+  DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -186,106 +192,134 @@ export const HowItWorks = () => {
           
           {/* Step 1: Fill Out Form Preview */}
           {activeStep === 0 && (
-            <div className="p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-cyan-glow/10 flex items-center justify-center">
-                  {activeTab === 'founder' ? (
-                    <FileText className="h-5 w-5 text-cyan-glow" />
-                  ) : (
-                    <ClipboardList className="h-5 w-5 text-cyan-glow" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-white font-medium">
-                    {activeTab === 'founder' ? 'Your Startup Memo' : 'Your Investment Thesis'}
-                  </h3>
-                  <p className="text-xs text-white/50">
-                    {activeTab === 'founder' ? 'Tell investors what makes you unique' : 'Define what you\'re looking for'}
-                  </p>
-                </div>
-              </div>
+            <div className="p-6 animate-fade-in">
+              {activeTab === 'founder' ? (
+                <>
+                  {/* Founder Application Steps Bar - matching actual application */}
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-6">
+                    <div className="flex items-center justify-between gap-2">
+                      {[
+                        { icon: Sparkles, label: "Welcome", active: true },
+                        { icon: Building2, label: "Company Info", active: false },
+                        { icon: Users, label: "Team & Overview", active: false },
+                        { icon: Target, label: "Value Proposition", active: false },
+                        { icon: Briefcase, label: "Business Model", active: false },
+                        { icon: TrendingUp, label: "Go-to-Market", active: false },
+                        { icon: Map, label: "Customer & Market", active: false },
+                        { icon: Swords, label: "Competitors", active: false },
+                      ].map((step, index) => {
+                        const Icon = step.icon;
+                        return (
+                          <div
+                            key={index}
+                            className={`flex flex-col items-center gap-2 p-2 rounded-xl transition-all cursor-pointer ${
+                              step.active ? 'bg-white/20' : 'hover:bg-white/10'
+                            }`}
+                          >
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                              step.active 
+                                ? 'bg-white text-navy-deep' 
+                                : 'bg-white/20 text-white/60'
+                            }`}>
+                              <Icon className="h-5 w-5" />
+                            </div>
+                            <span className={`text-xs font-medium text-center leading-tight ${
+                              step.active ? 'text-white' : 'text-white/60'
+                            }`}>
+                              {step.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {activeTab === 'founder' ? (
-                  <>
-                    <div className="bg-navy-card border border-white/10 rounded-lg p-4 hover:border-cyan-glow/30 transition-colors cursor-pointer">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-white/80">Company Overview</span>
-                        <span className="text-xs text-green-400">✓ Complete</span>
+                  {/* Sample form preview */}
+                  <div className="bg-navy-card border border-white/10 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-white mb-2">Welcome</h3>
+                    <p className="text-white/60 text-sm mb-4">Help us understand the what, why, and how of your company</p>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
+                        <span className="text-xl font-bold text-cyan-glow">WHAT</span>
+                        <p className="text-xs text-white/50 mt-1">The problem you're solving</p>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-full bg-green-400 rounded-full" />
+                      <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
+                        <span className="text-xl font-bold text-cyan-glow">WHY</span>
+                        <p className="text-xs text-white/50 mt-1">Motivation & urgency</p>
                       </div>
-                    </div>
-                    <div className="bg-navy-card border border-white/10 rounded-lg p-4 hover:border-cyan-glow/30 transition-colors cursor-pointer">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-white/80">Traction & Metrics</span>
-                        <span className="text-xs text-green-400">✓ Complete</span>
+                      <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
+                        <span className="text-xl font-bold text-cyan-glow">HOW</span>
+                        <p className="text-xs text-white/50 mt-1">Solution & business model</p>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-full bg-green-400 rounded-full" />
-                      </div>
-                    </div>
-                    <div className="bg-navy-card border border-cyan-glow/40 rounded-lg p-4 animate-pulse cursor-pointer">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-white">Funding Ask</span>
-                        <span className="text-xs text-cyan-glow">In Progress</span>
-                      </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-2/3 bg-cyan-glow rounded-full" />
+                      <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
+                        <span className="text-xl font-bold text-cyan-glow">METRIC</span>
+                        <p className="text-xs text-white/50 mt-1">Proof & traction</p>
                       </div>
                     </div>
-                    <div className="bg-navy-card border border-white/10 rounded-lg p-4 opacity-60 cursor-pointer">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-white/60">Team Info</span>
-                        <span className="text-xs text-white/40">Pending</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Investor Application Steps Bar */}
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-6">
+                    <div className="flex items-center justify-between gap-2">
+                      {[
+                        { icon: Sparkles, label: "Welcome", active: true },
+                        { icon: Building2, label: "Firm Info", active: false },
+                        { icon: Target, label: "Investment Thesis", active: false },
+                        { icon: DollarSign, label: "Check Size", active: false },
+                        { icon: TrendingUp, label: "Stage Focus", active: false },
+                        { icon: Map, label: "Geography", active: false },
+                      ].map((step, index) => {
+                        const Icon = step.icon;
+                        return (
+                          <div
+                            key={index}
+                            className={`flex flex-col items-center gap-2 p-2 rounded-xl transition-all cursor-pointer flex-1 ${
+                              step.active ? 'bg-white/20' : 'hover:bg-white/10'
+                            }`}
+                          >
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                              step.active 
+                                ? 'bg-white text-navy-deep' 
+                                : 'bg-white/20 text-white/60'
+                            }`}>
+                              <Icon className="h-5 w-5" />
+                            </div>
+                            <span className={`text-xs font-medium text-center leading-tight ${
+                              step.active ? 'text-white' : 'text-white/60'
+                            }`}>
+                              {step.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Sample form preview */}
+                  <div className="bg-navy-card border border-white/10 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-white mb-2">Welcome</h3>
+                    <p className="text-white/60 text-sm mb-4">Define your investment criteria to find the right startups</p>
+                    
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
+                        <span className="text-lg font-bold text-cyan-glow">THESIS</span>
+                        <p className="text-xs text-white/50 mt-1">Your investment focus</p>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-0 bg-cyan-glow rounded-full" />
+                      <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
+                        <span className="text-lg font-bold text-cyan-glow">CRITERIA</span>
+                        <p className="text-xs text-white/50 mt-1">Stage, sector, check size</p>
+                      </div>
+                      <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
+                        <span className="text-lg font-bold text-cyan-glow">SUPPORT</span>
+                        <p className="text-xs text-white/50 mt-1">Value-add offerings</p>
                       </div>
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="bg-navy-card border border-white/10 rounded-lg p-4 hover:border-cyan-glow/30 transition-colors cursor-pointer">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-white/80">Firm Overview</span>
-                        <span className="text-xs text-green-400">✓ Complete</span>
-                      </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-full bg-green-400 rounded-full" />
-                      </div>
-                    </div>
-                    <div className="bg-navy-card border border-white/10 rounded-lg p-4 hover:border-cyan-glow/30 transition-colors cursor-pointer">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-white/80">Stage & Check Size</span>
-                        <span className="text-xs text-green-400">✓ Complete</span>
-                      </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-full bg-green-400 rounded-full" />
-                      </div>
-                    </div>
-                    <div className="bg-navy-card border border-cyan-glow/40 rounded-lg p-4 animate-pulse cursor-pointer">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-white">Sector Focus</span>
-                        <span className="text-xs text-cyan-glow">In Progress</span>
-                      </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-3/4 bg-cyan-glow rounded-full" />
-                      </div>
-                    </div>
-                    <div className="bg-navy-card border border-white/10 rounded-lg p-4 opacity-60 cursor-pointer">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-white/60">Investment Thesis</span>
-                        <span className="text-xs text-white/40">Pending</span>
-                      </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-0 bg-cyan-glow rounded-full" />
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
