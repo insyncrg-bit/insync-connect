@@ -20,7 +20,9 @@ import {
   ArrowLeft,
   FileText,
   Eye,
-  ChevronRight
+  ChevronRight,
+  Maximize2,
+  Minimize2
 } from "lucide-react";
 import insyncInfinity from "@/assets/insync-infinity.png";
 import {
@@ -78,6 +80,7 @@ export function InvestorProfileModal({
   const [syncNote, setSyncNote] = useState("");
   const [showSyncForm, setShowSyncForm] = useState(false);
   const [viewMode, setViewMode] = useState<"condensed" | "full">("condensed");
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const wordCount = syncNote.trim().split(/\s+/).filter(Boolean).length;
   const isOverLimit = wordCount > 60;
@@ -92,6 +95,7 @@ export function InvestorProfileModal({
 
   const handleClose = () => {
     setViewMode("condensed");
+    setIsFullscreen(false);
     onOpenChange(false);
   };
 
@@ -113,8 +117,12 @@ export function InvestorProfileModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[95vh] bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden">
-        <ScrollArea className="max-h-[95vh]">
+      <DialogContent className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden transition-all duration-300 ${
+        isFullscreen 
+          ? 'max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none' 
+          : 'max-w-5xl max-h-[95vh]'
+      }`}>
+        <ScrollArea className={isFullscreen ? "h-[100vh]" : "max-h-[95vh]"}>
           <div className="p-6 space-y-6">
             {/* Back Button */}
             <Button
@@ -144,6 +152,14 @@ export function InvestorProfileModal({
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  className="border-white/20 text-white/70 hover:text-white hover:bg-white/10"
+                >
+                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
 
