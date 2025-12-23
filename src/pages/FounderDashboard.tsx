@@ -775,7 +775,7 @@ export default function FounderDashboard() {
     const isRequested = pendingRequests.has(investor.user_id);
 
     return (
-      <Card className="bg-navy-card border-white/10 p-5 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+      <Card className="bg-navy-card border-white/10 p-5 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
@@ -845,7 +845,7 @@ export default function FounderDashboard() {
     const isRequested = pendingRequests.has(investor.user_id);
 
     return (
-      <Card className="bg-navy-card border-white/10 p-5 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+      <Card className="bg-navy-card border-white/10 p-5 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
@@ -967,7 +967,7 @@ export default function FounderDashboard() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {events.map((event) => (
-                <Card key={event.id} className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+                <Card key={event.id} className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
                       <Calendar className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
@@ -996,7 +996,7 @@ export default function FounderDashboard() {
               <h2 className="text-2xl font-bold text-white mb-2">Profile Settings</h2>
               <p className="text-white/60">Manage your account</p>
             </div>
-            <Card className="bg-navy-card border-white/10 p-6 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+            <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
               <p className="text-white/60">Profile settings coming soon...</p>
             </Card>
           </div>
@@ -1014,7 +1014,7 @@ export default function FounderDashboard() {
 
             {/* Memo Quick Access - Minimal */}
             <Card 
-              className="bg-navy-card border-white/10 p-4 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+              className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer"
               onClick={() => navigate("/founder-dashboard?tab=memo")}
             >
               <div className="flex items-center justify-between">
@@ -1041,7 +1041,7 @@ export default function FounderDashboard() {
               ].map((stat) => (
                 <Card 
                   key={stat.label}
-                  className="bg-navy-card border-white/10 p-4 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+                  className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer"
                   onClick={stat.onClick}
                 >
                   <div className="flex items-center gap-3">
