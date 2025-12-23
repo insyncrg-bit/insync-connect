@@ -12,12 +12,12 @@ import { MessagesModal } from "@/components/MessagesModal";
 import { MemoModal } from "@/components/MemoModal";
 import { MatchScoreBadge } from "@/components/MatchScoreBadge";
 import { MatchExplainer } from "@/components/MatchExplainer";
+import syncsLogo from "@/assets/syncs-logo.png";
 
 import { useMatchmaking, MatchResult } from "@/hooks/useMatchmaking";
 import { 
   Building2, 
   Calendar, 
-  TrendingUp, 
   Eye, 
   Heart,
   MapPin,
@@ -1101,7 +1101,7 @@ export default function InvestorDashboard() {
             <div className="grid grid-cols-4 gap-3">
               {[
                 { label: "Interests", value: displayStats.interests, icon: Heart, onClick: handleOpenInterests },
-                { label: "Syncs", value: displayStats.syncs, icon: TrendingUp, onClick: handleOpenSyncs },
+                { label: "Syncs", value: displayStats.syncs, icon: null, image: syncsLogo, onClick: handleOpenSyncs },
                 { label: "Pending", value: displayStats.pending, icon: Eye, onClick: handleOpenPending },
                 { label: "Messages", value: displayStats.messages, icon: MessageSquare, onClick: handleOpenMessages },
               ].map((stat) => (
@@ -1111,7 +1111,11 @@ export default function InvestorDashboard() {
                   onClick={stat.onClick}
                 >
                   <div className="flex items-center gap-3">
-                    <stat.icon className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+                    {stat.icon ? (
+                      <stat.icon className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+                    ) : stat.image ? (
+                      <img src={stat.image} alt={stat.label} className="h-4 w-4 object-contain" />
+                    ) : null}
                     <div>
                       <p className="text-xl font-semibold text-white">{stat.value}</p>
                       <p className="text-xs text-white/60">{stat.label}</p>

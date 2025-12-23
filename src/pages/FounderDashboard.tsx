@@ -13,12 +13,12 @@ import { PendingModal } from "@/components/PendingModal";
 import { MessagesModal } from "@/components/MessagesModal";
 import { MatchScoreBadge } from "@/components/MatchScoreBadge";
 import { MatchExplainer } from "@/components/MatchExplainer";
+import syncsLogo from "@/assets/syncs-logo.png";
 
 import { useMatchmaking, MatchResult } from "@/hooks/useMatchmaking";
 import { 
   Building2, 
   Calendar, 
-  TrendingUp, 
   Eye, 
   Heart,
   ArrowRight,
@@ -1041,7 +1041,7 @@ export default function FounderDashboard() {
             <div className="grid grid-cols-4 gap-4">
               {[
                 { label: "Interests", value: displayStats.interests, icon: Heart, onClick: handleOpenInterests },
-                { label: "Syncs", value: displayStats.syncs, icon: TrendingUp, onClick: handleOpenSyncs },
+                { label: "Syncs", value: displayStats.syncs, icon: null, image: syncsLogo, onClick: handleOpenSyncs },
                 { label: "Pending", value: displayStats.pending, icon: Eye, onClick: handleOpenPending },
                 { label: "Messages", value: displayStats.messages, icon: MessageSquare, onClick: handleOpenMessages },
               ].map((stat) => (
@@ -1051,7 +1051,11 @@ export default function FounderDashboard() {
                   onClick={stat.onClick}
                 >
                   <div className="flex items-center gap-4">
-                    <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                    {stat.icon ? (
+                      <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                    ) : stat.image ? (
+                      <img src={stat.image} alt={stat.label} className="h-6 w-6 object-contain" />
+                    ) : null}
                     <p className="text-3xl font-bold text-white">{stat.value}</p>
                     <p className="text-base text-white/60">{stat.label}</p>
                   </div>
