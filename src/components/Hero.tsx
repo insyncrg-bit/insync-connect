@@ -56,16 +56,13 @@ export const Hero = () => {
           </div>
 
           {/* Single tagline */}
-          <p className="text-sm md:text-base text-white/50 italic animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <p className="text-sm md:text-base text-white/50 italic animate-fade-in -mt-2" style={{ animationDelay: '0.1s' }}>
             Where founders and investors sync with their perfect match
           </p>
 
-          {/* Spacer */}
-          <div className="pt-4" />
-
           {/* Dual CTA */}
           <div 
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 animate-fade-in"
             style={{ animationDelay: '0.2s' }}
           >
             <Button
