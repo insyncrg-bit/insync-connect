@@ -1060,36 +1060,33 @@ export default function InvestorDashboard() {
 
       default:
         return (
-          <div className="max-w-6xl mx-auto space-y-8">
-            {/* Welcome Section - Clean */}
+          <div className="max-w-6xl mx-auto space-y-10">
+            {/* Welcome Section - Prominent */}
             <div>
-              <h1 className="text-2xl font-semibold text-white">
-                {investorApplication?.firm_name || "Dashboard"}
+              <h1 className="text-4xl font-bold text-white">
+                Welcome, {investorApplication?.firm_name || "Demo VC"}!
               </h1>
-              <p className="text-white/60 mt-1">
-                Discover and connect with promising startups
-              </p>
             </div>
 
-            {/* Thesis Quick Access - Minimal */}
+            {/* Thesis Quick Access - Larger */}
             <Card 
-              className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer"
+              className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
               onClick={fetchInvestorThesis}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <FileText className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <FileText className="h-7 w-7 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="font-medium text-white">{investorApplication?.firm_name || "Your Thesis"}</p>
-                    <p className="text-xs text-white/60">
-                      {investorApplication?.stage_focus?.slice(0, 2).join(" • ") || "Investment Thesis"} 
-                      {investorApplication?.check_sizes?.[0] && ` • ${investorApplication.check_sizes[0]}`}
+                    <p className="text-xl font-semibold text-white">{investorApplication?.firm_name ? `${investorApplication.firm_name}'s Thesis` : "Demo VC's Thesis"}</p>
+                    <p className="text-sm text-white/60">
+                      {investorApplication?.stage_focus?.slice(0, 2).join(" • ") || "Seed • Series A"} 
+                      {investorApplication?.sector_tags?.[0] && ` • ${investorApplication.sector_tags[0]}`}
                     </p>
                   </div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-white/60" />
+                <ArrowRight className="h-6 w-6 text-white/60" />
               </div>
             </Card>
 
@@ -1101,8 +1098,8 @@ export default function InvestorDashboard() {
               loading={thesisLoading}
             />
 
-            {/* Stats - Clean horizontal layout */}
-            <div className="grid grid-cols-4 gap-3">
+            {/* Stats - Larger with horizontal layout */}
+            <div className="grid grid-cols-4 gap-4">
               {[
                 { label: "Interests", value: displayStats.interests, icon: Heart, onClick: handleOpenInterests },
                 { label: "Syncs", value: displayStats.syncs, icon: null, image: syncsLogo, onClick: handleOpenSyncs },
@@ -1111,19 +1108,17 @@ export default function InvestorDashboard() {
               ].map((stat) => (
                 <Card 
                   key={stat.label}
-                  className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer"
+                  className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
                   onClick={stat.onClick}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
                     {stat.icon ? (
-                      <stat.icon className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+                      <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                     ) : stat.image ? (
-                      <img src={stat.image} alt={stat.label} className="h-10 w-16 object-contain" />
+                      <img src={stat.image} alt={stat.label} className="h-12 w-20 object-contain" />
                     ) : null}
-                    <div>
-                      <p className="text-xl font-semibold text-white">{stat.value}</p>
-                      <p className="text-xs text-white/60">{stat.label}</p>
-                    </div>
+                    <p className="text-3xl font-bold text-white">{stat.value}</p>
+                    <p className="text-base text-white/60">{stat.label}</p>
                   </div>
                 </Card>
               ))}
