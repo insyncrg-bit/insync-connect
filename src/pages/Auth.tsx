@@ -294,10 +294,10 @@ export default function Auth() {
               Don't have an account?{" "}
               <button
                 type="button"
-                onClick={() => navigate("/founder-application")}
+                onClick={() => navigate("/")}
                 className="text-[hsl(var(--cyan-glow))] hover:underline font-medium"
               >
-                Apply as a founder
+                Apply as a founder/investor
               </button>
             </p>
           </div>
