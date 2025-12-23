@@ -57,7 +57,7 @@ export const Hero = () => {
 
           {/* Single tagline */}
           <p className="text-xl md:text-2xl text-white/70 font-light animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            AI-powered founder-investor matching
+            Where founders and investors sync with their perfect match
           </p>
 
           {/* Dual CTA */}
