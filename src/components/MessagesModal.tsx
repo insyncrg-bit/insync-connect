@@ -1,10 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Building2, MessageSquare, Calendar, Send, Maximize2, Minimize2 } from "lucide-react";
+import { Building2, MessageSquare, Calendar, Send, Maximize2, Minimize2, Video, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface MessageThread {
   id: string;
@@ -14,6 +14,7 @@ interface MessageThread {
   last_message: string;
   last_message_time: string;
   unread_count: number;
+  calendly_link?: string;
   messages: Array<{
     id: string;
     sender: "self" | "other";
@@ -28,6 +29,8 @@ interface MessagesModalProps {
   threads: MessageThread[];
   loading: boolean;
   userType: "founder" | "investor";
+  onSendMessage?: (receiverUserId: string, content: string) => Promise<boolean>;
+  onMarkAsRead?: (otherUserId: string) => void;
 }
 
 export function MessagesModal({ 
@@ -35,11 +38,15 @@ export function MessagesModal({
   onOpenChange, 
   threads, 
   loading,
-  userType 
+  userType,
+  onSendMessage,
+  onMarkAsRead
 }: MessagesModalProps) {
   const [selectedThread, setSelectedThread] = useState<MessageThread | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [sending, setSending] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -51,11 +58,38 @@ export function MessagesModal({
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
-    // In a real app, this would send the message via Supabase
-    setNewMessage("");
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedThread || !onSendMessage || sending) return;
+    
+    setSending(true);
+    const success = await onSendMessage(selectedThread.other_user_id, newMessage);
+    if (success) {
+      setNewMessage("");
+    }
+    setSending(false);
   };
+
+  const handleSelectThread = (thread: MessageThread) => {
+    setSelectedThread(thread);
+    onMarkAsRead?.(thread.other_user_id);
+  };
+
+  // Update selected thread when threads change (realtime updates)
+  useEffect(() => {
+    if (selectedThread) {
+      const updatedThread = threads.find(t => t.id === selectedThread.id);
+      if (updatedThread) {
+        setSelectedThread(updatedThread);
+      }
+    }
+  }, [threads, selectedThread?.id]);
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    if (scrollRef.current && selectedThread) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [selectedThread?.messages.length]);
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
@@ -101,27 +135,41 @@ export function MessagesModal({
         ) : selectedThread ? (
           // Thread view
           <div className={`flex flex-col ${isFullscreen ? "h-[calc(100vh-100px)]" : "h-[60vh]"}`}>
-            <div className="px-6 py-3 border-b border-white/10 flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setSelectedThread(null)}
-                className="text-white/60 hover:text-white"
-              >
-                ← Back
-              </Button>
+            <div className="px-6 py-3 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center">
-                  <Building2 className="h-4 w-4 text-white" />
-                </div>
-                <div>
-                  <p className="font-medium text-white text-sm">{selectedThread.other_user_company}</p>
-                  <p className="text-xs text-white/50">{selectedThread.other_user_name}</p>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedThread(null)}
+                  className="text-white/60 hover:text-white"
+                >
+                  ← Back
+                </Button>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center">
+                    <Building2 className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-white text-sm">{selectedThread.other_user_company}</p>
+                    <p className="text-xs text-white/50">{selectedThread.other_user_name}</p>
+                  </div>
                 </div>
               </div>
+              {selectedThread.calendly_link && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-green-500/30 text-green-400 hover:bg-green-500/10"
+                  onClick={() => window.open(selectedThread.calendly_link, '_blank')}
+                >
+                  <Video className="mr-1 h-3 w-3" />
+                  Schedule Meeting
+                  <ExternalLink className="ml-1 h-3 w-3" />
+                </Button>
+              )}
             </div>
             
-            <ScrollArea className="flex-1 p-4">
+            <ScrollArea className="flex-1 p-4" ref={scrollRef}>
               <div className="space-y-3">
                 {selectedThread.messages.map((msg) => (
                   <div 
@@ -148,13 +196,15 @@ export function MessagesModal({
                 placeholder="Type a message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
                 className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                disabled={sending}
               />
               <Button 
                 size="icon" 
                 onClick={handleSendMessage}
-                className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))]"
+                disabled={sending || !newMessage.trim()}
+                className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))] disabled:opacity-50"
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -168,7 +218,7 @@ export function MessagesModal({
                 <div
                   key={thread.id}
                   className="bg-white/5 border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-white/10 transition-colors"
-                  onClick={() => setSelectedThread(thread)}
+                  onClick={() => handleSelectThread(thread)}
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
