@@ -30,6 +30,7 @@ interface InterestsModalProps {
   onDecline: (requestId: string) => Promise<void>;
   processingId: string | null;
   userType: 'founder' | 'investor';
+  onViewProfile?: (userId: string, interest: InterestItem) => void;
 }
 
 export function InterestsModal({ 
@@ -40,7 +41,8 @@ export function InterestsModal({
   onAccept,
   onDecline,
   processingId,
-  userType
+  userType,
+  onViewProfile
 }: InterestsModalProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -50,6 +52,12 @@ export function InterestsModal({
       day: "numeric",
       year: "numeric",
     });
+  };
+
+  const handleNameClick = (interest: InterestItem) => {
+    if (onViewProfile) {
+      onViewProfile(interest.requester_user_id, interest);
+    }
   };
 
   return (
@@ -109,7 +117,10 @@ export function InterestsModal({
                         <Building2 className="h-6 w-6 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-white mb-1">
+                        <h4 
+                          className={`font-semibold text-white mb-1 ${onViewProfile ? 'cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors' : ''}`}
+                          onClick={() => handleNameClick(interest)}
+                        >
                           {userType === 'investor' ? interest.company_name : interest.firm_name}
                         </h4>
                         <p className="text-sm text-white/60 mb-2">

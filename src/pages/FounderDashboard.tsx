@@ -1116,6 +1116,38 @@ export default function FounderDashboard() {
           onDecline={handleDeclineInterest}
           processingId={processingInterestId}
           userType="founder"
+          onViewProfile={(userId, interest) => {
+            // Create an investor application object from interest data
+            const investorData: InvestorApplication = {
+              id: interest.id,
+              user_id: userId,
+              firm_name: interest.firm_name || "Unknown Firm",
+              firm_description: null,
+              thesis_statement: null,
+              sub_themes: [],
+              fast_signals: [],
+              hard_nos: [],
+              check_sizes: [],
+              stage_focus: [],
+              sector_tags: [],
+              customer_types: [],
+              lead_follow: null,
+              operating_support: [],
+              support_style: null,
+              hq_location: null,
+              aum: null,
+              fund_type: null,
+              geographic_focus: null,
+              b2b_b2c: null,
+              revenue_models: [],
+              minimum_traction: [],
+              board_involvement: null,
+              decision_process: null,
+              time_to_decision: null,
+            };
+            setSelectedInvestor(investorData);
+            setInvestorModalOpen(true);
+          }}
         />
 
         <SyncsModal
@@ -1124,6 +1156,37 @@ export default function FounderDashboard() {
           syncs={activeSyncs}
           loading={syncsLoading}
           userType="founder"
+          onViewProfile={(userId, sync) => {
+            const investorData: InvestorApplication = {
+              id: sync.id,
+              user_id: userId,
+              firm_name: sync.firm_name || "Unknown Firm",
+              firm_description: null,
+              thesis_statement: null,
+              sub_themes: [],
+              fast_signals: [],
+              hard_nos: [],
+              check_sizes: [],
+              stage_focus: sync.stage_focus || [],
+              sector_tags: sync.sector_tags || [],
+              customer_types: [],
+              lead_follow: null,
+              operating_support: [],
+              support_style: null,
+              hq_location: sync.hq_location || null,
+              aum: null,
+              fund_type: null,
+              geographic_focus: null,
+              b2b_b2c: null,
+              revenue_models: [],
+              minimum_traction: [],
+              board_involvement: null,
+              decision_process: null,
+              time_to_decision: null,
+            };
+            setSelectedInvestor(investorData);
+            setInvestorModalOpen(true);
+          }}
         />
 
         <PendingModal
@@ -1134,6 +1197,37 @@ export default function FounderDashboard() {
           onCancel={handleCancelPending}
           cancellingId={cancellingId}
           userType="founder"
+          onViewProfile={(userId, item) => {
+            const investorData: InvestorApplication = {
+              id: item.id,
+              user_id: userId,
+              firm_name: item.firm_name || "Unknown Firm",
+              firm_description: null,
+              thesis_statement: null,
+              sub_themes: [],
+              fast_signals: [],
+              hard_nos: [],
+              check_sizes: [],
+              stage_focus: item.stage_focus || [],
+              sector_tags: item.sector_tags || [],
+              customer_types: [],
+              lead_follow: null,
+              operating_support: [],
+              support_style: null,
+              hq_location: item.hq_location || null,
+              aum: null,
+              fund_type: null,
+              geographic_focus: null,
+              b2b_b2c: null,
+              revenue_models: [],
+              minimum_traction: [],
+              board_involvement: null,
+              decision_process: null,
+              time_to_decision: null,
+            };
+            setSelectedInvestor(investorData);
+            setInvestorModalOpen(true);
+          }}
         />
 
         <MessagesModal

@@ -31,6 +31,7 @@ interface PendingModalProps {
   onCancel?: (requestId: string) => void;
   cancellingId?: string | null;
   userType: "founder" | "investor";
+  onViewProfile?: (userId: string, item: PendingItem) => void;
 }
 
 export function PendingModal({ 
@@ -40,7 +41,8 @@ export function PendingModal({
   loading,
   onCancel,
   cancellingId,
-  userType 
+  userType,
+  onViewProfile
 }: PendingModalProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -50,6 +52,12 @@ export function PendingModal({
       day: "numeric",
       year: "numeric",
     });
+  };
+
+  const handleNameClick = (item: PendingItem) => {
+    if (onViewProfile) {
+      onViewProfile(item.target_user_id, item);
+    }
   };
 
   return (
@@ -104,7 +112,10 @@ export function PendingModal({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-semibold text-white">
+                        <h4 
+                          className={`font-semibold text-white ${onViewProfile ? 'cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors' : ''}`}
+                          onClick={() => handleNameClick(item)}
+                        >
                           {userType === "founder" ? item.firm_name : item.company_name}
                         </h4>
                         <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs">

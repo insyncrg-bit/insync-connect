@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Building2, TrendingUp, MapPin, Calendar, MessageSquare, Maximize2, Minimize2 } from "lucide-react";
+import { Building2, MapPin, Calendar, MessageSquare, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import syncsLogo from "@/assets/syncs-logo.png";
 
 interface SyncItem {
   id: string;
@@ -29,6 +30,7 @@ interface SyncsModalProps {
   syncs: SyncItem[];
   loading: boolean;
   userType: "founder" | "investor";
+  onViewProfile?: (userId: string, sync: SyncItem) => void;
 }
 
 export function SyncsModal({ 
@@ -36,7 +38,8 @@ export function SyncsModal({
   onOpenChange, 
   syncs, 
   loading,
-  userType 
+  userType,
+  onViewProfile
 }: SyncsModalProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -46,6 +49,12 @@ export function SyncsModal({
       day: "numeric",
       year: "numeric",
     });
+  };
+
+  const handleNameClick = (sync: SyncItem) => {
+    if (onViewProfile) {
+      onViewProfile(sync.other_user_id, sync);
+    }
   };
 
   return (
@@ -58,7 +67,7 @@ export function SyncsModal({
         <DialogHeader className="p-6 pb-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <TrendingUp className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+              <img src={syncsLogo} alt="Syncs" className="h-6 w-10 object-contain" />
               Active Syncs
             </DialogTitle>
             <Button
@@ -79,7 +88,7 @@ export function SyncsModal({
             </div>
           ) : syncs.length === 0 ? (
             <div className="text-center py-12">
-              <TrendingUp className="h-12 w-12 text-white/20 mx-auto mb-4" />
+              <img src={syncsLogo} alt="Syncs" className="h-16 w-24 object-contain mx-auto mb-4 opacity-20" />
               <h3 className="text-lg font-semibold mb-2">No active syncs yet</h3>
               <p className="text-white/60 text-sm">
                 {userType === "founder" 
@@ -100,7 +109,10 @@ export function SyncsModal({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-semibold text-white">
+                        <h4 
+                          className={`font-semibold text-white ${onViewProfile ? 'cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors' : ''}`}
+                          onClick={() => handleNameClick(sync)}
+                        >
                           {userType === "founder" ? sync.firm_name : sync.company_name}
                         </h4>
                         <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
