@@ -1114,7 +1114,7 @@ export default function InvestorDashboard() {
                     {stat.icon ? (
                       <stat.icon className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
                     ) : stat.image ? (
-                      <img src={stat.image} alt={stat.label} className="h-4 w-4 object-contain" />
+                      <img src={stat.image} alt={stat.label} className="h-10 w-16 object-contain" />
                     ) : null}
                     <div>
                       <p className="text-xl font-semibold text-white">{stat.value}</p>

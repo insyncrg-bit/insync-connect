@@ -1054,7 +1054,7 @@ export default function FounderDashboard() {
                     {stat.icon ? (
                       <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                     ) : stat.image ? (
-                      <img src={stat.image} alt={stat.label} className="h-6 w-6 object-contain" />
+                      <img src={stat.image} alt={stat.label} className="h-12 w-20 object-contain" />
                     ) : null}
                     <p className="text-3xl font-bold text-white">{stat.value}</p>
                     <p className="text-base text-white/60">{stat.label}</p>
