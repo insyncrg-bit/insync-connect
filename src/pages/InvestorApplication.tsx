@@ -1445,7 +1445,7 @@ export default function InvestorApplication() {
           <div className="space-y-8">
             {/* Header Section */}
             <div className="text-center space-y-4">
-              <div className="inline-block px-8 py-3 bg-[hsl(220,40%,15%)] border border-[hsl(var(--cyan-glow))]/30 rounded-full text-sm font-semibold tracking-wider text-[hsl(var(--cyan-glow))] uppercase">
+              <div className="inline-block px-6 py-2 bg-white/10 backdrop-blur-sm border border-[hsl(var(--cyan-glow))]/30 rounded-full text-sm font-medium text-[hsl(var(--cyan-glow))]">
                 IN-SYNC | INVESTOR APPLICATION
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
