@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Building2, Check, X, Loader2, MapPin, DollarSign, Clock } from "lucide-react";
+import { Building2, Check, X, Loader2, MapPin, DollarSign, Clock, Maximize2, Minimize2 } from "lucide-react";
 
 interface InterestItem {
   id: string;
@@ -41,6 +42,8 @@ export function InterestsModal({
   processingId,
   userType
 }: InterestsModalProps) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -51,19 +54,35 @@ export function InterestsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden">
+      <DialogContent className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden transition-all duration-300 ${
+        isFullscreen 
+          ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none" 
+          : "max-w-2xl max-h-[80vh]"
+      }`}>
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-2xl font-bold text-white">
-            Incoming Interests
-          </DialogTitle>
-          <p className="text-white/60 text-sm mt-1">
-            {userType === 'investor' 
-              ? 'Startups that want to connect with you'
-              : 'Investors that want to connect with you'}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="text-2xl font-bold text-white">
+                Incoming Interests
+              </DialogTitle>
+              <p className="text-white/60 text-sm mt-1">
+                {userType === 'investor' 
+                  ? 'Startups that want to connect with you'
+                  : 'Investors that want to connect with you'}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="text-white/60 hover:text-white hover:bg-white/10"
+            >
+              {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+            </Button>
+          </div>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] p-6 pt-4">
+        <ScrollArea className={`p-6 pt-4 ${isFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--cyan-glow))]" />
@@ -81,7 +100,7 @@ export function InterestsModal({
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className={`${isFullscreen ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}`}>
               {interests.map((interest) => (
                 <Card key={interest.id} className="bg-white/5 border-white/10 p-5">
                   <div className="flex items-start justify-between gap-4">
