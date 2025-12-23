@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowRight, Upload, Check, Building2, Briefcase, Target, Use
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Navigation } from "@/components/Navigation";
 
 const STEPS = [
   { id: 0, title: "Welcome", icon: Sparkles },
@@ -1521,29 +1522,11 @@ export default function InvestorApplication() {
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] border border-white/15 rounded-full translate-y-1/2 -translate-x-1/2" />
       </div>
 
-      {/* Header */}
-      <header className="fixed top-0 w-full z-50 bg-[hsl(var(--navy-deep))]/80 backdrop-blur-lg border-b border-white/20">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between h-16">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/")}
-              className="gap-2 text-white hover:text-white/80 hover:bg-white/5"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg" />
-              <span className="text-xl font-bold text-white">In-Sync</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation */}
+      <Navigation />
 
       {/* Main Content */}
-      <main className="pt-24 pb-16 relative z-10">
+      <main className="pt-20 pb-16 relative z-10">
         <div className="container max-w-4xl mx-auto px-4 md:px-6">
           <div className="space-y-8">
             {/* Header Section */}

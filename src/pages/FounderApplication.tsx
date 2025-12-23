@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { Navigation } from "@/components/Navigation";
 
 // Word count helper
 const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
@@ -1344,39 +1345,11 @@ export default function FounderApplication() {
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2 -translate-x-1/2" />
       </div>
 
-      {/* Header */}
-      <header className="fixed top-0 w-full z-50 bg-[hsl(var(--navy-deep))]/80 backdrop-blur-lg border-b border-[hsl(var(--cyan-glow))]/20">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between h-16">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/")}
-              className="gap-2 text-white hover:text-[hsl(var(--cyan-glow))] hover:bg-white/5"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate("/founder-dashboard")}
-                className="text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30 hover:bg-[hsl(var(--cyan-glow))]/10"
-              >
-                Preview Dashboard
-              </Button>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg" />
-                <span className="text-xl font-bold text-white">In-Sync</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation */}
+      <Navigation />
 
       {/* Main Content */}
-      <main className="pt-24 pb-16 relative z-10">
+      <main className="pt-20 pb-16 relative z-10">
         <div className="container max-w-4xl mx-auto px-4 md:px-6">
           <div className="space-y-8">
             {/* Header Section */}
