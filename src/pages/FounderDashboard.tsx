@@ -1010,9 +1010,6 @@ export default function FounderDashboard() {
               <h1 className="text-2xl font-semibold text-white">
                 {application?.company_name || "Dashboard"}
               </h1>
-              <p className="text-white/60 mt-1">
-                Track your connections and opportunities
-              </p>
             </div>
 
             {/* Memo Quick Access - Minimal */}
