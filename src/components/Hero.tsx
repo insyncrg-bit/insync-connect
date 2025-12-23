@@ -55,24 +55,16 @@ export const Hero = () => {
             />
           </div>
 
-          {/* Universal value proposition - works for both audiences */}
-          <div className="space-y-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-white/95 leading-tight tracking-tight">
-              Where founders and investors <br className="hidden sm:block" />
-              <span className="text-cyan-glow font-medium">find their perfect match</span>
-            </h1>
-            <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto">
-              AI-powered matching based on thesis, stage, and sector alignment. 
-              No more cold outreach. Just warm intros that make sense.
-            </p>
-          </div>
+          {/* Single tagline */}
+          <p className="text-xl md:text-2xl text-white/70 font-light animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            AI-powered founder-investor matching
+          </p>
 
-          {/* Dual CTA - Equal weight for both audiences */}
+          {/* Dual CTA */}
           <div 
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 animate-fade-in"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-fade-in"
             style={{ animationDelay: '0.2s' }}
           >
-            {/* Founder CTA */}
             <Button
               size="lg"
               onClick={() => navigate("/founder-application")}
@@ -86,7 +78,6 @@ export const Hero = () => {
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
 
-            {/* Investor CTA */}
             <Button
               size="lg"
               variant="outline"
@@ -98,52 +89,6 @@ export const Hero = () => {
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
           </div>
-
-          {/* Dual value props - side by side */}
-          <div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto pt-8 animate-fade-in"
-            style={{ animationDelay: '0.3s' }}
-          >
-            {/* Founders perspective */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-left hover:border-cyan-glow/30 transition-colors">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-cyan-glow/20 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-cyan-glow" />
-                </div>
-                <span className="text-sm font-medium text-cyan-glow">For Founders</span>
-              </div>
-              <h3 className="text-white font-medium mb-2">
-                Stop chasing. Start matching.
-              </h3>
-              <p className="text-white/50 text-sm leading-relaxed">
-                Get introduced to VCs who are actively looking for your stage, sector, and business model. Free to use.
-              </p>
-            </div>
-
-            {/* Investors perspective */}
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-left hover:border-cyan-glow/30 transition-colors">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-cyan-glow/20 flex items-center justify-center">
-                  <Briefcase className="w-4 h-4 text-cyan-glow" />
-                </div>
-                <span className="text-sm font-medium text-cyan-glow">For Investors</span>
-              </div>
-              <h3 className="text-white font-medium mb-2">
-                See only what fits your thesis.
-              </h3>
-              <p className="text-white/50 text-sm leading-relaxed">
-                No more filtering through noise. Get curated deal flow that matches your investment criteria exactly.
-              </p>
-            </div>
-          </div>
-
-          {/* Trust element */}
-          <p 
-            className="text-xs text-white/40 animate-fade-in"
-            style={{ animationDelay: '0.4s' }}
-          >
-            5-minute setup • AI-powered matching • Quality over quantity
-          </p>
         </div>
       </div>
 
