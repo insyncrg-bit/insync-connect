@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Navigation } from "@/components/Navigation";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -1075,24 +1076,11 @@ export default function FounderDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#151a24]">
-      {/* Header */}
-      <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
-        <h1 className="text-lg font-semibold text-white">Welcome, {application?.company_name || "Founder"}!</h1>
-        <div className="flex-1" />
-        {currentTab === "memo" && (
-          <Button
-            size="sm"
-            onClick={() => navigate("/founder-dashboard")}
-            className="text-xs font-semibold bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300"
-          >
-            <ArrowRight className="h-3 w-3 mr-1 rotate-180" />
-            Back to Dashboard
-          </Button>
-        )}
-      </header>
+      {/* Navigation - same as landing page */}
+      <Navigation />
 
-      {/* Content */}
-      <main className="flex-1 p-6 md:p-8 overflow-auto">
+      {/* Content with top padding for fixed nav */}
+      <main className="flex-1 p-6 md:p-8 overflow-auto pt-24">
         {renderContent()}
       </main>
 
