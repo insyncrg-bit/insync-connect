@@ -27,6 +27,7 @@ import {
   Shield,
   Calculator
 } from "lucide-react";
+import insyncInfinity from "@/assets/insync-infinity.png";
 import {
   Dialog,
   DialogContent,
@@ -613,70 +614,65 @@ export function MemoModal({
               </div>
             )}
 
-            {/* Request Sync Section */}
-            <Card className="bg-gradient-to-r from-[hsl(var(--cyan-glow))]/10 to-purple-500/10 border-[hsl(var(--cyan-glow))]/30 p-6">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">Interested in this startup?</h3>
-                  <p className="text-white/60 text-sm">Request a sync to connect with the founder</p>
+            {/* Sync Section */}
+            <div className="border-t border-white/10 pt-6">
+              {isRequested ? (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-center">
+                  <p className="text-green-400 font-medium">Sync request sent! Waiting for response.</p>
                 </div>
-                {isRequested ? (
-                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 px-4 py-2">
-                    ✓ Sync Requested
-                  </Badge>
-                ) : showSyncForm ? (
-                  <div className="flex flex-col gap-3 w-full md:w-auto">
+              ) : showSyncForm ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-white/80 text-sm font-medium mb-2 block">
+                      Add a note to your sync request (optional, max 60 words)
+                    </label>
                     <Textarea
-                      placeholder="Add a note for the founder (optional, max 60 words)..."
                       value={syncNote}
                       onChange={(e) => setSyncNote(e.target.value)}
-                      className="bg-white/5 border-white/20 text-white placeholder:text-white/40 min-w-[300px]"
-                      rows={3}
+                      placeholder="Tell them why you'd be a great fit..."
+                      className="bg-white/5 border-white/20 text-white min-h-[100px]"
                     />
-                    <div className="flex items-center justify-between">
-                      <span className={`text-xs ${isOverLimit ? 'text-red-400' : 'text-white/40'}`}>
-                        {wordCount}/60 words
-                      </span>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setShowSyncForm(false);
-                            setSyncNote("");
-                          }}
-                          className="text-white/60 hover:text-white"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={handleSync}
-                          disabled={isRequesting || isOverLimit}
-                          className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90"
-                        >
-                          {isRequesting ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Sending...
-                            </>
-                          ) : (
-                            "Send Request"
-                          )}
-                        </Button>
-                      </div>
-                    </div>
+                    <p className={`text-xs mt-1 ${isOverLimit ? 'text-red-400' : 'text-white/40'}`}>
+                      {wordCount}/60 words
+                    </p>
                   </div>
-                ) : (
-                  <Button
-                    onClick={() => setShowSyncForm(true)}
-                    className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 font-semibold"
-                  >
-                    Request Sync
-                  </Button>
-                )}
-              </div>
-            </Card>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setShowSyncForm(false);
+                        setSyncNote("");
+                      }}
+                      className="text-white/70 hover:text-white hover:bg-white/10"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSync}
+                      disabled={isRequesting || isOverLimit}
+                      className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 flex-1"
+                    >
+                      {isRequesting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        "Send Sync Request"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => setShowSyncForm(true)}
+                  className="w-full bg-[hsl(220,60%,8%)] text-[hsl(var(--cyan-glow))] hover:bg-[hsl(220,60%,12%)] border border-[hsl(var(--cyan-glow))]/40 h-14 text-lg shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+                >
+                  <img src={insyncInfinity} alt="Sync" className="mr-3 h-10 w-16 object-contain brightness-125 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                  Request to Sync
+                </Button>
+              )}
+            </div>
           </div>
         </ScrollArea>
       </DialogContent>
