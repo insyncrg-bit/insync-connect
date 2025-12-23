@@ -1091,12 +1091,12 @@ export default function FounderDashboard() {
             </SidebarTrigger>
             <div className="flex-1" />
             <Button
-              variant="ghost"
               size="sm"
               onClick={() => navigate("/founder-dashboard")}
-              className="text-xs text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+              className="text-xs font-semibold bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300"
             >
-              ← Founder Dashboard
+              <ArrowRight className="h-3 w-3 mr-1 rotate-180" />
+              Founder Dashboard
             </Button>
           </header>
 
