@@ -66,6 +66,8 @@ export default function FounderApplication() {
   const [companyOverview, setCompanyOverview] = useState("");
   const [founderName, setFounderName] = useState("");
   const [founderEmail, setFounderEmail] = useState("");
+  const [founderPassword, setFounderPassword] = useState("");
+  const [founderConfirmPassword, setFounderConfirmPassword] = useState("");
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([{ name: "", role: "", linkedin: "", background: "" }]);
 
   // Section 2 - The Problem & Value Proposition
@@ -240,11 +242,17 @@ export default function FounderApplication() {
         if (!basicInfo.vertical) errors.push("Vertical is required");
         if (!basicInfo.stage) errors.push("Stage is required");
         if (!basicInfo.location.trim()) errors.push("Location is required");
+        if (!founderName.trim()) errors.push("Your name is required");
+        if (!founderEmail.trim()) errors.push("Your email is required");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(founderEmail)) errors.push("Please enter a valid email address");
+        if (founderPassword.length < 8) errors.push("Password must be at least 8 characters");
+        if (!/[A-Z]/.test(founderPassword)) errors.push("Password must contain at least one uppercase letter");
+        if (!/[a-z]/.test(founderPassword)) errors.push("Password must contain at least one lowercase letter");
+        if (!/[0-9]/.test(founderPassword)) errors.push("Password must contain at least one number");
+        if (founderPassword !== founderConfirmPassword) errors.push("Passwords do not match");
         break;
       case 2: // Team & Overview
         if (countWords(companyOverview) < 30) errors.push("Problem statement needs at least 30 words");
-        if (!founderName.trim()) errors.push("Your name is required");
-        if (!founderEmail.trim()) errors.push("Your email is required");
         if (!teamMembers[0]?.role?.trim()) errors.push("Your role is required");
         break;
       case 3: // Value Proposition
@@ -341,15 +349,45 @@ export default function FounderApplication() {
     
     setIsSubmitting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // First, create the user account
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: founderEmail,
+        password: founderPassword,
+        options: {
+          emailRedirectTo: `${window.location.origin}/founder-dashboard`,
+          data: {
+            full_name: founderName,
+          },
+        },
+      });
+
+      if (signUpError) {
+        if (signUpError.message?.includes("User already registered")) {
+          toast({
+            title: "Account Already Exists",
+            description: "This email is already registered. Please use the login page to access your dashboard.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Account Creation Failed",
+            description: signUpError.message,
+            variant: "destructive",
+          });
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      const user = signUpData.user;
 
       if (!user) {
         toast({
-          title: "Authentication Required",
-          description: "Please sign in to submit your application.",
+          title: "Account Creation Failed",
+          description: "Unable to create account. Please try again.",
           variant: "destructive",
         });
-        navigate("/");
+        setIsSubmitting(false);
         return;
       }
 
@@ -690,8 +728,44 @@ export default function FounderApplication() {
                     placeholder="you@company.com"
                   />
                   <p className="text-xs text-[hsl(var(--cyan-glow))] italic">
-                    This email will be used to log in and access your dashboard. It can be the founder's email or any team member's email.
+                    This email will be used to log in and access your dashboard.
                   </p>
+                </div>
+              </div>
+              
+              {/* Password Fields */}
+              <div className="grid md:grid-cols-2 gap-4 pt-4">
+                <div className="space-y-2">
+                  <Label>Create Password *</Label>
+                  <Input
+                    type="password"
+                    value={founderPassword}
+                    onChange={(e) => setFounderPassword(e.target.value)}
+                    placeholder="••••••••"
+                  />
+                  <div className="text-xs text-[hsl(var(--navy-deep))]/60 space-y-1">
+                    <p>Password must contain:</p>
+                    <ul className="list-disc list-inside space-y-0.5">
+                      <li className={founderPassword.length >= 8 ? "text-[hsl(var(--cyan-glow))]" : ""}>At least 8 characters</li>
+                      <li className={/[A-Z]/.test(founderPassword) ? "text-[hsl(var(--cyan-glow))]" : ""}>One uppercase letter</li>
+                      <li className={/[a-z]/.test(founderPassword) ? "text-[hsl(var(--cyan-glow))]" : ""}>One lowercase letter</li>
+                      <li className={/[0-9]/.test(founderPassword) ? "text-[hsl(var(--cyan-glow))]" : ""}>One number</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Confirm Password *</Label>
+                  <Input
+                    type="password"
+                    value={founderConfirmPassword}
+                    onChange={(e) => setFounderConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                  />
+                  {founderConfirmPassword && (
+                    <p className={`text-xs ${founderPassword === founderConfirmPassword ? "text-[hsl(var(--cyan-glow))]" : "text-destructive"}`}>
+                      {founderPassword === founderConfirmPassword ? "✓ Passwords match" : "✗ Passwords do not match"}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
