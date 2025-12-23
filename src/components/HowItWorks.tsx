@@ -328,8 +328,8 @@ export const HowItWorks = () => {
             <div className="p-8 flex items-center justify-center min-h-[350px]">
               <div className="relative">
                 {/* Center icon - InSync Logo PNG */}
-                <div className="w-24 h-24 rounded-full bg-cyan-glow/20 border-2 border-cyan-glow flex items-center justify-center p-2">
-                  <img src={infinityLogoTransparent} alt="InSync Logo" className="w-16 h-auto" />
+                <div className="w-28 h-28 rounded-full bg-cyan-glow/20 border-2 border-cyan-glow flex items-center justify-center p-2">
+                  <img src={infinityLogoTransparent} alt="InSync Logo" className="w-24 h-auto" />
                 </div>
                 
                 {/* Orbiting elements */}
