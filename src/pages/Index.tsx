@@ -1,7 +1,7 @@
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
-import { WhyInSync } from "@/components/WhyInSync";
+
 import { ClosingCTA } from "@/components/ClosingCTA";
 import { Footer } from "@/components/Footer";
 
@@ -15,7 +15,7 @@ const Index = () => {
         <main className="pt-16">
           <Hero />
           <HowItWorks />
-          <WhyInSync />
+          
           <ClosingCTA />
         </main>
         <Footer />
