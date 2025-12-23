@@ -13,7 +13,7 @@ export const Navigation = () => {
             <img 
               src={infinityLogo} 
               alt="In∞Sync" 
-              className="h-10 w-auto"
+              className="h-16 w-auto"
             />
           </div>
         </div>
