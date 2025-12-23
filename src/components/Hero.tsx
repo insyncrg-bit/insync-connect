@@ -8,7 +8,7 @@ export const Hero = () => {
   const navigate = useNavigate();
   
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pb-24">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Floating particles background */}
       <FloatingParticles />
       
@@ -62,7 +62,7 @@ export const Hero = () => {
 
           {/* Dual CTA */}
           <div 
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-fade-in"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in"
             style={{ animationDelay: '0.2s' }}
           >
             <Button
