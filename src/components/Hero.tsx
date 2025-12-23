@@ -35,7 +35,7 @@ export const Hero = () => {
 
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
-        <div className="max-w-5xl mx-auto text-center space-y-10">
+        <div className="max-w-5xl mx-auto text-center space-y-6">
           
           {/* Logo with pulsing glow */}
           <div className="relative animate-fade-in">
