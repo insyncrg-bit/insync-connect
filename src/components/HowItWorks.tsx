@@ -17,8 +17,8 @@ import {
   DollarSign
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { InfinityLogo } from "@/components/InfinityLogo";
 import { useNavigate } from "react-router-dom";
+import infinityLogoTransparent from "@/assets/infinity-logo-transparent.png";
 
 // Mock data for Founder Dashboard (seeing investors)
 const mockInvestors = [
@@ -327,9 +327,9 @@ export const HowItWorks = () => {
           {activeStep === 1 && (
             <div className="p-8 flex items-center justify-center min-h-[350px]">
               <div className="relative">
-                {/* Center icon - InSync Logo */}
-                <div className="w-20 h-20 rounded-full bg-cyan-glow/20 border-2 border-cyan-glow flex items-center justify-center">
-                  <InfinityLogo size={40} strokeColor="hsl(var(--cyan-glow))" strokeWidth={2.5} />
+                {/* Center icon - InSync Logo PNG */}
+                <div className="w-24 h-24 rounded-full bg-cyan-glow/20 border-2 border-cyan-glow flex items-center justify-center p-2">
+                  <img src={infinityLogoTransparent} alt="InSync Logo" className="w-16 h-auto" />
                 </div>
                 
                 {/* Orbiting elements */}
