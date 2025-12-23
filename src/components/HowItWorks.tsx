@@ -1,51 +1,32 @@
-import { FileText, Brain, Target, MessageSquare, TrendingUp, CheckCircle } from "lucide-react";
+import { FileText, Zap, LayoutDashboard, Users, MessageCircle, Heart, Bell, BarChart3 } from "lucide-react";
 
-const timelineSteps = [
+const steps = [
   {
-    phase: "Apply",
-    duration: "5 min",
+    number: "01",
     icon: FileText,
-    title: "Complete Your Profile",
-    founderDesc: "Share your pitch once — stage, vertical, traction, and what you're looking for.",
-    investorDesc: "Define your thesis — check sizes, sectors, stages, and deal-breakers.",
-    highlight: "One detailed form replaces hundreds of cold emails",
+    title: "Tell us about you",
+    description: "5 minutes. One form. No more repeating yourself.",
   },
   {
-    phase: "Match",
-    duration: "24-48 hrs",
-    icon: Brain,
-    title: "AI-Powered Matching",
-    founderDesc: "Our algorithm finds VCs whose thesis actually fits your company.",
-    investorDesc: "See only startups that match your investment criteria exactly.",
-    highlight: "90%+ match accuracy based on real thesis alignment",
+    number: "02",
+    icon: Zap,
+    title: "We find your people",
+    description: "Matches based on what actually matters to you.",
   },
   {
-    phase: "Connect",
-    duration: "Ongoing",
-    icon: Target,
-    title: "Your Personalized Dashboard",
-    founderDesc: "View matched investors, track interest signals, and manage warm intros.",
-    investorDesc: "Browse curated deal flow, save favorites, and request intros.",
-    highlight: "No more noise — just relevant opportunities",
+    number: "03",
+    icon: LayoutDashboard,
+    title: "Start connecting",
+    description: "Your dashboard. Your matches. Real conversations.",
   },
 ];
 
-const dashboardFeatures = [
-  {
-    icon: MessageSquare,
-    title: "Direct Messaging",
-    description: "Chat with matched founders or investors without exchanging emails",
-  },
-  {
-    icon: TrendingUp,
-    title: "Match Scores",
-    description: "See exactly why each match makes sense with transparent scoring",
-  },
-  {
-    icon: CheckCircle,
-    title: "Sync Requests",
-    description: "Express interest and get notified when it's mutual",
-  },
+const dashboardTeasers = [
+  { icon: Users, label: "Curated matches" },
+  { icon: Heart, label: "Mutual interest" },
+  { icon: MessageCircle, label: "Direct chat" },
+  { icon: Bell, label: "Real-time alerts" },
+  { icon: BarChart3, label: "Match insights" },
 ];
 
 export const HowItWorks = () => {
@@ -62,76 +43,54 @@ export const HowItWorks = () => {
             How it works
           </h2>
           <p className="text-2xl md:text-3xl text-white font-light">
-            From application to <span className="text-cyan-glow">warm intro</span> in 3 steps
+            Less searching. More <span className="text-cyan-glow">syncing</span>.
           </p>
         </div>
         
-        {/* Timeline */}
-        <div className="relative">
+        {/* Steps - visual timeline */}
+        <div className="relative mb-20">
           {/* Connecting line */}
-          <div className="hidden md:block absolute top-20 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-glow/30 to-transparent" />
+          <div className="hidden md:block absolute top-12 left-[16.5%] right-[16.5%] h-px bg-gradient-to-r from-cyan-glow/40 via-cyan-glow/20 to-cyan-glow/40" />
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 mb-16">
-            {timelineSteps.map((step, index) => (
-              <div 
-                key={index} 
-                className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-cyan-glow/30 transition-all duration-300"
-              >
-                {/* Phase badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-cyan-glow bg-cyan-glow/10 px-3 py-1 rounded-full">
-                    {step.phase}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+            {steps.map((step, index) => (
+              <div key={index} className="text-center group">
+                {/* Number + Icon */}
+                <div className="relative inline-flex items-center justify-center mb-6">
+                  <div className="w-24 h-24 rounded-full bg-navy-card border border-cyan-glow/20 flex items-center justify-center group-hover:border-cyan-glow/50 transition-all duration-300">
+                    <step.icon className="w-10 h-10 text-cyan-glow" />
+                  </div>
+                  <span className="absolute -top-2 -right-2 text-xs font-bold text-cyan-glow bg-navy-deep border border-cyan-glow/30 rounded-full w-8 h-8 flex items-center justify-center">
+                    {step.number}
                   </span>
-                  <span className="text-xs text-white/40">{step.duration}</span>
-                </div>
-                
-                {/* Icon */}
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-cyan-glow/10 border border-cyan-glow/20 mb-4">
-                  <step.icon className="w-5 h-5 text-cyan-glow" />
                 </div>
                 
                 {/* Content */}
-                <h3 className="text-lg font-semibold text-white mb-3">
+                <h3 className="text-xl font-medium text-white mb-2">
                   {step.title}
                 </h3>
-                
-                <div className="space-y-2 mb-4">
-                  <p className="text-white/60 text-sm">
-                    <span className="text-cyan-glow/80 font-medium">Founders:</span> {step.founderDesc}
-                  </p>
-                  <p className="text-white/60 text-sm">
-                    <span className="text-cyan-glow/80 font-medium">Investors:</span> {step.investorDesc}
-                  </p>
-                </div>
-                
-                {/* Highlight */}
-                <p className="text-xs text-white/40 italic border-t border-white/10 pt-3">
-                  {step.highlight}
+                <p className="text-white/50 text-sm max-w-[200px] mx-auto">
+                  {step.description}
                 </p>
               </div>
             ))}
           </div>
         </div>
         
-        {/* Dashboard preview section */}
-        <div className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-2xl p-8">
-          <h3 className="text-center text-lg font-medium text-white mb-2">
-            What you get on your dashboard
-          </h3>
-          <p className="text-center text-white/50 text-sm mb-8">
-            Your command center for fundraising or deal sourcing
+        {/* Dashboard teaser */}
+        <div className="text-center">
+          <p className="text-white/40 text-sm mb-6">
+            Once you're in, your dashboard gives you:
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {dashboardFeatures.map((feature, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-cyan-glow/10 flex items-center justify-center">
-                  <feature.icon className="w-4 h-4 text-cyan-glow" />
-                </div>
-                <div>
-                  <h4 className="text-white font-medium text-sm mb-1">{feature.title}</h4>
-                  <p className="text-white/50 text-xs">{feature.description}</p>
-                </div>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {dashboardTeasers.map((item, index) => (
+              <div 
+                key={index}
+                className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 hover:border-cyan-glow/30 hover:bg-cyan-glow/5 transition-all duration-300"
+              >
+                <item.icon className="w-4 h-4 text-cyan-glow" />
+                <span className="text-white/70 text-sm">{item.label}</span>
               </div>
             ))}
           </div>
