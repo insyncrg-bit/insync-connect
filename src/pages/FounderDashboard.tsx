@@ -1001,35 +1001,35 @@ export default function FounderDashboard() {
 
       default:
         return (
-          <div className="max-w-6xl mx-auto space-y-8">
-            {/* Welcome Section - Clean */}
+          <div className="max-w-6xl mx-auto space-y-10">
+            {/* Welcome Section - Prominent */}
             <div>
-              <h1 className="text-2xl font-semibold text-white">
+              <h1 className="text-4xl font-bold text-white">
                 Welcome, {application?.company_name || "Founder"}!
               </h1>
             </div>
 
-            {/* Memo Quick Access - Minimal */}
+            {/* Memo Quick Access - Larger */}
             <Card 
-              className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer"
+              className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
               onClick={() => navigate("/founder-dashboard?tab=memo")}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <Building2 className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <Building2 className="h-7 w-7 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="font-medium text-white">{application?.company_name ? `${application.company_name}'s Memo` : "Your Memo"}</p>
-                    <p className="text-xs text-white/60">{application?.vertical} • {application?.stage}</p>
+                    <p className="text-xl font-semibold text-white">{application?.company_name ? `${application.company_name}'s Memo` : "Your Memo"}</p>
+                    <p className="text-sm text-white/60">{application?.vertical} • {application?.stage}</p>
                   </div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-white/60" />
+                <ArrowRight className="h-6 w-6 text-white/60" />
               </div>
             </Card>
 
-            {/* Stats - Clean horizontal layout */}
-            <div className="grid grid-cols-4 gap-3">
+            {/* Stats - Larger with horizontal layout */}
+            <div className="grid grid-cols-4 gap-4">
               {[
                 { label: "Interests", value: displayStats.interests, icon: Heart, onClick: handleOpenInterests },
                 { label: "Syncs", value: displayStats.syncs, icon: TrendingUp, onClick: handleOpenSyncs },
@@ -1038,15 +1038,13 @@ export default function FounderDashboard() {
               ].map((stat) => (
                 <Card 
                   key={stat.label}
-                  className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer"
+                  className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
                   onClick={stat.onClick}
                 >
-                  <div className="flex items-center gap-3">
-                    <stat.icon className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
-                    <div>
-                      <p className="text-xl font-semibold text-white">{stat.value}</p>
-                      <p className="text-xs text-white/60">{stat.label}</p>
-                    </div>
+                  <div className="flex items-center gap-4">
+                    <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                    <p className="text-3xl font-bold text-white">{stat.value}</p>
+                    <p className="text-base text-white/60">{stat.label}</p>
                   </div>
                 </Card>
               ))}
