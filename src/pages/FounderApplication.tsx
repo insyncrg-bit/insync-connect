@@ -61,6 +61,8 @@ export default function FounderApplication() {
   });
   const [companyLogo, setCompanyLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [pitchdeck, setPitchdeck] = useState<File | null>(null);
+  const [pitchdeckName, setPitchdeckName] = useState<string | null>(null);
 
   // Section 1 - Company Overview & Team
   const [companyOverview, setCompanyOverview] = useState("");
@@ -197,6 +199,30 @@ export default function FounderApplication() {
         setLogoPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePitchdeckUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload a PDF file.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please upload a file smaller than 20MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setPitchdeck(file);
+      setPitchdeckName(file.name);
     }
   };
 
@@ -411,6 +437,26 @@ export default function FounderApplication() {
         }
       }
 
+      // Upload pitchdeck if provided
+      let pitchdeckUrl: string | null = null;
+      if (pitchdeck) {
+        const fileExt = pitchdeck.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('pitch-decks')
+          .upload(fileName, pitchdeck);
+        
+        if (uploadError) {
+          console.error('Pitchdeck upload error:', uploadError);
+        } else {
+          const { data: urlData } = supabase.storage
+            .from('pitch-decks')
+            .getPublicUrl(fileName);
+          pitchdeckUrl = urlData.publicUrl;
+        }
+      }
+
       const applicationSections = {
         section1: {
           companyOverview,
@@ -475,6 +521,7 @@ export default function FounderApplication() {
           traction: revenueMetricsValues || "N/A",
           current_ask: gtmAcquisition || "N/A",
           logo_url: logoUrl,
+          pitchdeck_url: pitchdeckUrl,
           application_sections: {
             ...applicationSections,
             linkedIn: basicInfo.linkedIn,
@@ -630,6 +677,38 @@ export default function FounderApplication() {
                     </Button>
                   </Label>
                   <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PNG, JPG up to 5MB</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Pitchdeck Upload */}
+            <div className="space-y-2">
+              <Label className="font-medium">Pitch Deck (Optional)</Label>
+              <div className="flex items-center gap-4">
+                <div className="w-24 h-24 rounded-lg border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center">
+                  {pitchdeckName ? (
+                    <div className="text-center p-2">
+                      <CheckCircle className="w-6 h-6 text-[hsl(var(--cyan-glow))] mx-auto mb-1" />
+                      <p className="text-[10px] text-[hsl(var(--navy-deep))]/70 truncate max-w-[80px]">{pitchdeckName}</p>
+                    </div>
+                  ) : (
+                    <Upload className="w-8 h-8 text-[hsl(var(--navy-deep))]/40" />
+                  )}
+                </div>
+                <div>
+                  <Input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handlePitchdeckUpload}
+                    className="hidden"
+                    id="pitchdeck-upload"
+                  />
+                  <Label htmlFor="pitchdeck-upload" className="cursor-pointer">
+                    <Button type="button" variant="outline" asChild>
+                      <span>{pitchdeckName ? 'Replace Pitch Deck' : 'Upload Pitch Deck'}</span>
+                    </Button>
+                  </Label>
+                  <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PDF up to 20MB</p>
                 </div>
               </div>
             </div>
