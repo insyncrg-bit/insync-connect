@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Target, Zap, XCircle, DollarSign, Briefcase, Users, Handshake, Building2, MapPin, TrendingUp, Loader2 } from "lucide-react";
+import { Target, Zap, XCircle, DollarSign, Briefcase, Users, Handshake, Building2, MapPin, TrendingUp, Loader2, ArrowLeft, FileText, Maximize2, Minimize2 } from "lucide-react";
 
 interface InvestorApplication {
   id: string;
@@ -55,6 +55,8 @@ export function InvestorProfileModal({
 }: InvestorProfileModalProps) {
   const [syncNote, setSyncNote] = useState("");
   const [showSyncForm, setShowSyncForm] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showFullThesis, setShowFullThesis] = useState(false);
 
   const wordCount = syncNote.trim().split(/\s+/).filter(Boolean).length;
   const isOverLimit = wordCount > 60;
@@ -67,9 +69,15 @@ export function InvestorProfileModal({
     }
   };
 
+  const handleClose = () => {
+    setIsFullscreen(false);
+    setShowFullThesis(false);
+    onOpenChange(false);
+  };
+
   if (loading) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-4xl max-h-[90vh] bg-[hsl(var(--navy-deep))] border-white/10">
           <div className="flex items-center justify-center py-12">
             <div className="text-white/60">Loading investor profile...</div>
@@ -84,9 +92,45 @@ export function InvestorProfileModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden">
-        <ScrollArea className="max-h-[90vh]">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden transition-all duration-300 ${
+        isFullscreen 
+          ? 'max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none' 
+          : 'max-w-4xl max-h-[90vh]'
+      }`}>
+        {/* Top Navigation Bar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[hsl(var(--navy-deep))]">
+          <Button
+            variant="ghost"
+            onClick={handleClose}
+            className="text-white/70 hover:text-white hover:bg-white/10 gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowFullThesis(!showFullThesis)}
+              className="border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10 gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              {showFullThesis ? "Condensed View" : "Full Thesis"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="border-white/20 text-white/70 hover:text-white hover:bg-white/10"
+            >
+              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
+          </div>
+        </div>
+
+        <ScrollArea className={isFullscreen ? "h-[calc(100vh-65px)]" : "max-h-[calc(90vh-65px)]"}>
           <div className="p-8">
             {/* Header */}
             <DialogHeader className="mb-8">
@@ -102,7 +146,7 @@ export function InvestorProfileModal({
                 </div>
               </div>
               {investor.firm_description && (
-                <p className="text-white/70 text-sm mt-4 leading-relaxed">
+                <p className={`text-white/70 text-sm mt-4 leading-relaxed ${!showFullThesis && 'line-clamp-3'}`}>
                   {investor.firm_description}
                 </p>
               )}
