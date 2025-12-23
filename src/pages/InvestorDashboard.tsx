@@ -782,17 +782,17 @@ export default function InvestorDashboard() {
     const isRequested = founder.user_id ? pendingRequests.has(founder.user_id) : false;
 
     return (
-      <Card className="bg-card/50 backdrop-blur-sm border-border/50 p-5 hover:border-primary/50 transition-all duration-200 group">
+      <Card className="bg-navy-card border-white/10 p-5 hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-200 group">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-primary" />
+            <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+              <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
             </div>
             <div>
-              <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">
+              <h4 className="font-medium text-white group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
                 {founder.company_name}
               </h4>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <p className="text-xs text-white/60 flex items-center gap-1">
                 <MapPin className="h-3 w-3" />
                 {founder.location}
               </p>
@@ -805,21 +805,21 @@ export default function InvestorDashboard() {
           <span className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(founder.stage)}`}>
             {founder.stage}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">
             {founder.vertical}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
             {founder.funding_goal}
           </span>
         </div>
 
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+        <p className="text-sm text-white/60 mb-4 line-clamp-2">
           {founder.business_model}
         </p>
 
-        <div className="pt-3 border-t border-border/50">
+        <div className="pt-3 border-t border-white/10">
           {isRequested ? (
-            <div className="flex items-center gap-2 text-green-500 text-sm">
+            <div className="flex items-center gap-2 text-green-400 text-sm">
               <Check className="h-4 w-4" />
               Sync Requested
             </div>
@@ -827,7 +827,7 @@ export default function InvestorDashboard() {
             <Button 
               variant="ghost"
               size="sm"
-              className="w-full text-primary hover:bg-primary/10"
+              className="w-full text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
               onClick={() => {
                 setSelectedStartup({
                   id: founder.id,
@@ -860,17 +860,17 @@ export default function InvestorDashboard() {
     const isRequested = app.user_id ? pendingRequests.has(app.user_id) : false;
 
     return (
-      <Card className="bg-card/50 backdrop-blur-sm border-border/50 p-5 hover:border-primary/50 transition-all duration-200 group">
+      <Card className="bg-navy-card border-white/10 p-5 hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-200 group">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-primary" />
+            <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+              <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
             </div>
             <div>
-              <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">
+              <h4 className="font-medium text-white group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
                 {app.company_name}
               </h4>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <p className="text-xs text-white/60 flex items-center gap-1">
                 <MapPin className="h-3 w-3" />
                 {app.location}
               </p>
@@ -882,19 +882,19 @@ export default function InvestorDashboard() {
           <span className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(app.stage)}`}>
             {app.stage}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">
             {app.vertical}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
             {app.funding_goal}
           </span>
         </div>
 
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{app.business_model}</p>
+        <p className="text-sm text-white/60 mb-4 line-clamp-2">{app.business_model}</p>
 
-        <div className="pt-3 border-t border-border/50">
+        <div className="pt-3 border-t border-white/10">
           {isRequested ? (
-            <div className="flex items-center gap-2 text-green-500 text-sm">
+            <div className="flex items-center gap-2 text-green-400 text-sm">
               <Check className="h-4 w-4" />
               Sync Requested
             </div>
@@ -902,7 +902,7 @@ export default function InvestorDashboard() {
             <Button 
               variant="ghost"
               size="sm"
-              className="w-full text-primary hover:bg-primary/10"
+              className="w-full text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
               onClick={() => {
                 setSelectedStartup(app);
                 setMemoModalOpen(true);
@@ -1061,33 +1061,33 @@ export default function InvestorDashboard() {
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Welcome Section - Clean */}
             <div>
-              <h1 className="text-2xl font-semibold text-foreground">
+              <h1 className="text-2xl font-semibold text-white">
                 {investorApplication?.firm_name || "Dashboard"}
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-white/60 mt-1">
                 Discover and connect with promising startups
               </p>
             </div>
 
             {/* Thesis Quick Access - Minimal */}
             <Card 
-              className="bg-card/50 backdrop-blur-sm border-border/50 p-4 hover:border-primary/30 transition-all duration-200 cursor-pointer"
+              className="bg-navy-card border-white/10 p-4 hover:border-[hsl(var(--cyan-glow))]/30 transition-all duration-200 cursor-pointer"
               onClick={fetchInvestorThesis}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <FileText className="h-4 w-4 text-primary" />
+                  <div className="w-9 h-9 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                    <FileText className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">{investorApplication?.firm_name || "Your Thesis"}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-medium text-white">{investorApplication?.firm_name || "Your Thesis"}</p>
+                    <p className="text-xs text-white/60">
                       {investorApplication?.stage_focus?.slice(0, 2).join(" • ") || "Investment Thesis"} 
                       {investorApplication?.check_sizes?.[0] && ` • ${investorApplication.check_sizes[0]}`}
                     </p>
                   </div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <ArrowRight className="h-4 w-4 text-white/60" />
               </div>
             </Card>
 
@@ -1109,14 +1109,14 @@ export default function InvestorDashboard() {
               ].map((stat) => (
                 <Card 
                   key={stat.label}
-                  className="bg-card/50 backdrop-blur-sm border-border/50 p-4 hover:border-primary/30 transition-all duration-200 cursor-pointer"
+                  className="bg-navy-card border-white/10 p-4 hover:border-[hsl(var(--cyan-glow))]/30 transition-all duration-200 cursor-pointer"
                   onClick={stat.onClick}
                 >
                   <div className="flex items-center gap-3">
-                    <stat.icon className="h-4 w-4 text-primary" />
+                    <stat.icon className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
                     <div>
-                      <p className="text-xl font-semibold text-foreground">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.label}</p>
+                      <p className="text-xl font-semibold text-white">{stat.value}</p>
+                      <p className="text-xs text-white/60">{stat.label}</p>
                     </div>
                   </div>
                 </Card>
@@ -1126,9 +1126,9 @@ export default function InvestorDashboard() {
             {/* Curated Startups - Clean section */}
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium text-foreground">Curated Startups</h2>
+                <h2 className="text-lg font-medium text-white">Curated Startups</h2>
                 <button 
-                  className="text-sm text-primary hover:underline flex items-center gap-1"
+                  className="text-sm text-[hsl(var(--cyan-glow))] hover:underline flex items-center gap-1"
                   onClick={() => navigate("/investor-dashboard?tab=startups")}
                 >
                   View all <ArrowRight className="h-3 w-3" />
@@ -1148,17 +1148,17 @@ export default function InvestorDashboard() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-[hsl(var(--navy-deep))]">
         <InvestorSidebar />
         
         <main className="flex-1 flex flex-col">
           {/* Header - Clean */}
-          <header className="h-12 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center px-4 gap-4">
-            <SidebarTrigger className="text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md p-1.5">
+          <header className="h-12 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-4 gap-4">
+            <SidebarTrigger className="text-white/60 hover:text-white hover:bg-white/10 rounded-md p-1.5">
               <Menu className="h-4 w-4" />
             </SidebarTrigger>
             <div className="flex-1" />
-            <span className="text-xs text-muted-foreground">Investor Portal</span>
+            <span className="text-xs text-white/60">Investor Portal</span>
           </header>
 
           {/* Content - Clean padding */}
