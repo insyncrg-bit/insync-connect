@@ -1445,14 +1445,14 @@ export default function InvestorApplication() {
           <div className="space-y-8">
             {/* Header Section */}
             <div className="text-center space-y-4">
-              <div className="inline-block px-6 py-2 bg-white/10 backdrop-blur-sm border border-white/30 rounded-full text-sm font-medium text-white">
-                Investor Application
+              <div className="inline-block px-6 py-2 bg-[hsl(var(--cyan-glow))] rounded-full text-sm font-semibold tracking-wide text-[hsl(var(--navy-deep))] uppercase">
+                IN-SYNC | INVESTOR APPLICATION
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                Join the In-Sync Ecosystem
+                VC Thesis
               </h1>
-              <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                Connect with Boston's most promising startups and become part of a curated investor community
+              <p className="text-lg text-white/60 max-w-2xl mx-auto">
+                Join the In-Sync Ecosystem
               </p>
             </div>
 
