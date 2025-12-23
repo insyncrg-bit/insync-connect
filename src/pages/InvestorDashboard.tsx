@@ -14,7 +14,7 @@ import { MessagesModal } from "@/components/MessagesModal";
 import { MemoModal } from "@/components/MemoModal";
 import { MatchScoreBadge } from "@/components/MatchScoreBadge";
 import { MatchExplainer } from "@/components/MatchExplainer";
-import { DashboardBackground } from "@/components/DashboardBackground";
+
 import { useMatchmaking, MatchResult } from "@/hooks/useMatchmaking";
 import { 
   Building2, 
@@ -1149,11 +1149,10 @@ export default function InvestorDashboard() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[hsl(var(--navy-deep))] relative overflow-hidden">
-        <DashboardBackground />
+      <div className="min-h-screen flex w-full bg-background">
         <InvestorSidebar />
         
-        <main className="flex-1 flex flex-col relative z-10">
+        <main className="flex-1 flex flex-col">
           {/* Header - Clean */}
           <header className="h-12 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-4 gap-4">
             <SidebarTrigger className="text-white/60 hover:text-white hover:bg-white/10 rounded-md p-1.5">
