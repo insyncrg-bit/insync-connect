@@ -263,76 +263,76 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </div>
           </Card>
 
-          {/* Quick Stats Grid - Colorful */}
+          {/* Quick Stats Grid - Subtle colors */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/20 to-[hsl(var(--cyan-glow))]/5 border-[hsl(var(--cyan-glow))]/30 p-4 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+            <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/30 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+                <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
                 </div>
                 <div>
-                  <p className="text-[hsl(var(--cyan-glow))]/80 text-xs font-medium">Team Size</p>
-                  <p className="text-white font-bold text-lg">{teamMembers.length || 1}</p>
+                  <p className="text-white/40 text-xs font-medium">Team Size</p>
+                  <p className="text-white font-semibold">{teamMembers.length || 1}</p>
                 </div>
               </div>
             </Card>
-            <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 border-purple-500/30 p-4 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+            <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/30 flex items-center justify-center">
-                  <Target className="h-5 w-5 text-purple-400" />
+                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                  <Target className="h-5 w-5 text-purple-400/70" />
                 </div>
                 <div>
-                  <p className="text-purple-400/80 text-xs font-medium">Customer</p>
-                  <p className="text-white font-bold text-lg">{sections.section3?.customerType?.join("/") || "—"}</p>
+                  <p className="text-white/40 text-xs font-medium">Customer</p>
+                  <p className="text-white font-semibold">{sections.section3?.customerType?.join("/") || "—"}</p>
                 </div>
               </div>
             </Card>
-            <Card className="bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border-emerald-500/30 p-4 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+            <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/30 flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-emerald-400" />
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-emerald-400/70" />
                 </div>
                 <div>
-                  <p className="text-emerald-400/80 text-xs font-medium">Revenue Model</p>
-                  <p className="text-white font-bold text-sm">{sections.section3?.pricingStrategies?.[0] || "—"}</p>
+                  <p className="text-white/40 text-xs font-medium">Revenue Model</p>
+                  <p className="text-white font-semibold text-sm">{sections.section3?.pricingStrategies?.[0] || "—"}</p>
                 </div>
               </div>
             </Card>
-            <Card className="bg-gradient-to-br from-amber-500/20 to-amber-500/5 border-amber-500/30 p-4 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+            <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-500/30 flex items-center justify-center">
-                  <Zap className="h-5 w-5 text-amber-400" />
+                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                  <Zap className="h-5 w-5 text-amber-400/70" />
                 </div>
                 <div>
-                  <p className="text-amber-400/80 text-xs font-medium">Value Drivers</p>
-                  <p className="text-white font-bold text-lg">{sections.section2?.valueDrivers?.length || 0}</p>
+                  <p className="text-white/40 text-xs font-medium">Value Drivers</p>
+                  <p className="text-white font-semibold">{sections.section2?.valueDrivers?.length || 0}</p>
                 </div>
               </div>
             </Card>
           </div>
 
-          {/* Problem & Solution - Colorful */}
+          {/* Problem & Solution - Subtle */}
           <div className="grid md:grid-cols-2 gap-6">
-            <Card className="bg-gradient-to-br from-rose-500/10 to-rose-500/5 border-rose-500/30 p-6 shadow-[0_0_15px_rgba(244,63,94,0.1)]">
+            <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center">
-                  <Target className="h-4 w-4 text-rose-400" />
+                <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                  <Target className="h-4 w-4 text-rose-400/70" />
                 </div>
-                <h3 className="text-lg font-semibold text-rose-300">The Problem</h3>
+                <h3 className="text-lg font-semibold text-white">The Problem</h3>
               </div>
-              <p className="text-white/80 leading-relaxed">
+              <p className="text-white/70 leading-relaxed">
                 {sections.section2?.currentPainPoint || "Problem statement will appear here based on your application."}
               </p>
             </Card>
 
-            <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border-emerald-500/30 p-6 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+            <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                  <Rocket className="h-4 w-4 text-emerald-400" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <Rocket className="h-4 w-4 text-emerald-400/70" />
                 </div>
-                <h3 className="text-lg font-semibold text-emerald-300">The Solution</h3>
+                <h3 className="text-lg font-semibold text-white">The Solution</h3>
               </div>
-              <p className="text-white/80 leading-relaxed">
+              <p className="text-white/70 leading-relaxed">
                 {formData.business_model || "Your solution description will appear here."}
               </p>
             </Card>
@@ -367,35 +367,35 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </div>
           </Card>
 
-          {/* Section 1: Problem & Value Proposition - Rose accent */}
-          <Card className="bg-gradient-to-br from-rose-500/10 to-navy-card border-rose-500/20 p-8 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+          {/* Section 1: Problem & Value Proposition */}
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center">
-                <Target className="h-5 w-5 text-rose-400" />
+              <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                <Target className="h-5 w-5 text-rose-400/70" />
               </div>
-              <h2 className="text-2xl font-bold text-rose-300">Problem & Value Proposition</h2>
+              <h2 className="text-2xl font-bold text-white">Problem & Value Proposition</h2>
             </div>
 
             <div className="space-y-6">
               <div>
-                <h4 className="text-sm font-semibold text-rose-400/70 uppercase tracking-wider mb-3">The Problem</h4>
-                <p className="text-white/90 leading-relaxed text-lg">
+                <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">The Problem</h4>
+                <p className="text-white/80 leading-relaxed text-lg">
                   {sections.section2?.currentPainPoint || "No problem statement provided."}
                 </p>
               </div>
 
-              <Separator className="bg-rose-500/20" />
+              <Separator className="bg-white/10" />
 
               <div>
-                <h4 className="text-sm font-semibold text-rose-400/70 uppercase tracking-wider mb-4">Value Drivers</h4>
+                <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Value Drivers</h4>
                 <div className="grid md:grid-cols-2 gap-4">
                   {sections.section2?.valueDrivers?.map((driver: string, i: number) => (
-                    <div key={i} className="bg-white/5 rounded-xl p-4 border border-rose-500/20">
+                    <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10">
                       <div className="flex items-center gap-2 mb-2">
-                        <Zap className="h-4 w-4 text-amber-400" />
+                        <Zap className="h-4 w-4 text-amber-400/70" />
                         <span className="font-semibold text-white">{valueDriverLabels[driver] || driver}</span>
                       </div>
-                      <p className="text-white/70 text-sm">
+                      <p className="text-white/60 text-sm">
                         {sections.section2?.valueDriverExplanations?.[driver] || "No explanation provided."}
                       </p>
                     </div>
@@ -405,43 +405,43 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </div>
           </Card>
 
-          {/* Section 2: Business Model - Emerald accent */}
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-navy-card border-emerald-500/20 p-8 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+          {/* Section 2: Business Model */}
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-emerald-400" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-emerald-400/70" />
               </div>
-              <h2 className="text-2xl font-bold text-emerald-300">Business Model</h2>
+              <h2 className="text-2xl font-bold text-white">Business Model</h2>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h4 className="text-sm font-semibold text-emerald-400/70 uppercase tracking-wider mb-3">Customer Type</h4>
+                <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Customer Type</h4>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {sections.section3?.customerType?.map((type: string, i: number) => (
-                    <Badge key={i} className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-sm px-3 py-1">
+                    <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]/80 border-[hsl(var(--cyan-glow))]/20 text-sm px-3 py-1">
                       {type}
                     </Badge>
                   )) || <span className="text-white/50">Not specified</span>}
                 </div>
                 {sections.section3?.customerTypeExplanation && (
-                  <p className="text-white/70 text-sm">{sections.section3.customerTypeExplanation}</p>
+                  <p className="text-white/60 text-sm">{sections.section3.customerTypeExplanation}</p>
                 )}
                 {sections.section3?.businessStructure && (
                   <div className="mt-4">
-                    <h4 className="text-sm font-semibold text-emerald-400/70 uppercase tracking-wider mb-2">Business Structure</h4>
-                    <p className="text-white/70 text-sm">{sections.section3.businessStructure}</p>
+                    <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-2">Business Structure</h4>
+                    <p className="text-white/60 text-sm">{sections.section3.businessStructure}</p>
                   </div>
                 )}
               </div>
 
               <div>
-                <h4 className="text-sm font-semibold text-emerald-400/70 uppercase tracking-wider mb-3">Revenue Streams</h4>
+                <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Revenue Streams</h4>
                 <div className="space-y-2">
                   {sections.section3?.pricingStrategies?.map((strategy: string, i: number) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                      <span className="text-white capitalize">{strategy}</span>
+                      <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]/60" />
+                      <span className="text-white/80 capitalize">{strategy}</span>
                     </div>
                   )) || <span className="text-white/50">Not specified</span>}
                 </div>
@@ -449,26 +449,26 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </div>
           </Card>
 
-          {/* Section 3: Go-to-Market - Purple accent */}
-          <Card className="bg-gradient-to-br from-purple-500/10 to-navy-card border-purple-500/20 p-8 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+          {/* Section 3: Go-to-Market */}
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                <Rocket className="h-5 w-5 text-purple-400" />
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                <Rocket className="h-5 w-5 text-purple-400/70" />
               </div>
-              <h2 className="text-2xl font-bold text-purple-300">Go-to-Market Strategy</h2>
+              <h2 className="text-2xl font-bold text-white">Go-to-Market Strategy</h2>
             </div>
 
             <div className="space-y-6">
               {sections.section4?.gtmAcquisition && (
                 <div>
-                  <h4 className="text-sm font-semibold text-purple-400/70 uppercase tracking-wider mb-3">Customer Acquisition</h4>
-                  <p className="text-white/90 leading-relaxed">{sections.section4.gtmAcquisition}</p>
+                  <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Customer Acquisition</h4>
+                  <p className="text-white/80 leading-relaxed">{sections.section4.gtmAcquisition}</p>
                 </div>
               )}
               {sections.section4?.gtmTimeline && (
                 <div>
-                  <h4 className="text-sm font-semibold text-purple-400/70 uppercase tracking-wider mb-3">Timeline</h4>
-                  <p className="text-white/90 leading-relaxed">{sections.section4.gtmTimeline}</p>
+                  <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Timeline</h4>
+                  <p className="text-white/80 leading-relaxed">{sections.section4.gtmTimeline}</p>
                 </div>
               )}
               {!sections.section4?.gtmAcquisition && !sections.section4?.gtmTimeline && (
@@ -477,75 +477,75 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </div>
           </Card>
 
-          {/* Section 4: Market Opportunity - Amber accent */}
-          <Card className="bg-gradient-to-br from-amber-500/10 to-navy-card border-amber-500/20 p-8 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+          {/* Section 4: Market Opportunity */}
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-amber-400" />
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-amber-400/70" />
               </div>
-              <h2 className="text-2xl font-bold text-amber-300">Market Opportunity</h2>
+              <h2 className="text-2xl font-bold text-white">Market Opportunity</h2>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 mb-6">
               <button 
                 onClick={() => setSelectedMetric("tam")}
-                className="bg-gradient-to-br from-amber-500/20 to-amber-500/5 rounded-xl p-6 border border-amber-500/30 text-center hover:border-amber-500/60 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all cursor-pointer group"
+                className="bg-white/5 rounded-xl p-6 border border-white/10 text-center hover:border-[hsl(var(--cyan-glow))]/30 transition-all cursor-pointer group"
               >
-                <p className="text-sm text-amber-400 font-semibold mb-2">Total Addressable Market</p>
-                <p className="text-4xl font-bold text-white mb-2">{sections.section5?.tamValue || "—"}</p>
-                <p className="text-xs text-amber-400/50 group-hover:text-amber-400/80 flex items-center justify-center gap-1">
-                  <Calculator className="h-3 w-3" /> View calculation method
+                <p className="text-sm text-white/50 font-semibold mb-2">Total Addressable Market</p>
+                <p className="text-3xl font-bold text-white mb-2">{sections.section5?.tamValue || "—"}</p>
+                <p className="text-xs text-white/30 group-hover:text-[hsl(var(--cyan-glow))]/60 flex items-center justify-center gap-1">
+                  <Calculator className="h-3 w-3" /> View calculation
                 </p>
               </button>
               <button 
                 onClick={() => setSelectedMetric("sam")}
-                className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/20 to-[hsl(var(--cyan-glow))]/5 rounded-xl p-6 border border-[hsl(var(--cyan-glow))]/30 text-center hover:border-[hsl(var(--cyan-glow))]/60 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all cursor-pointer group"
+                className="bg-white/5 rounded-xl p-6 border border-white/10 text-center hover:border-[hsl(var(--cyan-glow))]/30 transition-all cursor-pointer group"
               >
-                <p className="text-sm text-[hsl(var(--cyan-glow))] font-semibold mb-2">Serviceable Addressable Market</p>
-                <p className="text-4xl font-bold text-white mb-2">{sections.section5?.samValue || "—"}</p>
-                <p className="text-xs text-[hsl(var(--cyan-glow))]/50 group-hover:text-[hsl(var(--cyan-glow))]/80 flex items-center justify-center gap-1">
-                  <Calculator className="h-3 w-3" /> View calculation method
+                <p className="text-sm text-white/50 font-semibold mb-2">Serviceable Addressable Market</p>
+                <p className="text-3xl font-bold text-white mb-2">{sections.section5?.samValue || "—"}</p>
+                <p className="text-xs text-white/30 group-hover:text-[hsl(var(--cyan-glow))]/60 flex items-center justify-center gap-1">
+                  <Calculator className="h-3 w-3" /> View calculation
                 </p>
               </button>
               <button 
                 onClick={() => setSelectedMetric("som")}
-                className="bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 rounded-xl p-6 border border-emerald-500/30 text-center hover:border-emerald-500/60 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all cursor-pointer group"
+                className="bg-white/5 rounded-xl p-6 border border-white/10 text-center hover:border-[hsl(var(--cyan-glow))]/30 transition-all cursor-pointer group"
               >
-                <p className="text-sm text-emerald-400 font-semibold mb-2">Serviceable Obtainable Market</p>
-                <p className="text-4xl font-bold text-white mb-2">{sections.section5?.somValue || "—"}</p>
-                <p className="text-xs text-emerald-400/50 group-hover:text-emerald-400/80 flex items-center justify-center gap-1">
-                  <Calculator className="h-3 w-3" /> View calculation method
+                <p className="text-sm text-white/50 font-semibold mb-2">Serviceable Obtainable Market</p>
+                <p className="text-3xl font-bold text-white mb-2">{sections.section5?.somValue || "—"}</p>
+                <p className="text-xs text-white/30 group-hover:text-[hsl(var(--cyan-glow))]/60 flex items-center justify-center gap-1">
+                  <Calculator className="h-3 w-3" /> View calculation
                 </p>
               </button>
             </div>
 
             {sections.section5?.targetCustomerDescription && (
               <div>
-                <h4 className="text-sm font-semibold text-amber-400/70 uppercase tracking-wider mb-3">Target Customer</h4>
-                <p className="text-white/90 leading-relaxed">{sections.section5.targetCustomerDescription}</p>
+                <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Target Customer</h4>
+                <p className="text-white/80 leading-relaxed">{sections.section5.targetCustomerDescription}</p>
               </div>
             )}
           </Card>
 
-          {/* Section 5: Competitive Landscape - Cyan accent */}
-          <Card className="bg-gradient-to-br from-cyan-500/10 to-navy-card border-cyan-500/20 p-8 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+          {/* Section 5: Competitive Landscape */}
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-cyan-400" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                <Shield className="h-5 w-5 text-cyan-400/70" />
               </div>
-              <h2 className="text-2xl font-bold text-cyan-300">Competitive Landscape</h2>
+              <h2 className="text-2xl font-bold text-white">Competitive Landscape</h2>
             </div>
 
             {sections.section6?.competitors && sections.section6.competitors.length > 0 ? (
               <div className="space-y-4 mb-6">
                 {sections.section6.competitors.filter((c: any) => c.name).map((competitor: any, i: number) => (
-                  <div key={i} className="bg-white/5 rounded-xl p-4 border border-cyan-500/20">
+                  <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10">
                     <h4 className="font-semibold text-white mb-2">{competitor.name}</h4>
-                    {competitor.description && <p className="text-white/60 text-sm mb-2">{competitor.description}</p>}
+                    {competitor.description && <p className="text-white/50 text-sm mb-2">{competitor.description}</p>}
                     {competitor.howYouDiffer && (
                       <div className="flex items-start gap-2">
-                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-xs shrink-0">Differentiation</Badge>
-                        <p className="text-white/70 text-sm">{competitor.howYouDiffer}</p>
+                        <Badge className="bg-emerald-500/10 text-emerald-400/80 border-emerald-500/20 text-xs shrink-0">Differentiation</Badge>
+                        <p className="text-white/60 text-sm">{competitor.howYouDiffer}</p>
                       </div>
                     )}
                   </div>
@@ -556,35 +556,35 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             )}
 
             {sections.section6?.competitiveMoat && (
-              <div className="bg-gradient-to-r from-cyan-500/20 to-transparent rounded-xl p-6 border-l-4 border-cyan-400">
-                <h4 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-2">Competitive Moat</h4>
-                <p className="text-white/90 leading-relaxed">{sections.section6.competitiveMoat}</p>
+              <div className="bg-white/5 rounded-xl p-6 border-l-4 border-[hsl(var(--cyan-glow))]/50">
+                <h4 className="text-sm font-semibold text-[hsl(var(--cyan-glow))]/70 uppercase tracking-wider mb-2">Competitive Moat</h4>
+                <p className="text-white/80 leading-relaxed">{sections.section6.competitiveMoat}</p>
               </div>
             )}
           </Card>
 
-          {/* Section 6: Team - Pink accent */}
-          <Card className="bg-gradient-to-br from-pink-500/10 to-navy-card border-pink-500/20 p-8 shadow-[0_0_20px_rgba(236,72,153,0.1)]">
+          {/* Section 6: Team */}
+          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
-                <Users className="h-5 w-5 text-pink-400" />
+              <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
+                <Users className="h-5 w-5 text-pink-400/70" />
               </div>
-              <h2 className="text-2xl font-bold text-pink-300">Founding Team</h2>
+              <h2 className="text-2xl font-bold text-white">Founding Team</h2>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {teamMembers.length > 0 ? teamMembers.map((member: any, i: number) => (
-                <div key={i} className="bg-white/5 rounded-xl p-4 border border-pink-500/20 hover:border-pink-500/40 transition-all">
+                <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center shadow-lg shadow-pink-500/20">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-purple-500/30 flex items-center justify-center">
                       <span className="text-white font-bold">{member.name?.charAt(0) || "?"}</span>
                     </div>
                     <div>
                       <p className="font-semibold text-white">{member.name || "Team Member"}</p>
-                      <p className="text-sm text-pink-400">{member.role || "Role"}</p>
+                      <p className="text-sm text-[hsl(var(--cyan-glow))]/70">{member.role || "Role"}</p>
                     </div>
                   </div>
-                  {member.background && <p className="text-white/60 text-sm">{member.background}</p>}
+                  {member.background && <p className="text-white/50 text-sm">{member.background}</p>}
                 </div>
               )) : (
                 <p className="text-white/50">No team members listed.</p>
