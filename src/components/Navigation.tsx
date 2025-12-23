@@ -1,20 +1,60 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { LogIn, LogOut, User as UserIcon } from "lucide-react";
 import infinityLogo from "@/assets/infinity-logo.png";
 
 export const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [user, setUser] = useState<User | null>(null);
   
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleHowItWorksClick = () => {
     if (location.pathname === "/") {
-      // Already on home page, just scroll
       const element = document.getElementById('how-it-works');
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
-      // Navigate to home page with hash
       navigate("/#how-it-works");
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
+  const handleDashboardClick = async () => {
+    if (!user) return;
+    
+    // Check if user has an application
+    const { data: application } = await supabase
+      .from("founder_applications")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (application) {
+      navigate("/founder-dashboard");
+    } else {
+      navigate("/founder-application");
     }
   };
   
@@ -30,12 +70,45 @@ export const Navigation = () => {
             />
           </div>
           
-          <button
-            onClick={handleHowItWorksClick}
-            className="text-cyan-glow font-medium"
-          >
-            How It Works
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleHowItWorksClick}
+              className="text-cyan-glow font-medium hover:text-cyan-glow/80 transition-colors"
+            >
+              How It Works
+            </button>
+            
+            {user ? (
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDashboardClick}
+                  className="text-white/80 hover:text-white hover:bg-white/10"
+                >
+                  <UserIcon className="w-4 h-4 mr-2" />
+                  Dashboard
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-white/60 hover:text-white hover:bg-white/10"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => navigate("/auth")}
+                size="sm"
+                className="bg-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/90 text-[hsl(var(--navy-deep))] font-medium"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Log In
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </nav>
