@@ -215,7 +215,7 @@ export function MemoModal({
                   </div>
                 ) : (
                   <Button 
-                    className="w-full bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30 h-12 text-lg"
+                    className="w-full bg-[hsl(220,60%,8%)] text-[hsl(var(--cyan-glow))] hover:bg-[hsl(220,60%,12%)] border border-[hsl(var(--cyan-glow))]/40 h-14 text-lg shadow-[0_0_20px_rgba(6,182,212,0.2)]"
                     onClick={() => {
                       if (startup.user_id) {
                         onRequestSync(startup.user_id, startup.company_name);
@@ -230,7 +230,7 @@ export function MemoModal({
                       </>
                     ) : (
                       <>
-                        <img src={insyncInfinity} alt="Sync" className="mr-3 h-8 w-12 object-contain" />
+                        <img src={insyncInfinity} alt="Sync" className="mr-3 h-10 w-16 object-contain brightness-125 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
                         Request to Sync
                       </>
                     )}
