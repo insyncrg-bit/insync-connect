@@ -35,7 +35,7 @@ export const Hero = () => {
 
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
-        <div className="max-w-5xl mx-auto text-center space-y-4">
+        <div className="max-w-5xl mx-auto text-center space-y-2">
           
           {/* Logo with pulsing glow */}
           <div className="relative animate-fade-in">
@@ -56,9 +56,12 @@ export const Hero = () => {
           </div>
 
           {/* Single tagline */}
-          <p className="text-xl md:text-2xl text-white/70 font-light animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <p className="text-sm md:text-base text-white/50 italic animate-fade-in" style={{ animationDelay: '0.1s' }}>
             Where founders and investors sync with their perfect match
           </p>
+
+          {/* Spacer */}
+          <div className="pt-4" />
 
           {/* Dual CTA */}
           <div 
