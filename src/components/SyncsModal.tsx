@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Building2, MapPin, Calendar, MessageSquare, Maximize2, Minimize2 } from "lucide-react";
+import { Building2, MapPin, Calendar, MessageSquare, Maximize2, Minimize2, Video, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import syncsLogo from "@/assets/syncs-logo.png";
@@ -22,6 +22,8 @@ interface SyncItem {
   hq_location?: string;
   stage_focus?: string[];
   sector_tags?: string[];
+  // Scheduling
+  calendly_link?: string;
 }
 
 interface SyncsModalProps {
@@ -31,6 +33,7 @@ interface SyncsModalProps {
   loading: boolean;
   userType: "founder" | "investor";
   onViewProfile?: (userId: string, sync: SyncItem) => void;
+  onMessage?: (userId: string) => void;
 }
 
 export function SyncsModal({ 
@@ -39,7 +42,8 @@ export function SyncsModal({
   syncs, 
   loading,
   userType,
-  onViewProfile
+  onViewProfile,
+  onMessage
 }: SyncsModalProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -169,14 +173,29 @@ export function SyncsModal({
                           <Calendar className="h-3 w-3" />
                           Synced {formatDate(sync.created_at)}
                         </p>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
-                        >
-                          <MessageSquare className="mr-2 h-3 w-3" />
-                          Message
-                        </Button>
+                        <div className="flex gap-2">
+                          {sync.calendly_link && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-green-500/30 text-green-400 hover:bg-green-500/10"
+                              onClick={() => window.open(sync.calendly_link, '_blank')}
+                            >
+                              <Video className="mr-1 h-3 w-3" />
+                              Schedule
+                              <ExternalLink className="ml-1 h-3 w-3" />
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+                            onClick={() => onMessage?.(sync.other_user_id)}
+                          >
+                            <MessageSquare className="mr-1 h-3 w-3" />
+                            Message
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>

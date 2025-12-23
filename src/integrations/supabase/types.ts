@@ -129,6 +129,7 @@ export type Database = {
         Row: {
           application_sections: Json | null
           business_model: string
+          calendly_link: string | null
           company_name: string
           created_at: string
           current_ask: string
@@ -150,6 +151,7 @@ export type Database = {
         Insert: {
           application_sections?: Json | null
           business_model: string
+          calendly_link?: string | null
           company_name: string
           created_at?: string
           current_ask: string
@@ -171,6 +173,7 @@ export type Database = {
         Update: {
           application_sections?: Json | null
           business_model?: string
+          calendly_link?: string | null
           company_name?: string
           created_at?: string
           current_ask?: string
@@ -199,6 +202,7 @@ export type Database = {
           board_involvement: string | null
           buyer_persona_required: boolean | null
           buyer_persona_who: string | null
+          calendly_link: string | null
           check_sizes: Json | null
           conflicts_policy: string | null
           contacts: Json | null
@@ -259,6 +263,7 @@ export type Database = {
           board_involvement?: string | null
           buyer_persona_required?: boolean | null
           buyer_persona_who?: string | null
+          calendly_link?: string | null
           check_sizes?: Json | null
           conflicts_policy?: string | null
           contacts?: Json | null
@@ -319,6 +324,7 @@ export type Database = {
           board_involvement?: string | null
           buyer_persona_required?: boolean | null
           buyer_persona_who?: string | null
+          calendly_link?: string | null
           check_sizes?: Json | null
           conflicts_policy?: string | null
           contacts?: Json | null
@@ -449,6 +455,33 @@ export type Database = {
           id?: string
           name?: string
           title?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read: boolean
+          receiver_user_id: string
+          sender_user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          receiver_user_id: string
+          sender_user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          receiver_user_id?: string
+          sender_user_id?: string
         }
         Relationships: []
       }

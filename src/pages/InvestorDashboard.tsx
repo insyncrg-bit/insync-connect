@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { InvestorThesisModal } from "@/components/InvestorThesisModal";
+import { ProfileSettings } from "@/components/ProfileSettings";
 import { InterestsModal } from "@/components/InterestsModal";
 import { SyncsModal } from "@/components/SyncsModal";
 import { PendingModal } from "@/components/PendingModal";
@@ -15,6 +16,7 @@ import { MatchExplainer } from "@/components/MatchExplainer";
 import syncsLogo from "@/assets/syncs-logo.png";
 
 import { useMatchmaking, MatchResult } from "@/hooks/useMatchmaking";
+import { useMessages } from "@/hooks/useMessages";
 import { 
   Building2, 
   Calendar, 
@@ -113,6 +115,9 @@ export default function InvestorDashboard() {
   
   // Matchmaking hook
   const { matches, loading: matchLoading, error: matchError, fetchMatches } = useMatchmaking();
+  
+  // Messages hook
+  const { threads: realThreads, loading: realMessagesLoading, sendMessage, markAsRead, fetchThreads } = useMessages(currentUserId, "investor");
   
   // Interests modal state
   const [interestsModalOpen, setInterestsModalOpen] = useState(false);
@@ -723,12 +728,21 @@ export default function InvestorDashboard() {
 
   const handleOpenMessages = () => {
     setMessagesModalOpen(true);
-    setMessagesLoading(true);
-    setTimeout(() => {
-      setMessageThreads(demoMessages);
-      setMessagesLoading(false);
-    }, 500);
+    if (currentUserId) {
+      fetchThreads();
+    } else {
+      // Show demo data for preview
+      setMessagesLoading(true);
+      setTimeout(() => {
+        setMessageThreads(demoMessages);
+        setMessagesLoading(false);
+      }, 500);
+    }
   };
+
+  // Get actual message threads (real or demo)
+  const displayThreads = currentUserId ? realThreads : messageThreads;
+  const displayMessagesLoading = currentUserId ? realMessagesLoading : messagesLoading;
 
   // Get display counts (show demo counts when no real data)
   const displayStats = {
@@ -1042,17 +1056,7 @@ export default function InvestorDashboard() {
         );
 
       case "profile":
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-white mb-2">Profile Settings</h2>
-              <p className="text-white/60">Manage your investor profile</p>
-            </div>
-            <Card className="bg-navy-card border-white/10 p-6">
-              <p className="text-white/60">Profile settings coming soon...</p>
-            </Card>
-          </div>
-        );
+        return <ProfileSettings userType="investor" userId={currentUserId} />;
 
       default:
         return (
@@ -1216,6 +1220,13 @@ export default function InvestorDashboard() {
           setSelectedStartup(founderData);
           setMemoModalOpen(true);
         }}
+        onMessage={(userId) => {
+          setSyncsModalOpen(false);
+          setMessagesModalOpen(true);
+          if (currentUserId) {
+            fetchThreads();
+          }
+        }}
       />
 
       {/* Pending Modal */}
@@ -1251,9 +1262,11 @@ export default function InvestorDashboard() {
       <MessagesModal
         open={messagesModalOpen}
         onOpenChange={setMessagesModalOpen}
-        threads={messageThreads}
-        loading={messagesLoading}
+        threads={displayThreads}
+        loading={displayMessagesLoading}
         userType="investor"
+        onSendMessage={sendMessage}
+        onMarkAsRead={markAsRead}
       />
 
       {/* Memo Modal */}
