@@ -1,7 +1,24 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Target, Zap, XCircle, DollarSign, Briefcase, Users, Handshake, Building2, MapPin, TrendingUp } from "lucide-react";
+import { 
+  Target, 
+  Zap, 
+  XCircle, 
+  DollarSign, 
+  Briefcase, 
+  Users, 
+  Handshake, 
+  Building2, 
+  MapPin, 
+  TrendingUp,
+  ArrowLeft,
+  FileText,
+  Maximize2,
+  Minimize2
+} from "lucide-react";
 
 interface InvestorApplication {
   id: string;
@@ -38,10 +55,19 @@ interface InvestorThesisModalProps {
 }
 
 export function InvestorThesisModal({ open, onOpenChange, application, loading }: InvestorThesisModalProps) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showFullThesis, setShowFullThesis] = useState(false);
+
+  const handleClose = () => {
+    setIsFullscreen(false);
+    setShowFullThesis(false);
+    onOpenChange(false);
+  };
+
   if (loading) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] bg-[hsl(var(--navy-deep))] border-white/10">
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] bg-[hsl(220,60%,8%)] border-white/10">
           <div className="flex items-center justify-center py-12">
             <div className="text-white/60">Loading your thesis...</div>
           </div>
@@ -82,10 +108,46 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
   const isPreview = !application;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden">
-        <ScrollArea className="max-h-[90vh]">
-          <div className="p-8">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className={`bg-[hsl(220,60%,8%)] border-[hsl(var(--cyan-glow))]/30 text-white p-0 overflow-hidden transition-all duration-300 ${
+        isFullscreen 
+          ? 'max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none' 
+          : 'max-w-4xl max-h-[90vh]'
+      }`}>
+        {/* Top Navigation Bar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[hsl(220,60%,8%)]">
+          <Button
+            variant="ghost"
+            onClick={handleClose}
+            className="text-white/70 hover:text-white hover:bg-white/10 gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowFullThesis(!showFullThesis)}
+              className="border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10 gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              {showFullThesis ? "Condensed View" : "Full Thesis"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="border-white/20 text-white/70 hover:text-white hover:bg-white/10"
+            >
+              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
+          </div>
+        </div>
+
+        <ScrollArea className={isFullscreen ? "h-[calc(100vh-65px)]" : "max-h-[calc(90vh-65px)]"}>
+          <div className="p-6">
             {/* Preview Banner */}
             {isPreview && (
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-6">
@@ -96,34 +158,32 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
             )}
 
             {/* Header */}
-            <DialogHeader className="mb-8">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 rounded-xl bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
-                  <Building2 className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+            <DialogHeader className="mb-6">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                  <Building2 className="h-8 w-8 text-white" />
                 </div>
-                <div>
-                  <DialogTitle className="text-2xl font-bold text-white">
-                    Investment Thesis
+                <div className="flex-1">
+                  <DialogTitle className="text-2xl font-bold text-white mb-1">
+                    {displayData.firm_name}
                   </DialogTitle>
-                  <p className="text-white/60 text-sm">{displayData.firm_name}</p>
+                  <DialogDescription className="text-white/60 flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    {displayData.hq_location || "Location not specified"}
+                  </DialogDescription>
                 </div>
               </div>
-              {displayData.firm_description && (
-                <p className="text-white/70 text-sm mt-4 leading-relaxed">
-                  {displayData.firm_description}
-                </p>
-              )}
             </DialogHeader>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 ${!showFullThesis && 'hidden md:grid'}`}>
               {displayData.hq_location && (
                 <div className="bg-white/5 rounded-lg p-3 border border-white/10">
                   <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
                     <MapPin className="h-3 w-3" />
                     Location
                   </div>
-                  <p className="text-white text-sm font-medium">{displayData.hq_location}</p>
+                  <p className={`text-white text-sm font-medium ${!showFullThesis && 'line-clamp-1'}`}>{displayData.hq_location}</p>
                 </div>
               )}
               {displayData.fund_type && (
@@ -132,7 +192,7 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                     <Briefcase className="h-3 w-3" />
                     Fund Type
                   </div>
-                  <p className="text-white text-sm font-medium">{displayData.fund_type}</p>
+                  <p className={`text-white text-sm font-medium ${!showFullThesis && 'line-clamp-1'}`}>{displayData.fund_type}</p>
                 </div>
               )}
               {displayData.aum && (
@@ -141,7 +201,7 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                     <DollarSign className="h-3 w-3" />
                     AUM
                   </div>
-                  <p className="text-white text-sm font-medium">{displayData.aum}</p>
+                  <p className={`text-white text-sm font-medium ${!showFullThesis && 'line-clamp-1'}`}>{displayData.aum}</p>
                 </div>
               )}
               {displayData.lead_follow && (
@@ -150,10 +210,19 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                     <TrendingUp className="h-3 w-3" />
                     Role
                   </div>
-                  <p className="text-white text-sm font-medium">{displayData.lead_follow}</p>
+                  <p className={`text-white text-sm font-medium ${!showFullThesis && 'line-clamp-1'}`}>{displayData.lead_follow}</p>
                 </div>
               )}
             </div>
+
+            {/* Firm Description */}
+            {displayData.firm_description && (
+              <div className="mb-6">
+                <p className={`text-white/70 text-sm leading-relaxed ${!showFullThesis && 'line-clamp-2'}`}>
+                  {displayData.firm_description}
+                </p>
+              </div>
+            )}
 
             {/* Core Thesis */}
             <div className="bg-gradient-to-br from-[hsl(var(--cyan-glow))]/10 to-transparent rounded-xl p-6 border border-[hsl(var(--cyan-glow))]/30 mb-6">
@@ -163,12 +232,12 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                 </div>
                 <h3 className="text-lg font-semibold text-white">Core Thesis</h3>
               </div>
-              <p className="text-white/90 leading-relaxed text-lg">
+              <p className={`text-white/90 leading-relaxed text-lg ${!showFullThesis && 'line-clamp-3'}`}>
                 {displayData.thesis_statement || "No thesis statement provided."}
               </p>
               
               {displayData.sub_themes.length > 0 && (
-                <div className="mt-5 pt-5 border-t border-white/10">
+                <div className={`mt-5 pt-5 border-t border-white/10 ${!showFullThesis && 'hidden'}`}>
                   <p className="text-white/50 text-xs uppercase tracking-wider mb-3">Focus Areas</p>
                   <div className="flex flex-wrap gap-2">
                     {displayData.sub_themes.map((theme, i) => (
@@ -181,8 +250,8 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
               )}
             </div>
 
-            {/* Investment Criteria Grid */}
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
+            {/* Investment Criteria Grid - Only show in full thesis mode */}
+            <div className={`grid md:grid-cols-2 gap-4 mb-6 ${!showFullThesis && 'hidden'}`}>
               {/* Fast Signals */}
               <div className="bg-green-500/5 rounded-xl p-5 border border-green-500/20">
                 <div className="flex items-center gap-3 mb-4">
@@ -234,8 +303,8 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
               </div>
             </div>
 
-            {/* Investment Parameters */}
-            <div className="bg-white/5 rounded-xl p-5 border border-white/10 mb-6">
+            {/* Investment Parameters - Only show in full thesis mode */}
+            <div className={`bg-white/5 rounded-xl p-5 border border-white/10 mb-6 ${!showFullThesis && 'hidden'}`}>
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
                   <DollarSign className="h-4 w-4 text-white/80" />
@@ -281,8 +350,8 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
               </div>
             </div>
 
-            {/* Sectors & Target Customers */}
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
+            {/* Sectors & Target Customers - Only show in full thesis mode */}
+            <div className={`grid md:grid-cols-2 gap-4 mb-6 ${!showFullThesis && 'hidden'}`}>
               <div className="bg-purple-500/5 rounded-xl p-5 border border-purple-500/20">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -329,8 +398,8 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
               </div>
             </div>
 
-            {/* Value-Add */}
-            <div className="bg-amber-500/5 rounded-xl p-5 border border-amber-500/20">
+            {/* Value-Add - Only show in full thesis mode */}
+            <div className={`bg-amber-500/5 rounded-xl p-5 border border-amber-500/20 ${!showFullThesis && 'hidden'}`}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
                   <Handshake className="h-4 w-4 text-amber-400" />
