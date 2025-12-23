@@ -18,20 +18,6 @@ export const Hero = () => {
         <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cyan-glow/8 blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      {/* Grid pattern overlay with fade */}
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, hsl(var(--cyan-glow)) 1px, transparent 1px),
-            linear-gradient(to bottom, hsl(var(--cyan-glow)) 1px, transparent 1px)
-          `,
-          backgroundSize: '80px 80px',
-          opacity: 0.03,
-          maskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 95%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 95%)',
-        }}
-      />
 
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
