@@ -25,6 +25,7 @@ import {
   Maximize2,
   Minimize2
 } from "lucide-react";
+import insyncInfinity from "@/assets/insync-infinity.png";
 
 interface FounderApplication {
   id: string;
@@ -229,8 +230,8 @@ export function MemoModal({
                       </>
                     ) : (
                       <>
-                        <TrendingUp className="mr-2 h-5 w-5" />
-                        Request In Sync
+                        <img src={insyncInfinity} alt="Sync" className="mr-2 h-5 w-5 object-contain" />
+                        Request to Sync
                       </>
                     )}
                   </Button>

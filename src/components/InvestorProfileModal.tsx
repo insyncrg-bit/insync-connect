@@ -20,10 +20,9 @@ import {
   ArrowLeft,
   FileText,
   Eye,
-  ChevronRight,
-  Clock,
-  Scale
+  ChevronRight
 } from "lucide-react";
+import insyncInfinity from "@/assets/insync-infinity.png";
 import {
   Dialog,
   DialogContent,
@@ -590,8 +589,8 @@ export function InvestorProfileModal({
                   onClick={() => setShowSyncForm(true)}
                   className="w-full bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30 h-12 text-lg"
                 >
-                  <TrendingUp className="mr-2 h-5 w-5" />
-                  Request In Sync
+                  <img src={insyncInfinity} alt="Sync" className="mr-2 h-5 w-5 object-contain" />
+                  Request to Sync
                 </Button>
               )}
             </div>
