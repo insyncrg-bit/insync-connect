@@ -1247,6 +1247,12 @@ export default function FounderDashboard() {
           userType="founder"
           onSendMessage={sendMessage}
           onMarkAsRead={markAsRead}
+          activeSyncs={activeSyncs.map(sync => ({
+            id: sync.id,
+            other_user_id: sync.other_user_id,
+            firm_name: sync.firm_name,
+            calendly_link: sync.calendly_link
+          }))}
         />
     </div>
   );
