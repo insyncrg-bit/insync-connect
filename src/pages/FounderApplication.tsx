@@ -353,6 +353,26 @@ export default function FounderApplication() {
         return;
       }
 
+      // Upload logo if provided
+      let logoUrl: string | null = null;
+      if (companyLogo) {
+        const fileExt = companyLogo.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('startup-logos')
+          .upload(fileName, companyLogo);
+        
+        if (uploadError) {
+          console.error('Logo upload error:', uploadError);
+        } else {
+          const { data: urlData } = supabase.storage
+            .from('startup-logos')
+            .getPublicUrl(fileName);
+          logoUrl = urlData.publicUrl;
+        }
+      }
+
       const applicationSections = {
         section1: {
           companyOverview,
@@ -416,6 +436,7 @@ export default function FounderApplication() {
           business_model: companyOverview,
           traction: revenueMetricsValues || "N/A",
           current_ask: gtmAcquisition || "N/A",
+          logo_url: logoUrl,
           application_sections: {
             ...applicationSections,
             linkedIn: basicInfo.linkedIn,
