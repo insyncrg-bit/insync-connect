@@ -50,31 +50,6 @@ export const FloatingParticles = () => {
         />
       ))}
       
-      {/* Connection lines */}
-      <svg className="absolute inset-0 w-full h-full opacity-20">
-        <defs>
-          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--cyan-glow))" stopOpacity="0" />
-            <stop offset="50%" stopColor="hsl(var(--cyan-glow))" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="hsl(var(--cyan-glow))" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        {[...Array(8)].map((_, i) => (
-          <line
-            key={i}
-            x1={`${10 + i * 12}%`}
-            y1="0%"
-            x2={`${20 + i * 10}%`}
-            y2="100%"
-            stroke="url(#lineGradient)"
-            strokeWidth="1"
-            style={{
-              animation: `linePulse ${3 + i * 0.5}s ease-in-out infinite`,
-              animationDelay: `${i * 0.3}s`,
-            }}
-          />
-        ))}
-      </svg>
 
       <style>{`
         @keyframes floatParticle {
@@ -89,14 +64,6 @@ export const FloatingParticles = () => {
           }
           75% {
             transform: translate(15px, -20px) scale(1.1);
-          }
-        }
-        @keyframes linePulse {
-          0%, 100% {
-            opacity: 0.1;
-          }
-          50% {
-            opacity: 0.4;
           }
         }
       `}</style>
