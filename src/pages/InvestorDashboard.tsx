@@ -1262,6 +1262,13 @@ export default function InvestorDashboard() {
         userType="investor"
         onSendMessage={sendMessage}
         onMarkAsRead={markAsRead}
+        activeSyncs={activeSyncs.map(sync => ({
+          id: sync.id,
+          other_user_id: sync.other_user_id,
+          company_name: sync.company_name,
+          founder_name: sync.founder_name,
+          calendly_link: sync.calendly_link
+        }))}
       />
 
       {/* Memo Modal */}
