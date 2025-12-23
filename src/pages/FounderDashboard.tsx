@@ -1080,7 +1080,7 @@ export default function FounderDashboard() {
       <Navigation />
 
       {/* Content with top padding for fixed nav */}
-      <main className="flex-1 p-6 md:p-8 overflow-auto pt-24">
+      <main className="flex-1 p-6 md:p-8 overflow-auto mt-20">
         {renderContent()}
       </main>
 
