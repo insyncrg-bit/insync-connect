@@ -1090,7 +1090,14 @@ export default function FounderDashboard() {
               <Menu className="h-4 w-4" />
             </SidebarTrigger>
             <div className="flex-1" />
-            <span className="text-xs text-white/60">Founder Portal</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/founder-dashboard")}
+              className="text-xs text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+            >
+              ← Founder Dashboard
+            </Button>
           </header>
 
           {/* Content - Clean padding */}
