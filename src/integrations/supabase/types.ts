@@ -137,6 +137,7 @@ export type Database = {
           funding_goal: string
           id: string
           location: string
+          logo_url: string | null
           stage: string
           status: string | null
           team_members: Json | null
@@ -157,6 +158,7 @@ export type Database = {
           funding_goal: string
           id?: string
           location: string
+          logo_url?: string | null
           stage: string
           status?: string | null
           team_members?: Json | null
@@ -177,6 +179,7 @@ export type Database = {
           funding_goal?: string
           id?: string
           location?: string
+          logo_url?: string | null
           stage?: string
           status?: string | null
           team_members?: Json | null

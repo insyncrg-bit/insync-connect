@@ -1017,9 +1017,17 @@ export default function FounderDashboard() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <Building2 className="h-7 w-7 text-[hsl(var(--cyan-glow))]" />
-                  </div>
+                  {application?.logo_url ? (
+                    <img 
+                      src={application.logo_url} 
+                      alt={`${application.company_name} logo`}
+                      className="w-14 h-14 rounded-xl object-cover"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                      <Building2 className="h-7 w-7 text-[hsl(var(--cyan-glow))]" />
+                    </div>
+                  )}
                   <div>
                     <p className="text-xl font-semibold text-white">{application?.company_name ? `${application.company_name}'s Memo` : "Your Memo"}</p>
                     <p className="text-sm text-white/60">{application?.vertical} • {application?.stage}</p>

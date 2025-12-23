@@ -191,9 +191,17 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             <div className="relative z-10">
               <div className="flex items-start justify-between gap-6 mb-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20">
-                    <Building2 className="h-10 w-10 text-white" />
-                  </div>
+                  {application?.logo_url ? (
+                    <img 
+                      src={application.logo_url} 
+                      alt={`${formData.company_name} logo`}
+                      className="w-20 h-20 rounded-2xl object-cover shadow-lg shadow-[hsl(var(--cyan-glow))]/20"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20">
+                      <Building2 className="h-10 w-10 text-white" />
+                    </div>
+                  )}
                   <div>
                     {isEditing ? (
                       <Input
@@ -346,9 +354,17 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           {/* Header Section */}
           <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="text-center mb-8">
-              <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4">
-                <Building2 className="h-12 w-12 text-white" />
-              </div>
+              {application?.logo_url ? (
+                <img 
+                  src={application.logo_url} 
+                  alt={`${formData.company_name} logo`}
+                  className="w-24 h-24 mx-auto rounded-2xl object-cover shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4"
+                />
+              ) : (
+                <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4">
+                  <Building2 className="h-12 w-12 text-white" />
+                </div>
+              )}
               <h1 className="text-4xl font-bold text-white mb-2">{formData.company_name || "Company Name"}</h1>
               <p className="text-xl text-white/70 mb-4">{formData.vertical} • {formData.stage}</p>
               <div className="flex justify-center gap-4 text-sm text-white/60">
