@@ -139,6 +139,7 @@ export type Database = {
           id: string
           location: string
           logo_url: string | null
+          pitchdeck_url: string | null
           stage: string
           status: string | null
           team_members: Json | null
@@ -161,6 +162,7 @@ export type Database = {
           id?: string
           location: string
           logo_url?: string | null
+          pitchdeck_url?: string | null
           stage: string
           status?: string | null
           team_members?: Json | null
@@ -183,6 +185,7 @@ export type Database = {
           id?: string
           location?: string
           logo_url?: string | null
+          pitchdeck_url?: string | null
           stage?: string
           status?: string | null
           team_members?: Json | null
