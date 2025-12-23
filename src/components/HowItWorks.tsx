@@ -519,29 +519,6 @@ export const HowItWorks = () => {
           )}
         </div>
 
-        {/* CTA */}
-        <div className="mt-10 text-center">
-          <p className="text-white/40 text-sm mb-4">
-            5 minutes to set up • Curated matches only • No spam
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button
-              onClick={() => navigate("/founder-application")}
-              className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright px-6"
-            >
-              Join as a Startup
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/investor-application")}
-              className="border-cyan-glow/40 text-cyan-glow hover:bg-cyan-glow/10 px-6"
-            >
-              Join as a VC
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
       </div>
 
       {/* Add keyframe animation for progress bar */}
