@@ -1,13 +1,20 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import infinityLogo from "@/assets/infinity-logo.png";
 
 export const Navigation = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  const handleHowItWorksClick = () => {
+    if (location.pathname === "/") {
+      // Already on home page, just scroll
+      const element = document.getElementById('how-it-works');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Navigate to home page with hash
+      navigate("/#how-it-works");
     }
   };
   
@@ -24,7 +31,7 @@ export const Navigation = () => {
           </div>
           
           <button
-            onClick={() => scrollToSection('how-it-works')}
+            onClick={handleHowItWorksClick}
             className="text-cyan-glow font-medium"
           >
             How It Works
