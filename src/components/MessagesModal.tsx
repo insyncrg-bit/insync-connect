@@ -1,8 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Building2, MessageSquare, Calendar, Send } from "lucide-react";
+import { Building2, MessageSquare, Calendar, Send, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 
 interface MessageThread {
@@ -38,6 +39,7 @@ export function MessagesModal({
 }: MessagesModalProps) {
   const [selectedThread, setSelectedThread] = useState<MessageThread | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -60,12 +62,26 @@ export function MessagesModal({
       onOpenChange(open);
       if (!open) setSelectedThread(null);
     }}>
-      <DialogContent className="bg-[hsl(var(--navy-deep))] border-white/10 text-white max-w-3xl max-h-[80vh] overflow-hidden p-0">
+      <DialogContent className={`bg-[hsl(var(--navy-deep))] border-white/10 text-white overflow-hidden p-0 transition-all duration-300 ${
+        isFullscreen 
+          ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none" 
+          : "max-w-3xl max-h-[80vh]"
+      }`}>
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <MessageSquare className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-            Messages
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <MessageSquare className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+              Messages
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="text-white/60 hover:text-white hover:bg-white/10"
+            >
+              {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+            </Button>
+          </div>
         </DialogHeader>
 
         {loading ? (
@@ -84,7 +100,7 @@ export function MessagesModal({
           </div>
         ) : selectedThread ? (
           // Thread view
-          <div className="flex flex-col h-[60vh]">
+          <div className={`flex flex-col ${isFullscreen ? "h-[calc(100vh-100px)]" : "h-[60vh]"}`}>
             <div className="px-6 py-3 border-b border-white/10 flex items-center gap-3">
               <Button 
                 variant="ghost" 
@@ -105,25 +121,27 @@ export function MessagesModal({
               </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {selectedThread.messages.map((msg) => (
-                <div 
-                  key={msg.id} 
-                  className={`flex ${msg.sender === "self" ? "justify-end" : "justify-start"}`}
-                >
+            <ScrollArea className="flex-1 p-4">
+              <div className="space-y-3">
+                {selectedThread.messages.map((msg) => (
                   <div 
-                    className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                      msg.sender === "self" 
-                        ? "bg-[hsl(var(--cyan-glow))]/20 text-white" 
-                        : "bg-white/5 text-white/90"
-                    }`}
+                    key={msg.id} 
+                    className={`flex ${msg.sender === "self" ? "justify-end" : "justify-start"}`}
                   >
-                    <p className="text-sm">{msg.content}</p>
-                    <p className="text-xs text-white/40 mt-1">{formatDate(msg.timestamp)}</p>
+                    <div 
+                      className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                        msg.sender === "self" 
+                          ? "bg-[hsl(var(--cyan-glow))]/20 text-white" 
+                          : "bg-white/5 text-white/90"
+                      }`}
+                    >
+                      <p className="text-sm">{msg.content}</p>
+                      <p className="text-xs text-white/40 mt-1">{formatDate(msg.timestamp)}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </ScrollArea>
 
             <div className="p-4 border-t border-white/10 flex gap-2">
               <Input
@@ -144,8 +162,8 @@ export function MessagesModal({
           </div>
         ) : (
           // Thread list view
-          <div className="max-h-[60vh] overflow-y-auto p-6 pt-4">
-            <div className="space-y-2">
+          <ScrollArea className={`p-6 pt-4 ${isFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
+            <div className={`${isFullscreen ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}`}>
               {threads.map((thread) => (
                 <div
                   key={thread.id}
@@ -179,7 +197,7 @@ export function MessagesModal({
                 </div>
               ))}
             </div>
-          </div>
+          </ScrollArea>
         )}
       </DialogContent>
     </Dialog>
