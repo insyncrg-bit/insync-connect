@@ -665,6 +665,36 @@ export default function FounderApplication() {
                 />
               </div>
             </div>
+
+            {/* Primary Contact Section */}
+            <div className="space-y-4 pt-6 border-t border-[hsl(var(--navy-deep))]/10">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">1.2 Your Information</Label>
+                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Primary contact for this application</p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Your Name *</Label>
+                  <Input
+                    value={founderName}
+                    onChange={(e) => setFounderName(e.target.value)}
+                    placeholder="Full name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Your Email *</Label>
+                  <Input
+                    type="email"
+                    value={founderEmail}
+                    onChange={(e) => setFounderEmail(e.target.value)}
+                    placeholder="you@company.com"
+                  />
+                  <p className="text-xs text-[hsl(var(--cyan-glow))] italic">
+                    This email will be used to log in and access your dashboard. It can be the founder's email or any team member's email.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         );
 
@@ -693,37 +723,10 @@ export default function FounderApplication() {
               <WordCounter current={companyOverview} min={30} max={100} />
             </div>
 
-            {/* 1.2 Founder / Key Contact */}
+            {/* 1.2 Team */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">1.2 Your Information</Label>
-                <p className="text-sm text-[hsl(var(--navy-deep))]/60">Primary contact for this application</p>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Your Name *</Label>
-                  <Input
-                    value={founderName}
-                    onChange={(e) => setFounderName(e.target.value)}
-                    placeholder="Full name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Your Email *</Label>
-                  <Input
-                    type="email"
-                    value={founderEmail}
-                    onChange={(e) => setFounderEmail(e.target.value)}
-                    placeholder="you@company.com"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 1.3 Team */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">1.3 Team Members</Label>
+                <Label className="text-base font-semibold">1.2 Team Members</Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60">Add your founding team and key hires</p>
               </div>
               
