@@ -4,8 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { InvestorSidebar } from "@/components/InvestorSidebar";
 import { InvestorThesisModal } from "@/components/InvestorThesisModal";
 import { InterestsModal } from "@/components/InterestsModal";
 import { SyncsModal } from "@/components/SyncsModal";
@@ -26,7 +24,6 @@ import {
   Globe,
   DollarSign,
   ArrowRight,
-  Menu,
   Search,
   Filter,
   MessageSquare,
@@ -1148,26 +1145,17 @@ export default function InvestorDashboard() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[#151a24]">
-        <InvestorSidebar />
-        
-        <main className="flex-1 flex flex-col">
-          {/* Header - Clean */}
-          <header className="h-12 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-4 gap-4">
-            <SidebarTrigger className="text-white/60 hover:text-white hover:bg-white/10 rounded-md p-1.5">
-              <Menu className="h-4 w-4" />
-            </SidebarTrigger>
-            <div className="flex-1" />
-            <span className="text-xs text-white/60">Investor Portal</span>
-          </header>
+    <div className="min-h-screen flex flex-col bg-[#151a24]">
+      {/* Header */}
+      <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
+        <h1 className="text-lg font-semibold text-white">Investor Dashboard</h1>
+        <div className="flex-1" />
+      </header>
 
-          {/* Content - Clean padding */}
-          <div className="flex-1 p-6 md:p-8 overflow-auto">
-            {renderContent()}
-          </div>
-        </main>
-      </div>
+      {/* Content */}
+      <main className="flex-1 p-6 md:p-8 overflow-auto">
+        {renderContent()}
+      </main>
 
       {/* Interests Modal */}
       <InterestsModal
@@ -1219,6 +1207,6 @@ export default function InvestorDashboard() {
         isRequested={selectedStartup?.user_id ? pendingRequests.has(selectedStartup.user_id) : false}
         isRequesting={requestingSync === selectedStartup?.user_id}
       />
-    </SidebarProvider>
+    </div>
   );
 }

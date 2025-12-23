@@ -4,8 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { FounderSidebar } from "@/components/FounderSidebar";
 import { MemoEditor } from "@/components/MemoEditor";
 import { InvestorProfileModal } from "@/components/InvestorProfileModal";
 import { InterestsModal } from "@/components/InterestsModal";
@@ -23,7 +21,6 @@ import {
   Eye, 
   Heart,
   ArrowRight,
-  Menu,
   MessageSquare,
   MapPin,
   DollarSign,
@@ -1079,32 +1076,27 @@ export default function FounderDashboard() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[#151a24]">
-        <FounderSidebar />
-        
-        <main className="flex-1 flex flex-col">
-          {/* Header - Clean */}
-          <header className="h-12 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-4 gap-4">
-            <SidebarTrigger className="text-white/60 hover:text-white hover:bg-white/10 rounded-md p-1.5">
-              <Menu className="h-4 w-4" />
-            </SidebarTrigger>
-            <div className="flex-1" />
-            <Button
-              size="sm"
-              onClick={() => navigate("/founder-dashboard")}
-              className="text-xs font-semibold bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300"
-            >
-              <ArrowRight className="h-3 w-3 mr-1 rotate-180" />
-              Founder Dashboard
-            </Button>
-          </header>
+    <div className="min-h-screen flex flex-col bg-[#151a24]">
+      {/* Header */}
+      <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
+        <h1 className="text-lg font-semibold text-white">{application?.company_name || "Founder Dashboard"}</h1>
+        <div className="flex-1" />
+        {currentTab === "memo" && (
+          <Button
+            size="sm"
+            onClick={() => navigate("/founder-dashboard")}
+            className="text-xs font-semibold bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300"
+          >
+            <ArrowRight className="h-3 w-3 mr-1 rotate-180" />
+            Back to Dashboard
+          </Button>
+        )}
+      </header>
 
-          {/* Content - Clean padding */}
-          <div className="flex-1 p-6 md:p-8 overflow-auto">
-            {renderContent()}
-          </div>
-        </main>
+      {/* Content */}
+      <main className="flex-1 p-6 md:p-8 overflow-auto">
+        {renderContent()}
+      </main>
 
         {/* Modals */}
         <InvestorProfileModal
@@ -1153,7 +1145,6 @@ export default function FounderDashboard() {
           loading={messagesLoading}
           userType="founder"
         />
-      </div>
-    </SidebarProvider>
+    </div>
   );
 }
