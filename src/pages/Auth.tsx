@@ -15,7 +15,6 @@ const passwordSchema = z.string().min(6, "Password must be at least 6 characters
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -92,34 +91,15 @@ export default function Auth() {
     setIsLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-      } else {
-        const redirectUrl = `${window.location.origin}/`;
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-          },
-        });
-        if (error) throw error;
-        
-        toast({
-          title: "Account Created",
-          description: "Please check your email to verify your account, or you may be logged in automatically.",
-        });
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
     } catch (error: any) {
       let message = "An error occurred during authentication.";
       if (error.message?.includes("Invalid login credentials")) {
-        message = "Invalid email or password.";
-      } else if (error.message?.includes("User already registered")) {
-        message = "This email is already registered. Please sign in instead.";
+        message = "Invalid email or password. If you haven't created an account yet, please apply first.";
       } else if (error.message) {
         message = error.message;
       }
@@ -198,10 +178,10 @@ export default function Auth() {
           <div className="bg-white/95 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/20 rounded-2xl p-8 shadow-2xl">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">
-                {isLogin ? "Welcome Back" : "Create Account"}
+                Access My Dashboard
               </h1>
               <p className="text-muted-foreground mt-2">
-                {isLogin ? "Sign in to continue to your dashboard" : "Join In∞Sync to connect with investors"}
+                Sign in to continue to your dashboard
               </p>
             </div>
 
@@ -305,19 +285,19 @@ export default function Auth() {
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 ) : null}
-                {isLogin ? "Sign In" : "Create Account"}
+                Sign In
               </Button>
             </form>
 
-            {/* Toggle Login/Signup */}
+            {/* Link to apply */}
             <p className="text-center text-sm text-muted-foreground mt-6">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+              Don't have an account?{" "}
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => navigate("/founder-application")}
                 className="text-[hsl(var(--cyan-glow))] hover:underline font-medium"
               >
-                {isLogin ? "Sign up" : "Sign in"}
+                Apply as a founder
               </button>
             </p>
           </div>
