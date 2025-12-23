@@ -250,7 +250,7 @@ export default function FounderDashboard() {
         setApplication({
           id: "demo",
           founder_name: "Demo Founder",
-          company_name: "Demo Startup",
+          company_name: "Demo's Memo",
           vertical: "FinTech",
           stage: "Seed",
           location: "San Francisco, CA",
