@@ -448,17 +448,6 @@ export default function InvestorApplication() {
       case 0:
         return (
           <div className="space-y-8">
-            {/* Preview Dashboard Button - Prominent at top */}
-            <div className="flex justify-center">
-              <Button 
-                onClick={() => navigate("/investor-dashboard")}
-                size="lg"
-                className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))] font-semibold shadow-lg"
-              >
-                👀 Preview Dashboard with Demo Data →
-              </Button>
-            </div>
-
             <div className="text-center space-y-6">
               <h2 className="text-3xl font-bold text-[hsl(var(--navy-deep))]">Welcome</h2>
               <p className="text-lg text-[hsl(var(--navy-deep))]/80 max-w-2xl mx-auto">
@@ -492,84 +481,9 @@ export default function InvestorApplication() {
               </div>
             </div>
 
-            <p className="text-sm text-[hsl(var(--navy-deep))]/60 text-center italic mb-8">
+            <p className="text-sm text-[hsl(var(--navy-deep))]/60 text-center italic">
               Your profile will be shown to vetted founders seeking investment.
             </p>
-
-            {/* Dashboard Preview */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))] text-center">Preview of Your Dashboard</h3>
-              <div className="relative rounded-xl overflow-hidden border-2 border-[hsl(var(--cyan-glow))]/30 shadow-2xl">
-                {/* Mock Dashboard */}
-                <div className="bg-[hsl(220,60%,10%)] p-6">
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <h4 className="text-white text-lg font-semibold">Welcome back, Investor</h4>
-                      <p className="text-white/60 text-sm">Discover your next portfolio company</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="w-8 h-8 rounded-full bg-[hsl(var(--cyan-glow))]/20" />
-                    </div>
-                  </div>
-
-                  {/* Stats Cards */}
-                  <div className="grid grid-cols-4 gap-3 mb-6">
-                    {[
-                      { label: "Active Startups", value: "42", icon: "📊" },
-                      { label: "Saved", value: "8", icon: "❤️" },
-                      { label: "Connections", value: "12", icon: "🤝" },
-                      { label: "Events", value: "3", icon: "📅" },
-                    ].map((stat) => (
-                      <div key={stat.label} className="bg-[hsl(220,60%,15%)] rounded-lg p-3 border border-white/10">
-                        <div className="text-2xl mb-1">{stat.icon}</div>
-                        <div className="text-white font-bold text-xl">{stat.value}</div>
-                        <div className="text-white/50 text-xs">{stat.label}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Startup Cards Preview */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { name: "TechCo", founder: "Jane Smith", vertical: "AI/ML", stage: "Seed" },
-                      { name: "HealthFlow", founder: "John Doe", vertical: "Health", stage: "Pre-seed" },
-                    ].map((startup) => (
-                      <div key={startup.name} className="bg-[hsl(220,60%,15%)] rounded-lg p-4 border border-white/10">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
-                            <Building2 className="h-5 w-5 text-white" />
-                          </div>
-                          <div>
-                            <h5 className="font-semibold text-white text-sm">{startup.name}</h5>
-                            <p className="text-white/50 text-xs">{startup.founder}</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 mt-3">
-                          <span className="text-xs px-2 py-1 rounded bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border border-[hsl(var(--cyan-glow))]/20">
-                            {startup.vertical}
-                          </span>
-                          <span className="text-xs px-2 py-1 rounded bg-green-500/10 text-green-400 border border-green-500/20">
-                            {startup.stage}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,60%,10%)] via-transparent to-transparent pointer-events-none" />
-                <div className="absolute bottom-4 left-0 right-0 text-center">
-                  <Button 
-                    onClick={() => navigate("/investor-dashboard")}
-                    className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))] font-semibold"
-                  >
-                    Preview Dashboard →
-                  </Button>
-                </div>
-              </div>
-            </div>
           </div>
         );
 
