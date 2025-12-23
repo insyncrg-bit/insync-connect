@@ -1005,7 +1005,7 @@ export default function FounderDashboard() {
             {/* Welcome Section - Clean */}
             <div>
               <h1 className="text-2xl font-semibold text-white">
-                {application?.company_name || "Dashboard"}
+                Welcome, {application?.company_name || "Founder"}!
               </h1>
             </div>
 
@@ -1020,7 +1020,7 @@ export default function FounderDashboard() {
                     <Building2 className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
                   </div>
                   <div>
-                    <p className="font-medium text-white">{application?.company_name || "Your Memo"}</p>
+                    <p className="font-medium text-white">{application?.company_name ? `${application.company_name}'s Memo` : "Your Memo"}</p>
                     <p className="text-xs text-white/60">{application?.vertical} • {application?.stage}</p>
                   </div>
                 </div>
@@ -1079,7 +1079,7 @@ export default function FounderDashboard() {
     <div className="min-h-screen flex flex-col bg-[#151a24]">
       {/* Header */}
       <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
-        <h1 className="text-lg font-semibold text-white">{application?.company_name || "Founder Dashboard"}</h1>
+        <h1 className="text-lg font-semibold text-white">Welcome, {application?.company_name || "Founder"}!</h1>
         <div className="flex-1" />
         {currentTab === "memo" && (
           <Button
