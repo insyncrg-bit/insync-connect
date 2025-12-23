@@ -1080,7 +1080,7 @@ export default function FounderDashboard() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[hsl(var(--navy-deep))]">
+      <div className="min-h-screen flex w-full bg-[#151a24]">
         <FounderSidebar />
         
         <main className="flex-1 flex flex-col">

@@ -1149,7 +1149,7 @@ export default function InvestorDashboard() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[hsl(var(--navy-deep))]">
+      <div className="min-h-screen flex w-full bg-[#151a24]">
         <InvestorSidebar />
         
         <main className="flex-1 flex flex-col">
