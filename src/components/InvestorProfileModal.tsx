@@ -146,21 +146,21 @@ export function InvestorProfileModal({
                 </div>
               </div>
               {investor.firm_description && (
-                <p className={`text-white/70 text-sm mt-4 leading-relaxed ${!showFullThesis && 'line-clamp-3'}`}>
+                <p className={`text-white/70 text-sm mt-4 leading-relaxed ${!showFullThesis && 'line-clamp-2'}`}>
                   {investor.firm_description}
                 </p>
               )}
             </DialogHeader>
 
-            {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            {/* Quick Stats Row - Hidden in condensed view on mobile */}
+            <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 ${!showFullThesis && 'hidden md:grid'}`}>
               {investor.hq_location && (
                 <div className="bg-white/5 rounded-lg p-3 border border-white/10">
                   <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
                     <MapPin className="h-3 w-3" />
                     Location
                   </div>
-                  <p className="text-white text-sm font-medium">{investor.hq_location}</p>
+                  <p className={`text-white text-sm font-medium ${!showFullThesis && 'line-clamp-1'}`}>{investor.hq_location}</p>
                 </div>
               )}
               {investor.fund_type && (
@@ -169,7 +169,7 @@ export function InvestorProfileModal({
                     <Briefcase className="h-3 w-3" />
                     Fund Type
                   </div>
-                  <p className="text-white text-sm font-medium">{investor.fund_type}</p>
+                  <p className={`text-white text-sm font-medium ${!showFullThesis && 'line-clamp-1'}`}>{investor.fund_type}</p>
                 </div>
               )}
               {investor.aum && (
@@ -178,7 +178,7 @@ export function InvestorProfileModal({
                     <DollarSign className="h-3 w-3" />
                     AUM
                   </div>
-                  <p className="text-white text-sm font-medium">{investor.aum}</p>
+                  <p className={`text-white text-sm font-medium ${!showFullThesis && 'line-clamp-1'}`}>{investor.aum}</p>
                 </div>
               )}
               {investor.lead_follow && (
@@ -187,7 +187,7 @@ export function InvestorProfileModal({
                     <TrendingUp className="h-3 w-3" />
                     Role
                   </div>
-                  <p className="text-white text-sm font-medium">{investor.lead_follow}</p>
+                  <p className={`text-white text-sm font-medium ${!showFullThesis && 'line-clamp-1'}`}>{investor.lead_follow}</p>
                 </div>
               )}
             </div>
@@ -200,12 +200,12 @@ export function InvestorProfileModal({
                 </div>
                 <h3 className="text-lg font-semibold text-white">Core Thesis</h3>
               </div>
-              <p className="text-white/90 leading-relaxed text-lg">
+              <p className={`text-white/90 leading-relaxed text-lg ${!showFullThesis && 'line-clamp-3'}`}>
                 {investor.thesis_statement || "No thesis statement provided."}
               </p>
               
               {investor.sub_themes.length > 0 && (
-                <div className="mt-5 pt-5 border-t border-white/10">
+                <div className={`mt-5 pt-5 border-t border-white/10 ${!showFullThesis && 'hidden'}`}>
                   <p className="text-white/50 text-xs uppercase tracking-wider mb-3">Focus Areas</p>
                   <div className="flex flex-wrap gap-2">
                     {investor.sub_themes.map((theme, i) => (
@@ -218,8 +218,8 @@ export function InvestorProfileModal({
               )}
             </div>
 
-            {/* Investment Criteria Grid */}
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
+            {/* Investment Criteria Grid - Only show in full thesis mode */}
+            <div className={`grid md:grid-cols-2 gap-4 mb-6 ${!showFullThesis && 'hidden'}`}>
               {/* Fast Signals */}
               <div className="bg-green-500/5 rounded-xl p-5 border border-green-500/20">
                 <div className="flex items-center gap-3 mb-4">
@@ -271,8 +271,8 @@ export function InvestorProfileModal({
               </div>
             </div>
 
-            {/* Investment Parameters */}
-            <div className="bg-white/5 rounded-xl p-5 border border-white/10 mb-6">
+            {/* Investment Parameters - Only show in full thesis mode */}
+            <div className={`bg-white/5 rounded-xl p-5 border border-white/10 mb-6 ${!showFullThesis && 'hidden'}`}>
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
                   <DollarSign className="h-4 w-4 text-white/80" />
@@ -318,8 +318,8 @@ export function InvestorProfileModal({
               </div>
             </div>
 
-            {/* Sectors & Target Customers */}
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
+            {/* Sectors & Target Customers - Only show in full thesis mode */}
+            <div className={`grid md:grid-cols-2 gap-4 mb-6 ${!showFullThesis && 'hidden'}`}>
               <div className="bg-purple-500/5 rounded-xl p-5 border border-purple-500/20">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -366,8 +366,8 @@ export function InvestorProfileModal({
               </div>
             </div>
 
-            {/* Value-Add */}
-            <div className="bg-amber-500/5 rounded-xl p-5 border border-amber-500/20 mb-8">
+            {/* Value-Add - Only show in full thesis mode */}
+            <div className={`bg-amber-500/5 rounded-xl p-5 border border-amber-500/20 mb-8 ${!showFullThesis && 'hidden'}`}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
                   <Handshake className="h-4 w-4 text-amber-400" />
