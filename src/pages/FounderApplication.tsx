@@ -1456,7 +1456,7 @@ export default function FounderApplication() {
                 IN-SYNC | FOUNDER APPLICATION
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                Investor-Ready Memo
+                Startup Memo
               </h1>
               <p className="text-lg text-white/70 max-w-2xl mx-auto">
                 Help us understand the what, why, and how of your company so we can match you with the right investors.
