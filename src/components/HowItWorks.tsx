@@ -105,7 +105,7 @@ export const HowItWorks = () => {
   ];
 
   return (
-    <section className="relative py-24 px-4 md:px-6">
+    <section id="how-it-works" className="relative py-24 px-4 md:px-6">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-cyan-glow/5 blur-[150px] rounded-full" />
