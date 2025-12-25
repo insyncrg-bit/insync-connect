@@ -70,6 +70,27 @@ export const Hero = () => {
               Join as a VC
             </Button>
           </div>
+
+          {/* Tagline with glow */}
+          <div 
+            className="relative mt-32 md:mt-48 animate-fade-in"
+            style={{ animationDelay: '0.3s' }}
+          >
+            <div 
+              className="absolute inset-0 blur-[60px] animate-glow-pulse"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(6,182,212,0.4) 0%, rgba(6,182,212,0.15) 40%, transparent 70%)',
+              }}
+            />
+            <h2 
+              className="relative text-3xl md:text-5xl lg:text-6xl font-light tracking-widest text-white/90"
+              style={{ 
+                filter: 'drop-shadow(0 0 30px rgba(6,182,212,0.3)) drop-shadow(0 0 60px rgba(6,182,212,0.15))',
+              }}
+            >
+              simple. curated. effective.
+            </h2>
+          </div>
         </div>
       </div>
 
