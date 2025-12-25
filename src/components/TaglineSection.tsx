@@ -2,7 +2,7 @@ import { FloatingParticles } from "./FloatingParticles";
 
 export const TaglineSection = () => {
   return (
-    <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[120vh] flex items-center justify-center overflow-hidden py-32 md:py-48 lg:py-64">
       {/* Floating particles background */}
       <FloatingParticles />
       
