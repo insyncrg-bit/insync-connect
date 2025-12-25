@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { FloatingParticles } from "./FloatingParticles";
-import { ArrowRight, Users, Briefcase } from "lucide-react";
 import inSyncLogo from "@/assets/in-sync-logo.png";
 
 export const Hero = () => {
@@ -54,25 +53,21 @@ export const Hero = () => {
             <Button
               size="lg"
               onClick={() => navigate("/founder-application")}
-              className="group relative text-base px-8 py-6 font-semibold bg-cyan-glow text-navy-deep hover:bg-cyan-bright overflow-hidden transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+              className="text-base px-8 py-6 font-semibold bg-cyan-glow text-navy-deep hover:bg-cyan-bright overflow-hidden transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               style={{
                 boxShadow: '0 0 30px hsl(var(--cyan-glow) / 0.4)',
               }}
             >
-              <Users className="w-5 h-5 mr-2" />
-              <span>Join as a Startup</span>
-              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              Join as a Startup
             </Button>
 
             <Button
               size="lg"
               variant="outline"
               onClick={() => navigate("/investor-application")}
-              className="group relative text-base px-8 py-6 font-semibold border-cyan-glow/40 text-cyan-glow hover:bg-cyan-glow/10 hover:border-cyan-glow transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+              className="text-base px-8 py-6 font-semibold border-cyan-glow/40 text-cyan-glow hover:bg-cyan-glow/10 hover:border-cyan-glow transition-all duration-300 hover:scale-105 w-full sm:w-auto"
             >
-              <Briefcase className="w-5 h-5 mr-2" />
-              <span>Join as a VC</span>
-              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              Join as a VC
             </Button>
           </div>
         </div>
