@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
+import { TaglineSection } from "@/components/TaglineSection";
 import { HowItWorks } from "@/components/HowItWorks";
 
 import { ClosingCTA } from "@/components/ClosingCTA";
@@ -28,6 +29,7 @@ const Index = () => {
         <Navigation />
         <main className="pt-16">
           <Hero />
+          <TaglineSection />
           <HowItWorks />
           
           <ClosingCTA />
