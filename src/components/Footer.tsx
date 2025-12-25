@@ -10,7 +10,7 @@ export const Footer = () => {
             <h3 className="font-semibold mb-4 text-white text-lg">Connect</h3>
             <div className="flex gap-3 justify-center">
               <a 
-                href="#" 
+                href="mailto:insync.rg@gmail.com" 
                 className="w-10 h-10 bg-white/5 hover:bg-cyan-glow/20 text-white/70 hover:text-cyan-glow rounded-lg flex items-center justify-center transition-all border border-cyan-glow/20 hover:border-cyan-glow/40 hover:scale-110 duration-300"
                 aria-label="Email"
               >
