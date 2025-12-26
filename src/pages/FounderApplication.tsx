@@ -1607,6 +1607,18 @@ export default function FounderApplication() {
                     </Button>
                   )}
                   
+                  {/* View Demo Dashboard button - only on welcome page */}
+                  {currentSection === 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => navigate("/founder-dashboard?demo=true")}
+                      className="gap-2 border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+                    >
+                      View Demo Dashboard
+                    </Button>
+                  )}
+                  
                   <div className="flex-1" />
                   
                   {currentSection < 7 ? (
