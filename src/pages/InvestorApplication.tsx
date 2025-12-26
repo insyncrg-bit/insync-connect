@@ -16,7 +16,7 @@ const STEPS = [
   { id: 0, title: "Welcome", icon: Sparkles },
   { id: 1, title: "Admin & Verification", icon: Shield },
   { id: 2, title: "Fund Overview", icon: Building2 },
-  { id: 3, title: "Investment Thesis", icon: Target },
+  { id: 3, title: "Investment Strategy", icon: Target },
   { id: 4, title: "What You Look For", icon: Users },
   { id: 5, title: "Deal Mechanics", icon: Briefcase },
   { id: 6, title: "Value-Add", icon: Handshake },
@@ -1086,7 +1086,7 @@ export default function InvestorApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Investment Thesis & "Why We Say Yes"</h2>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Investment Strategy & "Why We Say Yes"</h2>
               <p className="text-muted-foreground">Help founders understand what makes you move</p>
             </div>
 
