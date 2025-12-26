@@ -25,7 +25,9 @@ import {
   Rocket,
   BarChart3,
   Shield,
-  Calculator
+  Calculator,
+  Linkedin,
+  ExternalLink
 } from "lucide-react";
 import insyncInfinity from "@/assets/insync-infinity.png";
 import {
@@ -49,6 +51,8 @@ interface FounderApplication {
   current_ask?: string;
   user_id?: string | null;
   logo_url?: string | null;
+  pitchdeck_url?: string | null;
+  calendly_link?: string | null;
   application_sections?: any;
   team_members?: any[];
   updated_at?: string;
@@ -110,7 +114,18 @@ export function MemoModal({
     "severity": "Severity & Urgency",
     "unique-tech": "Unique Technology",
     "emotional": "Emotional Value",
-    "adaptability": "Adaptability"
+    "adaptability": "Adaptability",
+    "other": "Other"
+  };
+
+  // Pricing strategy labels
+  const pricingStrategyLabels: Record<string, string> = {
+    "subscription": "Subscription",
+    "transaction": "Transaction-based",
+    "licensing": "One-time / Licensing",
+    "advertising": "Advertising-driven",
+    "services": "Services",
+    "other": "Other"
   };
 
   return (
@@ -338,9 +353,23 @@ export function MemoModal({
                     )}
                     <h1 className="text-4xl font-bold text-white mb-2">{startup.company_name}</h1>
                     <p className="text-xl text-white/70 mb-4">{startup.vertical} • {startup.stage}</p>
-                    <div className="flex justify-center gap-4 text-sm text-white/60">
+                    <div className="flex flex-wrap justify-center gap-4 text-sm text-white/60">
                       <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {startup.location}</span>
-                      {startup.website && <span className="flex items-center gap-1"><Globe className="h-4 w-4" /> {startup.website}</span>}
+                      {startup.website && (
+                        <a href={startup.website.startsWith('http') ? startup.website : `https://${startup.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                          <Globe className="h-4 w-4" /> {startup.website}
+                        </a>
+                      )}
+                      {sections.linkedIn && (
+                        <a href={sections.linkedIn.startsWith('http') ? sections.linkedIn : `https://${sections.linkedIn}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                          <Linkedin className="h-4 w-4" /> LinkedIn
+                        </a>
+                      )}
+                      {startup.pitchdeck_url && (
+                        <a href={startup.pitchdeck_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                          <FileText className="h-4 w-4" /> Pitch Deck <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
                     </div>
                   </div>
 
@@ -428,12 +457,79 @@ export function MemoModal({
                         {sections.section3?.pricingStrategies?.map((strategy: string, i: number) => (
                           <div key={i} className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]/60" />
-                            <span className="text-white/80 capitalize">{strategy}</span>
+                            <span className="text-white/80">{pricingStrategyLabels[strategy] || strategy}</span>
                           </div>
                         )) || <span className="text-white/50">Not specified</span>}
                       </div>
                     </div>
                   </div>
+
+                  {/* Pricing Details */}
+                  {(sections.section3?.subscriptionType || sections.section3?.transactionFeeType || 
+                    sections.section3?.licensingModel || sections.section3?.adRevenueModel || 
+                    sections.section3?.serviceType) && (
+                    <div className="mt-6 pt-6 border-t border-white/10">
+                      <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Pricing Details</h4>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {sections.section3?.subscriptionType && (
+                          <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                            <p className="text-xs text-white/40 mb-1">Subscription Type</p>
+                            <p className="text-white/80 capitalize">{sections.section3.subscriptionType}</p>
+                            {sections.section3?.subscriptionBillingCycle && (
+                              <p className="text-white/60 text-sm mt-1">Billing: {sections.section3.subscriptionBillingCycle}</p>
+                            )}
+                            {sections.section3?.subscriptionTiers && (
+                              <p className="text-white/60 text-sm mt-1">Tiers: {sections.section3.subscriptionTiers}</p>
+                            )}
+                          </div>
+                        )}
+                        {sections.section3?.transactionFeeType && (
+                          <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                            <p className="text-xs text-white/40 mb-1">Transaction Fee</p>
+                            <p className="text-white/80 capitalize">{sections.section3.transactionFeeType}</p>
+                            {sections.section3?.transactionFeePercentage && (
+                              <p className="text-white/60 text-sm mt-1">Rate: {sections.section3.transactionFeePercentage}</p>
+                            )}
+                          </div>
+                        )}
+                        {sections.section3?.licensingModel && (
+                          <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                            <p className="text-xs text-white/40 mb-1">Licensing Model</p>
+                            <p className="text-white/80">{sections.section3.licensingModel}</p>
+                          </div>
+                        )}
+                        {sections.section3?.adRevenueModel && (
+                          <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                            <p className="text-xs text-white/40 mb-1">Ad Revenue Model</p>
+                            <p className="text-white/80">{sections.section3.adRevenueModel}</p>
+                          </div>
+                        )}
+                        {sections.section3?.serviceType && (
+                          <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                            <p className="text-xs text-white/40 mb-1">Service Type</p>
+                            <p className="text-white/80">{sections.section3.serviceType}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Key Metrics */}
+                  {sections.section3?.revenueMetrics && sections.section3.revenueMetrics.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-white/10">
+                      <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Key Metrics Tracked</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {sections.section3.revenueMetrics.map((metric: string, i: number) => (
+                          <Badge key={i} className="bg-emerald-500/10 text-emerald-400/80 border-emerald-500/20">
+                            {metric}
+                          </Badge>
+                        ))}
+                      </div>
+                      {sections.section3?.revenueMetricsValues && (
+                        <p className="text-white/60 text-sm mt-3">{sections.section3.revenueMetricsValues}</p>
+                      )}
+                    </div>
+                  )}
                 </Card>
 
                 {/* Section 3: Go-to-Market */}
@@ -506,10 +602,28 @@ export function MemoModal({
                     </button>
                   </div>
 
+                  {/* Target Geography */}
+                  {sections.section5?.targetGeography && (
+                    <div className="mb-6">
+                      <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Target Geography</h4>
+                      <Badge className="bg-purple-500/10 text-purple-400/80 border-purple-500/20 text-sm px-3 py-1">
+                        {sections.section5.targetGeography}
+                      </Badge>
+                    </div>
+                  )}
+
                   {sections.section5?.targetCustomerDescription && (
-                    <div>
+                    <div className="mb-6">
                       <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Target Customer</h4>
                       <p className="text-white/80 leading-relaxed">{sections.section5.targetCustomerDescription}</p>
+                    </div>
+                  )}
+
+                  {/* SOM Timeframe */}
+                  {sections.section5?.somTimeframe && (
+                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                      <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-2">SOM Timeframe</h4>
+                      <p className="text-white/80">{sections.section5.somTimeframe}</p>
                     </div>
                   )}
                 </Card>
@@ -604,6 +718,24 @@ export function MemoModal({
                     {startup.traction}
                   </p>
                 </Card>
+
+                {/* Current Ask / Fundraising */}
+                {startup.current_ask && (
+                  <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                        <DollarSign className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-white">Current Ask</h2>
+                        <p className="text-white/40 text-sm">Fundraising goals and use of funds</p>
+                      </div>
+                    </div>
+                    <p className="text-white/80 leading-relaxed">
+                      {startup.current_ask}
+                    </p>
+                  </Card>
+                )}
 
                 {/* Footer */}
                 <div className="text-center py-8 border-t border-white/10">
@@ -723,7 +855,17 @@ export function MemoModal({
               </p>
             </div>
 
-            {/* Calculation Method */}
+            {/* Calculation Method (TAM only) */}
+            {selectedMetric === "tam" && sections.section5?.tamCalculationMethod && (
+              <div className="bg-white/5 rounded-xl p-5 border border-white/10">
+                <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Target className="h-4 w-4" /> Calculation Method
+                </h4>
+                <p className="text-white/80 leading-relaxed capitalize">{sections.section5.tamCalculationMethod}</p>
+              </div>
+            )}
+
+            {/* Calculation Breakdown */}
             <div className="bg-white/5 rounded-xl p-5 border border-white/10">
               <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Calculator className="h-4 w-4" /> Calculation Breakdown

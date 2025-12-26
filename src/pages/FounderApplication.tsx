@@ -148,6 +148,12 @@ export default function FounderApplication() {
       description: "Across regions, geographies, groups of people",
       prompt: "Explain how your solution adapts across different regions, geographies, or groups of people..."
     },
+    { 
+      value: "other", 
+      label: "Other", 
+      description: "A value proposition that doesn't fit the categories above",
+      prompt: "Describe your unique value proposition and how it benefits your customers..."
+    },
   ];
 
   const [valueDriverExplanations, setValueDriverExplanations] = useState<Record<string, string>>({});
@@ -160,6 +166,7 @@ export default function FounderApplication() {
     { id: "licensing", label: "One-time / Licensing" },
     { id: "advertising", label: "Advertising-driven" },
     { id: "services", label: "Services" },
+    { id: "other", label: "Other" },
   ];
 
   const addCompetitor = () => {
