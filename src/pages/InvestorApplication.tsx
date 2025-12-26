@@ -443,7 +443,6 @@ export default function InvestorApplication() {
       case 2: // Fund Overview
         if (!formData.firmDescription.trim()) errors.push("Firm description is required");
         if (!formData.fundType) errors.push("Fund type is required");
-        if (!formData.leadFollow) errors.push("Lead vs Follow preference is required");
         if (formData.checkSizes.length === 0) errors.push("Select at least one check size");
         if (formData.stageFocus.length === 0) errors.push("Select at least one stage focus");
         if (!formData.geographicFocus) errors.push("Geographic focus selection is required");
@@ -1135,11 +1134,11 @@ export default function InvestorApplication() {
               <Label>Metrics You Care About Most (optional)</Label>
               <Textarea
                 value={formData.rankedMetrics.join(", ")}
-                onChange={(e) => handleChange("rankedMetrics", e.target.value ? e.target.value.split(",").map(s => s.trim()).filter(Boolean) : [])}
+                onChange={(e) => handleChange("rankedMetrics", e.target.value ? [e.target.value] : [])}
                 placeholder="e.g., MRR growth, Net revenue retention, CAC payback, Gross margin..."
                 rows={3}
               />
-              <p className="text-xs text-muted-foreground">List the metrics that matter most to you, separated by commas</p>
+              <p className="text-xs text-muted-foreground">Enter the metrics that matter most to you</p>
             </div>
 
           </div>
