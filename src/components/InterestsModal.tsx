@@ -81,7 +81,7 @@ export function InterestsModal({
               <p className="text-white/60 text-sm mt-1">
                 {userType === 'investor' 
                   ? 'Startups that want to connect with you'
-                  : 'Investors that want to connect with you'}
+                  : 'VC analysts that want to connect with you'}
               </p>
             </div>
             <Button
@@ -109,7 +109,7 @@ export function InterestsModal({
               <p className="text-white/60 text-sm">
                 {userType === 'investor'
                   ? 'When startups are interested in connecting, they will appear here.'
-                  : 'When investors are interested in connecting, they will appear here.'}
+                  : 'When VC analysts are interested in connecting, they will appear here.'}
               </p>
             </div>
           ) : (
@@ -136,14 +136,14 @@ export function InterestsModal({
                           className={`font-semibold text-white mb-1 ${onViewProfile ? 'cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors' : ''}`}
                           onClick={() => handleNameClick(interest)}
                         >
-                          {userType === 'investor' ? interest.company_name : interest.firm_name}
+                          {userType === 'investor' ? interest.company_name : interest.analyst_name || 'VC Analyst'}
                         </h4>
                         <p className="text-sm text-white/60 mb-2">
                           {userType === 'investor' 
                             ? interest.founder_name 
-                            : interest.analyst_name 
-                              ? `${interest.analyst_name}${interest.analyst_title ? ` • ${interest.analyst_title}` : ''}`
-                              : ''
+                            : interest.firm_name 
+                              ? `${interest.analyst_title ? `${interest.analyst_title} at ` : ''}${interest.firm_name}`
+                              : interest.analyst_title || ''
                           }
                         </p>
                         
