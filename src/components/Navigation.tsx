@@ -99,14 +99,24 @@ export const Navigation = () => {
                 </Button>
               </div>
             ) : (
-              <Button
-                onClick={() => navigate("/auth")}
-                size="sm"
-                className="bg-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/90 text-[hsl(var(--navy-deep))] font-medium"
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                Log In
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => navigate("/auth")}
+                  size="sm"
+                  className="bg-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/90 text-[hsl(var(--navy-deep))] font-medium"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Log In
+                </Button>
+                <Button
+                  onClick={() => navigate("/analyst-auth")}
+                  size="sm"
+                  variant="ghost"
+                  className="text-white/70 hover:text-white hover:bg-white/10"
+                >
+                  Log In as a VC Analyst
+                </Button>
+              </div>
             )}
           </div>
         </div>
