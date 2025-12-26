@@ -58,6 +58,14 @@ interface InvestorApplication {
   time_to_decision: string | null;
 }
 
+interface Analyst {
+  id: string;
+  name: string;
+  location: string;
+  vertical: string;
+  oneLiner: string;
+}
+
 interface InvestorProfileModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -79,18 +87,38 @@ export function InvestorProfileModal({
 }: InvestorProfileModalProps) {
   const [syncNote, setSyncNote] = useState("");
   const [showSyncForm, setShowSyncForm] = useState(false);
+  const [selectedAnalyst, setSelectedAnalyst] = useState<Analyst | null>(null);
   const [viewMode, setViewMode] = useState<"condensed" | "full">("condensed");
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Mock analysts data - in production this would come from the database
+  const getAnalystsForFirm = (): Analyst[] => {
+    // This is placeholder data - will be replaced with real data when analysts table is created
+    return [
+      { id: "1", name: "Anna", location: "Boston, MA", vertical: "AI/ML", oneLiner: "Passionate about deep tech and founder-first investing." },
+      { id: "2", name: "John", location: "New York, NY", vertical: "FinTech", oneLiner: "Former founder, now helping the next generation scale." },
+      { id: "3", name: "Sarah", location: "San Francisco, CA", vertical: "HealthTech", oneLiner: "Healthcare operator turned investor." },
+    ];
+  };
+
+  const analysts = investor ? getAnalystsForFirm() : [];
 
   const wordCount = syncNote.trim().split(/\s+/).filter(Boolean).length;
   const isOverLimit = wordCount > 60;
 
-  const handleSync = async () => {
+  const handleSync = async (analyst: Analyst) => {
     if (investor && !isOverLimit) {
-      await onSync(investor.user_id, syncNote);
+      // In the future, we'd pass the analyst ID to associate the sync with specific analyst
+      await onSync(investor.user_id, `[Sync with ${analyst.name}] ${syncNote}`);
       setSyncNote("");
       setShowSyncForm(false);
+      setSelectedAnalyst(null);
     }
+  };
+
+  const handleAnalystClick = (analyst: Analyst) => {
+    setSelectedAnalyst(analyst);
+    setShowSyncForm(true);
   };
 
   const handleClose = () => {
@@ -554,14 +582,25 @@ export function InvestorProfileModal({
               </div>
             )}
 
-            {/* Sync Section */}
+            {/* Analysts Section */}
             <div className="border-t border-white/10 pt-6">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-white mb-2">Team Members at {investor.firm_name}</h3>
+                <p className="text-white/60 text-sm">Connect directly with an analyst sourcing in your area</p>
+              </div>
+
               {alreadySynced ? (
                 <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-center">
                   <p className="text-green-400 font-medium">Sync request sent! Waiting for response.</p>
                 </div>
-              ) : showSyncForm ? (
+              ) : showSyncForm && selectedAnalyst ? (
                 <div className="space-y-4">
+                  <div className="bg-white/5 rounded-lg p-4 border border-[hsl(var(--cyan-glow))]/30">
+                    <p className="text-white/80 text-sm mb-1">
+                      Syncing with <span className="text-[hsl(var(--cyan-glow))] font-semibold">{selectedAnalyst.name}</span> from {investor.firm_name}
+                    </p>
+                    <p className="text-white/50 text-xs">{selectedAnalyst.vertical} • {selectedAnalyst.location}</p>
+                  </div>
                   <div>
                     <label className="text-white/80 text-sm font-medium mb-2 block">
                       Add a note to your sync request (optional, max 60 words)
@@ -579,13 +618,16 @@ export function InvestorProfileModal({
                   <div className="flex gap-2">
                     <Button
                       variant="ghost"
-                      onClick={() => setShowSyncForm(false)}
+                      onClick={() => {
+                        setShowSyncForm(false);
+                        setSelectedAnalyst(null);
+                      }}
                       className="text-white/70 hover:text-white hover:bg-white/10"
                     >
                       Cancel
                     </Button>
                     <Button
-                      onClick={handleSync}
+                      onClick={() => handleSync(selectedAnalyst)}
                       disabled={isSyncing || isOverLimit}
                       className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 flex-1"
                     >
@@ -595,19 +637,63 @@ export function InvestorProfileModal({
                           Sending...
                         </>
                       ) : (
-                        "Send Sync Request"
+                        <>
+                          <img src={insyncInfinity} alt="Sync" className="mr-2 h-6 w-10 object-contain brightness-125 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                          Send Sync Request
+                        </>
                       )}
                     </Button>
                   </div>
                 </div>
               ) : (
-                <Button
-                  onClick={() => setShowSyncForm(true)}
-                  className="w-full bg-[hsl(220,60%,8%)] text-[hsl(var(--cyan-glow))] hover:bg-[hsl(220,60%,12%)] border border-[hsl(var(--cyan-glow))]/40 h-14 text-lg shadow-[0_0_20px_rgba(6,182,212,0.2)]"
-                >
-                  <img src={insyncInfinity} alt="Sync" className="mr-3 h-10 w-16 object-contain brightness-125 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                  Request to Sync
-                </Button>
+                <div className="grid gap-4">
+                  {analysts.map((analyst) => (
+                    <Card 
+                      key={analyst.id} 
+                      className="bg-navy-card border-white/10 p-5 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 shadow-[0_0_15px_rgba(6,182,212,0.05)]"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-4 flex-1">
+                          {/* Analyst Avatar */}
+                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-[hsl(var(--primary))]/30 flex items-center justify-center border border-[hsl(var(--cyan-glow))]/20 flex-shrink-0">
+                            <Users className="h-7 w-7 text-[hsl(var(--cyan-glow))]/80" />
+                          </div>
+                          
+                          {/* Analyst Info */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-lg font-semibold text-white mb-1">{analyst.name}</h4>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              <Badge className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30 text-xs">
+                                <MapPin className="h-3 w-3 mr-1" />
+                                {analyst.location}
+                              </Badge>
+                              <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
+                                <Target className="h-3 w-3 mr-1" />
+                                {analyst.vertical}
+                              </Badge>
+                            </div>
+                            <p className="text-white/60 text-sm italic">"{analyst.oneLiner}"</p>
+                          </div>
+                        </div>
+                        
+                        {/* Sync Button */}
+                        <Button
+                          onClick={() => handleAnalystClick(analyst)}
+                          className="bg-[hsl(220,60%,8%)] text-[hsl(var(--cyan-glow))] hover:bg-[hsl(220,60%,12%)] border border-[hsl(var(--cyan-glow))]/40 shadow-[0_0_15px_rgba(6,182,212,0.15)] flex-shrink-0 h-auto py-3 px-4"
+                        >
+                          <img 
+                            src={insyncInfinity} 
+                            alt="Sync" 
+                            className="mr-2 h-6 w-10 object-contain brightness-125 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" 
+                          />
+                          <span className="text-sm whitespace-nowrap">
+                            Sync with {analyst.name}
+                          </span>
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
               )}
             </div>
           </div>
