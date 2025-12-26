@@ -684,7 +684,7 @@ export function InvestorProfileModal({
                           <img 
                             src={insyncInfinity} 
                             alt="Sync" 
-                            className="mr-2 h-6 w-10 object-contain brightness-125 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" 
+                            className="mr-3 h-10 w-16 object-contain brightness-125 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" 
                           />
                           <span className="text-sm whitespace-nowrap">
                             Sync with {analyst.name}
