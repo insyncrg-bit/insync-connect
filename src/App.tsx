@@ -10,7 +10,6 @@ import AnalystAuth from "./pages/AnalystAuth";
 import FounderApplication from "./pages/FounderApplication";
 import InvestorApplication from "./pages/InvestorApplication";
 import FounderDashboard from "./pages/FounderDashboard";
-import InvestorDashboard from "./pages/InvestorDashboard";
 import AnalystDashboard from "./pages/AnalystDashboard";
 
 const queryClient = new QueryClient();
@@ -28,7 +27,6 @@ const App = () => (
           <Route path="/founder-application" element={<FounderApplication />} />
           <Route path="/founder-dashboard" element={<FounderDashboard />} />
           <Route path="/investor-application" element={<InvestorApplication />} />
-          <Route path="/investor-dashboard" element={<InvestorDashboard />} />
           <Route path="/analyst-dashboard" element={<AnalystDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
