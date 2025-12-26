@@ -1076,27 +1076,32 @@ export default function FounderDashboard() {
               </div>
             </Card>
 
-            {/* Stats - Larger with horizontal layout */}
+            {/* Stats - Analyst-focused connection stats */}
             <div className="grid grid-cols-4 gap-4">
               {[
-                { label: "Interests", value: displayStats.interests, icon: Heart, onClick: handleOpenInterests },
-                { label: "Syncs", value: displayStats.syncs, icon: null, image: syncsLogo, onClick: handleOpenSyncs },
-                { label: "Pending", value: displayStats.pending, icon: Eye, onClick: handleOpenPending },
-                { label: "Messages", value: displayStats.messages, icon: MessageSquare, onClick: handleOpenMessages },
+                { label: "Analyst Interests", value: displayStats.interests, icon: Heart, onClick: handleOpenInterests, description: "VC analysts interested in you" },
+                { label: "Active Syncs", value: displayStats.syncs, icon: null, image: syncsLogo, onClick: handleOpenSyncs, description: "Connected with analysts" },
+                { label: "Pending Requests", value: displayStats.pending, icon: Eye, onClick: handleOpenPending, description: "Awaiting analyst response" },
+                { label: "Messages", value: displayStats.messages, icon: MessageSquare, onClick: handleOpenMessages, description: "Chat with analysts" },
               ].map((stat) => (
                 <Card 
                   key={stat.label}
                   className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
                   onClick={stat.onClick}
                 >
-                  <div className="flex items-center gap-4">
-                    {stat.icon ? (
-                      <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                    ) : stat.image ? (
-                      <img src={stat.image} alt={stat.label} className="h-12 w-20 object-contain" />
-                    ) : null}
-                    <p className="text-3xl font-bold text-white">{stat.value}</p>
-                    <p className="text-base text-white/60">{stat.label}</p>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                      {stat.icon ? (
+                        <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                      ) : stat.image ? (
+                        <img src={stat.image} alt={stat.label} className="h-10 w-16 object-contain" />
+                      ) : null}
+                      <p className="text-3xl font-bold text-white">{stat.value}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white/80">{stat.label}</p>
+                      <p className="text-xs text-white/50">{stat.description}</p>
+                    </div>
                   </div>
                 </Card>
               ))}
