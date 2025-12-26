@@ -445,10 +445,6 @@ export default function InvestorApplication() {
         if (!formData.fundType) errors.push("Fund type is required");
         if (formData.checkSizes.length === 0) errors.push("Select at least one check size");
         if (formData.stageFocus.length === 0) errors.push("Select at least one stage focus");
-        if (!formData.geographicFocus) errors.push("Geographic focus selection is required");
-        if (formData.geographicFocus === "other" && !formData.geographicFocusDetail.trim()) {
-          errors.push("Please specify your geographic focus");
-        }
         break;
       case 3: // Investment Thesis
         if (!formData.thesisStatement.trim()) errors.push("Thesis statement is required");
