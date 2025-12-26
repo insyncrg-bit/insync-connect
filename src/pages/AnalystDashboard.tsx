@@ -1177,7 +1177,7 @@ export default function AnalystDashboard() {
           onClick={() => navigate("/")}
           className="hover:opacity-80 transition-opacity"
         >
-          <img src={infinityLogoHeader} alt="Home" className="h-8 w-auto" />
+          <img src={infinityLogoHeader} alt="Home" className="h-14 w-auto" />
         </button>
         <div className="flex-1" />
         {/* Edit Profile Button */}
