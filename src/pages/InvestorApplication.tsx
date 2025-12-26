@@ -1194,8 +1194,8 @@ export default function InvestorApplication() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="firmInvolvement">As a firm, how involved do you get with the startup? *</Label>
-              <p className="text-sm text-muted-foreground">Please elaborate on your typical engagement level and what that looks like in practice</p>
+              <Label htmlFor="firmInvolvement">Once you invest, how involved do you get with the startup? *</Label>
+              <p className="text-sm text-muted-foreground">Describe your typical post-investment engagement level and what ongoing support looks like in practice</p>
               <Textarea
                 id="firmInvolvement"
                 value={formData.firmInvolvement}
