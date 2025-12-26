@@ -114,7 +114,7 @@ export const Navigation = () => {
                   variant="ghost"
                   className="text-white/70 hover:text-white hover:bg-white/10"
                 >
-                  Log In as a VC Analyst
+                  Sign in as a VC Analyst
                 </Button>
               </div>
             )}
