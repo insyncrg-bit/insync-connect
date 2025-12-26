@@ -813,7 +813,7 @@ export default function InvestorApplication() {
               
               <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
                 <p className="text-sm text-primary">
-                  <strong>How it works:</strong> This shared company password allows anyone from your firm to create their own In-Sync dashboard using their personal email. When they sign up with your company password, they'll automatically be associated with your firm.
+                  <strong>How it works:</strong> This shared company password allows anyone from your firm to create their own In-Sync dashboard using their company email. When they sign up with your company password, they'll automatically be associated with your firm.
                 </p>
               </div>
             </div>
