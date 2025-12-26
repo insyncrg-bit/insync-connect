@@ -50,6 +50,7 @@ interface AnalystProfile {
   one_liner: string | null;
   profile_completed: boolean;
   profile_picture_url?: string | null;
+  linkedin_url?: string | null;
 }
 
 interface FounderApplication {
@@ -253,6 +254,7 @@ export default function AnalystDashboard() {
   const [messagesModalOpen, setMessagesModalOpen] = useState(false);
   const [messageThreads, setMessageThreads] = useState<any[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [initialContactUserId, setInitialContactUserId] = useState<string | null>(null);
 
   const [memoModalOpen, setMemoModalOpen] = useState(false);
   const [selectedStartup, setSelectedStartup] = useState<FounderApplication | null>(null);
@@ -1261,8 +1263,9 @@ export default function AnalystDashboard() {
           setSelectedStartup(founderData);
           setMemoModalOpen(true);
         }}
-        onMessage={(userId) => {
+        onMessage={(userId, sync) => {
           setSyncsModalOpen(false);
+          setInitialContactUserId(userId);
           setMessagesModalOpen(true);
           fetchThreads();
         }}
@@ -1298,12 +1301,16 @@ export default function AnalystDashboard() {
 
       <MessagesModal
         open={messagesModalOpen}
-        onOpenChange={setMessagesModalOpen}
+        onOpenChange={(open) => {
+          setMessagesModalOpen(open);
+          if (!open) setInitialContactUserId(null);
+        }}
         threads={displayThreads}
         loading={displayMessagesLoading}
         userType="investor"
         onSendMessage={sendMessage}
         onMarkAsRead={markAsRead}
+        initialContactUserId={initialContactUserId}
         activeSyncs={activeSyncs.map(sync => ({
           id: sync.id,
           other_user_id: sync.other_user_id,

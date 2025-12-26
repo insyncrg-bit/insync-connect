@@ -128,6 +128,7 @@ export default function FounderDashboard() {
   const [messagesModalOpen, setMessagesModalOpen] = useState(false);
   const [messageThreads, setMessageThreads] = useState<any[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [initialContactUserId, setInitialContactUserId] = useState<string | null>(null);
 
   // Demo data for modals
   const demoInterests = [
@@ -1225,8 +1226,9 @@ export default function FounderDashboard() {
             setSelectedInvestor(investorData);
             setInvestorModalOpen(true);
           }}
-          onMessage={(userId) => {
+          onMessage={(userId, sync) => {
             setSyncsModalOpen(false);
+            setInitialContactUserId(userId);
             setMessagesModalOpen(true);
             if (currentUserId) {
               fetchThreads();
@@ -1277,12 +1279,16 @@ export default function FounderDashboard() {
 
         <MessagesModal
           open={messagesModalOpen}
-          onOpenChange={setMessagesModalOpen}
+          onOpenChange={(open) => {
+            setMessagesModalOpen(open);
+            if (!open) setInitialContactUserId(null);
+          }}
           threads={displayThreads}
           loading={displayMessagesLoading}
           userType="founder"
           onSendMessage={sendMessage}
           onMarkAsRead={markAsRead}
+          initialContactUserId={initialContactUserId}
           activeSyncs={activeSyncs.map(sync => ({
             id: sync.id,
             other_user_id: sync.other_user_id,

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Target, User, Loader2, Camera, X } from "lucide-react";
+import { MapPin, Target, User, Loader2, Camera, X, Linkedin } from "lucide-react";
 
 interface AnalystProfile {
   id: string;
@@ -28,6 +28,7 @@ interface AnalystProfile {
   one_liner: string | null;
   profile_completed: boolean;
   profile_picture_url?: string | null;
+  linkedin_url?: string | null;
 }
 
 interface AnalystProfileModalProps {
@@ -51,6 +52,7 @@ export function AnalystProfileModal({
   const [vertical, setVertical] = useState(profile?.vertical || "");
   const [oneLiner, setOneLiner] = useState(profile?.one_liner || "");
   const [profilePictureUrl, setProfilePictureUrl] = useState(profile?.profile_picture_url || "");
+  const [linkedinUrl, setLinkedinUrl] = useState(profile?.linkedin_url || "");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -60,6 +62,7 @@ export function AnalystProfileModal({
       setVertical(profile.vertical || "");
       setOneLiner(profile.one_liner || "");
       setProfilePictureUrl(profile.profile_picture_url || "");
+      setLinkedinUrl(profile.linkedin_url || "");
     }
   }, [profile]);
 
@@ -180,6 +183,7 @@ export function AnalystProfileModal({
           vertical: vertical.trim(),
           one_liner: oneLiner.trim(),
           profile_picture_url: profilePictureUrl || null,
+          linkedin_url: linkedinUrl.trim() || null,
           profile_completed: true,
         })
         .eq("id", profile.id);
@@ -192,6 +196,7 @@ export function AnalystProfileModal({
         vertical: vertical.trim(),
         one_liner: oneLiner.trim(),
         profile_picture_url: profilePictureUrl || null,
+        linkedin_url: linkedinUrl.trim() || null,
         profile_completed: true,
       };
 
@@ -347,6 +352,23 @@ export function AnalystProfileModal({
             />
             <p className="text-xs text-muted-foreground">
               A brief description that helps founders understand who you are.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="linkedin" className="flex items-center gap-2 text-[hsl(var(--navy-deep))]">
+              <Linkedin className="h-4 w-4" />
+              LinkedIn Profile
+            </Label>
+            <Input
+              id="linkedin"
+              type="url"
+              value={linkedinUrl}
+              onChange={(e) => setLinkedinUrl(e.target.value)}
+              placeholder="https://linkedin.com/in/yourprofile"
+            />
+            <p className="text-xs text-muted-foreground">
+              Add your LinkedIn so founders can learn more about your background.
             </p>
           </div>
         </div>
