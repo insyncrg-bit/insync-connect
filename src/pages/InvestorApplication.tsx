@@ -272,14 +272,17 @@ export default function InvestorApplication() {
     setIsSubmitting(true);
     
     try {
-      // First, create the user account
+      // Use the first contact's email for the user account
+      const primaryContact = formData.contacts[0];
+      
+      // First, create the user account using the primary contact's email
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: formData.investorEmail,
-        password: formData.investorPassword,
+        email: primaryContact.email,
+        password: formData.companyPassword,
         options: {
           emailRedirectTo: `${window.location.origin}/investor-dashboard`,
           data: {
-            full_name: formData.investorName,
+            full_name: primaryContact.name,
           },
         },
       });
@@ -429,14 +432,6 @@ export default function InvestorApplication() {
         if (!formData.firmName.trim()) errors.push("Firm/Fund name is required");
         if (!formData.website.trim()) errors.push("Website is required");
         if (!formData.hqLocation.trim()) errors.push("HQ location is required");
-        if (!formData.investorName.trim()) errors.push("Your name is required");
-        if (!formData.investorEmail.trim()) errors.push("Your email is required");
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.investorEmail)) errors.push("Please enter a valid email address");
-        if (formData.investorPassword.length < 8) errors.push("Password must be at least 8 characters");
-        if (!/[A-Z]/.test(formData.investorPassword)) errors.push("Password must contain at least one uppercase letter");
-        if (!/[a-z]/.test(formData.investorPassword)) errors.push("Password must contain at least one lowercase letter");
-        if (!/[0-9]/.test(formData.investorPassword)) errors.push("Password must contain at least one number");
-        if (formData.investorPassword !== formData.investorConfirmPassword) errors.push("Passwords do not match");
         // Validate company password
         if (formData.companyPassword.length < 6) errors.push("Company password must be at least 6 characters");
         if (formData.companyPassword !== formData.companyConfirmPassword) errors.push("Company passwords do not match");
@@ -772,75 +767,11 @@ export default function InvestorApplication() {
               </div>
             </div>
 
-            {/* 1.2 Your Information */}
+            {/* 1.2 Company-Wide Password - moved up */}
+
+            {/* 1.2 Company-Wide Password */}
             <div className="p-6 bg-muted/30 rounded-xl space-y-4">
-              <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">1.2 Your Information</h3>
-              <p className="text-sm text-muted-foreground">Primary contact for this application</p>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="investorName">Your Name *</Label>
-                  <Input
-                    id="investorName"
-                    value={formData.investorName}
-                    onChange={(e) => handleChange("investorName", e.target.value)}
-                    placeholder="Full name"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="investorEmail">Your Email *</Label>
-                  <Input
-                    id="investorEmail"
-                    type="email"
-                    value={formData.investorEmail}
-                    onChange={(e) => handleChange("investorEmail", e.target.value)}
-                    placeholder="you@company.com"
-                    required
-                  />
-                  <p className="text-xs text-primary italic">This email will be used to log in and access your dashboard.</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="investorPassword">Create Password *</Label>
-                  <Input
-                    id="investorPassword"
-                    type="password"
-                    value={formData.investorPassword}
-                    onChange={(e) => handleChange("investorPassword", e.target.value)}
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="investorConfirmPassword">Confirm Password *</Label>
-                  <Input
-                    id="investorConfirmPassword"
-                    type="password"
-                    value={formData.investorConfirmPassword}
-                    onChange={(e) => handleChange("investorConfirmPassword", e.target.value)}
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="text-sm text-muted-foreground">
-                <p>Password must contain:</p>
-                <ul className="list-disc list-inside ml-2 mt-1 space-y-1">
-                  <li className={formData.investorPassword.length >= 8 ? "text-green-600" : ""}>At least 8 characters</li>
-                  <li className={/[A-Z]/.test(formData.investorPassword) ? "text-green-600" : ""}>One uppercase letter</li>
-                  <li className={/[a-z]/.test(formData.investorPassword) ? "text-green-600" : ""}>One lowercase letter</li>
-                  <li className={/[0-9]/.test(formData.investorPassword) ? "text-green-600" : ""}>One number</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* 1.3 Company-Wide Password */}
-            <div className="p-6 bg-muted/30 rounded-xl space-y-4">
-              <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">1.3 Company-Wide Password</h3>
+              <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">1.2 Company-Wide Password</h3>
               <p className="text-sm text-muted-foreground">
                 Create a shared password for your firm. Team members (analysts, associates, etc.) can use their personal email along with this company password to log into your firm's dashboard.
               </p>
