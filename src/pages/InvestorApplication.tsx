@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, ArrowRight, Upload, Check, Building2, Briefcase, Target, Users, Handshake, FolderOpen, Shield, Plus, X, GripVertical, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Upload, Check, Building2, Briefcase, Target, Handshake, FolderOpen, Shield, Plus, X, GripVertical, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,10 +17,9 @@ const STEPS = [
   { id: 1, title: "Admin & Verification", icon: Shield },
   { id: 2, title: "Fund Overview", icon: Building2 },
   { id: 3, title: "Investment Strategy", icon: Target },
-  { id: 4, title: "What You Look For", icon: Users },
-  { id: 5, title: "Deal Mechanics", icon: Briefcase },
-  { id: 6, title: "Value-Add", icon: Handshake },
-  { id: 7, title: "Portfolio & Conflicts", icon: FolderOpen },
+  { id: 4, title: "Deal Mechanics", icon: Briefcase },
+  { id: 5, title: "Value-Add", icon: Handshake },
+  { id: 6, title: "Portfolio & Conflicts", icon: FolderOpen },
 ];
 
 const FUND_TYPES = ["VC", "Micro-VC", "Seed Fund", "Angel Syndicate", "CVC", "Family Office", "Accelerator Fund"];
@@ -1124,85 +1123,8 @@ export default function InvestorApplication() {
               />
             </div>
 
-          </div>
-        );
-
-      case 4:
-        return (
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">What You Look For</h2>
-              <p className="text-muted-foreground">Founder + company criteria</p>
-            </div>
-
             <div className="p-6 bg-muted/30 rounded-xl space-y-6">
-              <h3 className="font-semibold text-lg">A) Problem & Customer Pain</h3>
-              
-              <div className="space-y-2">
-                <Label>Pain Severity You Prefer *</Label>
-                <Select value={formData.painSeverity} onValueChange={(v) => handleChange("painSeverity", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select preference" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="must-have">Must-have</SelectItem>
-                    <SelectItem value="strongly-preferred">Strongly preferred</SelectItem>
-                    <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Checkbox
-                    id="buyerPersona"
-                    checked={formData.buyerPersonaRequired}
-                    onCheckedChange={(checked) => handleChange("buyerPersonaRequired", !!checked)}
-                  />
-                  <Label htmlFor="buyerPersona">Buyer Persona / Budget Holder Required?</Label>
-                </div>
-                {formData.buyerPersonaRequired && (
-                  <Input
-                    value={formData.buyerPersonaWho}
-                    onChange={(e) => handleChange("buyerPersonaWho", e.target.value)}
-                    placeholder="Who? (e.g., CTO, VP Engineering)"
-                  />
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <Label>Customer Type *</Label>
-                <div className="flex flex-wrap gap-2">
-                  {CUSTOMER_TYPES.map(type => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => handleArrayToggle("customerTypes", type)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        formData.customerTypes.includes(type)
-                          ? "bg-[hsl(var(--navy-deep))] text-white"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      {type}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Regulated Industries</Label>
-                <Select value={formData.regulatedIndustries} onValueChange={(v) => handleChange("regulatedIndustries", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select preference" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="okay">Okay</SelectItem>
-                    <SelectItem value="preferred">Preferred</SelectItem>
-                    <SelectItem value="avoid">Avoid</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="p-6 bg-muted/30 rounded-xl space-y-6">
-              <h3 className="font-semibold text-lg">B) Business Model Preferences</h3>
+              <h3 className="font-semibold text-lg">Business Model Preferences</h3>
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -1269,7 +1191,7 @@ export default function InvestorApplication() {
 
             <div className="p-6 bg-muted/30 rounded-xl space-y-4">
               <div>
-                <h3 className="font-semibold text-lg">C) Metrics You Care About Most *</h3>
+                <h3 className="font-semibold text-lg">Metrics You Care About Most *</h3>
                 <p className="text-sm text-muted-foreground">Click to select, then use arrows to rank your top 5 in order of importance</p>
               </div>
               
@@ -1351,10 +1273,11 @@ export default function InvestorApplication() {
                 </div>
               </div>
             </div>
+
           </div>
         );
 
-      case 5:
+      case 4:
         return (
           <div className="space-y-8">
             <div className="space-y-2">
@@ -1468,7 +1391,7 @@ export default function InvestorApplication() {
           </div>
         );
 
-      case 6:
+      case 5:
         return (
           <div className="space-y-8">
             <div className="space-y-2">
@@ -1554,7 +1477,7 @@ export default function InvestorApplication() {
           </div>
         );
 
-      case 7:
+      case 6:
         return (
           <div className="space-y-8">
             <div className="space-y-2">
