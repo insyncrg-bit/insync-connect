@@ -17,9 +17,9 @@ const STEPS = [
   { id: 1, title: "Admin & Verification", icon: Shield },
   { id: 2, title: "Fund Overview", icon: Building2 },
   { id: 3, title: "Investment Strategy", icon: Target },
-  { id: 4, title: "Deal Mechanics", icon: Briefcase },
-  { id: 5, title: "Value-Add", icon: Handshake },
-  { id: 6, title: "Portfolio & Conflicts", icon: FolderOpen },
+  { id: 4, title: "Value-Add", icon: Handshake },
+  { id: 5, title: "Portfolio & Conflicts", icon: FolderOpen },
+  { id: 6, title: "Deal Mechanics (Optional)", icon: Briefcase },
 ];
 
 const FUND_TYPES = ["VC", "Micro-VC", "Seed Fund", "Angel Syndicate", "CVC", "Family Office", "Accelerator Fund"];
@@ -231,7 +231,7 @@ export default function InvestorApplication() {
     e.preventDefault();
     
     // Validate all steps before submission
-    for (let step = 0; step <= 7; step++) {
+    for (let step = 0; step <= 6; step++) {
       const validation = validateStep(step);
       if (!validation.isValid) {
         setCurrentStep(step);
@@ -430,30 +430,14 @@ export default function InvestorApplication() {
       case 3: // Investment Thesis
         if (!formData.thesisStatement.trim()) errors.push("Thesis statement is required");
         break;
-      case 4: // What You Look For
-        if (!formData.painSeverity) errors.push("Pain severity preference is required");
-        if (formData.customerTypes.length === 0) errors.push("Select at least one customer type");
-        if (!formData.b2bB2c) errors.push("B2B/B2C preference is required");
-        if (formData.revenueModels.length === 0) errors.push("Select at least one revenue model");
-        if (formData.minimumTraction.length === 0) errors.push("Select at least one minimum traction level");
-        if (formData.rankedMetrics.length < 5) errors.push("Please rank exactly 5 metrics");
-        break;
-      case 5: // Deal Mechanics
-        if (!formData.decisionProcess) errors.push("Decision process is required");
-        if (!formData.timeToFirstResponse) errors.push("Time to first response is required");
-        if (!formData.timeToDecision) errors.push("Time to decision is required");
-        if (!formData.boardInvolvement) errors.push("Board involvement preference is required");
-        if (formData.givesNoWithFeedback === null) errors.push("Please indicate if you give 'no' with feedback");
-        if (formData.givesNoWithFeedback === true && !formData.feedbackWhen.trim()) {
-          errors.push("Please describe when you provide feedback");
-        }
-        break;
-      case 6: // Value-Add
+      case 4: // Value-Add
         if (formData.operatingSupport.length === 0) errors.push("Select at least one operating support type");
         if (!formData.supportStyle) errors.push("Support style is required");
         break;
-      case 7: // Portfolio & Conflicts
+      case 5: // Portfolio & Conflicts
         if (!formData.conflictsPolicy) errors.push("Conflicts policy is required");
+        break;
+      case 6: // Deal Mechanics (Optional) - no validation required
         break;
     }
     
@@ -481,7 +465,7 @@ export default function InvestorApplication() {
       setCompletedSteps(prev => [...prev, currentStep]);
     }
     
-    setCurrentStep(prev => Math.min(prev + 1, 7));
+    setCurrentStep(prev => Math.min(prev + 1, 6));
   };
 
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
@@ -1157,120 +1141,6 @@ export default function InvestorApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Deal Mechanics & Process</h2>
-              <p className="text-muted-foreground">What founders really want to know</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Decision Process *</Label>
-                <Select value={formData.decisionProcess} onValueChange={(v) => handleChange("decisionProcess", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select process" /></SelectTrigger>
-                  <SelectContent>
-                    {DECISION_PROCESS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Board Involvement *</Label>
-                <Select value={formData.boardInvolvement} onValueChange={(v) => handleChange("boardInvolvement", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select involvement" /></SelectTrigger>
-                  <SelectContent>
-                    {BOARD_INVOLVEMENT.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Typical Time to First Response *</Label>
-                <Select value={formData.timeToFirstResponse} onValueChange={(v) => handleChange("timeToFirstResponse", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select time" /></SelectTrigger>
-                  <SelectContent>
-                    {RESPONSE_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Typical Time to Decision *</Label>
-                <Select value={formData.timeToDecision} onValueChange={(v) => handleChange("timeToDecision", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select time" /></SelectTrigger>
-                  <SelectContent>
-                    {DECISION_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="p-4 bg-muted/30 rounded-xl space-y-4">
-              <Label className="font-semibold">Do you give "No" with feedback? *</Label>
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => handleChange("givesNoWithFeedback", true)}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                    formData.givesNoWithFeedback === true
-                      ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
-                      : "border-muted hover:border-muted-foreground/30"
-                  }`}
-                >
-                  <div className="font-semibold">Yes</div>
-                  <div className="text-sm text-muted-foreground">We provide feedback with rejections</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleChange("givesNoWithFeedback", false);
-                    handleChange("feedbackWhen", "");
-                  }}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                    formData.givesNoWithFeedback === false
-                      ? "border-[hsl(var(--navy-deep))] bg-[hsl(var(--navy-deep))]/5"
-                      : "border-muted hover:border-muted-foreground/30"
-                  }`}
-                >
-                  <div className="font-semibold">No</div>
-                  <div className="text-sm text-muted-foreground">We don't typically provide feedback</div>
-                </button>
-              </div>
-              {formData.givesNoWithFeedback === true && (
-                <Input
-                  value={formData.feedbackWhen}
-                  onChange={(e) => handleChange("feedbackWhen", e.target.value)}
-                  placeholder="When do you provide feedback? (e.g., After partner meeting, Always, etc.)"
-                  className="mt-4"
-                />
-              )}
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="reserves">Follow-on Policy: Reserves (% of fund)</Label>
-                <Input
-                  id="reserves"
-                  value={formData.followOnReserves}
-                  onChange={(e) => handleChange("followOnReserves", e.target.value)}
-                  placeholder="50%"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="followOnWhen">When Do You Follow?</Label>
-                <Input
-                  id="followOnWhen"
-                  value={formData.followOnWhen}
-                  onChange={(e) => handleChange("followOnWhen", e.target.value)}
-                  placeholder="Series A if hitting milestones"
-                />
-              </div>
-            </div>
-          </div>
-        );
-
-      case 5:
-        return (
-          <div className="space-y-8">
-            <div className="space-y-2">
               <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Value-Add Menu</h2>
               <p className="text-muted-foreground">What founders are hoping you'll do after "yes"</p>
             </div>
@@ -1353,7 +1223,7 @@ export default function InvestorApplication() {
           </div>
         );
 
-      case 6:
+      case 5:
         return (
           <div className="space-y-8">
             <div className="space-y-2">
@@ -1439,6 +1309,126 @@ export default function InvestorApplication() {
                 />
               )}
             </div>
+          </div>
+        );
+
+      case 6:
+        return (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Deal Mechanics & Process (Optional)</h2>
+              <p className="text-muted-foreground">What founders really want to know - fill this out if you'd like</p>
+            </div>
+
+            <div className="p-4 bg-[hsl(var(--cyan-glow))]/10 border border-[hsl(var(--cyan-glow))]/30 rounded-xl">
+              <p className="text-sm text-[hsl(var(--navy-deep))]/80">
+                This section is entirely optional. You can skip it or fill in as much or as little as you'd like.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Decision Process</Label>
+                <Select value={formData.decisionProcess} onValueChange={(v) => handleChange("decisionProcess", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select process" /></SelectTrigger>
+                  <SelectContent>
+                    {DECISION_PROCESS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Board Involvement</Label>
+                <Select value={formData.boardInvolvement} onValueChange={(v) => handleChange("boardInvolvement", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select involvement" /></SelectTrigger>
+                  <SelectContent>
+                    {BOARD_INVOLVEMENT.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Typical Time to First Response</Label>
+                <Select value={formData.timeToFirstResponse} onValueChange={(v) => handleChange("timeToFirstResponse", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select time" /></SelectTrigger>
+                  <SelectContent>
+                    {RESPONSE_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Typical Time to Decision</Label>
+                <Select value={formData.timeToDecision} onValueChange={(v) => handleChange("timeToDecision", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select time" /></SelectTrigger>
+                  <SelectContent>
+                    {DECISION_TIMES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="p-4 bg-muted/30 rounded-xl space-y-4">
+              <Label className="font-semibold">Do you give "No" with feedback?</Label>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleChange("givesNoWithFeedback", true)}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                    formData.givesNoWithFeedback === true
+                      ? "border-[hsl(var(--cyan-glow))] bg-[hsl(var(--cyan-glow))]/10"
+                      : "border-muted hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <div className="font-semibold">Yes</div>
+                  <div className="text-sm text-muted-foreground">We provide feedback with rejections</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleChange("givesNoWithFeedback", false);
+                    handleChange("feedbackWhen", "");
+                  }}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                    formData.givesNoWithFeedback === false
+                      ? "border-[hsl(var(--navy-deep))] bg-[hsl(var(--navy-deep))]/5"
+                      : "border-muted hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <div className="font-semibold">No</div>
+                  <div className="text-sm text-muted-foreground">We don't typically provide feedback</div>
+                </button>
+              </div>
+              {formData.givesNoWithFeedback === true && (
+                <Input
+                  value={formData.feedbackWhen}
+                  onChange={(e) => handleChange("feedbackWhen", e.target.value)}
+                  placeholder="When do you provide feedback? (e.g., After partner meeting, Always, etc.)"
+                  className="mt-4"
+                />
+              )}
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="reserves">Follow-on Policy: Reserves (% of fund)</Label>
+                <Input
+                  id="reserves"
+                  value={formData.followOnReserves}
+                  onChange={(e) => handleChange("followOnReserves", e.target.value)}
+                  placeholder="50%"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="followOnWhen">When Do You Follow?</Label>
+                <Input
+                  id="followOnWhen"
+                  value={formData.followOnWhen}
+                  onChange={(e) => handleChange("followOnWhen", e.target.value)}
+                  placeholder="Series A if hitting milestones"
+                />
+              </div>
+            </div>
 
             <div className="p-6 bg-gradient-to-r from-[hsl(var(--navy-deep))]/10 to-primary/10 rounded-xl border border-primary/20">
               <p className="text-sm text-muted-foreground text-center">
@@ -1452,6 +1442,7 @@ export default function InvestorApplication() {
         return null;
     }
   };
+
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: 'var(--gradient-navy-teal)' }}>
@@ -1516,8 +1507,8 @@ export default function InvestorApplication() {
 
             {/* Mobile Progress */}
             <div className="md:hidden flex items-center justify-between bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-              <span className="text-white font-medium">Step {currentStep + 1} of 8</span>
-              <span className="text-white/70 text-sm">{STEPS[currentStep].title}</span>
+              <span className="text-white font-medium">Step {currentStep + 1} of 7</span>
+              <span className="text-white/70 text-sm">{STEPS[currentStep]?.title}</span>
             </div>
 
             {/* Form */}
@@ -1540,7 +1531,7 @@ export default function InvestorApplication() {
                 
                 <div className="flex-1" />
                 
-                {currentStep < 7 ? (
+                {currentStep < 6 ? (
                   <Button
                     type="button"
                     onClick={nextStep}
