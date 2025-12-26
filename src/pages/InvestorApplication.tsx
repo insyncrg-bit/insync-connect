@@ -451,7 +451,7 @@ export default function InvestorApplication() {
             <div className="text-center space-y-6">
               <h2 className="text-3xl font-bold text-[hsl(var(--navy-deep))]">Welcome</h2>
               <p className="text-lg text-[hsl(var(--navy-deep))]/80 max-w-2xl mx-auto">
-                Help us understand the <strong>what</strong>, <strong>why</strong>, and <strong>how</strong> of your firm so we can match you with the right startups.
+                Help us understand your <strong>investment thesis</strong>, <strong>deal criteria</strong>, and <strong>value-add</strong> so we can match you with the right startups.
               </p>
             </div>
 
@@ -464,20 +464,20 @@ export default function InvestorApplication() {
 
             <div className="grid md:grid-cols-2 gap-4">
               <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
-                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">WHAT</div>
-                <p className="text-[hsl(var(--navy-deep))]/70">Your investment thesis & focus</p>
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">THESIS</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">Your investment philosophy & focus areas</p>
               </div>
               <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
-                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">WHY</div>
-                <p className="text-[hsl(var(--navy-deep))]/70">What makes you say yes</p>
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">CRITERIA</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">Stage, check size & what makes you say yes</p>
               </div>
               <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
-                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">HOW</div>
-                <p className="text-[hsl(var(--navy-deep))]/70">Your process & value-add</p>
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">PROCESS</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">How you evaluate & close deals</p>
               </div>
               <div className="p-5 bg-white border border-[hsl(var(--cyan-glow))]/20 rounded-xl">
-                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">FIT</div>
-                <p className="text-[hsl(var(--navy-deep))]/70">Stage, sector & check size</p>
+                <div className="text-2xl font-bold text-[hsl(var(--cyan-glow))] mb-2">VALUE-ADD</div>
+                <p className="text-[hsl(var(--navy-deep))]/70">How you support portfolio companies</p>
               </div>
             </div>
 
@@ -532,17 +532,31 @@ export default function InvestorApplication() {
               </div>
               <div className="space-y-2">
                 <Label>Primary Geographies Covered</Label>
-                <Input
-                  value={formData.geographiesCovered.join(", ")}
-                  onChange={(e) => handleChange("geographiesCovered", e.target.value.split(", "))}
-                  placeholder="Northeast, US, Global..."
-                />
+                <div className="flex flex-wrap gap-2">
+                  {["Boston", "New York", "San Francisco", "Los Angeles", "Chicago", "Seattle", "Austin", "Denver", "Miami", "Atlanta", "Washington DC", "Philadelphia", "Dallas", "Houston", "Phoenix", "San Diego", "Toronto", "London", "Tel Aviv", "Singapore", "Berlin", "Paris", "Mumbai", "Bangalore", "Shanghai", "Tokyo", "Sydney", "Global", "Other"].map(city => (
+                    <button
+                      key={city}
+                      type="button"
+                      onClick={() => handleArrayToggle("geographiesCovered", city)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        formData.geographiesCovered.includes(city)
+                          ? "bg-[hsl(var(--navy-deep))] text-white"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
             <div className="p-6 bg-muted/30 rounded-xl space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-[hsl(var(--navy-deep))]">In-Sync Point(s) of Contact *</h3>
+                <div>
+                  <h3 className="font-semibold text-[hsl(var(--navy-deep))]">Team Member(s) for Founder Communication *</h3>
+                  <p className="text-sm text-muted-foreground">Who from your team will be the primary contact for startups on In-Sync? You can add multiple team members.</p>
+                </div>
                 <Button
                   type="button"
                   variant="outline"
@@ -551,7 +565,7 @@ export default function InvestorApplication() {
                   className="gap-2"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Contact
+                  Add Member
                 </Button>
               </div>
               
@@ -617,17 +631,6 @@ export default function InvestorApplication() {
               />
             </div>
 
-            <div className="space-y-4">
-              <Label>Verification (Upload)</Label>
-              <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-8 text-center space-y-4 hover:border-primary/50 transition-colors">
-                <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-semibold">Proof of affiliation or domain email verification</p>
-                  <p className="text-xs text-muted-foreground">PDF, PNG, JPG up to 10MB</p>
-                </div>
-                <Button type="button" variant="outline" size="sm">Choose File</Button>
-              </div>
-            </div>
           </div>
         );
 
@@ -640,15 +643,21 @@ export default function InvestorApplication() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="firmDescription">Firm Description (1-2 sentences) *</Label>
+              <Label htmlFor="firmDescription">Firm Description *</Label>
               <Textarea
                 id="firmDescription"
                 value={formData.firmDescription}
-                onChange={(e) => handleChange("firmDescription", e.target.value)}
+                onChange={(e) => {
+                  const words = e.target.value.split(/\s+/).filter(Boolean);
+                  if (words.length <= 200) {
+                    handleChange("firmDescription", e.target.value);
+                  }
+                }}
                 placeholder="We invest in early-stage B2B SaaS companies transforming enterprise workflows..."
-                rows={3}
+                rows={4}
                 required
               />
+              <p className="text-xs text-muted-foreground">{formData.firmDescription.split(/\s+/).filter(Boolean).length}/200 words</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
@@ -785,43 +794,6 @@ export default function InvestorApplication() {
               </div>
             </div>
 
-            <div className="p-4 bg-muted/30 rounded-xl space-y-4">
-              <Label className="font-semibold">Geographic Focus *</Label>
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => handleChange("geographicFocus", "boston")}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${
-                    formData.geographicFocus === "boston"
-                      ? "border-[hsl(var(--navy-deep))] bg-[hsl(var(--navy-deep))]/5"
-                      : "border-muted hover:border-muted-foreground/30"
-                  }`}
-                >
-                  <div className="font-semibold">Boston / Northeast</div>
-                  <div className="text-sm text-muted-foreground">Primary focus on Boston and Northeast region</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleChange("geographicFocus", "other")}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${
-                    formData.geographicFocus === "other"
-                      ? "border-[hsl(var(--navy-deep))] bg-[hsl(var(--navy-deep))]/5"
-                      : "border-muted hover:border-muted-foreground/30"
-                  }`}
-                >
-                  <div className="font-semibold">Other</div>
-                  <div className="text-sm text-muted-foreground">Different geographic focus</div>
-                </button>
-              </div>
-              {formData.geographicFocus === "other" && (
-                <Input
-                  value={formData.geographicFocusDetail}
-                  onChange={(e) => handleChange("geographicFocusDetail", e.target.value)}
-                  placeholder="Describe your geographic focus..."
-                  className="mt-4"
-                />
-              )}
-            </div>
           </div>
         );
 
