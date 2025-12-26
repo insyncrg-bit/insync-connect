@@ -160,10 +160,57 @@ export default function AnalystDashboard() {
   const [selectedStartup, setSelectedStartup] = useState<FounderApplication | null>(null);
 
   const currentTab = searchParams.get("tab") || "dashboard";
+  const isDemo = searchParams.get("demo") === "true";
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (isDemo) {
+      // Set demo data
+      setAnalystProfile({
+        id: "demo-analyst",
+        user_id: "demo-user",
+        firm_id: "demo-firm",
+        name: "Alex Thompson",
+        title: "Associate",
+        firm_name: "Demo VC",
+        email: "alex@demovc.com",
+        location: "San Francisco, CA",
+        vertical: "AI/ML, B2B SaaS",
+        one_liner: "Former founder helping the next generation scale.",
+        profile_completed: true,
+      });
+      setInvestorApplication({
+        id: "demo-firm",
+        firm_name: "Demo VC",
+        firm_description: "Early-stage venture fund focused on B2B software and AI infrastructure.",
+        thesis_statement: "We invest in technical founders building category-defining B2B software companies. We look for teams with deep domain expertise tackling large markets with innovative approaches.",
+        sub_themes: ["Developer Tools", "AI Infrastructure", "Data Platforms", "Vertical SaaS"],
+        fast_signals: ["Strong technical team", "Early revenue traction", "Clear path to $100M ARR"],
+        hard_nos: ["Consumer apps", "Hardware-only", "Pre-product companies"],
+        check_sizes: ["$500K - $2M"],
+        stage_focus: ["Pre-seed", "Seed"],
+        sector_tags: ["AI/ML", "B2B SaaS", "Developer Tools", "Enterprise Software"],
+        customer_types: ["Enterprise", "SMB"],
+        lead_follow: "Lead",
+        operating_support: ["Hiring", "GTM Strategy", "Technical Architecture"],
+        support_style: "Hands-on during critical phases, otherwise available as needed",
+        hq_location: "San Francisco, CA",
+        aum: "$150M",
+        fund_type: "Early Stage",
+        geographic_focus: "North America",
+        b2b_b2c: "B2B",
+        revenue_models: ["SaaS", "Usage-based"],
+        minimum_traction: ["$50K ARR", "5+ paying customers"],
+        board_involvement: "Board seat at Seed+",
+        decision_process: "2 partner meetings, 2-week decision timeline",
+        time_to_decision: "2-3 weeks",
+      });
+      setApplications(demoStartups);
+      setConnectionStats({ interests: 5, syncs: 12, pending: 3 });
+      setLoading(false);
+    } else {
+      fetchDashboardData();
+    }
+  }, [isDemo]);
 
   useEffect(() => {
     if (currentUserId) {
@@ -191,8 +238,8 @@ export default function AnalystDashboard() {
       if (!data.profile_completed) {
         setShowMandatoryProfileModal(true);
       }
-    } else {
-      // No analyst profile - redirect to analyst auth
+    } else if (!isDemo) {
+      // No analyst profile - redirect to analyst auth (but not in demo mode)
       navigate("/analyst-auth");
     }
   };

@@ -334,6 +334,16 @@ export default function AnalystAuth() {
                 ) : null}
                 Sign In
               </Button>
+
+              {/* Demo Button */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/analyst-dashboard?demo=true")}
+                className="w-full h-12 border-[hsl(var(--cyan-glow))]/40 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/10"
+              >
+                View Demo Dashboard
+              </Button>
             </form>
 
             {/* Link to regular auth */}
