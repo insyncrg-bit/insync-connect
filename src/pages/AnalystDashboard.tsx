@@ -109,6 +109,103 @@ interface ConnectionStats {
   pending: number;
 }
 
+// Demo data for preview mode
+const demoInterests = [
+  {
+    id: "demo-int-1",
+    requester_user_id: "demo-founder-1",
+    sync_note: "Your thesis on AI infrastructure aligns perfectly with our roadmap. Would love to discuss a potential partnership.",
+    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    company_name: "NeuralFlow AI",
+    founder_name: "Sarah Chen",
+    vertical: "AI/ML Infrastructure",
+    stage: "Seed",
+    location: "San Francisco, CA",
+    funding_goal: "$3M",
+  },
+  {
+    id: "demo-int-2",
+    requester_user_id: "demo-founder-2",
+    sync_note: null,
+    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    company_name: "ClimateLedger",
+    founder_name: "Marcus Johnson",
+    vertical: "Climate Tech",
+    stage: "Pre-seed",
+    location: "Austin, TX",
+    funding_goal: "$1.5M",
+  },
+];
+
+const demoSyncs = [
+  {
+    id: "demo-sync-1",
+    other_user_id: "demo-founder-3",
+    other_user_type: "founder",
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    company_name: "MedSync Health",
+    founder_name: "Priya Patel",
+    vertical: "Digital Health",
+    stage: "Seed",
+    location: "Boston, MA",
+  },
+  {
+    id: "demo-sync-2",
+    other_user_id: "demo-founder-4",
+    other_user_type: "founder",
+    created_at: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+    company_name: "FinanceOS",
+    founder_name: "David Kim",
+    vertical: "Fintech",
+    stage: "Series A",
+    location: "New York, NY",
+  },
+];
+
+const demoPending = [
+  {
+    id: "demo-pend-1",
+    target_user_id: "demo-founder-5",
+    sync_note: "Your traction in the supply chain space is impressive. Would love to learn more about your expansion plans.",
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    company_name: "SupplyChain360",
+    founder_name: "Elena Rodriguez",
+    vertical: "Supply Chain & Logistics",
+    stage: "Seed",
+    location: "Miami, FL",
+  },
+];
+
+const demoMessages = [
+  {
+    id: "demo-msg-1",
+    other_user_id: "demo-founder-3",
+    other_user_name: "Priya Patel",
+    other_user_company: "MedSync Health",
+    last_message: "Thanks for the intro to the health system. The meeting went great!",
+    last_message_time: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    unread_count: 1,
+    messages: [
+      { id: "m1", sender: "self" as const, content: "I'd like to introduce you to our portfolio company's head of partnerships at a major health system.", timestamp: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString() },
+      { id: "m2", sender: "other" as const, content: "That would be amazing! We've been looking to expand our health system partnerships.", timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString() },
+      { id: "m3", sender: "self" as const, content: "I'll set up the intro. Expect an email from Sarah at Northeast Health.", timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() },
+      { id: "m4", sender: "other" as const, content: "Thanks for the intro to the health system. The meeting went great!", timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() },
+    ],
+  },
+  {
+    id: "demo-msg-2",
+    other_user_id: "demo-founder-4",
+    other_user_name: "David Kim",
+    other_user_company: "FinanceOS",
+    last_message: "The board deck is ready for your review.",
+    last_message_time: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+    unread_count: 0,
+    messages: [
+      { id: "m1", sender: "other" as const, content: "The board deck is ready for your review.", timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString() },
+    ],
+  },
+];
+
 export default function AnalystDashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -510,7 +607,16 @@ export default function AnalystDashboard() {
 
   const handleOpenInterests = () => {
     setInterestsModalOpen(true);
-    fetchIncomingInterests();
+    if (currentUserId && !isDemo) {
+      fetchIncomingInterests();
+    } else {
+      // Show demo data for preview
+      setInterestsLoading(true);
+      setTimeout(() => {
+        setIncomingInterests(demoInterests);
+        setInterestsLoading(false);
+      }, 500);
+    }
   };
 
   const handleAcceptInterest = async (requestId: string) => {
@@ -584,7 +690,16 @@ export default function AnalystDashboard() {
 
   const handleOpenSyncs = () => {
     setSyncsModalOpen(true);
-    fetchActiveSyncs();
+    if (currentUserId && !isDemo) {
+      fetchActiveSyncs();
+    } else {
+      // Show demo data for preview
+      setSyncsLoading(true);
+      setTimeout(() => {
+        setActiveSyncs(demoSyncs);
+        setSyncsLoading(false);
+      }, 500);
+    }
   };
 
   const fetchOutgoingPending = async () => {
@@ -626,7 +741,16 @@ export default function AnalystDashboard() {
 
   const handleOpenPending = () => {
     setPendingModalOpen(true);
-    fetchOutgoingPending();
+    if (currentUserId && !isDemo) {
+      fetchOutgoingPending();
+    } else {
+      // Show demo data for preview
+      setPendingLoading(true);
+      setTimeout(() => {
+        setOutgoingPending(demoPending);
+        setPendingLoading(false);
+      }, 500);
+    }
   };
 
   const handleCancelPending = async (requestId: string) => {
@@ -645,17 +769,27 @@ export default function AnalystDashboard() {
 
   const handleOpenMessages = () => {
     setMessagesModalOpen(true);
-    fetchThreads();
+    if (currentUserId && !isDemo) {
+      fetchThreads();
+    } else {
+      // Show demo data for preview
+      setMessagesLoading(true);
+      setTimeout(() => {
+        setMessageThreads(demoMessages);
+        setMessagesLoading(false);
+      }, 500);
+    }
   };
 
-  const displayThreads = realThreads;
-  const displayMessagesLoading = realMessagesLoading;
+  const displayThreads = (currentUserId && !isDemo) ? realThreads : messageThreads;
+  const displayMessagesLoading = (currentUserId && !isDemo) ? realMessagesLoading : messagesLoading;
 
+  // Get display counts (show demo counts when in demo mode)
   const displayStats = {
-    interests: connectionStats.interests,
-    syncs: connectionStats.syncs,
-    pending: connectionStats.pending,
-    messages: 0,
+    interests: connectionStats.interests || (isDemo ? demoInterests.length : 0),
+    syncs: connectionStats.syncs || (isDemo ? demoSyncs.length : 0),
+    pending: connectionStats.pending || (isDemo ? demoPending.length : 0),
+    messages: isDemo ? demoMessages.reduce((acc, t) => acc + t.unread_count, 0) : 0,
   };
 
   const curatedStartups = applications.length > 0 ? applications : demoStartups;
