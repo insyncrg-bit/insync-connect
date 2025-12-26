@@ -1068,17 +1068,6 @@ export default function InvestorApplication() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="topInvestments">Investment Strategy</Label>
-              <Textarea
-                id="topInvestments"
-                value={formData.topInvestments}
-                onChange={(e) => handleChange("topInvestments", e.target.value)}
-                placeholder="Describe your investment strategy, focus areas, and what types of companies you typically invest in..."
-                rows={3}
-              />
-            </div>
-
           </div>
         );
 
