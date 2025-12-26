@@ -60,10 +60,16 @@ export default function InvestorApplication() {
     // Section 1: Admin & Verification
     firmName: "",
     website: "",
+    companyLinkedIn: "",
     hqLocation: "",
-    geographiesCovered: [] as string[],
+    otherLocationBranches: [] as string[],
+    otherLocationBranchesText: "",
     contacts: [{ name: "", title: "", email: "" }] as Contact[],
     publicProfile: true,
+    investorName: "",
+    investorEmail: "",
+    investorPassword: "",
+    investorConfirmPassword: "",
     
     // Section 2: Fund Overview
     firmDescription: "",
@@ -223,23 +229,59 @@ export default function InvestorApplication() {
     setIsSubmitting(true);
     
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to submit your application.",
-          variant: "destructive",
-        });
+      // First, create the user account
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: formData.investorEmail,
+        password: formData.investorPassword,
+        options: {
+          emailRedirectTo: `${window.location.origin}/investor-dashboard`,
+          data: {
+            full_name: formData.investorName,
+          },
+        },
+      });
+
+      if (signUpError) {
+        if (signUpError.message?.includes("User already registered")) {
+          toast({
+            title: "Account Already Exists",
+            description: "This email is already registered. Please use the login page to access your dashboard.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Account Creation Failed",
+            description: signUpError.message,
+            variant: "destructive",
+          });
+        }
+        setIsSubmitting(false);
         return;
       }
+
+      const user = signUpData.user;
+
+      if (!user) {
+        toast({
+          title: "Account Creation Failed",
+          description: "Unable to create account. Please try again.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Combine branches with text entry if "Other" is selected
+      const allBranches = formData.otherLocationBranches.includes("Other") && formData.otherLocationBranchesText.trim()
+        ? [...formData.otherLocationBranches.filter(b => b !== "Other"), formData.otherLocationBranchesText.trim()]
+        : formData.otherLocationBranches;
 
       const applicationData = {
         user_id: user.id,
         firm_name: formData.firmName,
         website: formData.website,
         hq_location: formData.hqLocation,
-        geographies_covered: formData.geographiesCovered as unknown as null,
+        geographies_covered: allBranches as unknown as null,
         contacts: formData.contacts as unknown as null,
         public_profile: formData.publicProfile,
         firm_description: formData.firmDescription,
@@ -343,6 +385,14 @@ export default function InvestorApplication() {
         if (!formData.firmName.trim()) errors.push("Firm/Fund name is required");
         if (!formData.website.trim()) errors.push("Website is required");
         if (!formData.hqLocation.trim()) errors.push("HQ location is required");
+        if (!formData.investorName.trim()) errors.push("Your name is required");
+        if (!formData.investorEmail.trim()) errors.push("Your email is required");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.investorEmail)) errors.push("Please enter a valid email address");
+        if (formData.investorPassword.length < 8) errors.push("Password must be at least 8 characters");
+        if (!/[A-Z]/.test(formData.investorPassword)) errors.push("Password must contain at least one uppercase letter");
+        if (!/[a-z]/.test(formData.investorPassword)) errors.push("Password must contain at least one lowercase letter");
+        if (!/[0-9]/.test(formData.investorPassword)) errors.push("Password must contain at least one number");
+        if (formData.investorPassword !== formData.investorConfirmPassword) errors.push("Passwords do not match");
         // Validate at least the first contact
         if (!formData.contacts[0]?.name.trim()) errors.push("At least one contact name is required");
         if (!formData.contacts[0]?.title.trim()) errors.push("At least one contact title is required");
@@ -495,51 +545,66 @@ export default function InvestorApplication() {
               <p className="text-muted-foreground">Basic firm information and verification details</p>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="firmName">Firm / Fund Name *</Label>
-                <Input
-                  id="firmName"
-                  value={formData.firmName}
-                  onChange={(e) => handleChange("firmName", e.target.value)}
-                  placeholder="Acme Ventures"
-                  required
-                />
+            {/* 1.1 Company Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">1.1 Company Information</h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="firmName">Firm / Fund Name *</Label>
+                  <Input
+                    id="firmName"
+                    value={formData.firmName}
+                    onChange={(e) => handleChange("firmName", e.target.value)}
+                    placeholder="Acme Ventures"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website *</Label>
+                  <Input
+                    id="website"
+                    type="url"
+                    value={formData.website}
+                    onChange={(e) => handleChange("website", e.target.value)}
+                    placeholder="https://acmeventures.com"
+                    required
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="website">Website *</Label>
-                <Input
-                  id="website"
-                  type="url"
-                  value={formData.website}
-                  onChange={(e) => handleChange("website", e.target.value)}
-                  placeholder="https://acmeventures.com"
-                  required
-                />
-              </div>
-            </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="hqLocation">HQ Location *</Label>
-                <Input
-                  id="hqLocation"
-                  value={formData.hqLocation}
-                  onChange={(e) => handleChange("hqLocation", e.target.value)}
-                  placeholder="Boston, MA"
-                  required
-                />
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="companyLinkedIn">Company LinkedIn</Label>
+                  <Input
+                    id="companyLinkedIn"
+                    type="url"
+                    value={formData.companyLinkedIn}
+                    onChange={(e) => handleChange("companyLinkedIn", e.target.value)}
+                    placeholder="https://linkedin.com/company/acme-ventures"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="hqLocation">HQ Location *</Label>
+                  <Input
+                    id="hqLocation"
+                    value={formData.hqLocation}
+                    onChange={(e) => handleChange("hqLocation", e.target.value)}
+                    placeholder="Boston, MA"
+                    required
+                  />
+                </div>
               </div>
+
               <div className="space-y-2">
-                <Label>Primary Geographies Covered</Label>
+                <Label>Other Location Branches</Label>
                 <div className="flex flex-wrap gap-2">
-                  {["Boston", "New York", "San Francisco", "Los Angeles", "Chicago", "Seattle", "Austin", "Denver", "Miami", "Atlanta", "Washington DC", "Philadelphia", "Dallas", "Houston", "Phoenix", "San Diego", "Toronto", "London", "Tel Aviv", "Singapore", "Berlin", "Paris", "Mumbai", "Bangalore", "Shanghai", "Tokyo", "Sydney", "Global", "Other"].map(city => (
+                  {["Boston", "New York", "San Francisco", "Los Angeles", "Chicago", "Seattle", "Austin", "Denver", "Miami", "Atlanta", "Washington DC", "Philadelphia", "Dallas", "Houston", "Phoenix", "San Diego", "Toronto", "London", "Tel Aviv", "Singapore", "Berlin", "Paris", "Mumbai", "Bangalore", "Shanghai", "Tokyo", "Sydney", "Other"].map(city => (
                     <button
                       key={city}
                       type="button"
-                      onClick={() => handleArrayToggle("geographiesCovered", city)}
+                      onClick={() => handleArrayToggle("otherLocationBranches", city)}
                       className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                        formData.geographiesCovered.includes(city)
+                        formData.otherLocationBranches.includes(city)
                           ? "bg-[hsl(var(--navy-deep))] text-white"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
@@ -548,6 +613,81 @@ export default function InvestorApplication() {
                     </button>
                   ))}
                 </div>
+                {formData.otherLocationBranches.includes("Other") && (
+                  <div className="mt-3">
+                    <Input
+                      value={formData.otherLocationBranchesText}
+                      onChange={(e) => handleChange("otherLocationBranchesText", e.target.value)}
+                      placeholder="Enter other location(s)..."
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 1.2 Your Information */}
+            <div className="p-6 bg-muted/30 rounded-xl space-y-4">
+              <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">1.2 Your Information</h3>
+              <p className="text-sm text-muted-foreground">Primary contact for this application</p>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="investorName">Your Name *</Label>
+                  <Input
+                    id="investorName"
+                    value={formData.investorName}
+                    onChange={(e) => handleChange("investorName", e.target.value)}
+                    placeholder="Full name"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="investorEmail">Your Email *</Label>
+                  <Input
+                    id="investorEmail"
+                    type="email"
+                    value={formData.investorEmail}
+                    onChange={(e) => handleChange("investorEmail", e.target.value)}
+                    placeholder="you@company.com"
+                    required
+                  />
+                  <p className="text-xs text-primary italic">This email will be used to log in and access your dashboard.</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="investorPassword">Create Password *</Label>
+                  <Input
+                    id="investorPassword"
+                    type="password"
+                    value={formData.investorPassword}
+                    onChange={(e) => handleChange("investorPassword", e.target.value)}
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="investorConfirmPassword">Confirm Password *</Label>
+                  <Input
+                    id="investorConfirmPassword"
+                    type="password"
+                    value={formData.investorConfirmPassword}
+                    onChange={(e) => handleChange("investorConfirmPassword", e.target.value)}
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="text-sm text-muted-foreground">
+                <p>Password must contain:</p>
+                <ul className="list-disc list-inside ml-2 mt-1 space-y-1">
+                  <li className={formData.investorPassword.length >= 8 ? "text-green-600" : ""}>At least 8 characters</li>
+                  <li className={/[A-Z]/.test(formData.investorPassword) ? "text-green-600" : ""}>One uppercase letter</li>
+                  <li className={/[a-z]/.test(formData.investorPassword) ? "text-green-600" : ""}>One lowercase letter</li>
+                  <li className={/[0-9]/.test(formData.investorPassword) ? "text-green-600" : ""}>One number</li>
+                </ul>
               </div>
             </div>
 
