@@ -64,14 +64,21 @@ export default function AnalystAuth() {
 
     try {
       // First, verify that the firm exists and the company password matches
+      console.log("Looking up firm:", firm.trim());
       const { data: investorApps, error: firmError } = await supabase
         .from("investor_applications")
         .select("id, firm_name, company_password_hash")
         .ilike("firm_name", firm.trim());
 
-      if (firmError) throw firmError;
+      console.log("Firm lookup result:", { investorApps, firmError });
+
+      if (firmError) {
+        console.error("Firm lookup error:", firmError);
+        throw firmError;
+      }
 
       if (!investorApps || investorApps.length === 0) {
+        console.log("No firms found matching:", firm.trim());
         toast({
           title: "Firm Not Found",
           description: "This firm has not registered with In-Sync. Please check the firm name or ask your firm to apply first.",
