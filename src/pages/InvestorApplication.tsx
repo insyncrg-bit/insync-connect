@@ -25,8 +25,27 @@ const STEPS = [
 
 const FUND_TYPES = ["VC", "Micro-VC", "Seed Fund", "Angel Syndicate", "CVC", "Family Office", "Accelerator Fund"];
 const CHECK_SIZES = ["<$50K", "$50–150K", "$150–250K", "$250–500K", "$500K–$1M", "$1–3M", "$3–7M", "$7M+"];
-const STAGE_FOCUS = ["Pre-seed", "Seed", "Series A", "Series B+"];
-const SECTOR_TAGS = ["AI/ML", "FinTech", "Health", "Climate", "DevTools", "Consumer", "Marketplace", "SaaS", "Biotech", "Other"];
+const STAGE_FOCUS = ["Idea/Concept", "Pre-seed", "Seed", "Seed+", "Series A", "Series A+", "Series B", "Series B+", "Series C+", "Growth", "Late Stage"];
+const SECTOR_TAGS = [
+  // Core Tech
+  "AI/ML", "Generative AI", "Computer Vision", "NLP", "Robotics", "Automation",
+  // FinTech
+  "FinTech", "Payments", "InsurTech", "WealthTech", "Lending", "Banking Infrastructure", "Crypto/Web3", "DeFi",
+  // Health & Life Sciences
+  "HealthTech", "Digital Health", "Biotech", "MedTech", "Mental Health", "Femtech", "AgeTech", "Genomics",
+  // Enterprise & B2B
+  "SaaS", "Enterprise Software", "DevTools", "Developer Infrastructure", "API-First", "Cybersecurity", "Data Infrastructure", "Cloud Infrastructure",
+  // Consumer & Marketplace
+  "Consumer", "D2C", "Marketplace", "E-commerce", "Creator Economy", "Social", "Gaming", "EdTech",
+  // Sustainability & Impact
+  "Climate", "CleanTech", "AgTech", "FoodTech", "Sustainability", "Impact",
+  // Industry Specific
+  "PropTech", "Real Estate", "Construction Tech", "Logistics", "Supply Chain", "Manufacturing", "Industrial", "LegalTech", "HR Tech", "Recruiting",
+  // Emerging
+  "SpaceTech", "DeepTech", "Quantum", "AR/VR", "IoT", "5G/Connectivity",
+  // Other
+  "Other"
+];
 const LEAD_FOLLOW = ["Lead", "Co-lead", "Follow", "Flexible"];
 const CUSTOMER_TYPES = ["SMB", "Mid-market", "Enterprise", "Consumer", "Gov", "Hybrid"];
 const REVENUE_MODELS = ["Subscription", "Usage", "Transaction", "Licensing", "Services", "Ads"];
@@ -59,6 +78,8 @@ export default function InvestorApplication() {
   const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
   const [thesisMemo, setThesisMemo] = useState<File | null>(null);
   const [thesisMemoName, setThesisMemoName] = useState<string | null>(null);
+  const [sectorTagsOpen, setSectorTagsOpen] = useState(false);
+  const [customSectorTag, setCustomSectorTag] = useState("");
   
   const [formData, setFormData] = useState({
     // Section 1: Admin & Verification
@@ -920,12 +941,12 @@ export default function InvestorApplication() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="fundVintage">Fund Vintage (Year)</Label>
+                <Label htmlFor="fundVintage">Year Fund Founded</Label>
                 <Input
                   id="fundVintage"
                   value={formData.fundVintage}
                   onChange={(e) => handleChange("fundVintage", e.target.value)}
-                  placeholder="2023"
+                  placeholder="2020"
                 />
               </div>
               <div className="space-y-2">
@@ -939,45 +960,25 @@ export default function InvestorApplication() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Fund Type *</Label>
-                <Select value={formData.fundType} onValueChange={(v) => handleChange("fundType", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                  <SelectContent>
-                    {FUND_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Lead vs Follow *</Label>
-                <Select value={formData.leadFollow} onValueChange={(v) => handleChange("leadFollow", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select preference" /></SelectTrigger>
-                  <SelectContent>
-                    {LEAD_FOLLOW.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label>Fund Type *</Label>
+              <Select value={formData.fundType} onValueChange={(v) => handleChange("fundType", v)}>
+                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                <SelectContent>
+                  {FUND_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="space-y-3">
-              <Label>Typical Check Size (select all that apply) *</Label>
-              <div className="flex flex-wrap gap-2">
-                {CHECK_SIZES.map(size => (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => handleArrayToggle("checkSizes", size)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      formData.checkSizes.includes(size)
-                        ? "bg-[hsl(var(--navy-deep))] text-white"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="checkSize">Typical Check Size *</Label>
+              <Input
+                id="checkSize"
+                value={formData.checkSizes.join(", ")}
+                onChange={(e) => handleChange("checkSizes", e.target.value ? [e.target.value] : [])}
+                placeholder="e.g., $250K - $500K or $1M - $3M"
+              />
+              <p className="text-xs text-muted-foreground">Enter your typical check size range</p>
             </div>
 
             <div className="space-y-3">
@@ -1002,21 +1003,75 @@ export default function InvestorApplication() {
 
             <div className="space-y-3">
               <Label>Sector Tags (select all that apply)</Label>
-              <div className="flex flex-wrap gap-2">
-                {SECTOR_TAGS.map(tag => (
-                  <button
-                    key={tag}
+              <div className="space-y-3">
+                <Select
+                  value=""
+                  onValueChange={(v) => {
+                    if (v && !formData.sectorTags.includes(v)) {
+                      handleArrayToggle("sectorTags", v);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Search and select sectors..." />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {SECTOR_TAGS.filter(tag => !formData.sectorTags.includes(tag)).map(tag => (
+                      <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {/* Custom sector input */}
+                <div className="flex gap-2">
+                  <Input
+                    value={customSectorTag}
+                    onChange={(e) => setCustomSectorTag(e.target.value)}
+                    placeholder="Can't find your sector? Type it here..."
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && customSectorTag.trim()) {
+                        e.preventDefault();
+                        if (!formData.sectorTags.includes(customSectorTag.trim())) {
+                          handleArrayToggle("sectorTags", customSectorTag.trim());
+                        }
+                        setCustomSectorTag("");
+                      }
+                    }}
+                  />
+                  <Button
                     type="button"
-                    onClick={() => handleArrayToggle("sectorTags", tag)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      formData.sectorTags.includes(tag)
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
+                    variant="outline"
+                    onClick={() => {
+                      if (customSectorTag.trim() && !formData.sectorTags.includes(customSectorTag.trim())) {
+                        handleArrayToggle("sectorTags", customSectorTag.trim());
+                        setCustomSectorTag("");
+                      }
+                    }}
                   >
-                    {tag}
-                  </button>
-                ))}
+                    Add
+                  </Button>
+                </div>
+
+                {/* Selected tags display */}
+                {formData.sectorTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {formData.sectorTags.map(tag => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium bg-primary text-primary-foreground"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => handleArrayToggle("sectorTags", tag)}
+                          className="ml-1 hover:bg-primary-foreground/20 rounded-full p-0.5"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1577,6 +1632,16 @@ export default function InvestorApplication() {
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Portfolio & Conflicts</h2>
               <p className="text-muted-foreground">Protect founders + protect the fund</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Lead vs Follow Preference *</Label>
+              <Select value={formData.leadFollow} onValueChange={(v) => handleChange("leadFollow", v)}>
+                <SelectTrigger><SelectValue placeholder="Select preference" /></SelectTrigger>
+                <SelectContent>
+                  {LEAD_FOLLOW.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-4">
