@@ -17,7 +17,7 @@ import { MapPin, Target, User, Loader2 } from "lucide-react";
 interface AnalystProfile {
   id: string;
   user_id: string;
-  firm_id?: string;
+  firm_id: string | null;
   name: string;
   title: string;
   firm_name: string;

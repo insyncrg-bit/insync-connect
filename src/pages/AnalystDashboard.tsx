@@ -40,7 +40,7 @@ import { Input } from "@/components/ui/input";
 interface AnalystProfile {
   id: string;
   user_id: string;
-  firm_id: string;
+  firm_id: string | null;
   name: string;
   title: string;
   firm_name: string;
