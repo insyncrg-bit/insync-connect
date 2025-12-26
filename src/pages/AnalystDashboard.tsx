@@ -49,6 +49,7 @@ interface AnalystProfile {
   vertical: string | null;
   one_liner: string | null;
   profile_completed: boolean;
+  profile_picture_url?: string | null;
 }
 
 interface FounderApplication {

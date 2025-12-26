@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Building2, Check, X, Loader2, MapPin, DollarSign, Clock, Maximize2, Minimize2 } from "lucide-react";
 
 interface InterestItem {
@@ -19,6 +20,10 @@ interface InterestItem {
   funding_goal?: string;
   // For investors viewing founders
   firm_name?: string;
+  // For founders viewing analysts/investors
+  analyst_name?: string;
+  analyst_title?: string;
+  analyst_profile_picture_url?: string;
 }
 
 interface InterestsModalProps {
@@ -113,9 +118,19 @@ export function InterestsModal({
                 <Card key={interest.id} className="bg-white/5 border-white/10 p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4 flex-1">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
-                        <Building2 className="h-6 w-6 text-white" />
-                      </div>
+                      {/* Avatar - show analyst profile picture if available */}
+                      {interest.analyst_profile_picture_url ? (
+                        <Avatar className="w-12 h-12 shrink-0 border border-[hsl(var(--cyan-glow))]/30">
+                          <AvatarImage src={interest.analyst_profile_picture_url} alt={interest.analyst_name || "Analyst"} />
+                          <AvatarFallback className="bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] text-white">
+                            {interest.analyst_name ? interest.analyst_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'VC'}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                          <Building2 className="h-6 w-6 text-white" />
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <h4 
                           className={`font-semibold text-white mb-1 ${onViewProfile ? 'cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors' : ''}`}
@@ -124,7 +139,12 @@ export function InterestsModal({
                           {userType === 'investor' ? interest.company_name : interest.firm_name}
                         </h4>
                         <p className="text-sm text-white/60 mb-2">
-                          {userType === 'investor' ? interest.founder_name : ''}
+                          {userType === 'investor' 
+                            ? interest.founder_name 
+                            : interest.analyst_name 
+                              ? `${interest.analyst_name}${interest.analyst_title ? ` • ${interest.analyst_title}` : ''}`
+                              : ''
+                          }
                         </p>
                         
                         <div className="flex flex-wrap gap-2 mb-3">

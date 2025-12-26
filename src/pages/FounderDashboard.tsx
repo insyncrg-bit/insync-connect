@@ -137,6 +137,9 @@ export default function FounderDashboard() {
       sync_note: "Your AI infrastructure approach is exactly what we look for. Would love to learn more about your technical roadmap.",
       created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
       firm_name: "Horizon Ventures",
+      analyst_name: "Sarah Kim",
+      analyst_title: "Associate",
+      analyst_profile_picture_url: null,
     },
     {
       id: "demo-int-2",
@@ -144,6 +147,9 @@ export default function FounderDashboard() {
       sync_note: null,
       created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
       firm_name: "Climate Capital",
+      analyst_name: "Michael Chen",
+      analyst_title: "Principal",
+      analyst_profile_picture_url: null,
     },
   ];
 
@@ -157,6 +163,9 @@ export default function FounderDashboard() {
       hq_location: "Boston, MA",
       stage_focus: ["Seed", "Series A"],
       sector_tags: ["Digital Health", "HealthTech"],
+      analyst_name: "Emily Wang",
+      analyst_title: "Senior Associate",
+      analyst_profile_picture_url: null,
     },
     {
       id: "demo-sync-2",
@@ -167,6 +176,9 @@ export default function FounderDashboard() {
       hq_location: "New York, NY",
       stage_focus: ["Pre-seed", "Seed"],
       sector_tags: ["Enterprise SaaS", "B2B"],
+      analyst_name: "James Rodriguez",
+      analyst_title: "Analyst",
+      analyst_profile_picture_url: null,
     },
   ];
 
@@ -447,13 +459,27 @@ export default function FounderDashboard() {
           .select("user_id, firm_name")
           .in("user_id", investorIds);
 
-        const enrichedInterests = connections.map(conn => ({
-          id: conn.id,
-          requester_user_id: conn.requester_user_id,
-          sync_note: conn.sync_note as string | null,
-          created_at: conn.created_at,
-          firm_name: investors?.find(i => i.user_id === conn.requester_user_id)?.firm_name || "Unknown Investor"
-        }));
+        // Also fetch analyst profiles (if the requester is an analyst)
+        const { data: analysts } = await supabase
+          .from("analyst_profiles")
+          .select("user_id, name, title, firm_name, profile_picture_url")
+          .in("user_id", investorIds);
+
+        const enrichedInterests = connections.map(conn => {
+          const investor = investors?.find(i => i.user_id === conn.requester_user_id);
+          const analyst = analysts?.find(a => a.user_id === conn.requester_user_id);
+          
+          return {
+            id: conn.id,
+            requester_user_id: conn.requester_user_id,
+            sync_note: conn.sync_note as string | null,
+            created_at: conn.created_at,
+            firm_name: analyst?.firm_name || investor?.firm_name || "Unknown Investor",
+            analyst_name: analyst?.name,
+            analyst_title: analyst?.title,
+            analyst_profile_picture_url: analyst?.profile_picture_url,
+          };
+        });
 
         setIncomingInterests(enrichedInterests);
       } else {
@@ -623,18 +649,28 @@ export default function FounderDashboard() {
           .select("user_id, firm_name, hq_location, stage_focus, sector_tags")
           .in("user_id", investorIds);
 
+        // Also fetch analyst profiles
+        const { data: analysts } = await supabase
+          .from("analyst_profiles")
+          .select("user_id, name, title, firm_name, profile_picture_url")
+          .in("user_id", investorIds);
+
         const enriched = connections.map(conn => {
           const otherUserId = conn.requester_user_id === currentUserId ? conn.target_user_id : conn.requester_user_id;
           const inv = investors?.find(i => i.user_id === otherUserId);
+          const analyst = analysts?.find(a => a.user_id === otherUserId);
           return {
             id: conn.id,
             other_user_id: otherUserId,
             other_user_type: 'investor',
             created_at: conn.updated_at || conn.created_at,
-            firm_name: inv?.firm_name,
+            firm_name: analyst?.firm_name || inv?.firm_name,
             hq_location: inv?.hq_location,
             stage_focus: inv?.stage_focus as string[] || [],
             sector_tags: inv?.sector_tags as string[] || [],
+            analyst_name: analyst?.name,
+            analyst_title: analyst?.title,
+            analyst_profile_picture_url: analyst?.profile_picture_url,
           };
         });
         setActiveSyncs(enriched);

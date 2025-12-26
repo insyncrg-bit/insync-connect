@@ -25,6 +25,7 @@ export type Database = {
           name: string
           one_liner: string | null
           profile_completed: boolean | null
+          profile_picture_url: string | null
           title: string
           updated_at: string
           user_id: string
@@ -40,6 +41,7 @@ export type Database = {
           name: string
           one_liner?: string | null
           profile_completed?: boolean | null
+          profile_picture_url?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -55,6 +57,7 @@ export type Database = {
           name?: string
           one_liner?: string | null
           profile_completed?: boolean | null
+          profile_picture_url?: string | null
           title?: string
           updated_at?: string
           user_id?: string

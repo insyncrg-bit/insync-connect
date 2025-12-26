@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Target, User, Loader2 } from "lucide-react";
+import { MapPin, Target, User, Loader2, Camera, X } from "lucide-react";
 
 interface AnalystProfile {
   id: string;
@@ -26,6 +27,7 @@ interface AnalystProfile {
   vertical: string | null;
   one_liner: string | null;
   profile_completed: boolean;
+  profile_picture_url?: string | null;
 }
 
 interface AnalystProfileModalProps {
@@ -44,18 +46,118 @@ export function AnalystProfileModal({
   isMandatory = false,
 }: AnalystProfileModalProps) {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [location, setLocation] = useState(profile?.location || "");
   const [vertical, setVertical] = useState(profile?.vertical || "");
   const [oneLiner, setOneLiner] = useState(profile?.one_liner || "");
+  const [profilePictureUrl, setProfilePictureUrl] = useState(profile?.profile_picture_url || "");
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (profile) {
       setLocation(profile.location || "");
       setVertical(profile.vertical || "");
       setOneLiner(profile.one_liner || "");
+      setProfilePictureUrl(profile.profile_picture_url || "");
     }
   }, [profile]);
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !profile) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file (PNG, JPG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${profile.user_id}/${Date.now()}.${fileExt}`;
+
+      // Delete old avatar if exists
+      if (profilePictureUrl) {
+        const oldPath = profilePictureUrl.split('/analyst-avatars/')[1];
+        if (oldPath) {
+          await supabase.storage.from('analyst-avatars').remove([oldPath]);
+        }
+      }
+
+      // Upload new avatar
+      const { error: uploadError } = await supabase.storage
+        .from('analyst-avatars')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('analyst-avatars')
+        .getPublicUrl(fileName);
+
+      setProfilePictureUrl(publicUrl);
+      toast({
+        title: "Photo uploaded!",
+        description: "Your profile picture has been updated.",
+      });
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload profile picture. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    if (!profile || !profilePictureUrl) return;
+
+    setIsUploading(true);
+    try {
+      const oldPath = profilePictureUrl.split('/analyst-avatars/')[1];
+      if (oldPath) {
+        await supabase.storage.from('analyst-avatars').remove([oldPath]);
+      }
+      setProfilePictureUrl("");
+      toast({
+        title: "Photo removed",
+        description: "Your profile picture has been removed.",
+      });
+    } catch (error) {
+      console.error("Error removing photo:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove profile picture.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!profile) return;
@@ -77,6 +179,7 @@ export function AnalystProfileModal({
           location: location.trim(),
           vertical: vertical.trim(),
           one_liner: oneLiner.trim(),
+          profile_picture_url: profilePictureUrl || null,
           profile_completed: true,
         })
         .eq("id", profile.id);
@@ -88,6 +191,7 @@ export function AnalystProfileModal({
         location: location.trim(),
         vertical: vertical.trim(),
         one_liner: oneLiner.trim(),
+        profile_picture_url: profilePictureUrl || null,
         profile_completed: true,
       };
 
@@ -109,9 +213,18 @@ export function AnalystProfileModal({
     }
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <Dialog open={open} onOpenChange={isMandatory ? undefined : onOpenChange}>
-      <DialogContent className="max-w-md bg-white">
+      <DialogContent className="max-w-md bg-white max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-[hsl(var(--navy-deep))]">
             {isMandatory ? "Complete Your Profile" : "Edit My Profile"}
@@ -124,6 +237,56 @@ export function AnalystProfileModal({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          {/* Profile Picture Upload */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative">
+              <Avatar className="h-24 w-24 border-2 border-[hsl(var(--cyan-glow))]/30">
+                {profilePictureUrl ? (
+                  <AvatarImage src={profilePictureUrl} alt={profile?.name || "Profile"} />
+                ) : null}
+                <AvatarFallback className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--navy-deep))] text-xl">
+                  {profile?.name ? getInitials(profile.name) : "?"}
+                </AvatarFallback>
+              </Avatar>
+              {profilePictureUrl && (
+                <button
+                  onClick={handleRemovePhoto}
+                  disabled={isUploading}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="text-xs"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Camera className="h-3 w-3 mr-1" />
+                  {profilePictureUrl ? "Change Photo" : "Upload Photo"}
+                </>
+              )}
+            </Button>
+          </div>
+
           {/* Read-only fields */}
           <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
             <div>
@@ -196,7 +359,7 @@ export function AnalystProfileModal({
           )}
           <Button
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || isUploading}
             className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))]"
           >
             {isSaving ? (
