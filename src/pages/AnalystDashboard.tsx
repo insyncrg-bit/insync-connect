@@ -14,7 +14,7 @@ import { MemoModal } from "@/components/MemoModal";
 import { MatchScoreBadge } from "@/components/MatchScoreBadge";
 import { AnalystProfileModal } from "@/components/AnalystProfileModal";
 import syncsLogo from "@/assets/syncs-logo.png";
-import { InfinityLogo } from "@/components/InfinityLogo";
+import infinityLogoHeader from "@/assets/infinity-logo-header.png";
 
 import { useMatchmaking, MatchResult } from "@/hooks/useMatchmaking";
 import { useMessages } from "@/hooks/useMessages";
@@ -1173,8 +1173,12 @@ export default function AnalystDashboard() {
     <div className="min-h-screen flex flex-col bg-[#151a24]">
       {/* Header */}
       <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
-        <InfinityLogo size={36} strokeColor="hsl(var(--cyan-glow))" strokeWidth={1.5} />
-        <h1 className="text-lg font-semibold text-white">Analyst Dashboard</h1>
+        <button 
+          onClick={() => navigate("/")}
+          className="hover:opacity-80 transition-opacity"
+        >
+          <img src={infinityLogoHeader} alt="Home" className="h-8 w-auto" />
+        </button>
         <div className="flex-1" />
         {/* Edit Profile Button */}
         <Button
