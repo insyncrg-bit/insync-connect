@@ -384,45 +384,19 @@ export default function AnalystDashboard() {
     }
   };
 
-  // Demo curated startups for preview
+  // Demo curated startup for preview (shows example of what a curated startup looks like)
   const demoStartups: FounderApplication[] = [
     {
       id: "demo-1",
-      founder_name: "Sarah Chen",
-      company_name: "NeuralFlow AI",
-      vertical: "AI/ML Infrastructure",
+      founder_name: "Demo Founder",
+      company_name: "Demo Startup",
+      vertical: "Example Vertical",
       stage: "Seed",
       location: "San Francisco, CA",
-      website: "https://neuralflow.ai",
-      business_model: "B2B SaaS platform enabling enterprises to deploy and manage ML models at scale.",
-      funding_goal: "$3M",
-      traction: "$120K ARR, 15 enterprise customers",
-      created_at: new Date().toISOString(),
-    },
-    {
-      id: "demo-2",
-      founder_name: "Marcus Johnson",
-      company_name: "ClimateLedger",
-      vertical: "Climate Tech",
-      stage: "Pre-seed",
-      location: "Austin, TX",
-      website: "https://climateledger.io",
-      business_model: "Carbon credit verification platform using blockchain for transparent ESG reporting.",
-      funding_goal: "$1.5M",
-      traction: "3 pilot customers, LOIs from 2 Fortune 500 companies",
-      created_at: new Date().toISOString(),
-    },
-    {
-      id: "demo-3",
-      founder_name: "Priya Patel",
-      company_name: "MedSync Health",
-      vertical: "Digital Health",
-      stage: "Seed",
-      location: "Boston, MA",
-      website: "https://medsynchealth.com",
-      business_model: "AI-powered patient engagement platform reducing hospital readmissions.",
-      funding_goal: "$4M",
-      traction: "$280K ARR, partnerships with 8 hospital systems",
+      website: "https://example.com",
+      business_model: "This is an example of how a curated startup will appear on your dashboard. Real startups will show up here once founders join the platform.",
+      funding_goal: "$2M",
+      traction: "Example traction metrics will appear here",
       created_at: new Date().toISOString(),
     },
   ];
