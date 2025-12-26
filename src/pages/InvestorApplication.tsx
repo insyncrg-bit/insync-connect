@@ -115,13 +115,7 @@ export default function InvestorApplication() {
     thesisStatement: "",
     subThemes: [] as string[],
     subThemesOther: "",
-    nonNegotiables: {
-      category: false,
-      traction: false,
-      founderProfile: false,
-      businessModel: false,
-      complianceConstraints: false,
-    },
+    nonNegotiables: "" as string | Record<string, boolean>,
     hardNos: [] as string[],
     fastSignals: [] as string[],
     
@@ -436,7 +430,6 @@ export default function InvestorApplication() {
         break;
       case 3: // Investment Thesis
         if (!formData.thesisStatement.trim()) errors.push("Thesis statement is required");
-        if (formData.fastSignals.length === 0) errors.push("Select at least one fast signal");
         break;
       case 4: // What You Look For
         if (!formData.painSeverity) errors.push("Pain severity preference is required");
@@ -1075,27 +1068,15 @@ export default function InvestorApplication() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="portfolioCount">Portfolio Count</Label>
-                <Input
-                  id="portfolioCount"
-                  type="number"
-                  value={formData.portfolioCount}
-                  onChange={(e) => handleChange("portfolioCount", e.target.value)}
-                  placeholder="25"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="topInvestments">Top 5 Representative Investments</Label>
-                <Textarea
-                  id="topInvestments"
-                  value={formData.topInvestments}
-                  onChange={(e) => handleChange("topInvestments", e.target.value)}
-                  placeholder="Company A, Company B, Company C..."
-                  rows={2}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="topInvestments">Investment Strategy</Label>
+              <Textarea
+                id="topInvestments"
+                value={formData.topInvestments}
+                onChange={(e) => handleChange("topInvestments", e.target.value)}
+                placeholder="Describe your investment strategy, focus areas, and what types of companies you typically invest in..."
+                rows={3}
+              />
             </div>
 
           </div>
@@ -1134,68 +1115,26 @@ export default function InvestorApplication() {
 
             <div className="p-6 bg-muted/30 rounded-xl space-y-4">
               <Label className="font-semibold">Non-Negotiables</Label>
-              <div className="grid md:grid-cols-2 gap-4">
-                {Object.entries({
-                  category: "Category fit",
-                  traction: "Minimum traction",
-                  founderProfile: "Founder profile",
-                  businessModel: "Business model",
-                  complianceConstraints: "Compliance constraints",
-                }).map(([key, label]) => (
-                  <div key={key} className="flex items-center gap-3">
-                    <Checkbox
-                      id={key}
-                      checked={formData.nonNegotiables[key as keyof typeof formData.nonNegotiables]}
-                      onCheckedChange={(checked) => handleChange("nonNegotiables", {
-                        ...formData.nonNegotiables,
-                        [key]: !!checked
-                      })}
-                    />
-                    <Label htmlFor={key}>{label}</Label>
-                  </div>
-                ))}
-              </div>
+              <p className="text-sm text-muted-foreground">What are your absolute requirements for investment? (e.g., founder must have domain expertise, minimum revenue threshold, specific market size)</p>
+              <Textarea
+                value={typeof formData.nonNegotiables === 'string' ? formData.nonNegotiables : ''}
+                onChange={(e) => handleChange("nonNegotiables", e.target.value)}
+                placeholder="Examples: Founder with 5+ years domain experience, $50K+ MRR, B2B focus only, US-based company, technical co-founder required..."
+                rows={4}
+              />
             </div>
 
             <div className="space-y-3">
               <Label>Hard "No's" / Exclusions</Label>
-              <div className="flex flex-wrap gap-2">
-                {HARD_NOS.map(no => (
-                  <button
-                    key={no}
-                    type="button"
-                    onClick={() => handleArrayToggle("hardNos", no)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      formData.hardNos.includes(no)
-                        ? "bg-[hsl(var(--navy-deep))] text-white"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
-                  >
-                    {no}
-                  </button>
-                ))}
-              </div>
+              <p className="text-sm text-muted-foreground">What will automatically disqualify a company from your consideration?</p>
+              <Textarea
+                value={formData.hardNos.join(", ")}
+                onChange={(e) => handleChange("hardNos", e.target.value ? [e.target.value] : [])}
+                placeholder="Examples: No hardware companies, no pre-revenue, no single founders, no regulated industries, no crypto/web3..."
+                rows={3}
+              />
             </div>
 
-            <div className="space-y-3">
-              <Label>What Signals Make You Move Fast? *</Label>
-              <div className="flex flex-wrap gap-2">
-                {FAST_SIGNALS.map(signal => (
-                  <button
-                    key={signal}
-                    type="button"
-                    onClick={() => handleArrayToggle("fastSignals", signal)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      formData.fastSignals.includes(signal)
-                        ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
-                  >
-                    {signal}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         );
 
@@ -1642,6 +1581,18 @@ export default function InvestorApplication() {
                   {LEAD_FOLLOW.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="portfolioCount">Portfolio Count</Label>
+              <Input
+                id="portfolioCount"
+                type="number"
+                value={formData.portfolioCount}
+                onChange={(e) => handleChange("portfolioCount", e.target.value)}
+                placeholder="25"
+              />
+              <p className="text-xs text-muted-foreground">Number of companies currently in your portfolio</p>
             </div>
 
             <div className="space-y-4">
