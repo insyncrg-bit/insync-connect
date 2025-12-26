@@ -1126,152 +1126,28 @@ export default function InvestorApplication() {
             <div className="p-6 bg-muted/30 rounded-xl space-y-6">
               <h3 className="font-semibold text-lg">Business Model Preferences</h3>
               
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>B2B / B2C Preference *</Label>
-                  <Select value={formData.b2bB2c} onValueChange={(v) => handleChange("b2bB2c", v)}>
-                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="b2b">B2B</SelectItem>
-                      <SelectItem value="b2c">B2C</SelectItem>
-                      <SelectItem value="both">Both</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Why?</Label>
-                  <Input
-                    value={formData.b2bB2cWhy}
-                    onChange={(e) => handleChange("b2bB2cWhy", e.target.value)}
-                    placeholder="Expertise in enterprise sales..."
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Label>Revenue Model *</Label>
-                <div className="flex flex-wrap gap-2">
-                  {REVENUE_MODELS.map(model => (
-                    <button
-                      key={model}
-                      type="button"
-                      onClick={() => handleArrayToggle("revenueModels", model)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        formData.revenueModels.includes(model)
-                          ? "bg-[hsl(var(--navy-deep))] text-white"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      {model}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Label>Minimum Traction to Engage *</Label>
-                <div className="flex flex-wrap gap-2">
-                  {TRACTION_LEVELS.map(level => (
-                    <button
-                      key={level}
-                      type="button"
-                      onClick={() => handleArrayToggle("minimumTraction", level)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        formData.minimumTraction.includes(level)
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      {level}
-                    </button>
-                  ))}
-                </div>
+              <div className="space-y-2">
+                <Label>B2B / B2C Preference *</Label>
+                <Select value={formData.b2bB2c} onValueChange={(v) => handleChange("b2bB2c", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="b2b">B2B</SelectItem>
+                    <SelectItem value="b2c">B2C</SelectItem>
+                    <SelectItem value="both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <div className="p-6 bg-muted/30 rounded-xl space-y-4">
-              <div>
-                <h3 className="font-semibold text-lg">Metrics You Care About Most *</h3>
-                <p className="text-sm text-muted-foreground">Click to select, then use arrows to rank your top 5 in order of importance</p>
-              </div>
-              
-              {/* Selected metrics with ranking */}
-              {formData.rankedMetrics.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Your Rankings:</Label>
-                  <div className="space-y-2">
-                    {formData.rankedMetrics.map((metric, index) => (
-                      <div
-                        key={metric}
-                        className="flex items-center gap-3 p-3 bg-[hsl(var(--navy-deep))] text-white rounded-lg"
-                      >
-                        <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full font-bold">
-                          {index + 1}
-                        </div>
-                        <span className="flex-1 font-medium">{metric}</span>
-                        <div className="flex gap-1">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => moveMetricUp(index)}
-                            disabled={index === 0}
-                            className="h-8 w-8 p-0 text-white hover:bg-white/20 disabled:opacity-30"
-                          >
-                            ↑
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => moveMetricDown(index)}
-                            disabled={index === formData.rankedMetrics.length - 1}
-                            className="h-8 w-8 p-0 text-white hover:bg-white/20 disabled:opacity-30"
-                          >
-                            ↓
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleMetricRank(metric)}
-                            className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Available metrics to select */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  {formData.rankedMetrics.length < 5 
-                    ? `Select ${5 - formData.rankedMetrics.length} more metric${5 - formData.rankedMetrics.length !== 1 ? 's' : ''}:`
-                    : "All 5 metrics selected"
-                  }
-                </Label>
-                <div className="flex flex-wrap gap-2">
-                  {METRICS.filter(m => !formData.rankedMetrics.includes(m)).map(metric => (
-                    <button
-                      key={metric}
-                      type="button"
-                      onClick={() => handleMetricRank(metric)}
-                      disabled={formData.rankedMetrics.length >= 5}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        formData.rankedMetrics.length >= 5
-                          ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      {metric}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div className="space-y-2">
+              <Label>Metrics You Care About Most (optional)</Label>
+              <Textarea
+                value={formData.rankedMetrics.join(", ")}
+                onChange={(e) => handleChange("rankedMetrics", e.target.value ? e.target.value.split(",").map(s => s.trim()).filter(Boolean) : [])}
+                placeholder="e.g., MRR growth, Net revenue retention, CAC payback, Gross margin..."
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground">List the metrics that matter most to you, separated by commas</p>
             </div>
 
           </div>
