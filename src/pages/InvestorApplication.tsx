@@ -255,8 +255,8 @@ export default function InvestorApplication() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate all steps before submission
-    for (let step = 0; step <= 6; step++) {
+    // Validate required steps before submission (steps 0-5, step 6 is optional)
+    for (let step = 0; step <= 5; step++) {
       const validation = validateStep(step);
       if (!validation.isValid) {
         setCurrentStep(step);
