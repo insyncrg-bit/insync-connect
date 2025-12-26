@@ -207,6 +207,7 @@ export type Database = {
           buyer_persona_who: string | null
           calendly_link: string | null
           check_sizes: Json | null
+          company_password_hash: string | null
           conflicts_policy: string | null
           contacts: Json | null
           created_at: string
@@ -268,6 +269,7 @@ export type Database = {
           buyer_persona_who?: string | null
           calendly_link?: string | null
           check_sizes?: Json | null
+          company_password_hash?: string | null
           conflicts_policy?: string | null
           contacts?: Json | null
           created_at?: string
@@ -329,6 +331,7 @@ export type Database = {
           buyer_persona_who?: string | null
           calendly_link?: string | null
           check_sizes?: Json | null
+          company_password_hash?: string | null
           conflicts_policy?: string | null
           contacts?: Json | null
           created_at?: string
