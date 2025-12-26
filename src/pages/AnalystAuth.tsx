@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
-import { Mail, Lock, Loader2, User, Building2, Briefcase } from "lucide-react";
+import { Mail, Lock, Loader2, User, Building2, Briefcase, Linkedin } from "lucide-react";
 import { z } from "zod";
 
 const emailSchema = z.string().email("Please enter a valid email address");
@@ -18,6 +18,7 @@ export default function AnalystAuth() {
   const [name, setName] = useState("");
   const [firm, setFirm] = useState("");
   const [title, setTitle] = useState("");
+  const [linkedin, setLinkedin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -150,6 +151,7 @@ export default function AnalystAuth() {
               title: title.trim(),
               firm_name: matchingFirm.firm_name,
               email: email.trim(),
+              linkedin_url: linkedin.trim() || null,
               profile_completed: false,
             });
 
@@ -186,6 +188,7 @@ export default function AnalystAuth() {
               title: title.trim(),
               firm_name: matchingFirm.firm_name,
               email: email.trim(),
+              linkedin_url: linkedin.trim() || null,
               profile_completed: false,
             });
 
@@ -286,7 +289,22 @@ export default function AnalystAuth() {
                 </div>
               </div>
 
-              {/* Email Field */}
+              {/* LinkedIn Field */}
+              <div className="space-y-2">
+                <Label htmlFor="linkedin" className="text-[hsl(var(--navy-deep))]">LinkedIn Profile</Label>
+                <div className="relative">
+                  <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="linkedin"
+                    type="url"
+                    placeholder="https://linkedin.com/in/yourprofile"
+                    value={linkedin}
+                    onChange={(e) => setLinkedin(e.target.value)}
+                    className="pl-10 h-12"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-[hsl(var(--navy-deep))]">Email (company email)</Label>
                 <div className="relative">

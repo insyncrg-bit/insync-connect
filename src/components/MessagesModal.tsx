@@ -41,6 +41,7 @@ interface MessagesModalProps {
   onSendMessage?: (receiverUserId: string, content: string) => Promise<boolean>;
   onMarkAsRead?: (otherUserId: string) => void;
   activeSyncs?: SyncContact[];
+  initialContactUserId?: string | null;
 }
 
 export function MessagesModal({ 
@@ -51,7 +52,8 @@ export function MessagesModal({
   userType,
   onSendMessage,
   onMarkAsRead,
-  activeSyncs = []
+  activeSyncs = [],
+  initialContactUserId = null
 }: MessagesModalProps) {
   const [selectedThread, setSelectedThread] = useState<MessageThread | null>(null);
   const [selectedNewContact, setSelectedNewContact] = useState<SyncContact | null>(null);
@@ -111,6 +113,26 @@ export function MessagesModal({
   const syncsWithoutThreads = activeSyncs.filter(
     sync => !threads.some(thread => thread.other_user_id === sync.other_user_id)
   );
+
+  // Handle initial contact selection when modal opens
+  useEffect(() => {
+    if (open && initialContactUserId && !loading) {
+      // Check if there's an existing thread with this user
+      const existingThread = threads.find(t => t.other_user_id === initialContactUserId);
+      if (existingThread) {
+        setSelectedThread(existingThread);
+        setSelectedNewContact(null);
+        onMarkAsRead?.(existingThread.other_user_id);
+      } else {
+        // Find the sync contact to start a new conversation
+        const syncContact = activeSyncs.find(s => s.other_user_id === initialContactUserId);
+        if (syncContact) {
+          setSelectedNewContact(syncContact);
+          setSelectedThread(null);
+        }
+      }
+    }
+  }, [open, initialContactUserId, threads, activeSyncs, loading, onMarkAsRead]);
 
   // Update selected thread when threads change (realtime updates)
   useEffect(() => {

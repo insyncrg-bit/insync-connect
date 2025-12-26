@@ -21,6 +21,7 @@ export type Database = {
           firm_id: string | null
           firm_name: string
           id: string
+          linkedin_url: string | null
           location: string | null
           name: string
           one_liner: string | null
@@ -37,6 +38,7 @@ export type Database = {
           firm_id?: string | null
           firm_name: string
           id?: string
+          linkedin_url?: string | null
           location?: string | null
           name: string
           one_liner?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           firm_id?: string | null
           firm_name?: string
           id?: string
+          linkedin_url?: string | null
           location?: string | null
           name?: string
           one_liner?: string | null

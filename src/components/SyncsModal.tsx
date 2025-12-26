@@ -38,7 +38,7 @@ interface SyncsModalProps {
   loading: boolean;
   userType: "founder" | "investor";
   onViewProfile?: (userId: string, sync: SyncItem) => void;
-  onMessage?: (userId: string) => void;
+  onMessage?: (userId: string, sync: SyncItem) => void;
 }
 
 export function SyncsModal({ 
@@ -212,7 +212,7 @@ export function SyncsModal({
                             size="sm"
                             variant="outline"
                             className="border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
-                            onClick={() => onMessage?.(sync.other_user_id)}
+                            onClick={() => onMessage?.(sync.other_user_id, sync)}
                           >
                             <MessageSquare className="mr-1 h-3 w-3" />
                             Message
