@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Building2, Eye, MapPin, Calendar, Clock, X, Loader2, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,6 +22,10 @@ interface PendingItem {
   hq_location?: string;
   stage_focus?: string[];
   sector_tags?: string[];
+  // Analyst fields
+  analyst_name?: string;
+  analyst_title?: string;
+  analyst_profile_picture_url?: string;
 }
 
 interface PendingModalProps {
@@ -95,7 +100,7 @@ export function PendingModal({
               <h3 className="text-lg font-semibold mb-2">No pending requests</h3>
               <p className="text-white/60 text-sm">
                 {userType === "founder" 
-                  ? "Your sync requests to investors will appear here while awaiting response."
+                  ? "Your sync requests to analysts will appear here while awaiting response."
                   : "Your sync requests to founders will appear here while awaiting response."}
               </p>
             </div>
@@ -107,16 +112,26 @@ export function PendingModal({
                   className="bg-white/5 border border-white/10 rounded-lg p-4"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/50 to-orange-500/50 flex items-center justify-center shrink-0">
-                      <Clock className="h-6 w-6 text-white" />
-                    </div>
+                    {/* Avatar - show analyst profile picture if available for founders */}
+                    {userType === "founder" && item.analyst_profile_picture_url ? (
+                      <Avatar className="w-12 h-12 shrink-0 border border-yellow-500/30">
+                        <AvatarImage src={item.analyst_profile_picture_url} alt={item.analyst_name || "Analyst"} />
+                        <AvatarFallback className="bg-gradient-to-br from-yellow-500/50 to-orange-500/50 text-white">
+                          {item.analyst_name ? item.analyst_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'VC'}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/50 to-orange-500/50 flex items-center justify-center shrink-0">
+                        <Clock className="h-6 w-6 text-white" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <h4 
                           className={`font-semibold text-white ${onViewProfile ? 'cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors' : ''}`}
                           onClick={() => handleNameClick(item)}
                         >
-                          {userType === "founder" ? item.firm_name : item.company_name}
+                          {userType === "founder" ? (item.analyst_name || 'VC Analyst') : item.company_name}
                         </h4>
                         <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs">
                           Pending
@@ -125,6 +140,10 @@ export function PendingModal({
                       
                       {userType === "founder" ? (
                         <>
+                          {/* Show firm name underneath analyst name */}
+                          <p className="text-sm text-white/70 mb-1">
+                            {item.analyst_title ? `${item.analyst_title} at ` : ''}{item.firm_name}
+                          </p>
                           {item.hq_location && (
                             <p className="text-sm text-white/60 flex items-center gap-1 mb-2">
                               <MapPin className="h-3 w-3" />

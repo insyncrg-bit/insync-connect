@@ -101,7 +101,7 @@ export function SyncsModal({
               <h3 className="text-lg font-semibold mb-2">No active syncs yet</h3>
               <p className="text-white/60 text-sm">
                 {userType === "founder" 
-                  ? "When investors accept your requests or you accept theirs, they'll appear here."
+                  ? "When analysts accept your requests or you accept theirs, they'll appear here."
                   : "When founders accept your requests or you accept theirs, they'll appear here."}
               </p>
             </div>
@@ -132,17 +132,17 @@ export function SyncsModal({
                           className={`font-semibold text-white ${onViewProfile ? 'cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors' : ''}`}
                           onClick={() => handleNameClick(sync)}
                         >
-                          {userType === "founder" ? sync.firm_name : sync.company_name}
+                          {userType === "founder" ? (sync.analyst_name || 'VC Analyst') : sync.company_name}
                         </h4>
                         <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
                           Synced
                         </Badge>
                       </div>
                       
-                      {/* Show analyst name/title for founders */}
-                      {userType === "founder" && sync.analyst_name && (
+                      {/* Show firm name underneath analyst name for founders */}
+                      {userType === "founder" && (
                         <p className="text-sm text-white/70 mb-1">
-                          {sync.analyst_name}{sync.analyst_title ? ` • ${sync.analyst_title}` : ''}
+                          {sync.analyst_title ? `${sync.analyst_title} at ` : ''}{sync.firm_name}
                         </p>
                       )}
                       
