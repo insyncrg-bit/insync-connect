@@ -280,7 +280,7 @@ export default function InvestorApplication() {
         email: primaryContact.email,
         password: formData.companyPassword,
         options: {
-          emailRedirectTo: `${window.location.origin}/investor-dashboard`,
+          emailRedirectTo: `${window.location.origin}/analyst-dashboard`,
           data: {
             full_name: primaryContact.name,
           },
@@ -408,7 +408,7 @@ export default function InvestorApplication() {
         title: "Welcome to In-Sync!",
         description: "Your application has been submitted. Redirecting to your dashboard...",
       });
-      navigate("/investor-dashboard");
+      navigate("/analyst-dashboard");
     } catch (error) {
       console.error("Error submitting application:", error);
       toast({
