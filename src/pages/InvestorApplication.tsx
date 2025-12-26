@@ -55,6 +55,10 @@ export default function InvestorApplication() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
+  const [thesisMemo, setThesisMemo] = useState<File | null>(null);
+  const [thesisMemoName, setThesisMemoName] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     // Section 1: Admin & Verification
@@ -759,16 +763,122 @@ export default function InvestorApplication() {
               ))}
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
-              <div>
-                <Label htmlFor="publicProfile" className="font-semibold">Public Profile Visibility</Label>
-                <p className="text-sm text-muted-foreground">Show firm publicly or private invite-only</p>
+            {/* 1.3 Profile & Documents */}
+            <div className="p-6 bg-muted/30 rounded-xl space-y-6">
+              <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">1.3 Profile & Documents (Optional)</h3>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label>Profile Picture</Label>
+                  <div className="flex items-center gap-4">
+                    {profilePicturePreview ? (
+                      <div className="relative">
+                        <img 
+                          src={profilePicturePreview} 
+                          alt="Profile preview" 
+                          className="w-20 h-20 rounded-full object-cover border-2 border-primary/20"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProfilePicture(null);
+                            setProfilePicturePreview(null);
+                          }}
+                          className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
+                        <Upload className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div>
+                      <input
+                        type="file"
+                        id="profilePicture"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setProfilePicture(file);
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setProfilePicturePreview(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById('profilePicture')?.click()}
+                      >
+                        {profilePicturePreview ? "Change" : "Upload"}
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-1">JPG, PNG, or GIF</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>Thesis / Memo (Optional)</Label>
+                  <p className="text-xs text-muted-foreground">Upload your investment thesis or firm memo if applicable</p>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="file"
+                      id="thesisMemo"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          if (file.size > 20 * 1024 * 1024) {
+                            toast({
+                              title: "File Too Large",
+                              description: "Please upload a file smaller than 20MB.",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          setThesisMemo(file);
+                          setThesisMemoName(file.name);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById('thesisMemo')?.click()}
+                      className="gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
+                      {thesisMemoName ? "Change File" : "Upload File"}
+                    </Button>
+                    {thesisMemoName && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span className="truncate max-w-[150px]">{thesisMemoName}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setThesisMemo(null);
+                            setThesisMemoName(null);
+                          }}
+                          className="text-destructive hover:text-destructive/80"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">PDF, DOC, or DOCX (max 20MB)</p>
+                </div>
               </div>
-              <Switch
-                id="publicProfile"
-                checked={formData.publicProfile}
-                onCheckedChange={(checked) => handleChange("publicProfile", checked)}
-              />
             </div>
 
           </div>
