@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      analyst_profiles: {
+        Row: {
+          created_at: string
+          email: string
+          firm_id: string | null
+          firm_name: string
+          id: string
+          location: string | null
+          name: string
+          one_liner: string | null
+          profile_completed: boolean | null
+          title: string
+          updated_at: string
+          user_id: string
+          vertical: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          firm_id?: string | null
+          firm_name: string
+          id?: string
+          location?: string | null
+          name: string
+          one_liner?: string | null
+          profile_completed?: boolean | null
+          title: string
+          updated_at?: string
+          user_id: string
+          vertical?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          firm_id?: string | null
+          firm_name?: string
+          id?: string
+          location?: string | null
+          name?: string
+          one_liner?: string | null
+          profile_completed?: boolean | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          vertical?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analyst_profiles_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "investor_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connection_requests: {
         Row: {
           created_at: string

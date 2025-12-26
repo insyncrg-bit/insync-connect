@@ -70,6 +70,28 @@ export const Hero = () => {
               Join as a VC
             </Button>
           </div>
+
+          {/* Login buttons */}
+          <div 
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in pt-6"
+            style={{ animationDelay: '0.3s' }}
+          >
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/auth")}
+              className="text-sm text-white/60 hover:text-white hover:bg-white/10"
+            >
+              Log In
+            </Button>
+            <span className="text-white/30 hidden sm:inline">|</span>
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/analyst-auth")}
+              className="text-sm text-white/60 hover:text-white hover:bg-white/10"
+            >
+              Log In as a VC Analyst
+            </Button>
+          </div>
         </div>
       </div>
 
