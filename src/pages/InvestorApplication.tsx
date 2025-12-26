@@ -109,6 +109,8 @@ export default function InvestorApplication() {
     investorEmail: "",
     investorPassword: "",
     investorConfirmPassword: "",
+    companyPassword: "",
+    companyConfirmPassword: "",
     
     // Section 2: Fund Overview
     firmDescription: "",
@@ -240,6 +242,16 @@ export default function InvestorApplication() {
     });
   };
 
+  // Simple hash function for company password using Web Crypto API
+  const hashPassword = async (password: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -362,6 +374,7 @@ export default function InvestorApplication() {
         invests_in_competitors: formData.investsInCompetitors,
         signs_ndas: formData.signsNDAs,
         nda_conditions: formData.ndaConditions,
+        company_password_hash: await hashPassword(formData.companyPassword),
       };
 
       // Check if user already has an application
@@ -424,6 +437,9 @@ export default function InvestorApplication() {
         if (!/[a-z]/.test(formData.investorPassword)) errors.push("Password must contain at least one lowercase letter");
         if (!/[0-9]/.test(formData.investorPassword)) errors.push("Password must contain at least one number");
         if (formData.investorPassword !== formData.investorConfirmPassword) errors.push("Passwords do not match");
+        // Validate company password
+        if (formData.companyPassword.length < 6) errors.push("Company password must be at least 6 characters");
+        if (formData.companyPassword !== formData.companyConfirmPassword) errors.push("Company passwords do not match");
         // Validate at least the first contact
         if (!formData.contacts[0]?.name.trim()) errors.push("At least one contact name is required");
         if (!formData.contacts[0]?.title.trim()) errors.push("At least one contact title is required");
@@ -819,6 +835,55 @@ export default function InvestorApplication() {
                   <li className={/[a-z]/.test(formData.investorPassword) ? "text-green-600" : ""}>One lowercase letter</li>
                   <li className={/[0-9]/.test(formData.investorPassword) ? "text-green-600" : ""}>One number</li>
                 </ul>
+              </div>
+            </div>
+
+            {/* 1.3 Company-Wide Password */}
+            <div className="p-6 bg-muted/30 rounded-xl space-y-4">
+              <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">1.3 Company-Wide Password</h3>
+              <p className="text-sm text-muted-foreground">
+                Create a shared password for your firm. Team members (analysts, associates, etc.) can use their personal email along with this company password to log into your firm's dashboard.
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="companyPassword">Company Password *</Label>
+                  <Input
+                    id="companyPassword"
+                    type="password"
+                    value={formData.companyPassword}
+                    onChange={(e) => handleChange("companyPassword", e.target.value)}
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="companyConfirmPassword">Confirm Company Password *</Label>
+                  <Input
+                    id="companyConfirmPassword"
+                    type="password"
+                    value={formData.companyConfirmPassword}
+                    onChange={(e) => handleChange("companyConfirmPassword", e.target.value)}
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="text-sm text-muted-foreground">
+                <p>Company password must be at least 6 characters.</p>
+                <p className={formData.companyPassword.length >= 6 ? "text-green-600 mt-1" : "mt-1"}>
+                  {formData.companyPassword.length >= 6 ? "✓ " : ""}Minimum 6 characters
+                </p>
+                {formData.companyPassword && formData.companyConfirmPassword && formData.companyPassword !== formData.companyConfirmPassword && (
+                  <p className="text-destructive mt-1">Passwords do not match</p>
+                )}
+              </div>
+              
+              <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                <p className="text-sm text-primary">
+                  <strong>How it works:</strong> When your team members want to access the dashboard, they'll enter their personal email and this company password. This allows you to track who from your firm is accessing the platform while maintaining a shared firm identity.
+                </p>
               </div>
             </div>
 
