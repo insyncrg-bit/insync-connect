@@ -18,7 +18,7 @@ const STEPS = [
   { id: 2, title: "Fund Overview", icon: Building2 },
   { id: 3, title: "Investment Strategy", icon: Target },
   { id: 4, title: "Value-Add", icon: Handshake },
-  { id: 5, title: "Portfolio & Conflicts", icon: FolderOpen },
+  { id: 5, title: "Portfolio", icon: FolderOpen },
   { id: 6, title: "Deal Mechanics (Optional)", icon: Briefcase },
 ];
 
@@ -447,8 +447,7 @@ export default function InvestorApplication() {
         if (formData.operatingSupport.length === 0) errors.push("Select at least one operating support type");
         if (!formData.firmInvolvement.trim()) errors.push("Please describe your firm involvement");
         break;
-      case 5: // Portfolio & Conflicts
-        if (!formData.conflictsPolicy) errors.push("Conflicts policy is required");
+      case 5: // Portfolio
         break;
       case 6: // Deal Mechanics (Optional) - no validation required
         break;
@@ -1212,68 +1211,31 @@ export default function InvestorApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Portfolio & Conflicts</h2>
-              <p className="text-muted-foreground">Protect founders + protect the fund</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Portfolio</h2>
+              <p className="text-muted-foreground">Share your investment track record</p>
             </div>
 
             <div className="space-y-2">
-              <Label>Lead vs Follow Preference *</Label>
-              <Select value={formData.leadFollow} onValueChange={(v) => handleChange("leadFollow", v)}>
-                <SelectTrigger><SelectValue placeholder="Select preference" /></SelectTrigger>
-                <SelectContent>
-                  {LEAD_FOLLOW.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="portfolioCount">Portfolio Count</Label>
-              <Input
-                id="portfolioCount"
-                type="number"
-                value={formData.portfolioCount}
-                onChange={(e) => handleChange("portfolioCount", e.target.value)}
-                placeholder="25"
-              />
-              <p className="text-xs text-muted-foreground">Number of companies currently in your portfolio</p>
-            </div>
-
-            <div className="space-y-4">
-              <Label>Current Portfolio List</Label>
-              <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-8 text-center space-y-4 hover:border-primary/50 transition-colors">
-                <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-semibold">Upload CSV or paste portfolio list</p>
-                  <p className="text-xs text-muted-foreground">CSV up to 5MB</p>
-                </div>
-                <Button type="button" variant="outline" size="sm">Choose File</Button>
-              </div>
+              <Label htmlFor="portfolioList">Prominent Portfolio Companies</Label>
+              <p className="text-sm text-muted-foreground">List some of your notable investments</p>
               <Textarea
+                id="portfolioList"
                 value={formData.portfolioList}
                 onChange={(e) => handleChange("portfolioList", e.target.value)}
-                placeholder="Or paste company names here..."
+                placeholder="e.g., Company A, Company B, Company C..."
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Conflicts Policy *</Label>
-              <Select value={formData.conflictsPolicy} onValueChange={(v) => handleChange("conflictsPolicy", v)}>
-                <SelectTrigger><SelectValue placeholder="Select policy" /></SelectTrigger>
-                <SelectContent>
-                  {CONFLICTS_POLICY.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
-              <div>
-                <Label htmlFor="competitors" className="font-semibold">Do You Invest in Direct Competitors?</Label>
-              </div>
-              <Switch
-                id="competitors"
-                checked={formData.investsInCompetitors}
-                onCheckedChange={(checked) => handleChange("investsInCompetitors", checked)}
+              <Label htmlFor="portfolioCount">Portfolio Website Link</Label>
+              <p className="text-sm text-muted-foreground">Link to your firm's portfolio page (optional)</p>
+              <Input
+                id="portfolioCount"
+                type="url"
+                value={formData.portfolioCount}
+                onChange={(e) => handleChange("portfolioCount", e.target.value)}
+                placeholder="https://yourfirm.com/portfolio"
               />
             </div>
 
