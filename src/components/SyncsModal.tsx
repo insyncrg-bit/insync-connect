@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Building2, MapPin, Calendar, MessageSquare, Maximize2, Minimize2, Video, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,6 +25,10 @@ interface SyncItem {
   sector_tags?: string[];
   // Scheduling
   calendly_link?: string;
+  // Analyst fields
+  analyst_name?: string;
+  analyst_title?: string;
+  analyst_profile_picture_url?: string;
 }
 
 interface SyncsModalProps {
@@ -108,9 +113,19 @@ export function SyncsModal({
                   className="bg-white/5 border border-white/10 rounded-lg p-4"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
-                      <Building2 className="h-6 w-6 text-white" />
-                    </div>
+                    {/* Avatar - show analyst profile picture if available */}
+                    {sync.analyst_profile_picture_url ? (
+                      <Avatar className="w-12 h-12 shrink-0 border border-[hsl(var(--cyan-glow))]/30">
+                        <AvatarImage src={sync.analyst_profile_picture_url} alt={sync.analyst_name || "Analyst"} />
+                        <AvatarFallback className="bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] text-white">
+                          {sync.analyst_name ? sync.analyst_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'VC'}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                        <Building2 className="h-6 w-6 text-white" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <h4 
@@ -123,6 +138,13 @@ export function SyncsModal({
                           Synced
                         </Badge>
                       </div>
+                      
+                      {/* Show analyst name/title for founders */}
+                      {userType === "founder" && sync.analyst_name && (
+                        <p className="text-sm text-white/70 mb-1">
+                          {sync.analyst_name}{sync.analyst_title ? ` • ${sync.analyst_title}` : ''}
+                        </p>
+                      )}
                       
                       {userType === "founder" ? (
                         <>
