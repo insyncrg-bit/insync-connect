@@ -54,9 +54,24 @@ const DECISION_PROCESS = ["Partner-led", "IC", "Rolling", "Committee"];
 const RESPONSE_TIMES = ["24h", "48h", "1 week", "2 weeks", "Varies"];
 const DECISION_TIMES = ["2–4 wks", "4–8 wks", "8+ wks"];
 const BOARD_INVOLVEMENT = ["None", "Observer", "Board seat sometimes", "Usually"];
-const OPERATING_SUPPORT = ["Hiring (exec + IC)", "GTM / sales strategy", "Enterprise intros", "Fundraising strategy", "Product strategy", "Partnerships / distribution", "Compliance / security guidance", "Community / events"];
-const TALENT_NETWORKS = ["Engineering", "Growth", "Finance", "Operators"];
-const SUPPORT_STYLE = ["High-touch (weekly)", "Medium", "Light-touch", "On-demand"];
+const OPERATING_SUPPORT = [
+  "Executive hiring", 
+  "IC hiring", 
+  "Sales strategy", 
+  "Marketing strategy", 
+  "Enterprise customer intros", 
+  "Fundraising prep", 
+  "Investor intros", 
+  "Product roadmap", 
+  "Technical architecture", 
+  "Strategic partnerships", 
+  "Channel partnerships", 
+  "Legal/compliance", 
+  "Security guidance", 
+  "Founder community", 
+  "Events/networking",
+  "Other"
+];
 const CONFLICTS_POLICY = ["Strict", "Case-by-case", "Flexible"];
 const FAST_SIGNALS = ["Customer pull", "Retention", "Revenue", "Pilots", "Technical moat", "Regulatory clearance", "Other"];
 const HARD_NOS = ["Geography restrictions", "Certain sectors", "Business model types", "Other"];
@@ -142,10 +157,8 @@ export default function InvestorApplication() {
     
     // Section 6: Value-Add
     operatingSupport: [] as string[],
-    customerVerticals: "",
-    partnerCategories: "",
-    talentNetworks: [] as string[],
-    supportStyle: "",
+    operatingSupportOther: "",
+    firmInvolvement: "",
     
     // Section 7: Portfolio & Conflicts
     portfolioList: "",
@@ -340,10 +353,10 @@ export default function InvestorApplication() {
         follow_on_when: formData.followOnWhen,
         board_involvement: formData.boardInvolvement,
         operating_support: formData.operatingSupport as unknown as null,
-        customer_verticals: formData.customerVerticals,
-        partner_categories: formData.partnerCategories,
-        talent_networks: formData.talentNetworks as unknown as null,
-        support_style: formData.supportStyle,
+        customer_verticals: formData.operatingSupportOther,
+        partner_categories: formData.firmInvolvement,
+        talent_networks: null,
+        support_style: null,
         portfolio_list: formData.portfolioList,
         conflicts_policy: formData.conflictsPolicy,
         invests_in_competitors: formData.investsInCompetitors,
@@ -432,7 +445,7 @@ export default function InvestorApplication() {
         break;
       case 4: // Value-Add
         if (formData.operatingSupport.length === 0) errors.push("Select at least one operating support type");
-        if (!formData.supportStyle) errors.push("Support style is required");
+        if (!formData.firmInvolvement.trim()) errors.push("Please describe your firm involvement");
         break;
       case 5: // Portfolio & Conflicts
         if (!formData.conflictsPolicy) errors.push("Conflicts policy is required");
@@ -1141,12 +1154,13 @@ export default function InvestorApplication() {
         return (
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Value-Add Menu</h2>
-              <p className="text-muted-foreground">What founders are hoping you'll do after "yes"</p>
+              <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Value-Add</h2>
+              <p className="text-muted-foreground">How you support portfolio companies after investing</p>
             </div>
 
             <div className="p-6 bg-muted/30 rounded-xl space-y-4">
-              <h3 className="font-semibold text-lg">A) Operating Support You Actively Provide *</h3>
+              <h3 className="font-semibold text-lg">Operating Support You Actively Provide *</h3>
+              <p className="text-sm text-muted-foreground">Select all areas where you provide hands-on support</p>
               <div className="flex flex-wrap gap-2">
                 {OPERATING_SUPPORT.map(support => (
                   <button
@@ -1163,62 +1177,33 @@ export default function InvestorApplication() {
                   </button>
                 ))}
               </div>
-            </div>
-
-            <div className="p-6 bg-muted/30 rounded-xl space-y-6">
-              <h3 className="font-semibold text-lg">B) Network Strengths</h3>
               
-              <div className="space-y-2">
-                <Label htmlFor="customerVerticals">Top 5 Customer Verticals You Can Introduce Into</Label>
-                <Textarea
-                  id="customerVerticals"
-                  value={formData.customerVerticals}
-                  onChange={(e) => handleChange("customerVerticals", e.target.value)}
-                  placeholder="Healthcare systems, Financial services, Manufacturing..."
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="partnerCategories">Top 5 Strategic Partner Categories You Can Unlock</Label>
-                <Textarea
-                  id="partnerCategories"
-                  value={formData.partnerCategories}
-                  onChange={(e) => handleChange("partnerCategories", e.target.value)}
-                  placeholder="Cloud providers, System integrators, Channel partners..."
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label>Talent Networks</Label>
-                <div className="flex flex-wrap gap-2">
-                  {TALENT_NETWORKS.map(network => (
-                    <button
-                      key={network}
-                      type="button"
-                      onClick={() => handleArrayToggle("talentNetworks", network)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        formData.talentNetworks.includes(network)
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      {network}
-                    </button>
-                  ))}
+              {formData.operatingSupport.includes("Other") && (
+                <div className="mt-4">
+                  <Label htmlFor="operatingSupportOther">Please specify other support you provide</Label>
+                  <Textarea
+                    id="operatingSupportOther"
+                    value={formData.operatingSupportOther}
+                    onChange={(e) => handleChange("operatingSupportOther", e.target.value)}
+                    placeholder="Describe other ways you support portfolio companies..."
+                    rows={2}
+                    className="mt-2"
+                  />
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label>C) Founder Support Style *</Label>
-              <Select value={formData.supportStyle} onValueChange={(v) => handleChange("supportStyle", v)}>
-                <SelectTrigger><SelectValue placeholder="Select your style" /></SelectTrigger>
-                <SelectContent>
-                  {SUPPORT_STYLE.map(style => <SelectItem key={style} value={style}>{style}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="firmInvolvement">As a firm, how involved do you get with the startup? *</Label>
+              <p className="text-sm text-muted-foreground">Please elaborate on your typical engagement level and what that looks like in practice</p>
+              <Textarea
+                id="firmInvolvement"
+                value={formData.firmInvolvement}
+                onChange={(e) => handleChange("firmInvolvement", e.target.value)}
+                placeholder="E.g., We typically engage weekly with founders during the first 6 months, attending key meetings and providing strategic input. We're hands-on during fundraising and hiring key executives..."
+                rows={5}
+                required
+              />
             </div>
           </div>
         );
