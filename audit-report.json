@@ -1,0 +1,235 @@
+{
+  "timestamp": "2026-01-26T00:29:38.640Z",
+  "summary": {
+    "total": 29,
+    "passed": 29,
+    "failed": 0,
+    "warnings": 0
+  },
+  "tests": [
+    {
+      "name": "Founder Applications - Read",
+      "status": "pass",
+      "message": "Found founder: AI/ML Startup 1",
+      "duration": 15.167291999999634,
+      "timestamp": "2026-01-26T00:29:41.216Z"
+    },
+    {
+      "name": "Founder Applications - Update",
+      "status": "pass",
+      "message": "Successfully updated founder application",
+      "duration": 16.485749999999825,
+      "timestamp": "2026-01-26T00:29:41.232Z"
+    },
+    {
+      "name": "Investor Applications - Read",
+      "status": "pass",
+      "message": "Found investor: AI/ML Capital 1",
+      "duration": 4.785750000000007,
+      "timestamp": "2026-01-26T00:29:41.238Z"
+    },
+    {
+      "name": "Investor Applications - Update",
+      "status": "pass",
+      "message": "Successfully updated investor application",
+      "duration": 6.04529199999979,
+      "timestamp": "2026-01-26T00:29:41.244Z"
+    },
+    {
+      "name": "Connection Requests - Create",
+      "status": "pass",
+      "message": "Successfully created connection request",
+      "duration": 18.52316699999983,
+      "timestamp": "2026-01-26T00:29:41.262Z"
+    },
+    {
+      "name": "Connection Requests - Read",
+      "status": "pass",
+      "message": "Successfully read connection request",
+      "duration": 3.445208999999977,
+      "timestamp": "2026-01-26T00:29:41.266Z"
+    },
+    {
+      "name": "Connection Requests - Update",
+      "status": "pass",
+      "message": "Successfully updated connection request",
+      "duration": 7.1443749999998545,
+      "timestamp": "2026-01-26T00:29:41.273Z"
+    },
+    {
+      "name": "Connection Requests - Delete",
+      "status": "pass",
+      "message": "Successfully deleted connection request",
+      "duration": 5.2074579999998605,
+      "timestamp": "2026-01-26T00:29:41.278Z"
+    },
+    {
+      "name": "Messages - Create",
+      "status": "pass",
+      "message": "Successfully created message",
+      "duration": 12.624249999999847,
+      "timestamp": "2026-01-26T00:29:41.291Z"
+    },
+    {
+      "name": "Messages - Read",
+      "status": "pass",
+      "message": "Successfully read message",
+      "duration": 5.102624999999989,
+      "timestamp": "2026-01-26T00:29:41.297Z"
+    },
+    {
+      "name": "Messages - Update",
+      "status": "pass",
+      "message": "Successfully updated message",
+      "duration": 9.38195799999994,
+      "timestamp": "2026-01-26T00:29:41.306Z"
+    },
+    {
+      "name": "Messages - Delete",
+      "status": "pass",
+      "message": "Successfully deleted message",
+      "duration": 2.6637909999999465,
+      "timestamp": "2026-01-26T00:29:41.309Z"
+    },
+    {
+      "name": "Analyst Profiles - Create",
+      "status": "pass",
+      "message": "Successfully created analyst profile",
+      "duration": 6.080666999999721,
+      "timestamp": "2026-01-26T00:29:41.409Z"
+    },
+    {
+      "name": "Analyst Profiles - Read",
+      "status": "pass",
+      "message": "Successfully read analyst profile",
+      "duration": 5.04708299999993,
+      "timestamp": "2026-01-26T00:29:41.415Z"
+    },
+    {
+      "name": "Analyst Profiles - Update",
+      "status": "pass",
+      "message": "Successfully updated analyst profile",
+      "duration": 4.565583000000061,
+      "timestamp": "2026-01-26T00:29:41.419Z"
+    },
+    {
+      "name": "Analyst Profiles - Delete",
+      "status": "pass",
+      "message": "Successfully deleted analyst profile",
+      "duration": 4.555791000000227,
+      "timestamp": "2026-01-26T00:29:41.424Z"
+    },
+    {
+      "name": "Matchmaking - Founder to Investors",
+      "status": "pass",
+      "message": "Found 10 matches",
+      "duration": 1134.6254589999999,
+      "timestamp": "2026-01-26T00:29:42.560Z"
+    },
+    {
+      "name": "Matchmaking - Match Structure Validation",
+      "status": "pass",
+      "message": "All required fields present",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.560Z"
+    },
+    {
+      "name": "Matchmaking - Score Range Validation",
+      "status": "pass",
+      "message": "Score within valid range: 89",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.560Z"
+    },
+    {
+      "name": "Matchmaking - Investor to Founders",
+      "status": "pass",
+      "message": "Found 10 matches",
+      "duration": 20.445916000000125,
+      "timestamp": "2026-01-26T00:29:42.581Z"
+    },
+    {
+      "name": "Matchmaking - Invalid match_type",
+      "status": "pass",
+      "message": "Correctly rejected invalid match_type",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.618Z"
+    },
+    {
+      "name": "Matchmaking - Missing user_id",
+      "status": "pass",
+      "message": "Correctly rejected missing user_id",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.626Z"
+    },
+    {
+      "name": "Matching Algorithm - Sector Matching",
+      "status": "pass",
+      "message": "Found 3 AI/ML investors in matches",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.651Z"
+    },
+    {
+      "name": "Matching Algorithm - Stage Matching",
+      "status": "pass",
+      "message": "Found 5 stage-aligned investors",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.669Z"
+    },
+    {
+      "name": "Matching Algorithm - Score Distribution",
+      "status": "pass",
+      "message": "Avg: 69.8, Min: 64, Max: 89",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.688Z"
+    },
+    {
+      "name": "Matching Algorithm - Score Sorting",
+      "status": "pass",
+      "message": "Matches are sorted by score (descending)",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.689Z"
+    },
+    {
+      "name": "Memory - Heap Usage",
+      "status": "pass",
+      "message": "Initial: 11.90MB, Current: 10.57MB, Increase: -1.33MB",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.689Z"
+    },
+    {
+      "name": "Performance - Database Query (100 records)",
+      "status": "pass",
+      "message": "Fetched 25 records in 8.01ms",
+      "duration": 8.014791000000514,
+      "timestamp": "2026-01-26T00:29:42.697Z"
+    },
+    {
+      "name": "Performance - Matchmaking (Multiple Runs)",
+      "status": "pass",
+      "message": "Avg: 16.14ms, Min: 12.60ms, Max: 19.40ms",
+      "duration": null,
+      "timestamp": "2026-01-26T00:29:42.746Z"
+    }
+  ],
+  "performance": {
+    "memory": {
+      "initial_heap_mb": "11.90",
+      "peak_heap_mb": "11.90",
+      "current_heap_mb": "10.57"
+    },
+    "endpoints": {
+      "matchmaking_founder_to_investors": 1134.6254589999999,
+      "matchmaking_investor_to_founders": 20.445916000000125
+    },
+    "database": {
+      "founder_read": 15.167291999999634,
+      "founder_update": 16.485749999999825,
+      "investor_read": 4.785750000000007,
+      "investor_update": 6.04529199999979,
+      "connection_create": 18.52316699999983,
+      "message_create": 12.624249999999847
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

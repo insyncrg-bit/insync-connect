@@ -95,10 +95,15 @@ export function useMatchmaking(): UseMatchmakingResult {
         return;
       }
 
+      // Map userType to match_type expected by the API
+      const matchType = userType === 'founder' 
+        ? 'founder_to_investors' 
+        : 'investor_to_founders';
+
       const { data, error: fnError } = await supabase.functions.invoke('matchmaking', {
         body: { 
-          user_type: userType,
-          user_id: effectiveUserId
+          user_id: effectiveUserId,
+          match_type: matchType
         }
       });
 
