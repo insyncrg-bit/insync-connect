@@ -6,9 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// ============================================
-// PART 0 & 1: CANONICAL TAXONOMY & NORMALIZATION
-// ============================================
+// Canonical Taxonomy & Normalization
 
 const CANONICAL_SECTORS = [
   'AI/ML', 'FinTech', 'Health', 'Climate', 'DevTools',
@@ -80,9 +78,7 @@ const GEO_TOKENS: Record<string, string[]> = {
   'worldwide': ['Global'],
 };
 
-// ============================================
-// SCORING WEIGHTS (Part 4 - Configurable)
-// ============================================
+// Scoring Weights
 
 const WEIGHTS = {
   sector_fit: 20,
@@ -94,9 +90,7 @@ const WEIGHTS = {
   value_add_fit: 10,
 };
 
-// ============================================
-// NORMALIZATION FUNCTIONS
-// ============================================
+// Normalization Functions
 
 function normalizeFounder(founder: any): NormalizedFounder {
   const applicationSections = founder.application_sections || {};
@@ -357,9 +351,7 @@ function parseExclusions(hardNos: any[]): { sectors: string[], geos: string[], b
   return { sectors, geos, bizModels };
 }
 
-// ============================================
-// PART 3: HARD FILTER LAYER
-// ============================================
+// Hard Filter Layer
 
 interface FilterResult {
   blocked: boolean;
@@ -439,9 +431,7 @@ function applyHardFilters(founder: NormalizedFounder, investor: NormalizedInvest
   };
 }
 
-// ============================================
-// PART 4: COMPATIBILITY SCORING
-// ============================================
+// Compatibility Scoring
 
 interface ScoreBreakdown {
   sector_fit: number;
@@ -593,9 +583,7 @@ function calculateCompatibilityScore(
   };
 }
 
-// ============================================
-// PART 5: EXPLAINABILITY
-// ============================================
+// Explainability
 
 interface Explanation {
   why_this_match: string[];
@@ -710,9 +698,7 @@ function generateValueAddReason(founder: NormalizedFounder, investor: Normalized
   return 'Active portfolio support and networks';
 }
 
-// ============================================
-// PART 6: RANKING & DIVERSITY
-// ============================================
+// Ranking & Diversity
 
 interface MatchResult {
   investor: NormalizedInvestor;
@@ -774,9 +760,7 @@ function applyDiversityAndRanking(matches: MatchResult[]): MatchResult[] {
   return diversified;
 }
 
-// ============================================
-// AI-POWERED THESIS SIMILARITY
-// ============================================
+// AI-Powered Thesis Similarity
 
 async function calculateThesisSimilarities(
   founder: NormalizedFounder,
@@ -867,9 +851,7 @@ Return ONLY a JSON object with investor IDs and scores, nothing else:
   return similarities;
 }
 
-// ============================================
-// TYPES
-// ============================================
+// Types
 
 interface NormalizedFounder {
   id: string;
@@ -945,9 +927,7 @@ interface NormalizedInvestor {
   contacts: any[];
 }
 
-// ============================================
-// MAIN HANDLER
-// ============================================
+// Main Handler
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -960,6 +940,15 @@ serve(async (req) => {
     if (!user_id || !match_type) {
       return new Response(
         JSON.stringify({ error: 'user_id and match_type are required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Validate limit parameter
+    const validatedLimit = Math.max(1, Math.min(100, Math.floor(Number(limit))));
+    if (isNaN(validatedLimit) || limit < 0) {
+      return new Response(
+        JSON.stringify({ error: 'limit must be a positive number between 1 and 100' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -1044,7 +1033,7 @@ serve(async (req) => {
       const rankedMatches = applyDiversityAndRanking(matches);
       
       // Format output
-      const output = rankedMatches.slice(0, limit).map(m => ({
+      const output = rankedMatches.slice(0, validatedLimit).map(m => ({
         investor_id: m.investor.id,
         user_id: m.investor.user_id,
         firm_name: m.investor.firm_name,
@@ -1168,7 +1157,7 @@ serve(async (req) => {
       matches.sort((a, b) => b.match_score - a.match_score);
       
       // Format output
-      const output = matches.slice(0, limit).map(m => ({
+      const output = matches.slice(0, validatedLimit).map(m => ({
         founder_id: m.founder.id,
         user_id: m.founder.user_id,
         company_name: m.founder.company_name,
