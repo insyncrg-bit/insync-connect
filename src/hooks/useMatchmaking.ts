@@ -77,12 +77,20 @@ export function useMatchmaking(): UseMatchmakingResult {
   const [error, setError] = useState<string | null>(null);
 
   const fetchMatches = useCallback(async (userType: 'founder' | 'investor', userId?: string) => {
+    // DISCONNECTED: API calls disabled - using demo mode only
     setLoading(true);
     setError(null);
 
+    // Simulate API delay
+    setTimeout(() => {
+      setMatches([]);
+      setLoading(false);
+    }, 500);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     try {
       let effectiveUserId = userId;
-      
+
       if (!effectiveUserId) {
         const { data: { user } } = await supabase.auth.getUser();
         effectiveUserId = user?.id;
@@ -96,7 +104,7 @@ export function useMatchmaking(): UseMatchmakingResult {
       }
 
       const { data, error: fnError } = await supabase.functions.invoke('matchmaking', {
-        body: { 
+        body: {
           user_type: userType,
           user_id: effectiveUserId
         }
@@ -120,6 +128,7 @@ export function useMatchmaking(): UseMatchmakingResult {
     } finally {
       setLoading(false);
     }
+    */
   }, []);
 
   return { matches, loading, error, fetchMatches };

@@ -21,11 +21,13 @@ export default function Auth() {
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener first
+    // DISCONNECTED: API calls disabled - demo mode
+    setIsCheckingSession(false);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session?.user) {
-          // Defer the application check to avoid deadlock
           setTimeout(() => {
             checkApplicationAndRedirect(session.user.id);
           }, 0);
@@ -33,7 +35,6 @@ export default function Auth() {
       }
     );
 
-    // Then check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         checkApplicationAndRedirect(session.user.id);
@@ -43,6 +44,7 @@ export default function Auth() {
     });
 
     return () => subscription.unsubscribe();
+    */
   }, []);
 
   const checkApplicationAndRedirect = async (userId: string) => {
@@ -72,8 +74,17 @@ export default function Auth() {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate inputs
+
+    // DISCONNECTED: API calls disabled - redirect to demo dashboard
+    toast({
+      title: "Demo Mode",
+      description: "Redirecting to demo founder dashboard...",
+    });
+    setTimeout(() => {
+      navigate("/founder-dashboard");
+    }, 1000);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     try {
       emailSchema.parse(email);
       passwordSchema.parse(password);
@@ -95,6 +106,7 @@ export default function Auth() {
         email,
         password,
       });
+
       if (error) throw error;
     } catch (error: any) {
       let message = "An error occurred during authentication.";
@@ -103,7 +115,7 @@ export default function Auth() {
       } else if (error.message) {
         message = error.message;
       }
-      
+
       toast({
         title: "Authentication Error",
         description: message,
@@ -112,9 +124,20 @@ export default function Auth() {
     } finally {
       setIsLoading(false);
     }
+    */
   };
 
   const handleGoogleLogin = async () => {
+    // DISCONNECTED: API calls disabled - redirect to demo dashboard
+    toast({
+      title: "Demo Mode",
+      description: "Redirecting to demo founder dashboard...",
+    });
+    setTimeout(() => {
+      navigate("/founder-dashboard");
+    }, 1000);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -123,6 +146,7 @@ export default function Auth() {
           redirectTo: `${window.location.origin}/auth`,
         },
       });
+
       if (error) throw error;
     } catch (error: any) {
       toast({
@@ -132,9 +156,20 @@ export default function Auth() {
       });
       setIsLoading(false);
     }
+    */
   };
 
   const handleMicrosoftLogin = async () => {
+    // DISCONNECTED: API calls disabled - redirect to demo dashboard
+    toast({
+      title: "Demo Mode",
+      description: "Redirecting to demo founder dashboard...",
+    });
+    setTimeout(() => {
+      navigate("/founder-dashboard");
+    }, 1000);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -144,6 +179,7 @@ export default function Auth() {
           scopes: "email profile openid",
         },
       });
+
       if (error) throw error;
     } catch (error: any) {
       toast({
@@ -153,34 +189,34 @@ export default function Auth() {
       });
       setIsLoading(false);
     }
+    */
   };
 
   if (isCheckingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--gradient-navy-teal)" }}>
-        <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--cyan-glow))]" />
+      <div className="min-h-screen bg-[hsl(var(--midnight-base))] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--cyan-glow))]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: "var(--gradient-navy-teal)" }}>
-      {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2 -translate-x-1/2" />
-      </div>
-
+    <div className="min-h-screen bg-[hsl(var(--midnight-base))] relative overflow-hidden">
       <Navigation />
 
-      <div className="relative z-10 flex items-center justify-center min-h-screen pt-20 px-4">
+      {/* Decorative elements */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-[hsl(var(--cyan-glow))]/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-[hsl(var(--electric-purple))]/5 rounded-full blur-3xl" />
+
+      <div className="relative z-10 flex items-center justify-center min-h-screen px-4 pt-20">
         <div className="w-full max-w-md">
-          <div className="bg-white/95 backdrop-blur-sm border-2 border-[hsl(var(--cyan-glow))]/20 rounded-2xl p-8 shadow-2xl">
+          <div className="bg-[hsl(var(--midnight-lighter))]/80 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
+            {/* Header */}
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">
+              <h1 className="text-3xl font-bold text-white mb-2">
                 Access My Dashboard
               </h1>
-              <p className="text-muted-foreground mt-2">
+              <p className="text-gray-400">
                 Sign in to continue to your dashboard
               </p>
             </div>
@@ -190,7 +226,7 @@ export default function Auth() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 text-[hsl(var(--navy-deep))] border-border hover:bg-secondary"
+                className="w-full h-12 bg-white/5 border-white/20 hover:bg-white/10 text-white"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
               >
@@ -218,59 +254,65 @@ export default function Auth() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 text-[hsl(var(--navy-deep))] border-border hover:bg-secondary"
+                className="w-full h-12 bg-white/5 border-white/20 hover:bg-white/10 text-white"
                 onClick={handleMicrosoftLogin}
                 disabled={isLoading}
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                  <path fill="#f25022" d="M1 1h10v10H1z" />
-                  <path fill="#00a4ef" d="M1 13h10v10H1z" />
-                  <path fill="#7fba00" d="M13 1h10v10H13z" />
-                  <path fill="#ffb900" d="M13 13h10v10H13z" />
+                  <path fill="#F25022" d="M1 1h10v10H1z" />
+                  <path fill="#00A4EF" d="M1 13h10v10H1z" />
+                  <path fill="#7FBA00" d="M13 1h10v10H13z" />
+                  <path fill="#FFB900" d="M13 13h10v10H13z" />
                 </svg>
                 Continue with Microsoft
               </Button>
             </div>
 
             {/* Divider */}
-            <div className="relative my-6">
+            <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
+                <div className="w-full border-t border-white/10" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">Or continue with email</span>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-[hsl(var(--midnight-lighter))] text-gray-400">
+                  Or continue with email
+                </span>
               </div>
             </div>
 
             {/* Email/Password Form */}
             <form onSubmit={handleEmailAuth} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[hsl(var(--navy-deep))]">Email</Label>
+                <Label htmlFor="email" className="text-gray-300">
+                  Email
+                </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 bg-white/5 border-white/20 text-white placeholder:text-gray-500"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-[hsl(var(--navy-deep))]">Password</Label>
+                <Label htmlFor="password" className="text-gray-300">
+                  Password
+                </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
                     id="password"
                     type="password"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 bg-white/5 border-white/20 text-white placeholder:text-gray-500"
                     required
                     minLength={6}
                   />
@@ -279,18 +321,18 @@ export default function Auth() {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/90 text-white"
                 disabled={isLoading}
+                className="w-full h-12 bg-gradient-to-r from-[hsl(var(--cyan-glow))] to-[hsl(var(--electric-purple))] hover:opacity-90 text-white font-semibold"
               >
                 {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                 ) : null}
                 Sign In
               </Button>
             </form>
 
             {/* Link to apply */}
-            <p className="text-center text-sm text-muted-foreground mt-6">
+            <p className="mt-6 text-center text-sm text-gray-400">
               Don't have an account?{" "}
               <button
                 type="button"

@@ -34,8 +34,16 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
   const { toast } = useToast();
 
   const fetchThreads = useCallback(async () => {
+    // DISCONNECTED: API calls disabled - returning empty threads
+    setLoading(true);
+    setTimeout(() => {
+      setThreads([]);
+      setLoading(false);
+    }, 500);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) return;
-    
+
     setLoading(true);
     try {
       // Fetch all messages where user is sender or receiver
@@ -55,12 +63,12 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
 
       // Group messages by conversation partner
       const conversationMap = new Map<string, Message[]>();
-      
+
       messages.forEach((msg) => {
-        const otherUserId = msg.sender_user_id === currentUserId 
-          ? msg.receiver_user_id 
+        const otherUserId = msg.sender_user_id === currentUserId
+          ? msg.receiver_user_id
           : msg.sender_user_id;
-        
+
         if (!conversationMap.has(otherUserId)) {
           conversationMap.set(otherUserId, []);
         }
@@ -71,7 +79,7 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
       const threadPromises = Array.from(conversationMap.entries()).map(async ([otherUserId, msgs]) => {
         // Get user info based on their type (opposite of current user)
         let userInfo: { name: string; company: string; calendly_link?: string } = { name: "Unknown", company: "Unknown" };
-        
+
         if (userType === "founder") {
           // Current user is founder, so other user is investor
           const { data: investor } = await supabase
@@ -79,7 +87,7 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
             .select("firm_name, calendly_link")
             .eq("user_id", otherUserId)
             .single();
-          
+
           if (investor) {
             userInfo = { name: "Investor", company: investor.firm_name, calendly_link: investor.calendly_link || undefined };
           }
@@ -90,14 +98,14 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
             .select("founder_name, company_name, calendly_link")
             .eq("user_id", otherUserId)
             .single();
-          
+
           if (founder) {
             userInfo = { name: founder.founder_name, company: founder.company_name, calendly_link: founder.calendly_link || undefined };
           }
         }
 
         // Sort messages by date (oldest first for display)
-        const sortedMsgs = [...msgs].sort((a, b) => 
+        const sortedMsgs = [...msgs].sort((a, b) =>
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
 
@@ -124,9 +132,9 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
       });
 
       const resolvedThreads = await Promise.all(threadPromises);
-      
+
       // Sort threads by last message time
-      resolvedThreads.sort((a, b) => 
+      resolvedThreads.sort((a, b) =>
         new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime()
       );
 
@@ -141,11 +149,20 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
     } finally {
       setLoading(false);
     }
+    */
   }, [currentUserId, userType, toast]);
 
   const sendMessage = useCallback(async (receiverUserId: string, content: string) => {
+    // DISCONNECTED: API calls disabled - simulating success
     if (!currentUserId || !content.trim()) return false;
 
+    toast({
+      title: "Demo Mode",
+      description: "Message sending is disabled in demo mode",
+    });
+    return false;
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     try {
       const { error } = await supabase.from("messages").insert({
         sender_user_id: currentUserId,
@@ -167,9 +184,14 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
       });
       return false;
     }
+    */
   }, [currentUserId, fetchThreads, toast]);
 
   const markAsRead = useCallback(async (otherUserId: string) => {
+    // DISCONNECTED: API calls disabled
+    return;
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) return;
 
     try {
@@ -182,10 +204,15 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
     } catch (error) {
       console.error("Error marking messages as read:", error);
     }
+    */
   }, [currentUserId]);
 
-  // Set up realtime subscription
+  // DISCONNECTED: Realtime subscription disabled
   useEffect(() => {
+    // Real-time subscriptions disabled in demo mode
+    return;
+
+    /* ORIGINAL REALTIME SUBSCRIPTION - DISCONNECTED
     if (!currentUserId) return;
 
     const channel = supabase
@@ -207,6 +234,7 @@ export function useMessages(currentUserId: string | null, userType: "founder" | 
     return () => {
       supabase.removeChannel(channel);
     };
+    */
   }, [currentUserId, fetchThreads]);
 
   return {

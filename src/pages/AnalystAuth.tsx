@@ -45,7 +45,17 @@ export default function AnalystAuth() {
   // Handle login for returning analysts
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // DISCONNECTED: API calls disabled - redirect to demo dashboard
+    toast({
+      title: "Demo Mode",
+      description: "Redirecting to demo analyst dashboard...",
+    });
+    setTimeout(() => {
+      navigate("/analyst-dashboard?demo=true");
+    }, 1000);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     try {
       emailSchema.parse(email);
       passwordSchema.parse(password);
@@ -138,7 +148,17 @@ export default function AnalystAuth() {
   // Handle registration for new analysts
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // DISCONNECTED: API calls disabled - redirect to demo dashboard
+    toast({
+      title: "Demo Mode",
+      description: "Redirecting to demo analyst dashboard...",
+    });
+    setTimeout(() => {
+      navigate("/analyst-dashboard?demo=true");
+    }, 1000);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     // Validate inputs
     if (!name.trim() || !firm.trim() || !title.trim()) {
       toast({
@@ -277,6 +297,7 @@ export default function AnalystAuth() {
     } finally {
       setIsLoading(false);
     }
+    */
   };
 
   return (
@@ -287,7 +308,7 @@ export default function AnalystAuth() {
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] border border-[hsl(var(--cyan-glow))]/20 rounded-full translate-y-1/2 -translate-x-1/2" />
       </div>
 
-      <Navigation />
+      <nav className="fixed top-0 w-full z-50">Test Nav</nav>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen pt-20 px-4">
         <div className="w-full max-w-md">

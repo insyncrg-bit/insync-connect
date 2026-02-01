@@ -251,9 +251,25 @@ export default function FounderDashboard() {
   }, [matches]);
 
   const fetchDashboardData = async () => {
+    // DISCONNECTED: API calls disabled - using demo data only
     try {
+      // Always use demo data
+      setCurrentUserId(null);
+      setApplication({
+        id: "demo",
+        founder_name: "Demo Founder",
+        company_name: "Demo Startup",
+        vertical: "FinTech",
+        stage: "Seed",
+        location: "San Francisco, CA",
+        website: "https://demo.com",
+        business_model: "We help businesses manage their finances more efficiently.",
+        application_sections: {}
+      });
+
+      /* ORIGINAL API CALLS - DISCONNECTED
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (user) {
         setCurrentUserId(user.id);
         const { data: appData } = await supabase
@@ -261,7 +277,7 @@ export default function FounderDashboard() {
           .select("*")
           .eq("user_id", user.id)
           .maybeSingle();
-        
+
         setApplication(appData);
         await fetchConnectionStats(user.id);
       } else {
@@ -277,7 +293,10 @@ export default function FounderDashboard() {
           application_sections: {}
         });
       }
+      */
 
+      // Use demo investor data instead of API call
+      /* ORIGINAL API CALLS - DISCONNECTED
       // Fetch curated investor applications
       const { data: investorApps } = await supabase
         .from("investor_applications")
@@ -285,6 +304,8 @@ export default function FounderDashboard() {
         .eq("status", "active")
         .eq("public_profile", true)
         .limit(6);
+      */
+      const investorApps = null;
       
       // Demo investors for preview
       const demoInvestors: InvestorApplication[] = [
@@ -385,17 +406,21 @@ export default function FounderDashboard() {
         minimum_traction: (inv.minimum_traction as string[]) || [],
       }));
 
-      // Use real investors if available, otherwise show demo
-      setCuratedInvestors(realInvestors.length > 0 ? realInvestors : demoInvestors);
+      // Always use demo investors
+      setCuratedInvestors(demoInvestors);
 
+      // Use demo events instead of API call
+      /* ORIGINAL API CALLS - DISCONNECTED
       const { data: eventsData } = await supabase
         .from("events")
         .select("*")
         .gte("event_date", new Date().toISOString())
         .order("event_date", { ascending: true })
         .limit(3);
-      
+
       setEvents(eventsData || []);
+      */
+      setEvents([]);
 
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -410,6 +435,15 @@ export default function FounderDashboard() {
   };
 
   const fetchConnectionStats = async (userId: string) => {
+    // DISCONNECTED: API calls disabled - using demo stats
+    setConnectionStats({
+      interests: demoInterests.length,
+      syncs: demoSyncs.length,
+      pending: demoPending.length
+    });
+    setPendingRequests(new Set());
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     try {
       const { data: connections } = await supabase
         .from("connection_requests")
@@ -441,11 +475,20 @@ export default function FounderDashboard() {
     } catch (error) {
       console.error("Error fetching connection stats:", error);
     }
+    */
   };
 
   const fetchIncomingInterests = async () => {
+    // DISCONNECTED: API calls disabled - using demo data
+    setInterestsLoading(true);
+    setTimeout(() => {
+      setIncomingInterests(demoInterests);
+      setInterestsLoading(false);
+    }, 500);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) return;
-    
+
     setInterestsLoading(true);
     try {
       const { data: connections } = await supabase
@@ -472,7 +515,7 @@ export default function FounderDashboard() {
         const enrichedInterests = connections.map(conn => {
           const investor = investors?.find(i => i.user_id === conn.requester_user_id);
           const analyst = analysts?.find(a => a.user_id === conn.requester_user_id);
-          
+
           return {
             id: conn.id,
             requester_user_id: conn.requester_user_id,
@@ -494,6 +537,7 @@ export default function FounderDashboard() {
     } finally {
       setInterestsLoading(false);
     }
+    */
   };
 
   const handleOpenInterests = () => {
@@ -511,6 +555,15 @@ export default function FounderDashboard() {
   };
 
   const handleAcceptInterest = async (requestId: string) => {
+    // DISCONNECTED: API calls disabled
+    setProcessingInterestId(requestId);
+    toast({
+      title: "Demo Mode",
+      description: "Connection actions are disabled in demo mode",
+    });
+    setProcessingInterestId(null);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     setProcessingInterestId(requestId);
     try {
       const { error } = await supabase
@@ -542,9 +595,19 @@ export default function FounderDashboard() {
     } finally {
       setProcessingInterestId(null);
     }
+    */
   };
 
   const handleDeclineInterest = async (requestId: string) => {
+    // DISCONNECTED: API calls disabled
+    setProcessingInterestId(requestId);
+    toast({
+      title: "Demo Mode",
+      description: "Connection actions are disabled in demo mode",
+    });
+    setProcessingInterestId(null);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     setProcessingInterestId(requestId);
     try {
       const { error } = await supabase
@@ -573,6 +636,7 @@ export default function FounderDashboard() {
     } finally {
       setProcessingInterestId(null);
     }
+    */
   };
 
   const handleOpenInvestorProfile = (investor: InvestorApplication) => {
@@ -581,6 +645,13 @@ export default function FounderDashboard() {
   };
 
   const handleSyncWithInvestor = async (investorUserId: string, note: string) => {
+    // DISCONNECTED: API calls disabled
+    toast({
+      title: "Demo Mode",
+      description: "Sync requests are disabled in demo mode",
+    });
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) {
       toast({
         title: "Login required",
@@ -631,9 +702,18 @@ export default function FounderDashboard() {
     } finally {
       setIsSyncing(false);
     }
+    */
   };
 
   const fetchActiveSyncs = async () => {
+    // DISCONNECTED: API calls disabled - using demo data
+    setSyncsLoading(true);
+    setTimeout(() => {
+      setActiveSyncs(demoSyncs);
+      setSyncsLoading(false);
+    }, 500);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) return;
     setSyncsLoading(true);
     try {
@@ -644,10 +724,10 @@ export default function FounderDashboard() {
         .or(`requester_user_id.eq.${currentUserId},target_user_id.eq.${currentUserId}`);
 
       if (connections && connections.length > 0) {
-        const investorIds = connections.map(c => 
+        const investorIds = connections.map(c =>
           c.requester_user_id === currentUserId ? c.target_user_id : c.requester_user_id
         );
-        
+
         const { data: investors } = await supabase
           .from("investor_applications")
           .select("user_id, firm_name, hq_location, stage_focus, sector_tags")
@@ -686,6 +766,7 @@ export default function FounderDashboard() {
     } finally {
       setSyncsLoading(false);
     }
+    */
   };
 
   const handleOpenSyncs = () => {
@@ -703,6 +784,14 @@ export default function FounderDashboard() {
   };
 
   const fetchOutgoingPending = async () => {
+    // DISCONNECTED: API calls disabled - using demo data
+    setPendingLoading(true);
+    setTimeout(() => {
+      setOutgoingPending(demoPending);
+      setPendingLoading(false);
+    }, 500);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) return;
     setPendingLoading(true);
     try {
@@ -715,7 +804,7 @@ export default function FounderDashboard() {
 
       if (connections && connections.length > 0) {
         const investorIds = connections.map(c => c.target_user_id);
-        
+
         const { data: investors } = await supabase
           .from("investor_applications")
           .select("user_id, firm_name, hq_location, stage_focus, sector_tags")
@@ -743,6 +832,7 @@ export default function FounderDashboard() {
     } finally {
       setPendingLoading(false);
     }
+    */
   };
 
   const handleOpenPending = () => {
@@ -760,6 +850,15 @@ export default function FounderDashboard() {
   };
 
   const handleCancelPending = async (requestId: string) => {
+    // DISCONNECTED: API calls disabled
+    setCancellingId(requestId);
+    toast({
+      title: "Demo Mode",
+      description: "Request cancellation is disabled in demo mode"
+    });
+    setCancellingId(null);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     setCancellingId(requestId);
     try {
       await supabase.from("connection_requests").delete().eq("id", requestId);
@@ -771,6 +870,7 @@ export default function FounderDashboard() {
     } finally {
       setCancellingId(null);
     }
+    */
   };
 
   const handleOpenMessages = () => {

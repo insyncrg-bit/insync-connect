@@ -326,6 +326,10 @@ export default function AnalystDashboard() {
   }, [matches]);
 
   const fetchAnalystProfile = async (userId: string) => {
+    // DISCONNECTED: API calls disabled
+    return;
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     const { data, error } = await supabase
       .from("analyst_profiles")
       .select("*")
@@ -334,7 +338,7 @@ export default function AnalystDashboard() {
 
     if (!error && data) {
       setAnalystProfile(data as AnalystProfile);
-      
+
       // Check if profile is incomplete - show mandatory modal
       if (!data.profile_completed) {
         setShowMandatoryProfileModal(true);
@@ -343,9 +347,39 @@ export default function AnalystDashboard() {
       // No analyst profile - redirect to analyst auth (but not in demo mode)
       navigate("/analyst-auth");
     }
+    */
   };
 
   const fetchFirmThesis = async (firmId: string) => {
+    // DISCONNECTED: API calls disabled - using demo data
+    setInvestorApplication({
+      id: "demo-firm",
+      firm_name: "Demo VC",
+      firm_description: "Early-stage venture fund focused on B2B software and AI infrastructure.",
+      thesis_statement: "We invest in technical founders building category-defining B2B software companies.",
+      sub_themes: ["Developer Tools", "AI Infrastructure", "Data Platforms", "Vertical SaaS"],
+      fast_signals: ["Strong technical team", "Early revenue traction", "Clear path to $100M ARR"],
+      hard_nos: ["Consumer apps", "Hardware-only", "Pre-product companies"],
+      check_sizes: ["$500K - $2M"],
+      stage_focus: ["Pre-seed", "Seed"],
+      sector_tags: ["AI/ML", "B2B SaaS", "Developer Tools", "Enterprise Software"],
+      customer_types: ["Enterprise", "SMB"],
+      lead_follow: "Lead",
+      operating_support: ["Hiring", "GTM Strategy", "Technical Architecture"],
+      support_style: "Hands-on during critical phases",
+      hq_location: "San Francisco, CA",
+      aum: "$150M",
+      fund_type: "Early Stage",
+      geographic_focus: "North America",
+      b2b_b2c: "B2B",
+      revenue_models: ["SaaS", "Usage-based"],
+      minimum_traction: ["$50K ARR", "5+ paying customers"],
+      board_involvement: "Board seat at Seed+",
+      decision_process: "2 partner meetings, 2-week decision timeline",
+      time_to_decision: "2-3 weeks",
+    });
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     const { data, error } = await supabase
       .from("investor_applications")
       .select("*")
@@ -367,6 +401,7 @@ export default function AnalystDashboard() {
         minimum_traction: (data.minimum_traction as string[]) || [],
       });
     }
+    */
   };
 
   const fetchInvestorThesis = async () => {
@@ -402,7 +437,31 @@ export default function AnalystDashboard() {
   ];
 
   const fetchDashboardData = async () => {
+    // DISCONNECTED: API calls disabled - using demo data only
     try {
+      // Always use demo data
+      setCurrentUserId(null);
+      setAnalystProfile({
+        id: "demo-analyst",
+        user_id: "demo-user",
+        firm_id: "demo-firm",
+        name: "Alex Thompson",
+        title: "Associate",
+        firm_name: "Demo VC",
+        email: "alex@demovc.com",
+        location: "San Francisco, CA",
+        vertical: "AI/ML, B2B SaaS",
+        one_liner: "Former founder helping the next generation scale.",
+        profile_completed: true,
+      });
+
+      // Use demo startup data
+      setApplications(demoStartups);
+
+      // Use empty events
+      setEvents([]);
+
+      /* ORIGINAL API CALLS - DISCONNECTED
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setCurrentUserId(user.id);
@@ -417,7 +476,7 @@ export default function AnalystDashboard() {
         .select("*")
         .eq("status", "approved")
         .order("created_at", { ascending: false });
-      
+
       setApplications(appsData || []);
 
       const { data: eventsData } = await supabase
@@ -426,12 +485,13 @@ export default function AnalystDashboard() {
         .gte("event_date", new Date().toISOString())
         .order("event_date", { ascending: true })
         .limit(5);
-      
+
       setEvents(eventsData || []);
 
       if (user) {
         await fetchConnectionStats(user.id);
       }
+      */
 
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -453,6 +513,15 @@ export default function AnalystDashboard() {
   }, [analystProfile?.firm_id]);
 
   const fetchConnectionStats = async (userId: string) => {
+    // DISCONNECTED: API calls disabled - using demo stats
+    setConnectionStats({
+      interests: demoInterests.length,
+      syncs: demoSyncs.length,
+      pending: demoPending.length
+    });
+    setPendingRequests(new Set());
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     try {
       const { data: connections, error } = await supabase
         .from("connection_requests")
@@ -485,9 +554,17 @@ export default function AnalystDashboard() {
     } catch (error) {
       console.error("Error calculating connection stats:", error);
     }
+    */
   };
 
   const handleRequestSync = async (founderUserId: string, companyName: string) => {
+    // DISCONNECTED: API calls disabled
+    toast({
+      title: "Demo Mode",
+      description: "Sync requests are disabled in demo mode",
+    });
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) {
       toast({
         title: "Login required",
@@ -544,10 +621,19 @@ export default function AnalystDashboard() {
     } finally {
       setRequestingSync(null);
     }
+    */
   };
 
   // Modal handlers (same as InvestorDashboard)
   const fetchIncomingInterests = async () => {
+    // DISCONNECTED: API calls disabled - using demo data
+    setInterestsLoading(true);
+    setTimeout(() => {
+      setIncomingInterests(demoInterests);
+      setInterestsLoading(false);
+    }, 500);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) return;
     setInterestsLoading(true);
     try {
@@ -581,6 +667,7 @@ export default function AnalystDashboard() {
     } finally {
       setInterestsLoading(false);
     }
+    */
   };
 
   const handleOpenInterests = () => {
@@ -598,6 +685,15 @@ export default function AnalystDashboard() {
   };
 
   const handleAcceptInterest = async (requestId: string) => {
+    // DISCONNECTED: API calls disabled
+    setProcessingInterestId(requestId);
+    toast({
+      title: "Demo Mode",
+      description: "Connection actions are disabled in demo mode"
+    });
+    setProcessingInterestId(null);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     setProcessingInterestId(requestId);
     try {
       await supabase.from("connection_requests").update({ status: "accepted" }).eq("id", requestId);
@@ -609,9 +705,19 @@ export default function AnalystDashboard() {
     } finally {
       setProcessingInterestId(null);
     }
+    */
   };
 
   const handleDeclineInterest = async (requestId: string) => {
+    // DISCONNECTED: API calls disabled
+    setProcessingInterestId(requestId);
+    toast({
+      title: "Demo Mode",
+      description: "Connection actions are disabled in demo mode"
+    });
+    setProcessingInterestId(null);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     setProcessingInterestId(requestId);
     try {
       await supabase.from("connection_requests").update({ status: "declined" }).eq("id", requestId);
@@ -623,9 +729,18 @@ export default function AnalystDashboard() {
     } finally {
       setProcessingInterestId(null);
     }
+    */
   };
 
   const fetchActiveSyncs = async () => {
+    // DISCONNECTED: API calls disabled - using demo data
+    setSyncsLoading(true);
+    setTimeout(() => {
+      setActiveSyncs(demoSyncs);
+      setSyncsLoading(false);
+    }, 500);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) return;
     setSyncsLoading(true);
     try {
@@ -636,10 +751,10 @@ export default function AnalystDashboard() {
         .or(`requester_user_id.eq.${currentUserId},target_user_id.eq.${currentUserId}`);
 
       if (connections && connections.length > 0) {
-        const founderIds = connections.map(c => 
+        const founderIds = connections.map(c =>
           c.requester_user_id === currentUserId ? c.target_user_id : c.requester_user_id
         );
-        
+
         const { data: founders } = await supabase
           .from("founder_applications")
           .select("user_id, company_name, founder_name, vertical, stage, location")
@@ -664,6 +779,7 @@ export default function AnalystDashboard() {
     } finally {
       setSyncsLoading(false);
     }
+    */
   };
 
   const handleOpenSyncs = () => {
@@ -681,6 +797,14 @@ export default function AnalystDashboard() {
   };
 
   const fetchOutgoingPending = async () => {
+    // DISCONNECTED: API calls disabled - using demo data
+    setPendingLoading(true);
+    setTimeout(() => {
+      setOutgoingPending(demoPending);
+      setPendingLoading(false);
+    }, 500);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     if (!currentUserId) return;
     setPendingLoading(true);
     try {
@@ -693,7 +817,7 @@ export default function AnalystDashboard() {
 
       if (connections && connections.length > 0) {
         const founderIds = connections.map(c => c.target_user_id);
-        
+
         const { data: founders } = await supabase
           .from("founder_applications")
           .select("user_id, company_name, founder_name, vertical, stage, location")
@@ -715,6 +839,7 @@ export default function AnalystDashboard() {
     } finally {
       setPendingLoading(false);
     }
+    */
   };
 
   const handleOpenPending = () => {
@@ -732,6 +857,15 @@ export default function AnalystDashboard() {
   };
 
   const handleCancelPending = async (requestId: string) => {
+    // DISCONNECTED: API calls disabled
+    setCancellingId(requestId);
+    toast({
+      title: "Demo Mode",
+      description: "Request cancellation is disabled in demo mode"
+    });
+    setCancellingId(null);
+
+    /* ORIGINAL API CALLS - DISCONNECTED
     setCancellingId(requestId);
     try {
       await supabase.from("connection_requests").delete().eq("id", requestId);
@@ -743,6 +877,7 @@ export default function AnalystDashboard() {
     } finally {
       setCancellingId(null);
     }
+    */
   };
 
   const handleOpenMessages = () => {
