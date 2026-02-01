@@ -239,21 +239,21 @@ export default function AnalystDashboard() {
   
   // Modal states
   const [interestsModalOpen, setInterestsModalOpen] = useState(false);
-  const [incomingInterests, setIncomingInterests] = useState<any[]>([]);
+  const [incomingInterests, setIncomingInterests] = useState<Array<Record<string, unknown>>>([]);
   const [interestsLoading, setInterestsLoading] = useState(false);
   const [processingInterestId, setProcessingInterestId] = useState<string | null>(null);
 
   const [syncsModalOpen, setSyncsModalOpen] = useState(false);
-  const [activeSyncs, setActiveSyncs] = useState<any[]>([]);
+  const [activeSyncs, setActiveSyncs] = useState<Array<Record<string, unknown>>>([]);
   const [syncsLoading, setSyncsLoading] = useState(false);
 
   const [pendingModalOpen, setPendingModalOpen] = useState(false);
-  const [outgoingPending, setOutgoingPending] = useState<any[]>([]);
+  const [outgoingPending, setOutgoingPending] = useState<Array<Record<string, unknown>>>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const [messagesModalOpen, setMessagesModalOpen] = useState(false);
-  const [messageThreads, setMessageThreads] = useState<any[]>([]);
+  const [messageThreads, setMessageThreads] = useState<Array<Record<string, unknown>>>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [initialContactUserId, setInitialContactUserId] = useState<string | null>(null);
 
@@ -311,6 +311,7 @@ export default function AnalystDashboard() {
     } else {
       fetchDashboardData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDemo]);
 
   useEffect(() => {

@@ -53,8 +53,8 @@ interface FounderApplication {
   logo_url?: string | null;
   pitchdeck_url?: string | null;
   calendly_link?: string | null;
-  application_sections?: any;
-  team_members?: any[];
+  application_sections?: Record<string, unknown>;
+  team_members?: Array<Record<string, unknown>>;
   updated_at?: string;
 }
 

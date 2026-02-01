@@ -43,6 +43,7 @@ export default function Auth() {
     });
 
     return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkApplicationAndRedirect = async (userId: string) => {
@@ -96,11 +97,11 @@ export default function Auth() {
         password,
       });
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error) {
       let message = "An error occurred during authentication.";
-      if (error.message?.includes("Invalid login credentials")) {
+      if (error instanceof Error && error.message?.includes("Invalid login credentials")) {
         message = "Invalid email or password. If you haven't created an account yet, please apply first.";
-      } else if (error.message) {
+      } else if (error instanceof Error && error.message) {
         message = error.message;
       }
       
@@ -124,10 +125,10 @@ export default function Auth() {
         },
       });
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Google Login Error",
-        description: error.message || "Failed to initiate Google login.",
+        description: error instanceof Error ? error.message : "Failed to initiate Google login.",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -145,10 +146,10 @@ export default function Auth() {
         },
       });
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Microsoft Login Error",
-        description: error.message || "Failed to initiate Microsoft login.",
+        description: error instanceof Error ? error.message : "Failed to initiate Microsoft login.",
         variant: "destructive",
       });
       setIsLoading(false);

@@ -39,7 +39,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface MemoEditorProps {
-  application: any;
+  application: Record<string, unknown> | null;
   onUpdate?: () => void;
 }
 
@@ -554,7 +554,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
 
             {sections.section6?.competitors && sections.section6.competitors.length > 0 ? (
               <div className="space-y-4 mb-6">
-                {sections.section6.competitors.filter((c: any) => c.name).map((competitor: any, i: number) => (
+                {sections.section6.competitors.filter((c: Record<string, unknown>) => c.name).map((competitor: Record<string, unknown>, i: number) => (
                   <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10">
                     <h4 className="font-semibold text-white mb-2">{competitor.name}</h4>
                     {competitor.description && <p className="text-white/50 text-sm mb-2">{competitor.description}</p>}
@@ -589,7 +589,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {teamMembers.length > 0 ? teamMembers.map((member: any, i: number) => (
+              {teamMembers.length > 0 ? teamMembers.map((member: Record<string, unknown>, i: number) => (
                 <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-purple-500/30 flex items-center justify-center">

@@ -142,6 +142,7 @@ export function MessagesModal({
         setSelectedThread(updatedThread);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads, selectedThread?.id]);
 
   // Auto-scroll to bottom on new messages
@@ -149,6 +150,7 @@ export function MessagesModal({
     if (scrollRef.current && selectedThread) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedThread?.messages.length]);
 
   return (

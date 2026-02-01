@@ -91,7 +91,7 @@ export default function FounderDashboard() {
   const [matchedInvestors, setMatchedInvestors] = useState<MatchResult[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [application, setApplication] = useState<any>(null);
+  const [application, setApplication] = useState<Record<string, unknown> | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [connectionStats, setConnectionStats] = useState<ConnectionStats>({ interests: 0, syncs: 0, pending: 0 });
   const [pendingRequests, setPendingRequests] = useState<Set<string>>(new Set());
@@ -115,18 +115,18 @@ export default function FounderDashboard() {
 
   // Syncs modal state
   const [syncsModalOpen, setSyncsModalOpen] = useState(false);
-  const [activeSyncs, setActiveSyncs] = useState<any[]>([]);
+  const [activeSyncs, setActiveSyncs] = useState<Array<Record<string, unknown>>>([]);
   const [syncsLoading, setSyncsLoading] = useState(false);
 
   // Pending modal state
   const [pendingModalOpen, setPendingModalOpen] = useState(false);
-  const [outgoingPending, setOutgoingPending] = useState<any[]>([]);
+  const [outgoingPending, setOutgoingPending] = useState<Array<Record<string, unknown>>>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   // Messages modal state
   const [messagesModalOpen, setMessagesModalOpen] = useState(false);
-  const [messageThreads, setMessageThreads] = useState<any[]>([]);
+  const [messageThreads, setMessageThreads] = useState<Array<Record<string, unknown>>>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [initialContactUserId, setInitialContactUserId] = useState<string | null>(null);
 
@@ -234,6 +234,7 @@ export default function FounderDashboard() {
 
   useEffect(() => {
     fetchDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch matches when we have a user

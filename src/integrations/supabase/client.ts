@@ -2,31 +2,48 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
 
-// Validate environment variables
-if (!SUPABASE_URL) {
-  throw new Error(
-    'Missing VITE_SUPABASE_URL environment variable. ' +
-    'Please create a .env file in the root directory with your Supabase URL.'
-  );
-}
+function getSupabaseClient() {
+  if (supabaseClient) {
+    return supabaseClient;
+  }
 
-if (!SUPABASE_PUBLISHABLE_KEY) {
-  throw new Error(
-    'Missing VITE_SUPABASE_PUBLISHABLE_KEY environment variable. ' +
-    'Please create a .env file in the root directory with your Supabase anon key.'
-  );
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!SUPABASE_URL) {
+    throw new Error(
+      'Missing VITE_SUPABASE_URL environment variable. ' +
+      'Please create a .env file in the root directory with your Supabase URL.'
+    );
+  }
+
+  if (!SUPABASE_PUBLISHABLE_KEY) {
+    throw new Error(
+      'Missing VITE_SUPABASE_PUBLISHABLE_KEY environment variable. ' +
+      'Please create a .env file in the root directory with your Supabase anon key.'
+    );
+  }
+
+  supabaseClient = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+      storage: localStorage,
+      persistSession: true,
+      autoRefreshToken: true,
+    }
+  });
+
+  return supabaseClient;
 }
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
+export const supabase = new Proxy({} as ReturnType<typeof createClient<Database>>, {
+  get(_target, prop) {
+    const client = getSupabaseClient();
+    const value = client[prop as keyof typeof client];
+    return typeof value === 'function' ? value.bind(client) : value;
   }
 });

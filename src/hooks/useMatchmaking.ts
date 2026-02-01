@@ -60,7 +60,7 @@ export interface MatchResult {
     traction: string;
     email: string;
     current_ask: string;
-    application_sections: any;
+    application_sections: Record<string, unknown>;
   };
 }
 
@@ -112,7 +112,99 @@ export function useMatchmaking(): UseMatchmakingResult {
       }
 
       if (data?.matches) {
-        setMatches(data.matches);
+        // Transform flat API response into nested structure expected by frontend
+        const transformedMatches: MatchResult[] = data.matches.map((match: Record<string, unknown>) => {
+          if (userType === 'founder') {
+            // For founder-to-investor matches, nest investor properties
+            return {
+              id: match.investor_id || match.user_id,
+              match_score: match.match_score,
+              match_label: match.match_label,
+              why_this_match: match.why_this_match || [],
+              potential_concerns: match.potential_concerns || [],
+              improvement_suggestions: data.improvement_suggestions,
+              fit_breakdown: {
+                sector_fit: match.fit_breakdown?.sector_fit || 0,
+                stage_fit: match.fit_breakdown?.stage_fit || 0,
+                geo_fit: match.fit_breakdown?.geography_fit || 0,
+                business_model_fit: match.fit_breakdown?.business_model_fit || 0,
+                thesis_fit: match.fit_breakdown?.thesis_similarity || 0,
+                why_yes_fit: match.fit_breakdown?.why_yes_alignment || 0,
+                valueadd_fit: match.fit_breakdown?.value_add_fit || 0,
+              },
+              investor: {
+                id: match.investor_id,
+                user_id: match.user_id,
+                firm_name: match.firm_name,
+                firm_description: match.firm_description || null,
+                thesis_statement: match.thesis_statement || null,
+                sub_themes: [],
+                fast_signals: [],
+                hard_nos: [],
+                check_sizes: match.check_sizes || [],
+                stage_focus: match.stage_focus || [],
+                sector_tags: match.sector_tags || [],
+                customer_types: [],
+                lead_follow: match.lead_follow || null,
+                operating_support: match.operating_support || [],
+                support_style: null,
+                hq_location: match.hq_location || null,
+                aum: null,
+                fund_type: null,
+                geographic_focus: match.geographic_focus || null,
+                b2b_b2c: null,
+                revenue_models: [],
+                minimum_traction: [],
+                board_involvement: null,
+                decision_process: null,
+                time_to_decision: match.time_to_decision || null,
+              },
+            };
+          } else {
+            // For investor-to-founder matches, nest founder properties
+            return {
+              id: match.founder_id || match.user_id,
+              match_score: match.match_score,
+              match_label: match.match_label,
+              why_this_match: match.why_this_match || [],
+              potential_concerns: match.potential_concerns || [],
+              fit_breakdown: {
+                sector_fit: match.fit_breakdown?.sector_fit || 0,
+                stage_fit: match.fit_breakdown?.stage_fit || 0,
+                geo_fit: match.fit_breakdown?.geography_fit || 0,
+                business_model_fit: match.fit_breakdown?.business_model_fit || 0,
+                thesis_fit: match.fit_breakdown?.thesis_similarity || 0,
+                why_yes_fit: match.fit_breakdown?.why_yes_alignment || 0,
+                valueadd_fit: match.fit_breakdown?.value_add_fit || 0,
+              },
+              founder: {
+                id: match.founder_id,
+                user_id: match.user_id,
+                founder_name: match.founder_name,
+                company_name: match.company_name,
+                vertical: match.vertical,
+                stage: match.stage,
+                location: match.location,
+                website: match.website || null,
+                business_model: match.business_model,
+                funding_goal: match.funding_goal,
+                traction: match.traction,
+                email: '',
+                current_ask: '',
+                application_sections: {
+                  company_pitch: match.company_pitch,
+                  problem_statement: match.problem_statement,
+                  ideal_customer_profile: match.ideal_customer_profile,
+                  tam_value: match.tam_value,
+                  sam_value: match.sam_value,
+                  som_value: match.som_value,
+                  team_members: match.team_members,
+                },
+              },
+            };
+          }
+        });
+        setMatches(transformedMatches);
       } else if (data?.error) {
         throw new Error(data.error);
       } else {
