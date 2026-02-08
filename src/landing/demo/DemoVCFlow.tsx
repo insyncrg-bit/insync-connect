@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeft,
   ArrowRight,
@@ -383,9 +384,9 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
   // Dashboard View - Matching AnalystDashboard.tsx exactly
   if (showDashboard) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#151a24] overflow-auto">
+      <div className={`fixed inset-0 z-50 bg-[#151a24] ${showThesisModal || showInterestsModal || showSyncsModal || showPendingModal || showMessagesModal || showMemoModal || showProfileModal ? 'overflow-hidden' : 'overflow-auto'}`}>
         {/* Header - Matching AnalystDashboard header */}
-        <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4 sticky top-0 z-10">
+        <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4 sticky top-0 z-20">
           <Button variant="ghost" size="sm" onClick={goBack} className="text-white/60 hover:text-white">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Application
@@ -563,684 +564,1160 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
 
         {/* ========== MODALS ========== */}
 
-        {/* Thesis Modal - matches InvestorThesisModal pattern with Condensed/Full view */}
+        {/* Thesis Modal - matches InvestorThesisModal exactly */}
         {showThesisModal && (
           <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowThesisModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-2xl max-h-[85vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              {/* Header */}
-              <div className="p-6 border-b border-white/10 flex items-center justify-between sticky top-0 bg-navy-card z-10">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <FileText className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                  </div>
+            <div className="max-w-5xl w-full max-h-[95vh] bg-[hsl(var(--navy-deep))] border border-[hsl(var(--cyan-glow))]/20 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="max-h-[95vh] overflow-auto p-6 space-y-6">
+                {/* Back Button */}
+                <Button
+                  onClick={() => setShowThesisModal(false)}
+                  className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Your Dashboard
+                </Button>
+
+                {/* Header */}
+                <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
-                    <h2 className="text-xl font-semibold text-white">{demoThesis.firm_name}'s Thesis</h2>
-                    <p className="text-sm text-white/60">{demoThesis.stage_focus.join(" • ")} • {demoThesis.sector_tags[0]}</p>
+                    <h2 className="text-2xl font-bold text-white">My Thesis</h2>
+                    <p className="text-white/60">Your investment thesis and criteria</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setThesisViewMode(thesisViewMode === "condensed" ? "full" : "condensed")}
-                    className="border-white/20 text-white hover:bg-white/10"
-                  >
-                    {thesisViewMode === "condensed" ? (
-                      <>
-                        <ChevronDown className="h-4 w-4 mr-1" />
-                        Full View
-                      </>
-                    ) : (
-                      <>
-                        <ChevronUp className="h-4 w-4 mr-1" />
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white/10 rounded-lg p-1 flex">
+                      <button
+                        onClick={() => setThesisViewMode("condensed")}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                          thesisViewMode === "condensed"
+                            ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]"
+                            : "text-white/70 hover:text-white"
+                        }`}
+                      >
+                        <FileText className="h-4 w-4" />
                         Condensed
-                      </>
-                    )}
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => setShowThesisModal(false)} className="text-white/60 hover:text-white">
-                    <X className="h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="p-6 space-y-6">
-                {/* Fund Info Grid */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Location</p>
-                    <p className="text-sm text-white flex items-center gap-1"><MapPin className="h-3 w-3" /> {demoThesis.hq_location}</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">AUM</p>
-                    <p className="text-sm text-white flex items-center gap-1"><DollarSign className="h-3 w-3" /> {demoThesis.aum}</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Check Size</p>
-                    <p className="text-sm text-white">{demoThesis.check_sizes[0]}</p>
+                      </button>
+                      <button
+                        onClick={() => setThesisViewMode("full")}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                          thesisViewMode === "full"
+                            ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]"
+                            : "text-white/70 hover:text-white"
+                        }`}
+                      >
+                        <Eye className="h-4 w-4" />
+                        Full Thesis
+                      </button>
+                    </div>
+                    <Button
+                      className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30"
+                    >
+                      <UserCog className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
                   </div>
                 </div>
 
-                {/* Additional Fund Info */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Fund Type</p>
-                    <p className="text-sm text-white">{demoThesis.fund_type}</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Lead/Follow</p>
-                    <p className="text-sm text-white">{demoThesis.lead_follow}</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Focus</p>
-                    <p className="text-sm text-white">{demoThesis.b2b_b2c}</p>
-                  </div>
-                </div>
+                {/* Condensed View */}
+                {thesisViewMode === "condensed" && (
+                  <div className="space-y-6">
+                    {/* Executive Summary Card */}
+                    <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 relative overflow-hidden shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-[hsl(var(--cyan-glow))]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
 
-                {/* Investment Thesis */}
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Investment Thesis</h3>
-                  <p className="text-white/80">{demoThesis.thesis_statement}</p>
-                </div>
+                      <div className="relative z-10">
+                        <div className="flex items-start justify-between gap-6 mb-6">
+                          <div className="flex items-center gap-4">
+                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20">
+                              <Building2 className="h-10 w-10 text-white" />
+                            </div>
+                            <div>
+                              <h1 className="text-3xl font-bold text-white mb-2">{demoThesis.firm_name}</h1>
+                              <div className="flex flex-wrap gap-2">
+                                <span className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border border-[hsl(var(--cyan-glow))]/30 px-2 py-0.5 rounded-full text-sm">
+                                  {demoThesis.sector_tags[0]}
+                                </span>
+                                <span className="bg-white/10 text-white/80 border border-white/20 px-2 py-0.5 rounded-full text-sm">
+                                  {demoThesis.stage_focus[0]}
+                                </span>
+                                <span className="bg-[hsl(var(--cyan-bright))]/20 text-[hsl(var(--cyan-bright))] border border-[hsl(var(--cyan-bright))]/30 px-2 py-0.5 rounded-full text-sm flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" /> {demoThesis.hq_location}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
 
-                {/* Stage Focus */}
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Stage Focus</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {demoThesis.stage_focus.map((stage, i) => (
-                      <span key={i} className={`px-3 py-1 rounded-full text-sm ${getStageColor(stage)}`}>{stage}</span>
-                    ))}
+                        {/* Thesis Statement */}
+                        <div className="bg-white/5 rounded-xl p-4 mb-6">
+                          <p className="text-lg text-white/90 italic">
+                            "{demoThesis.thesis_statement}"
+                          </p>
+                        </div>
+
+                        {/* Key Metrics Row */}
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                            <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Check Size</p>
+                            <p className="text-xl font-bold text-white">{demoThesis.check_sizes[0]}</p>
+                            <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                              View details <ArrowRight className="h-3 w-3" />
+                            </p>
+                          </div>
+                          <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                            <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Stage Focus</p>
+                            <p className="text-xl font-bold text-white">{demoThesis.stage_focus[0]}</p>
+                            <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                              View details <ArrowRight className="h-3 w-3" />
+                            </p>
+                          </div>
+                          <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                            <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Decision Time</p>
+                            <p className="text-xl font-bold text-white">{demoThesis.time_to_decision}</p>
+                            <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                              View details <ArrowRight className="h-3 w-3" />
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Quick Stats Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                            <DollarSign className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs font-medium">AUM</p>
+                            <p className="text-white font-semibold">{demoThesis.aum}</p>
+                          </div>
+                        </div>
+                      </Card>
+                      <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                            <Briefcase className="h-5 w-5 text-purple-400/70" />
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs font-medium">Fund Type</p>
+                            <p className="text-white font-semibold">{demoThesis.fund_type}</p>
+                          </div>
+                        </div>
+                      </Card>
+                      <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <TrendingUp className="h-5 w-5 text-emerald-400/70" />
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs font-medium">Lead/Follow</p>
+                            <p className="text-white font-semibold">{demoThesis.lead_follow}</p>
+                          </div>
+                        </div>
+                      </Card>
+                      <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                            <Handshake className="h-5 w-5 text-amber-400/70" />
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs font-medium">Support Style</p>
+                            <p className="text-white font-semibold">Hands-on</p>
+                          </div>
+                        </div>
+                      </Card>
+                    </div>
+
+                    {/* Fast Signals & Hard Nos */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <Target className="h-4 w-4 text-emerald-400/70" />
+                          </div>
+                          <h3 className="text-lg font-semibold text-white">Fast Signals</h3>
+                        </div>
+                        <p className="text-white/70 leading-relaxed">
+                          {demoThesis.fast_signals.slice(0, 2).join(", ")}...
+                        </p>
+                      </Card>
+
+                      <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                            <X className="h-4 w-4 text-rose-400/70" />
+                          </div>
+                          <h3 className="text-lg font-semibold text-white">Hard Nos</h3>
+                        </div>
+                        <p className="text-white/70 leading-relaxed">
+                          {demoThesis.hard_nos.slice(0, 2).join(", ")}...
+                        </p>
+                      </Card>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Sub-themes */}
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Sub-themes We're Prioritizing</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {demoThesis.sub_themes.map((theme, i) => (
-                      <span key={i} className="px-3 py-1 bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] rounded-full text-sm">{theme}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Sector Focus */}
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Sector Focus</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {demoThesis.sector_tags.map((tag, i) => (
-                      <span key={i} className="px-3 py-1 bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] rounded-full text-sm">{tag}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Fast Signals */}
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">What Gets Us Excited</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {demoThesis.fast_signals.map((signal, i) => (
-                      <span key={i} className="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm">{signal}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Hard No's */}
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Hard No's</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {demoThesis.hard_nos.map((no, i) => (
-                      <span key={i} className="px-3 py-1 bg-red-500/10 text-red-400 rounded-full text-sm">{no}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Full View - Additional Sections */}
+                {/* Full Thesis View */}
                 {thesisViewMode === "full" && (
-                  <>
-                    {/* Operating Support */}
-                    <div>
-                      <h3 className="text-sm font-medium text-white/70 mb-2">Operating Support</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {demoThesis.operating_support.map((support, i) => (
-                          <span key={i} className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-sm">{support}</span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Support Style */}
-                    {demoThesis.support_style && (
-                      <div>
-                        <h3 className="text-sm font-medium text-white/70 mb-2">Support Style</h3>
-                        <p className="text-white/80">{demoThesis.support_style}</p>
-                      </div>
-                    )}
-
-                    {/* Customer Types */}
-                    {demoThesis.customer_types && demoThesis.customer_types.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-medium text-white/70 mb-2">Preferred Customer Types</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {demoThesis.customer_types.map((type, i) => (
-                            <span key={i} className="px-3 py-1 bg-white/5 text-white/80 rounded-full text-sm">{type}</span>
-                          ))}
+                  <div className="space-y-8">
+                    {/* Header Section */}
+                    <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                      <div className="text-center mb-8">
+                        <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4">
+                          <Building2 className="h-12 w-12 text-white" />
+                        </div>
+                        <h1 className="text-4xl font-bold text-white mb-2">{demoThesis.firm_name}</h1>
+                        <p className="text-xl text-white/70 mb-4">{demoThesis.fund_type} • {demoThesis.lead_follow}</p>
+                        <div className="flex justify-center gap-4 text-sm text-white/60">
+                          <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {demoThesis.hq_location}</span>
+                          <span className="flex items-center gap-1"><DollarSign className="h-4 w-4" /> {demoThesis.aum}</span>
                         </div>
                       </div>
-                    )}
 
-                    {/* Revenue Models */}
-                    {demoThesis.revenue_models && demoThesis.revenue_models.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-medium text-white/70 mb-2">Preferred Revenue Models</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {demoThesis.revenue_models.map((model, i) => (
-                            <span key={i} className="px-3 py-1 bg-white/5 text-white/80 rounded-full text-sm">{model}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Minimum Traction */}
-                    {demoThesis.minimum_traction && (
-                      <div>
-                        <h3 className="text-sm font-medium text-white/70 mb-2">Minimum Traction</h3>
-                        <p className="text-white/80">{demoThesis.minimum_traction}</p>
-                      </div>
-                    )}
-
-                    {/* Board Involvement */}
-                    {demoThesis.board_involvement && (
-                      <div>
-                        <h3 className="text-sm font-medium text-white/70 mb-2">Board Involvement</h3>
-                        <p className="text-white/80">{demoThesis.board_involvement}</p>
-                      </div>
-                    )}
-
-                    {/* Decision Process */}
-                    {demoThesis.decision_process && (
-                      <div>
-                        <h3 className="text-sm font-medium text-white/70 mb-2">Decision Process</h3>
-                        <p className="text-white/80">{demoThesis.decision_process}</p>
-                      </div>
-                    )}
-
-                    {/* Time to Decision */}
-                    {demoThesis.time_to_decision && (
-                      <div>
-                        <h3 className="text-sm font-medium text-white/70 mb-2">Time to Decision</h3>
-                        <p className="text-white/80">{demoThesis.time_to_decision}</p>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Interests Modal - Matching AnalystDashboard */}
-        {showInterestsModal && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowInterestsModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-lg max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between sticky top-0 bg-navy-card z-10">
-                <div className="flex items-center gap-3">
-                  <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                  <h2 className="text-xl font-semibold text-white">Incoming Interests</h2>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowInterestsModal(false)} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="p-4 space-y-3">
-                {demoInterests.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Heart className="h-12 w-12 text-white/20 mx-auto mb-4" />
-                    <p className="text-white/60">No incoming interests yet</p>
-                  </div>
-                ) : (
-                  demoInterests.map((interest) => (
-                    <div key={interest.id} className="p-4 bg-white/5 rounded-lg border border-white/10">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <p className="font-medium text-white">{interest.company_name}</p>
-                          <p className="text-xs text-white/50">{interest.founder_name} • {interest.vertical}</p>
-                        </div>
-                        <span className="text-xs text-white/40">{formatRelativeTime(interest.created_at)}</span>
-                      </div>
-                      <p className="text-xs text-white/50 mb-2 flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {interest.location} • {interest.stage} • {interest.funding_goal}
-                      </p>
-                      {interest.sync_note && (
-                        <p className="text-sm text-white/70 mb-3 italic bg-white/5 p-2 rounded">"{interest.sync_note}"</p>
-                      )}
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
-                          onClick={() => {
-                            const startup = mockStartups.find(s => s.user_id === interest.requester_user_id);
-                            if (startup) {
-                              setSelectedStartup(startup);
-                              setMemoViewMode("condensed");
-                              setShowMemoModal(true);
-                            }
-                          }}
-                        >
-                          <Eye className="h-4 w-4 mr-1" /> View Memo
-                        </Button>
-                        <Button size="sm" className="flex-1 bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90">
-                          <Check className="h-4 w-4 mr-1" /> Accept
-                        </Button>
-                        <Button size="sm" variant="outline" className="border-white/20 text-white/60 hover:bg-white/10">
-                          Decline
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Syncs Modal - Matching AnalystDashboard */}
-        {showSyncsModal && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowSyncsModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-lg max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between sticky top-0 bg-navy-card z-10">
-                <div className="flex items-center gap-3">
-                  <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                  <h2 className="text-xl font-semibold text-white">Active Syncs</h2>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowSyncsModal(false)} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="p-4 space-y-3">
-                {demoSyncs.length === 0 ? (
-                  <div className="text-center py-8">
-                    <TrendingUp className="h-12 w-12 text-white/20 mx-auto mb-4" />
-                    <p className="text-white/60">No active syncs yet</p>
-                  </div>
-                ) : (
-                  demoSyncs.map((sync) => (
-                    <div key={sync.id} className="p-4 bg-white/5 rounded-lg border border-white/10">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <p className="font-medium text-white">{sync.company_name}</p>
-                          <p className="text-xs text-white/50">{sync.founder_name} • {sync.vertical}</p>
-                        </div>
-                        <span className="text-xs text-white/40">Synced {formatRelativeTime(sync.created_at)}</span>
-                      </div>
-                      <p className="text-xs text-white/50 mb-3 flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {sync.location} • {sync.stage}
-                      </p>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
-                          onClick={() => {
-                            const startup = mockStartups.find(s => s.user_id === sync.other_user_id);
-                            if (startup) {
-                              setSelectedStartup(startup);
-                              setMemoViewMode("condensed");
-                              setShowMemoModal(true);
-                            }
-                          }}
-                        >
-                          <Eye className="h-4 w-4 mr-1" /> View Memo
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="flex-1 bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90"
-                          onClick={() => {
-                            setShowSyncsModal(false);
-                            const thread = demoMessages.find(m => m.other_user_id === sync.other_user_id);
-                            if (thread) {
-                              setSelectedThread(thread);
-                            }
-                            setShowMessagesModal(true);
-                          }}
-                        >
-                          <Send className="h-4 w-4 mr-1" /> Message
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Pending Modal - Matching AnalystDashboard */}
-        {showPendingModal && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowPendingModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-lg max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between sticky top-0 bg-navy-card z-10">
-                <div className="flex items-center gap-3">
-                  <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                  <h2 className="text-xl font-semibold text-white">Pending Requests</h2>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowPendingModal(false)} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="p-4 space-y-3">
-                {demoPending.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Clock className="h-12 w-12 text-white/20 mx-auto mb-4" />
-                    <p className="text-white/60">No pending requests</p>
-                  </div>
-                ) : (
-                  demoPending.map((pending) => (
-                    <div key={pending.id} className="p-4 bg-white/5 rounded-lg border border-white/10">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <p className="font-medium text-white">{pending.company_name}</p>
-                          <p className="text-xs text-white/50">{pending.founder_name} • {pending.vertical}</p>
-                        </div>
-                        <span className="text-xs text-white/40">Sent {formatRelativeTime(pending.created_at)}</span>
-                      </div>
-                      <p className="text-xs text-white/50 mb-2 flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {pending.location} • {pending.stage}
-                      </p>
-                      {pending.sync_note && (
-                        <p className="text-sm text-white/70 mb-3 italic bg-white/5 p-2 rounded">"{pending.sync_note}"</p>
-                      )}
-                      <Button size="sm" variant="outline" className="w-full border-white/20 text-white/60 hover:bg-white/10">
-                        Cancel Request
-                      </Button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Messages Modal - Matching AnalystDashboard with chat view */}
-        {showMessagesModal && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowMessagesModal(false); setSelectedThread(null); }}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-2xl h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {selectedThread ? (
-                    <>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setSelectedThread(null)}
-                        className="text-white/60 hover:text-white"
-                      >
-                        <ArrowLeft className="h-5 w-5" />
-                      </Button>
-                      <div>
-                        <h2 className="text-xl font-semibold text-white">{selectedThread.other_user_company}</h2>
-                        <p className="text-sm text-white/60">{selectedThread.other_user_name}</p>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <MessageSquare className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                      <h2 className="text-xl font-semibold text-white">Messages</h2>
-                    </>
-                  )}
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => { setShowMessagesModal(false); setSelectedThread(null); }} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-
-              {selectedThread ? (
-                // Chat View
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-auto p-4 space-y-4">
-                    {selectedThread.messages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`flex ${msg.sender === "self" ? "justify-end" : "justify-start"}`}
-                      >
-                        <div
-                          className={`max-w-[70%] p-3 rounded-lg ${
-                            msg.sender === "self"
-                              ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]"
-                              : "bg-white/10 text-white"
-                          }`}
-                        >
-                          <p className="text-sm">{msg.content}</p>
-                          <p className={`text-xs mt-1 ${msg.sender === "self" ? "text-[hsl(var(--navy-deep))]/60" : "text-white/40"}`}>
-                            {formatRelativeTime(msg.timestamp)}
+                      <div className="max-w-3xl mx-auto">
+                        <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                          <h3 className="text-sm font-semibold text-[hsl(var(--cyan-glow))] uppercase tracking-wider mb-3">Investment Thesis</h3>
+                          <p className="text-lg text-white/90 leading-relaxed">
+                            {demoThesis.thesis_statement}
                           </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                  <div className="p-4 border-t border-white/10">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Type a message..."
-                        className="flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                        value={messageInput}
-                        onChange={(e) => setMessageInput(e.target.value)}
-                      />
-                      <Button className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90">
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                // Thread List View
-                <div className="flex-1 overflow-auto divide-y divide-white/10">
-                  {demoMessages.length === 0 ? (
-                    <div className="text-center py-12">
-                      <MessageSquare className="h-12 w-12 text-white/20 mx-auto mb-4" />
-                      <p className="text-white/60">No messages yet</p>
-                      <p className="text-white/40 text-sm mt-1">Sync with startups to start messaging</p>
-                    </div>
-                  ) : (
-                    demoMessages.map((thread) => (
-                      <div
-                        key={thread.id}
-                        className={`p-4 hover:bg-white/5 cursor-pointer transition-colors ${thread.unread_count > 0 ? 'bg-[hsl(var(--cyan-glow))]/5' : ''}`}
-                        onClick={() => setSelectedThread(thread)}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="font-medium text-white">{thread.other_user_company}</p>
-                          <span className="text-xs text-white/40">{formatRelativeTime(thread.last_message_time)}</span>
+                    </Card>
+
+                    {/* Focus Areas */}
+                    <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                          <Target className="h-5 w-5 text-purple-400/70" />
                         </div>
-                        <p className="text-xs text-white/50 mb-1">{thread.other_user_name}</p>
-                        <p className="text-sm text-white/70 truncate">{thread.last_message}</p>
-                        {thread.unread_count > 0 && (
-                          <div className="mt-2 flex items-center gap-1">
-                            <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]" />
-                            <span className="text-xs text-[hsl(var(--cyan-glow))]">{thread.unread_count} new</span>
-                          </div>
-                        )}
+                        <h2 className="text-xl font-bold text-white">Focus Areas</h2>
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </Card>
+                      <div className="flex flex-wrap gap-2">
+                        {demoThesis.sub_themes.map((theme, i) => (
+                          <span key={i} className="bg-purple-500/20 border border-purple-500/40 text-purple-300 px-3 py-1.5 rounded-full text-sm">
+                            {theme}
+                          </span>
+                        ))}
+                      </div>
+                    </Card>
+
+                    {/* Fast Signals & Hard Nos */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <Card className="bg-navy-card border-green-500/20 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                            <Target className="h-5 w-5 text-green-400/70" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-white">Fast Signals</h2>
+                            <p className="text-white/40 text-sm">What makes you move quickly</p>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          {demoThesis.fast_signals.map((signal, i) => (
+                            <div key={i} className="flex items-start gap-3 text-white/80">
+                              <div className="w-2 h-2 rounded-full bg-green-400 mt-2 flex-shrink-0" />
+                              <span>{signal}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </Card>
+
+                      <Card className="bg-navy-card border-red-500/20 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                            <X className="h-5 w-5 text-red-400/70" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-white">Hard Nos</h2>
+                            <p className="text-white/40 text-sm">Dealbreakers</p>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          {demoThesis.hard_nos.map((no, i) => (
+                            <div key={i} className="flex items-start gap-3 text-white/80">
+                              <div className="w-2 h-2 rounded-full bg-red-400 mt-2 flex-shrink-0" />
+                              <span>{no}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </Card>
+                    </div>
+
+                    {/* Investment Parameters */}
+                    <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                          <DollarSign className="h-5 w-5 text-emerald-400/70" />
+                        </div>
+                        <h2 className="text-xl font-bold text-white">Investment Parameters</h2>
+                      </div>
+
+                      <div className="grid md:grid-cols-3 gap-6">
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Check Size</p>
+                          <div className="flex flex-wrap gap-2">
+                            {demoThesis.check_sizes.map((size, i) => (
+                              <span key={i} className="bg-white/10 border border-white/20 text-white px-3 py-1 rounded-full text-sm">
+                                {size}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Stage Focus</p>
+                          <div className="flex flex-wrap gap-2">
+                            {demoThesis.stage_focus.map((stage, i) => (
+                              <span key={i} className="bg-white/10 border border-white/20 text-white px-3 py-1 rounded-full text-sm">
+                                {stage}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Decision Timeline</p>
+                          <span className="text-white">{demoThesis.time_to_decision}</span>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Sectors & Target Customers */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                            <Briefcase className="h-5 w-5 text-blue-400/70" />
+                          </div>
+                          <h2 className="text-xl font-bold text-white">Sectors</h2>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {demoThesis.sector_tags.map((sector, i) => (
+                            <span key={i} className="bg-blue-500/20 border border-blue-500/40 text-blue-300 px-3 py-1 rounded-full text-sm">
+                              {sector}
+                            </span>
+                          ))}
+                        </div>
+                      </Card>
+
+                      <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                            <Users className="h-5 w-5 text-cyan-400/70" />
+                          </div>
+                          <h2 className="text-xl font-bold text-white">Target Customers</h2>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {demoThesis.customer_types.map((type, i) => (
+                            <span key={i} className="bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 px-3 py-1 rounded-full text-sm">
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-white/60 text-sm mt-4">
+                          <span className="text-white/40">Focus:</span> {demoThesis.b2b_b2c}
+                        </p>
+                      </Card>
+                    </div>
+
+                    {/* Value-Add */}
+                    <Card className="bg-navy-card border-amber-500/20 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                          <Handshake className="h-5 w-5 text-amber-400/70" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-white">How You Add Value</h2>
+                          <p className="text-white/40 text-sm">Hands-on engagement</p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {demoThesis.operating_support.map((support, i) => (
+                          <span key={i} className="bg-amber-500/20 border border-amber-500/40 text-amber-300 px-3 py-1 rounded-full text-sm">
+                            {support}
+                          </span>
+                        ))}
+                      </div>
+
+                      <p className="text-white/60 text-sm">
+                        <span className="text-white/40">Board involvement:</span> {demoThesis.board_involvement}
+                      </p>
+                    </Card>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* MemoModal / StartupProfileModal - Matching AnalystDashboard with Condensed/Full view */}
-        {showMemoModal && selectedStartup && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowMemoModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-2xl max-h-[85vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              {/* Header */}
-              <div className="p-6 border-b border-white/10 flex items-center justify-between sticky top-0 bg-navy-card z-10">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <Building2 className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                  </div>
+        {/* Interests Modal - matches InterestsModal exactly */}
+        {showInterestsModal && (
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowInterestsModal(false)}>
+            <div className="max-w-2xl w-full max-h-[80vh] bg-[hsl(var(--navy-deep))] border border-[hsl(var(--cyan-glow))]/20 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-semibold text-white">{selectedStartup.company_name}</h2>
-                    <p className="text-sm text-white/60">{selectedStartup.vertical} • {selectedStartup.stage}</p>
+                    <h2 className="text-2xl font-bold text-white">Incoming Interests</h2>
+                    <p className="text-white/60 text-sm mt-1">Startups that want to connect with you</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setMemoViewMode(memoViewMode === "condensed" ? "full" : "condensed")}
-                    className="border-white/20 text-white hover:bg-white/10"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowInterestsModal(false)}
+                    className="text-white/60 hover:text-white hover:bg-white/10"
                   >
-                    {memoViewMode === "condensed" ? (
-                      <>
-                        <ChevronDown className="h-4 w-4 mr-1" />
-                        Full View
-                      </>
-                    ) : (
-                      <>
-                        <ChevronUp className="h-4 w-4 mr-1" />
-                        Condensed
-                      </>
-                    )}
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => setShowMemoModal(false)} className="text-white/60 hover:text-white">
                     <X className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
 
-              <div className="p-6 space-y-6">
-                {/* Key Info Grid */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Location</p>
-                    <p className="text-sm text-white flex items-center gap-1"><MapPin className="h-3 w-3" /> {selectedStartup.location}</p>
+              <div className="p-6 pt-4 max-h-[60vh] overflow-auto">
+                {demoInterests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                      <Building2 className="h-8 w-8 text-white/20" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-2">No incoming interests yet</h3>
+                    <p className="text-white/60 text-sm">When startups are interested in connecting, they will appear here.</p>
                   </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Raising</p>
-                    <p className="text-sm text-white flex items-center gap-1"><DollarSign className="h-3 w-3" /> {selectedStartup.funding_goal}</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Website</p>
-                    <a href={selectedStartup.website} target="_blank" rel="noopener noreferrer" className="text-sm text-[hsl(var(--cyan-glow))] flex items-center gap-1 hover:underline">
-                      <Globe className="h-3 w-3" /> {selectedStartup.website?.replace('https://', '')}
-                    </a>
-                  </div>
-                </div>
+                ) : (
+                  <div className="space-y-4">
+                    {demoInterests.map((interest) => (
+                      <Card key={interest.id} className="bg-white/5 border-white/10 p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start gap-4 flex-1">
+                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                              <Building2 className="h-6 w-6 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-white mb-1 hover:text-[hsl(var(--cyan-glow))] transition-colors cursor-pointer">
+                                {interest.company_name}
+                              </h4>
+                              <p className="text-sm text-white/60 mb-2">{interest.founder_name}</p>
 
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2">
-                  <span className={`text-xs px-3 py-1 rounded-full ${getStageColor(selectedStartup.stage)}`}>{selectedStartup.stage}</span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">{selectedStartup.vertical}</span>
-                </div>
-
-                {/* Overview */}
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Overview</h3>
-                  <p className="text-white/80">{selectedStartup.description}</p>
-                </div>
-
-                {/* Problem */}
-                {selectedStartup.problem && (
-                  <div>
-                    <h3 className="text-sm font-medium text-white/70 mb-2">Problem</h3>
-                    <p className="text-white/80">{selectedStartup.problem}</p>
-                  </div>
-                )}
-
-                {/* Solution */}
-                {selectedStartup.solution && (
-                  <div>
-                    <h3 className="text-sm font-medium text-white/70 mb-2">Solution</h3>
-                    <p className="text-white/80">{selectedStartup.solution}</p>
-                  </div>
-                )}
-
-                {/* Business Model */}
-                {selectedStartup.business_model && (
-                  <div>
-                    <h3 className="text-sm font-medium text-white/70 mb-2">Business Model</h3>
-                    <p className="text-white/80">{selectedStartup.business_model}</p>
-                  </div>
-                )}
-
-                {/* Traction */}
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Traction</h3>
-                  <p className="text-white/80">{selectedStartup.traction}</p>
-                </div>
-
-                {/* Full View - Additional Sections */}
-                {memoViewMode === "full" && (
-                  <>
-                    {/* Team */}
-                    {selectedStartup.team && selectedStartup.team.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-medium text-white/70 mb-2">Team</h3>
-                        <div className="space-y-2">
-                          {selectedStartup.team.map((member, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                              <div className="w-8 h-8 rounded-full bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
-                                <Users className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                <span className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border border-[hsl(var(--cyan-glow))]/20 px-2 py-0.5 rounded-full text-xs">
+                                  {interest.vertical}
+                                </span>
+                                <span className="bg-white/10 text-white/80 border border-white/20 px-2 py-0.5 rounded-full text-xs">
+                                  {interest.stage}
+                                </span>
                               </div>
-                              <div>
-                                <p className="text-sm text-white">{member.name} • {member.role}</p>
-                                <p className="text-xs text-white/50">{member.background}</p>
+
+                              {interest.sync_note && (
+                                <div className="bg-white/5 rounded-lg p-3 border border-white/10 mb-3">
+                                  <p className="text-white/70 text-sm italic">"{interest.sync_note}"</p>
+                                </div>
+                              )}
+
+                              <div className="flex flex-wrap gap-3 text-xs text-white/50">
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {interest.location}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <DollarSign className="h-3 w-3" />
+                                  Raising {interest.funding_goal}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {formatRelativeTime(interest.created_at)}
+                                </span>
                               </div>
                             </div>
-                          ))}
+                          </div>
+
+                          <div className="flex gap-2 shrink-0">
+                            <Button
+                              size="sm"
+                              className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border border-green-500/30"
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Links */}
-                    <div className="flex flex-wrap gap-2">
-                      {selectedStartup.pitch_deck_url && (
-                        <a
-                          href={selectedStartup.pitch_deck_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg text-sm text-white hover:bg-white/10 transition-colors"
-                        >
-                          <FileText className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
-                          Pitch Deck
-                          <ExternalLink className="h-3 w-3 text-white/40" />
-                        </a>
-                      )}
-                      {selectedStartup.linkedin_url && (
-                        <a
-                          href={selectedStartup.linkedin_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg text-sm text-white hover:bg-white/10 transition-colors"
-                        >
-                          <Linkedin className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
-                          LinkedIn
-                          <ExternalLink className="h-3 w-3 text-white/40" />
-                        </a>
-                      )}
-                      {selectedStartup.calendly_link && (
-                        <a
-                          href={selectedStartup.calendly_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg text-sm text-white hover:bg-white/10 transition-colors"
-                        >
-                          <Clock className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
-                          Schedule Meeting
-                          <ExternalLink className="h-3 w-3 text-white/40" />
-                        </a>
-                      )}
-                    </div>
-                  </>
+                      </Card>
+                    ))}
+                  </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
 
-                {/* Action Button */}
-                <div className="pt-4 border-t border-white/10">
-                  <Button className="w-full bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90">
-                    <Heart className="h-4 w-4 mr-2" />
-                    Request to Sync
+        {/* Syncs Modal - matches SyncsModal exactly */}
+        {showSyncsModal && (
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowSyncsModal(false)}>
+            <div className="max-w-2xl w-full max-h-[80vh] bg-[hsl(var(--navy-deep))] border border-white/10 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-xl text-white">
+                    <TrendingUp className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+                    Active Syncs
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowSyncsModal(false)}
+                    className="text-white/60 hover:text-white hover:bg-white/10"
+                  >
+                    <X className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
-            </Card>
+
+              <div className="p-6 pt-4 max-h-[60vh] overflow-auto">
+                {demoSyncs.length === 0 ? (
+                  <div className="text-center py-12">
+                    <TrendingUp className="h-12 w-12 text-white/20 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">No active syncs yet</h3>
+                    <p className="text-white/60 text-sm">When founders accept your requests or you accept theirs, they'll appear here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {demoSyncs.map((sync) => (
+                      <div key={sync.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                            <Building2 className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-semibold text-white hover:text-[hsl(var(--cyan-glow))] transition-colors cursor-pointer">
+                                {sync.company_name}
+                              </h4>
+                              <span className="bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-0.5 rounded-full text-xs">
+                                Synced
+                              </span>
+                            </div>
+
+                            <p className="text-sm text-white/70 mb-1">{sync.founder_name}</p>
+
+                            <p className="text-sm text-white/60 flex items-center gap-1 mb-2">
+                              <MapPin className="h-3 w-3" />
+                              {sync.location}
+                            </p>
+
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              <span className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border border-[hsl(var(--cyan-glow))]/20 px-2 py-0.5 rounded-full text-xs">
+                                {sync.vertical}
+                              </span>
+                              <span className="bg-white/10 text-white/80 border border-white/20 px-2 py-0.5 rounded-full text-xs">
+                                {sync.stage}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                              <p className="text-xs text-white/50 flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                Synced {formatRelativeTime(sync.created_at)}
+                              </p>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+                                  onClick={() => {
+                                    setShowSyncsModal(false);
+                                    const thread = demoMessages.find(m => m.other_user_id === sync.other_user_id);
+                                    if (thread) {
+                                      setSelectedThread(thread);
+                                    }
+                                    setShowMessagesModal(true);
+                                  }}
+                                >
+                                  <MessageSquare className="mr-1 h-3 w-3" />
+                                  Message
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Pending Modal - matches PendingModal exactly */}
+        {showPendingModal && (
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowPendingModal(false)}>
+            <div className="max-w-2xl w-full max-h-[80vh] bg-[hsl(var(--navy-deep))] border border-white/10 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-xl text-white">
+                    <Eye className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+                    Pending Requests
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowPendingModal(false)}
+                    className="text-white/60 hover:text-white hover:bg-white/10"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-6 pt-4 max-h-[60vh] overflow-auto">
+                {demoPending.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Eye className="h-12 w-12 text-white/20 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">No pending requests</h3>
+                    <p className="text-white/60 text-sm">Your sync requests to founders will appear here while awaiting response.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {demoPending.map((pending) => (
+                      <div key={pending.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/50 to-orange-500/50 flex items-center justify-center shrink-0">
+                            <Clock className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-semibold text-white hover:text-[hsl(var(--cyan-glow))] transition-colors cursor-pointer">
+                                {pending.company_name}
+                              </h4>
+                              <span className="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full text-xs">
+                                Pending
+                              </span>
+                            </div>
+
+                            <p className="text-sm text-white/70 mb-1">{pending.founder_name}</p>
+
+                            <p className="text-sm text-white/60 flex items-center gap-1 mb-2">
+                              <MapPin className="h-3 w-3" />
+                              {pending.location}
+                            </p>
+
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              <span className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border border-[hsl(var(--cyan-glow))]/20 px-2 py-0.5 rounded-full text-xs">
+                                {pending.vertical}
+                              </span>
+                              <span className="bg-white/10 text-white/80 border border-white/20 px-2 py-0.5 rounded-full text-xs">
+                                {pending.stage}
+                              </span>
+                            </div>
+
+                            {pending.sync_note && (
+                              <div className="bg-white/5 rounded-md p-2 mb-2">
+                                <p className="text-sm text-white/70 italic">"{pending.sync_note}"</p>
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                              <p className="text-xs text-white/50 flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                Sent {formatRelativeTime(pending.created_at)}
+                              </p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                              >
+                                <X className="mr-1 h-3 w-3" />
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Messages Modal - matches MessagesModal exactly */}
+        {showMessagesModal && (
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowMessagesModal(false); setSelectedThread(null); }}>
+            <div className="max-w-3xl w-full max-h-[80vh] bg-[hsl(var(--navy-deep))] border border-white/10 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-xl text-white">
+                    <MessageSquare className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+                    Messages
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => { setShowMessagesModal(false); setSelectedThread(null); }}
+                    className="text-white/60 hover:text-white hover:bg-white/10"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+
+              {selectedThread ? (
+                // Thread view
+                <div className="flex flex-col h-[60vh]">
+                  <div className="px-6 py-3 border-b border-white/10 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedThread(null)}
+                        className="text-white/60 hover:text-white"
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-1" /> Back
+                      </Button>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center">
+                          <Building2 className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-white text-sm">{selectedThread.other_user_company}</p>
+                          <p className="text-xs text-white/50">{selectedThread.other_user_name}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-auto p-4">
+                    <div className="space-y-3">
+                      {selectedThread.messages.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`flex ${msg.sender === "self" ? "justify-end" : "justify-start"}`}
+                        >
+                          <div
+                            className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                              msg.sender === "self"
+                                ? "bg-[hsl(var(--cyan-glow))]/20 text-white"
+                                : "bg-white/5 text-white/90"
+                            }`}
+                          >
+                            <p className="text-sm">{msg.content}</p>
+                            <p className="text-xs text-white/40 mt-1">{formatRelativeTime(msg.timestamp)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 border-t border-white/10 flex gap-2">
+                    <Input
+                      placeholder="Type a message..."
+                      value={messageInput}
+                      onChange={(e) => setMessageInput(e.target.value)}
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                    />
+                    <Button
+                      size="icon"
+                      className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))]"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                // Thread list view
+                <div className="p-6 pt-4 max-h-[60vh] overflow-auto">
+                  {demoMessages.length === 0 ? (
+                    <div className="text-center py-12">
+                      <MessageSquare className="h-12 w-12 text-white/20 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-white mb-2">No messages yet</h3>
+                      <p className="text-white/60 text-sm">Start a conversation by syncing with startups.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {demoMessages.map((thread) => (
+                        <div
+                          key={thread.id}
+                          className="bg-white/5 border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-white/10 transition-colors"
+                          onClick={() => setSelectedThread(thread)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                              <Building2 className="h-5 w-5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <h4 className="font-semibold text-white text-sm truncate">
+                                  {thread.other_user_company}
+                                </h4>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-white/50">
+                                    {formatRelativeTime(thread.last_message_time)}
+                                  </span>
+                                  {thread.unread_count > 0 && (
+                                    <span className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] text-xs h-5 w-5 p-0 flex items-center justify-center rounded-full font-medium">
+                                      {thread.unread_count}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <p className="text-xs text-white/50 mb-1">{thread.other_user_name}</p>
+                              <p className="text-sm text-white/70 truncate">{thread.last_message}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* MemoModal - matches MemoModal exactly */}
+        {showMemoModal && selectedStartup && (
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowMemoModal(false)}>
+            <div className="max-w-5xl w-full max-h-[95vh] bg-[hsl(var(--navy-deep))] border border-[hsl(var(--cyan-glow))]/20 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <ScrollArea className="max-h-[95vh]">
+                <div className="p-6 space-y-6">
+                {/* Back Button */}
+                <Button
+                  onClick={() => setShowMemoModal(false)}
+                  className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+
+                {/* Header */}
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Startup Memo</h2>
+                    <p className="text-white/60">Investor-ready company memo</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white/10 rounded-lg p-1 flex">
+                      <button
+                        onClick={() => setMemoViewMode("condensed")}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                          memoViewMode === "condensed"
+                            ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]"
+                            : "text-white/70 hover:text-white"
+                        }`}
+                      >
+                        <FileText className="h-4 w-4" />
+                        Condensed
+                      </button>
+                      <button
+                        onClick={() => setMemoViewMode("full")}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
+                          memoViewMode === "full"
+                            ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]"
+                            : "text-white/70 hover:text-white"
+                        }`}
+                      >
+                        <Eye className="h-4 w-4" />
+                        Full Memo
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Condensed View */}
+                {memoViewMode === "condensed" && (
+                  <div className="space-y-6">
+                    {/* Executive Summary Card */}
+                    <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 relative overflow-hidden shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-[hsl(var(--cyan-glow))]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+
+                      <div className="relative z-10">
+                        <div className="flex items-start justify-between gap-6 mb-6">
+                          <div className="flex items-center gap-4">
+                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20">
+                              <Building2 className="h-10 w-10 text-white" />
+                            </div>
+                            <div>
+                              <h1 className="text-3xl font-bold text-white mb-2">{selectedStartup.company_name}</h1>
+                              <div className="flex flex-wrap gap-2">
+                                <span className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border border-[hsl(var(--cyan-glow))]/30 px-2 py-0.5 rounded-full text-sm">
+                                  {selectedStartup.vertical}
+                                </span>
+                                <span className="bg-white/10 text-white/80 border border-white/20 px-2 py-0.5 rounded-full text-sm">
+                                  {selectedStartup.stage}
+                                </span>
+                                <span className="bg-[hsl(var(--cyan-bright))]/20 text-[hsl(var(--cyan-bright))] border border-[hsl(var(--cyan-bright))]/30 px-2 py-0.5 rounded-full text-sm flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" /> {selectedStartup.location}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* One-liner */}
+                        <div className="bg-white/5 rounded-xl p-4 mb-6">
+                          <p className="text-lg text-white/90 italic">
+                            "{selectedStartup.business_model.slice(0, 150)}{selectedStartup.business_model.length > 150 ? '...' : ''}"
+                          </p>
+                        </div>
+
+                        {/* Key Metrics Row - Demo TAM/SAM/SOM */}
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                            <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">TAM</p>
+                            <p className="text-2xl font-bold text-white">$50B</p>
+                            <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                              View breakdown <ArrowRight className="h-3 w-3" />
+                            </p>
+                          </div>
+                          <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                            <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">SAM</p>
+                            <p className="text-2xl font-bold text-white">$5B</p>
+                            <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                              View breakdown <ArrowRight className="h-3 w-3" />
+                            </p>
+                          </div>
+                          <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                            <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">SOM</p>
+                            <p className="text-2xl font-bold text-white">$500M</p>
+                            <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                              View breakdown <ArrowRight className="h-3 w-3" />
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Quick Stats Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                            <Users className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs font-medium">Team Size</p>
+                            <p className="text-white font-semibold">{selectedStartup.team?.length || 2}</p>
+                          </div>
+                        </div>
+                      </Card>
+                      <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                            <Target className="h-5 w-5 text-purple-400/70" />
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs font-medium">Customer</p>
+                            <p className="text-white font-semibold">B2B</p>
+                          </div>
+                        </div>
+                      </Card>
+                      <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <DollarSign className="h-5 w-5 text-emerald-400/70" />
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs font-medium">Revenue Model</p>
+                            <p className="text-white font-semibold text-sm">SaaS</p>
+                          </div>
+                        </div>
+                      </Card>
+                      <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                            <Target className="h-5 w-5 text-amber-400/70" />
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs font-medium">Raising</p>
+                            <p className="text-white font-semibold">{selectedStartup.funding_goal}</p>
+                          </div>
+                        </div>
+                      </Card>
+                    </div>
+
+                    {/* Problem & Solution */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                            <Target className="h-4 w-4 text-rose-400/70" />
+                          </div>
+                          <h3 className="text-lg font-semibold text-white">The Problem</h3>
+                        </div>
+                        <p className="text-white/70 leading-relaxed">
+                          {selectedStartup.problem || "Problem statement will appear here based on the application."}
+                        </p>
+                      </Card>
+
+                      <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <TrendingUp className="h-4 w-4 text-emerald-400/70" />
+                          </div>
+                          <h3 className="text-lg font-semibold text-white">The Solution</h3>
+                        </div>
+                        <p className="text-white/70 leading-relaxed">
+                          {selectedStartup.solution || selectedStartup.business_model}
+                        </p>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+
+                {/* Full Memo View */}
+                {memoViewMode === "full" && (
+                  <div className="space-y-8">
+                    {/* Header Section */}
+                    <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                      <div className="text-center mb-8">
+                        <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4">
+                          <Building2 className="h-12 w-12 text-white" />
+                        </div>
+                        <h1 className="text-4xl font-bold text-white mb-2">{selectedStartup.company_name}</h1>
+                        <p className="text-xl text-white/70 mb-4">{selectedStartup.vertical} • {selectedStartup.stage}</p>
+                        <div className="flex flex-wrap justify-center gap-4 text-sm text-white/60">
+                          <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedStartup.location}</span>
+                          {selectedStartup.website && (
+                            <a href={selectedStartup.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                              <Globe className="h-4 w-4" /> {selectedStartup.website.replace('https://', '')}
+                            </a>
+                          )}
+                          {selectedStartup.linkedin_url && (
+                            <a href={selectedStartup.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                              <Linkedin className="h-4 w-4" /> LinkedIn
+                            </a>
+                          )}
+                          {selectedStartup.pitch_deck_url && (
+                            <a href={selectedStartup.pitch_deck_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                              <FileText className="h-4 w-4" /> Pitch Deck <ExternalLink className="h-3 w-3" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="max-w-3xl mx-auto">
+                        <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                          <h3 className="text-sm font-semibold text-[hsl(var(--cyan-glow))] uppercase tracking-wider mb-3">Executive Summary</h3>
+                          <p className="text-lg text-white/90 leading-relaxed">
+                            {selectedStartup.business_model}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Problem & Value Proposition */}
+                    <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                          <Target className="h-5 w-5 text-rose-400/70" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-white">Problem & Value Proposition</h2>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div>
+                          <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">The Problem</h4>
+                          <p className="text-white/80 leading-relaxed text-lg">
+                            {selectedStartup.problem || "No problem statement provided."}
+                          </p>
+                        </div>
+
+                        <div className="border-t border-white/10 pt-6">
+                          <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">The Solution</h4>
+                          <p className="text-white/80 leading-relaxed text-lg">
+                            {selectedStartup.solution || selectedStartup.business_model}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Business Model */}
+                    <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                          <DollarSign className="h-5 w-5 text-emerald-400/70" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-white">Business Model</h2>
+                      </div>
+
+                      <p className="text-white/80 leading-relaxed">
+                        {selectedStartup.business_model}
+                      </p>
+                    </Card>
+
+                    {/* Team */}
+                    <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
+                          <Users className="h-5 w-5 text-pink-400/70" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-white">Founding Team</h2>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {selectedStartup.team && selectedStartup.team.length > 0 ? selectedStartup.team.map((member, i) => (
+                          <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-purple-500/30 flex items-center justify-center">
+                                <span className="text-white font-bold">{member.name?.charAt(0) || "?"}</span>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-white">{member.name}</p>
+                                <p className="text-sm text-[hsl(var(--cyan-glow))]/70">{member.role}</p>
+                              </div>
+                            </div>
+                            <p className="text-white/50 text-sm">{member.background}</p>
+                          </div>
+                        )) : (
+                          <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-purple-500/30 flex items-center justify-center">
+                                <span className="text-white font-bold">{selectedStartup.founder_name.charAt(0)}</span>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-white">{selectedStartup.founder_name}</p>
+                                <p className="text-sm text-[hsl(var(--cyan-glow))]/70">Founder</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+
+                    {/* Traction Section */}
+                    <Card className="bg-navy-card border-emerald-500/20 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                          <TrendingUp className="h-5 w-5 text-emerald-400/70" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-white">Traction & Progress</h2>
+                          <p className="text-white/40 text-sm">Key metrics and milestones</p>
+                        </div>
+                      </div>
+                      <p className="text-white/80 leading-relaxed">
+                        {selectedStartup.traction}
+                      </p>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Sync Section */}
+                <div className="border-t border-white/10 pt-6">
+                  <Button
+                    className="w-full bg-[hsl(220,60%,8%)] text-[hsl(var(--cyan-glow))] hover:bg-[hsl(220,60%,12%)] border border-[hsl(var(--cyan-glow))]/40 h-14 text-lg shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+                  >
+                    <TrendingUp className="mr-3 h-6 w-6" />
+                    Request to Sync
+                  </Button>
+                </div>
+                </div>
+              </ScrollArea>
+            </div>
           </div>
         )}
 
@@ -1248,7 +1725,7 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
         {showProfileModal && (
           <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowProfileModal(false)}>
             <Card className="bg-navy-card border-white/10 w-full max-w-lg max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between sticky top-0 bg-navy-card z-10">
+              <div className="p-6 border-b border-white/10 flex items-center justify-between sticky top-0 bg-navy-card z-30">
                 <div className="flex items-center gap-3">
                   <UserCog className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                   <h2 className="text-xl font-semibold text-white">Your Profile</h2>
@@ -1314,7 +1791,12 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
 
   // Application Flow View - Matches InvestorApplication.tsx exactly
   return (
-    <div className="fixed inset-0 z-50 overflow-auto" style={{ background: 'var(--gradient-navy-teal)' }}>
+    <div className="fixed inset-0 z-50 overflow-auto" style={{ background: 'var(--gradient-navy-teal)' }} onWheel={(e) => {
+      // Prevent body scroll when modals are open
+      if (showThesisModal || showInterestsModal || showSyncsModal || showPendingModal || showMessagesModal || showMemoModal || showProfileModal) {
+        e.stopPropagation();
+      }
+    }}>
       {/* Decorative Elements - matching InvestorApplication */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] border border-white/20 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -1322,7 +1804,7 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
       </div>
 
       {/* Header with Skip Button */}
-      <div className="sticky top-0 z-10 bg-transparent">
+      <div className="sticky top-0 z-20 bg-[hsl(var(--navy-deep))]/80 backdrop-blur-lg border-b border-white/10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={onClose} className="text-white/60 hover:text-white hover:bg-white/10">

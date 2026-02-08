@@ -153,7 +153,7 @@ export const HowItWorks = ({ onTryDemo }: HowItWorksProps) => {
         </div>
 
         {/* Timeline Steps */}
-        <div className="grid grid-cols-3 gap-4 mb-10">
+        <div className="grid grid-cols-3 gap-4 mb-6">
           {steps.map((step, index) => (
             <button
               key={index}
@@ -178,18 +178,38 @@ export const HowItWorks = ({ onTryDemo }: HowItWorksProps) => {
               <p className="text-xs text-white/40 mt-1 line-clamp-2">
                 {step.description}
               </p>
-              
+
               {/* Progress bar */}
               {activeStep === index && isAnimating && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-cyan-glow animate-[progress_4s_linear]" 
-                    style={{ animation: 'progress 4s linear forwards' }} 
+                  <div className="h-full bg-cyan-glow animate-[progress_4s_linear]"
+                    style={{ animation: 'progress 4s linear forwards' }}
                   />
                 </div>
               )}
             </button>
           ))}
         </div>
+
+        {/* Quick Demo Access Buttons - Always visible */}
+        {onTryDemo && (
+          <div className="flex justify-center gap-4 mb-6">
+            <button
+              onClick={() => onTryDemo('founder')}
+              className="px-5 py-2.5 rounded-lg bg-cyan-glow/10 border border-cyan-glow/30 text-cyan-glow font-medium hover:bg-cyan-glow/20 transition-all flex items-center gap-2 text-sm"
+            >
+              <Eye className="w-4 h-4" />
+              View Founder Demo
+            </button>
+            <button
+              onClick={() => onTryDemo('investor')}
+              className="px-5 py-2.5 rounded-lg bg-cyan-glow/10 border border-cyan-glow/30 text-cyan-glow font-medium hover:bg-cyan-glow/20 transition-all flex items-center gap-2 text-sm"
+            >
+              <Eye className="w-4 h-4" />
+              View Investor Demo
+            </button>
+          </div>
+        )}
 
         {/* Interactive Preview Area */}
         <div className="bg-[hsl(var(--navy-deep))] border border-white/10 rounded-2xl overflow-hidden shadow-2xl min-h-[400px]">

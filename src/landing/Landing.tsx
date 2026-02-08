@@ -4,6 +4,7 @@ import { Navigation } from "./components/Navigation";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { ClosingCTA } from "./components/ClosingCTA";
+import { AboutContact } from "./components/AboutContact";
 import { Footer } from "./components/Footer";
 import { DemoStartupFlow, DemoVCFlow } from "./demo";
 
@@ -47,6 +48,7 @@ export const Landing = () => {
             <Hero />
             <HowItWorks onTryDemo={handleTryDemo} />
             <ClosingCTA />
+            <AboutContact />
           </main>
           <Footer />
         </div>

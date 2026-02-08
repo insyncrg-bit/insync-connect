@@ -3,13 +3,15 @@ import { FloatingParticles } from "./FloatingParticles";
 import inSyncLogo from "../assets/in-sync-logo.png";
 
 export const Hero = () => {
-  // TODO: Integrate real signup flows here
-  const handleStartupSignup = () => {
-    // Will be connected to real signup flow
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleVCSignup = () => {
-    // Will be connected to real signup flow
+  const handleHowItWorksClick = () => {
+    const element = document.getElementById('how-it-works');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -25,10 +27,15 @@ export const Hero = () => {
 
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
-        <div className="max-w-5xl mx-auto text-center space-y-2">
+        <div className="max-w-5xl mx-auto text-center space-y-1">
+
+          {/* Tagline above logo */}
+          <p className="text-sm md:text-base text-white/50 italic animate-fade-in mb-2">
+            Where founders and investors sync with their perfect match
+          </p>
 
           {/* Logo with pulsing glow */}
-          <div className="relative animate-fade-in">
+          <div className="relative animate-fade-in -my-2" style={{ animationDelay: '0.1s' }}>
             <div
               className="absolute inset-0 blur-[80px] animate-glow-pulse"
               style={{
@@ -45,34 +52,29 @@ export const Hero = () => {
             />
           </div>
 
-          {/* Single tagline */}
-          <p className="text-sm md:text-base text-white/50 italic animate-fade-in -mt-6" style={{ animationDelay: '0.1s' }}>
-            Where founders and investors sync with their perfect match
-          </p>
-
-          {/* Dual CTA - Placeholder for real signup integration */}
+          {/* Unified CTAs - Get Started + How it works */}
           <div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in pt-2"
             style={{ animationDelay: '0.2s' }}
           >
             <Button
               size="lg"
-              onClick={handleStartupSignup}
+              onClick={scrollToTop}
               className="text-base px-8 py-6 font-semibold bg-cyan-glow text-navy-deep hover:bg-cyan-bright overflow-hidden transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               style={{
                 boxShadow: '0 0 30px hsl(var(--cyan-glow) / 0.4)',
               }}
             >
-              Join as a Startup
+              Get Started
             </Button>
 
             <Button
               size="lg"
               variant="outline"
-              onClick={handleVCSignup}
+              onClick={handleHowItWorksClick}
               className="text-base px-8 py-6 font-semibold border-cyan-glow/40 text-cyan-glow hover:bg-cyan-glow/10 hover:border-cyan-glow transition-all duration-300 hover:scale-105 w-full sm:w-auto"
             >
-              Join as a VC
+              How It Works
             </Button>
           </div>
 

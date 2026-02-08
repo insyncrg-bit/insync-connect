@@ -4,6 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
   ArrowRight,
@@ -29,8 +33,25 @@ import {
   CheckCircle,
   Map,
   Swords,
+  Maximize2,
+  Minimize2,
+  Zap,
+  XCircle,
+  Handshake,
+  ChevronRight,
+  Clock,
+  Calendar,
+  Video,
+  ExternalLink,
+  Send,
+  Rocket,
+  BarChart3,
+  Shield,
+  Calculator,
+  Linkedin,
 } from "lucide-react";
 import syncsLogo from "@/landing/assets/infinity-logo-transparent.png";
+import insyncInfinity from "@/landing/assets/infinity-logo-transparent.png";
 
 // Demo steps for startup application - matches actual FounderApplication exactly
 const STEPS = [
@@ -263,6 +284,18 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
   const [showInvestorModal, setShowInvestorModal] = useState(false);
   const [selectedInvestor, setSelectedInvestor] = useState<typeof mockInvestors[0] | null>(null);
 
+  // Modal view states (matching production modals)
+  const [investorViewMode, setInvestorViewMode] = useState<"condensed" | "full">("condensed");
+  const [investorIsFullscreen, setInvestorIsFullscreen] = useState(false);
+  const [interestsIsFullscreen, setInterestsIsFullscreen] = useState(false);
+  const [syncsIsFullscreen, setSyncsIsFullscreen] = useState(false);
+  const [pendingIsFullscreen, setPendingIsFullscreen] = useState(false);
+  const [messagesIsFullscreen, setMessagesIsFullscreen] = useState(false);
+  const [memoViewMode, setMemoViewMode] = useState<"condensed" | "full">("condensed");
+  const [memoIsFullscreen, setMemoIsFullscreen] = useState(false);
+  const [selectedMessageThread, setSelectedMessageThread] = useState<typeof demoMessages[0] | null>(null);
+  const [newMessage, setNewMessage] = useState("");
+
   const goNext = () => {
     if (currentStep < 7) {
       setCurrentStep(currentStep + 1);
@@ -286,9 +319,9 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
   // Dashboard View
   if (showDashboard) {
     return (
-      <div className="fixed inset-0 z-50 bg-navy-deep overflow-auto">
+      <div className={`fixed inset-0 z-50 bg-navy-deep ${showMemoModal || showInterestsModal || showSyncsModal || showPendingModal || showMessagesModal || showInvestorModal ? 'overflow-hidden' : 'overflow-auto'}`}>
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-navy-deep/95 backdrop-blur-lg border-b border-white/10">
+        <div className="sticky top-0 z-20 bg-navy-deep/95 backdrop-blur-lg border-b border-white/10">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={goBack} className="text-white/60 hover:text-white">
@@ -457,421 +490,1411 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
 
         {/* ========== MODALS (All matching FounderDashboard patterns) ========== */}
 
-        {/* Memo Modal - matches MemoEditor component style */}
+        {/* Memo Modal - EXACTLY matches MemoModal.tsx structure */}
         {showMemoModal && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowMemoModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-2xl max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <Building2 className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowMemoModal(false); setMemoViewMode("condensed"); setMemoIsFullscreen(false); }}>
+            <div
+              className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 border rounded-lg overflow-hidden transition-all duration-300 ${
+                memoIsFullscreen
+                  ? 'max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none'
+                  : 'max-w-5xl max-h-[95vh] w-full'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ScrollArea className={memoIsFullscreen ? "h-[100vh]" : "max-h-[95vh]"}>
+                <div className="p-6 space-y-6">
+                  {/* Back Button */}
+                  <Button
+                    onClick={() => { setShowMemoModal(false); setMemoViewMode("condensed"); setMemoIsFullscreen(false); }}
+                    className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Dashboard
+                  </Button>
+
+                  {/* Header */}
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Startup Memo</h2>
+                      <p className="text-white/60">Investor-ready company memo</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Tabs value={memoViewMode} onValueChange={(v) => setMemoViewMode(v as "condensed" | "full")}>
+                        <TabsList className="bg-white/10">
+                          <TabsTrigger value="condensed" className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Condensed
+                          </TabsTrigger>
+                          <TabsTrigger value="full" className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]">
+                            <Eye className="h-4 w-4 mr-2" />
+                            Full Memo
+                          </TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setMemoIsFullscreen(!memoIsFullscreen)}
+                        className="border-white/20 text-white/70 hover:text-white hover:bg-white/10"
+                      >
+                        {memoIsFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">{demoMemo.company_name}'s Memo</h2>
-                    <p className="text-sm text-white/60">{demoMemo.vertical} • {demoMemo.stage}</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowMemoModal(false)} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Location</p>
-                    <p className="text-sm text-white flex items-center gap-1"><MapPin className="h-3 w-3" /> {demoMemo.location}</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Raising</p>
-                    <p className="text-sm text-white flex items-center gap-1"><DollarSign className="h-3 w-3" /> {demoMemo.funding_goal}</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Website</p>
-                    <p className="text-sm text-[hsl(var(--cyan-glow))] flex items-center gap-1"><Globe className="h-3 w-3" /> {demoMemo.website}</p>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Overview</h3>
-                  <p className="text-white/80">{demoMemo.description}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Problem</h3>
-                  <p className="text-white/80">{demoMemo.problem}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Solution</h3>
-                  <p className="text-white/80">{demoMemo.solution}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Business Model</h3>
-                  <p className="text-white/80">{demoMemo.business_model}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Traction</h3>
-                  <p className="text-white/80">{demoMemo.traction}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Team</h3>
-                  <div className="space-y-2">
-                    {demoMemo.team.map((member, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                        <div className="w-8 h-8 rounded-full bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
-                          <Users className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+
+                  {/* Condensed View */}
+                  {memoViewMode === "condensed" && (
+                    <div className="space-y-6">
+                      {/* Executive Summary Card */}
+                      <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 relative overflow-hidden shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-[hsl(var(--cyan-glow))]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+
+                        <div className="relative z-10">
+                          <div className="flex items-start justify-between gap-6 mb-6">
+                            <div className="flex items-center gap-4">
+                              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20">
+                                <Building2 className="h-10 w-10 text-white" />
+                              </div>
+                              <div>
+                                <h1 className="text-3xl font-bold text-white mb-2">{demoMemo.company_name}</h1>
+                                <div className="flex flex-wrap gap-2">
+                                  <Badge className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30 text-sm">
+                                    {demoMemo.vertical}
+                                  </Badge>
+                                  <Badge className="bg-white/10 text-white/80 border-white/20 text-sm">
+                                    {demoMemo.stage}
+                                  </Badge>
+                                  <Badge className="bg-[hsl(var(--cyan-bright))]/20 text-[hsl(var(--cyan-bright))] border-[hsl(var(--cyan-bright))]/30 text-sm">
+                                    <MapPin className="h-3 w-3 mr-1" /> {demoMemo.location}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* One-liner */}
+                          <div className="bg-white/5 rounded-xl p-4 mb-6">
+                            <p className="text-lg text-white/90 italic">
+                              "{demoMemo.description.slice(0, 150)}{demoMemo.description.length > 150 ? '...' : ''}"
+                            </p>
+                          </div>
+
+                          {/* Key Metrics Row - TAM/SAM/SOM */}
+                          <div className="grid grid-cols-3 gap-4">
+                            <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                              <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">TAM</p>
+                              <p className="text-2xl font-bold text-white">$50B</p>
+                              <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                                View breakdown <ChevronRight className="h-3 w-3" />
+                              </p>
+                            </div>
+                            <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                              <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">SAM</p>
+                              <p className="text-2xl font-bold text-white">$5B</p>
+                              <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                                View breakdown <ChevronRight className="h-3 w-3" />
+                              </p>
+                            </div>
+                            <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                              <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">SOM</p>
+                              <p className="text-2xl font-bold text-white">$100M</p>
+                              <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                                View breakdown <ChevronRight className="h-3 w-3" />
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm text-white">{member.name} • {member.role}</p>
-                          <p className="text-xs text-white/50">{member.background}</p>
+                      </Card>
+
+                      {/* Quick Stats Grid */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                              <Users className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
+                            </div>
+                            <div>
+                              <p className="text-white/40 text-xs font-medium">Team Size</p>
+                              <p className="text-white font-semibold">{demoMemo.team.length}</p>
+                            </div>
+                          </div>
+                        </Card>
+                        <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                              <Target className="h-5 w-5 text-purple-400/70" />
+                            </div>
+                            <div>
+                              <p className="text-white/40 text-xs font-medium">Customer</p>
+                              <p className="text-white font-semibold">B2B</p>
+                            </div>
+                          </div>
+                        </Card>
+                        <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                              <DollarSign className="h-5 w-5 text-emerald-400/70" />
+                            </div>
+                            <div>
+                              <p className="text-white/40 text-xs font-medium">Revenue Model</p>
+                              <p className="text-white font-semibold text-sm">Subscription</p>
+                            </div>
+                          </div>
+                        </Card>
+                        <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                              <Zap className="h-5 w-5 text-amber-400/70" />
+                            </div>
+                            <div>
+                              <p className="text-white/40 text-xs font-medium">Value Drivers</p>
+                              <p className="text-white font-semibold">2</p>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+
+                      {/* Problem & Solution */}
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                              <Target className="h-4 w-4 text-rose-400/70" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-white">The Problem</h3>
+                          </div>
+                          <p className="text-white/70 leading-relaxed">
+                            {demoMemo.problem}
+                          </p>
+                        </Card>
+
+                        <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                              <Rocket className="h-4 w-4 text-emerald-400/70" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-white">The Solution</h3>
+                          </div>
+                          <p className="text-white/70 leading-relaxed">
+                            {demoMemo.solution}
+                          </p>
+                        </Card>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Full Memo View */}
+                  {memoViewMode === "full" && (
+                    <div className="space-y-8">
+                      {/* Header Section */}
+                      <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                        <div className="text-center mb-8">
+                          <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4">
+                            <Building2 className="h-12 w-12 text-white" />
+                          </div>
+                          <h1 className="text-4xl font-bold text-white mb-2">{demoMemo.company_name}</h1>
+                          <p className="text-xl text-white/70 mb-4">{demoMemo.vertical} • {demoMemo.stage}</p>
+                          <div className="flex flex-wrap justify-center gap-4 text-sm text-white/60">
+                            <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {demoMemo.location}</span>
+                            <a href={demoMemo.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                              <Globe className="h-4 w-4" /> {demoMemo.website}
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="max-w-3xl mx-auto">
+                          <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                            <h3 className="text-sm font-semibold text-[hsl(var(--cyan-glow))] uppercase tracking-wider mb-3">Executive Summary</h3>
+                            <p className="text-lg text-white/90 leading-relaxed">
+                              {demoMemo.description}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+
+                      {/* Section 1: Problem & Value Proposition */}
+                      <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                            <Target className="h-5 w-5 text-rose-400/70" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-white">Problem & Value Proposition</h2>
+                        </div>
+
+                        <div className="space-y-6">
+                          <div>
+                            <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">The Problem</h4>
+                            <p className="text-white/80 leading-relaxed text-lg">
+                              {demoMemo.problem}
+                            </p>
+                          </div>
+
+                          <Separator className="bg-white/10" />
+
+                          <div>
+                            <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-4">Value Drivers</h4>
+                            <div className="grid md:grid-cols-2 gap-4">
+                              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Zap className="h-4 w-4 text-amber-400/70" />
+                                  <span className="font-semibold text-white">True Scalability</span>
+                                </div>
+                                <p className="text-white/60 text-sm">
+                                  Our platform reduces deployment time from weeks to minutes.
+                                </p>
+                              </div>
+                              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Zap className="h-4 w-4 text-amber-400/70" />
+                                  <span className="font-semibold text-white">Severity & Urgency</span>
+                                </div>
+                                <p className="text-white/60 text-sm">
+                                  Companies lose an average of $1.2M annually on failed ML initiatives.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+
+                      {/* Section 2: Business Model */}
+                      <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                            <DollarSign className="h-5 w-5 text-emerald-400/70" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-white">Business Model</h2>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div>
+                            <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Customer Type</h4>
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]/80 border-[hsl(var(--cyan-glow))]/20 text-sm px-3 py-1">
+                                B2B
+                              </Badge>
+                            </div>
+                            <p className="text-white/60 text-sm">Enterprise focus with 500+ employee companies.</p>
+                          </div>
+
+                          <div>
+                            <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">Revenue Streams</h4>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]/60" />
+                                <span className="text-white/80">Subscription</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p className="text-white/70 mt-6 leading-relaxed">
+                          {demoMemo.business_model}
+                        </p>
+                      </Card>
+
+                      {/* Section 3: Market Opportunity */}
+                      <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                            <BarChart3 className="h-5 w-5 text-amber-400/70" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-white">Market Opportunity</h2>
+                        </div>
+
+                        <div className="grid md:grid-cols-3 gap-6 mb-6">
+                          <div className="bg-white/5 rounded-xl p-6 border border-white/10 text-center hover:border-[hsl(var(--cyan-glow))]/30 transition-all cursor-pointer group">
+                            <p className="text-sm text-white/50 font-semibold mb-2">Total Addressable Market</p>
+                            <p className="text-3xl font-bold text-white mb-2">$50B</p>
+                            <p className="text-xs text-white/30 group-hover:text-[hsl(var(--cyan-glow))]/60 flex items-center justify-center gap-1">
+                              <Calculator className="h-3 w-3" /> View calculation
+                            </p>
+                          </div>
+                          <div className="bg-white/5 rounded-xl p-6 border border-white/10 text-center hover:border-[hsl(var(--cyan-glow))]/30 transition-all cursor-pointer group">
+                            <p className="text-sm text-white/50 font-semibold mb-2">Serviceable Addressable Market</p>
+                            <p className="text-3xl font-bold text-white mb-2">$5B</p>
+                            <p className="text-xs text-white/30 group-hover:text-[hsl(var(--cyan-glow))]/60 flex items-center justify-center gap-1">
+                              <Calculator className="h-3 w-3" /> View calculation
+                            </p>
+                          </div>
+                          <div className="bg-white/5 rounded-xl p-6 border border-white/10 text-center hover:border-[hsl(var(--cyan-glow))]/30 transition-all cursor-pointer group">
+                            <p className="text-sm text-white/50 font-semibold mb-2">Serviceable Obtainable Market</p>
+                            <p className="text-3xl font-bold text-white mb-2">$100M</p>
+                            <p className="text-xs text-white/30 group-hover:text-[hsl(var(--cyan-glow))]/60 flex items-center justify-center gap-1">
+                              <Calculator className="h-3 w-3" /> View calculation
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+
+                      {/* Section 4: Competitive Landscape */}
+                      <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                            <Shield className="h-5 w-5 text-cyan-400/70" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-white">Competitive Landscape</h2>
+                        </div>
+
+                        <div className="space-y-4 mb-6">
+                          <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <h4 className="font-semibold text-white mb-2">AWS SageMaker</h4>
+                            <p className="text-white/50 text-sm mb-2">Full ML lifecycle platform from AWS</p>
+                            <div className="flex items-start gap-2">
+                              <Badge className="bg-emerald-500/10 text-emerald-400/80 border-emerald-500/20 text-xs shrink-0">Differentiation</Badge>
+                              <p className="text-white/60 text-sm">We're 10x simpler to use, cloud-agnostic, and focused specifically on deployment.</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-white/5 rounded-xl p-6 border-l-4 border-[hsl(var(--cyan-glow))]/50">
+                          <h4 className="text-sm font-semibold text-[hsl(var(--cyan-glow))]/70 uppercase tracking-wider mb-2">Competitive Moat</h4>
+                          <p className="text-white/80 leading-relaxed">
+                            Proprietary ML optimization algorithms, high switching costs, and first-mover advantage with SOC2/HIPAA compliance.
+                          </p>
+                        </div>
+                      </Card>
+
+                      {/* Section 5: Team */}
+                      <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
+                            <Users className="h-5 w-5 text-pink-400/70" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-white">Founding Team</h2>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {demoMemo.team.map((member, i) => (
+                            <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all">
+                              <div className="flex items-center gap-3 mb-3">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-purple-500/30 flex items-center justify-center">
+                                  <span className="text-white font-bold">{member.name.charAt(0)}</span>
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-white">{member.name}</p>
+                                  <p className="text-sm text-[hsl(var(--cyan-glow))]/70">{member.role}</p>
+                                </div>
+                              </div>
+                              <p className="text-white/50 text-sm">{member.background}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </Card>
+
+                      {/* Traction Section */}
+                      <Card className="bg-navy-card border-emerald-500/20 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                            <TrendingUp className="h-5 w-5 text-emerald-400/70" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-white">Traction & Progress</h2>
+                            <p className="text-white/40 text-sm">Key metrics and milestones</p>
+                          </div>
+                        </div>
+                        <p className="text-white/80 leading-relaxed">
+                          {demoMemo.traction}
+                        </p>
+                      </Card>
+
+                      {/* Current Ask */}
+                      <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                            <DollarSign className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-white">Current Ask</h2>
+                            <p className="text-white/40 text-sm">Fundraising goals and use of funds</p>
+                          </div>
+                        </div>
+                        <p className="text-white/80 leading-relaxed">
+                          Raising {demoMemo.funding_goal} to expand engineering team, accelerate product development, and scale go-to-market efforts.
+                        </p>
+                      </Card>
+
+                      {/* Footer */}
+                      <div className="text-center py-8 border-t border-white/10">
+                        <p className="text-white/40 text-sm">
+                          Generated by In-Sync • Last updated: Today
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+          </div>
+        )}
+
+        {/* Interests Modal - EXACTLY matches InterestsModal.tsx */}
+        {showInterestsModal && (
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowInterestsModal(false); setInterestsIsFullscreen(false); }}>
+            <div
+              className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 border rounded-lg overflow-hidden transition-all duration-300 ${
+                interestsIsFullscreen
+                  ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none"
+                  : "max-w-2xl max-h-[80vh] w-full"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">
+                      Incoming Interests
+                    </h2>
+                    <p className="text-white/60 text-sm mt-1">
+                      VC analysts that want to connect with you
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setInterestsIsFullscreen(!interestsIsFullscreen)}
+                    className="text-white/60 hover:text-white hover:bg-white/10"
+                  >
+                    {interestsIsFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+                  </Button>
+                </div>
+              </div>
+
+              <ScrollArea className={`p-6 pt-4 ${interestsIsFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
+                {demoInterests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                      <Building2 className="h-8 w-8 text-white/20" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-2">No incoming interests yet</h3>
+                    <p className="text-white/60 text-sm">
+                      When VC analysts are interested in connecting, they will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className={`${interestsIsFullscreen ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}`}>
+                    {demoInterests.map((interest) => (
+                      <Card key={interest.id} className="bg-white/5 border-white/10 p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start gap-4 flex-1">
+                            {/* Avatar */}
+                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                              <Building2 className="h-6 w-6 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-white mb-1 cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                                {interest.analyst_name || 'VC Analyst'}
+                              </h4>
+                              <p className="text-sm text-white/60 mb-2">
+                                {interest.analyst_title ? `${interest.analyst_title} at ` : ''}{interest.firm_name}
+                              </p>
+
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20 text-xs">
+                                  AI/ML
+                                </Badge>
+                                <Badge className="bg-white/10 text-white/80 border-white/20 text-xs">
+                                  Seed
+                                </Badge>
+                              </div>
+
+                              {interest.sync_note && (
+                                <div className="bg-white/5 rounded-lg p-3 border border-white/10 mb-3">
+                                  <p className="text-white/70 text-sm italic">"{interest.sync_note}"</p>
+                                </div>
+                              )}
+
+                              <div className="flex flex-wrap gap-3 text-xs text-white/50">
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  San Francisco, CA
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {interest.created_at}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2 shrink-0">
+                            <Button
+                              size="sm"
+                              className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border border-green-500/30"
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+          </div>
+        )}
+
+        {/* Syncs Modal - EXACTLY matches SyncsModal.tsx */}
+        {showSyncsModal && (
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowSyncsModal(false); setSyncsIsFullscreen(false); }}>
+            <div
+              className={`bg-[hsl(var(--navy-deep))] border-white/10 border rounded-lg text-white overflow-hidden transition-all duration-300 ${
+                syncsIsFullscreen
+                  ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none"
+                  : "max-w-2xl max-h-[80vh] w-full"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-xl font-semibold">
+                    <img src={syncsLogo} alt="Syncs" className="h-6 w-10 object-contain" />
+                    Active Syncs
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSyncsIsFullscreen(!syncsIsFullscreen)}
+                    className="text-white/60 hover:text-white hover:bg-white/10"
+                  >
+                    {syncsIsFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+                  </Button>
+                </div>
+              </div>
+
+              <ScrollArea className={`p-6 pt-4 ${syncsIsFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
+                {demoSyncs.length === 0 ? (
+                  <div className="text-center py-12">
+                    <img src={syncsLogo} alt="Syncs" className="h-16 w-24 object-contain mx-auto mb-4 opacity-20" />
+                    <h3 className="text-lg font-semibold mb-2">No active syncs yet</h3>
+                    <p className="text-white/60 text-sm">
+                      When analysts accept your requests or you accept theirs, they'll appear here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className={`${syncsIsFullscreen ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}`}>
+                    {demoSyncs.map((sync) => (
+                      <div
+                        key={sync.id}
+                        className="bg-white/5 border border-white/10 rounded-lg p-4"
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Avatar */}
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                            <Building2 className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-semibold text-white cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                                {sync.analyst_name || 'VC Analyst'}
+                              </h4>
+                              <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                                Synced
+                              </Badge>
+                            </div>
+
+                            {/* Show firm name underneath analyst name */}
+                            <p className="text-sm text-white/70 mb-1">
+                              {sync.analyst_title ? `${sync.analyst_title} at ` : ''}{sync.firm_name}
+                            </p>
+
+                            {sync.hq_location && (
+                              <p className="text-sm text-white/60 flex items-center gap-1 mb-2">
+                                <MapPin className="h-3 w-3" />
+                                {sync.hq_location}
+                              </p>
+                            )}
+
+                            {sync.stage_focus && sync.stage_focus.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {sync.stage_focus.slice(0, 3).map((stage, i) => (
+                                  <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20 text-xs">
+                                    {stage}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                              <p className="text-xs text-white/50 flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Synced {sync.synced_at}
+                              </p>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-green-500/30 text-green-400 hover:bg-green-500/10"
+                                >
+                                  <Video className="mr-1 h-3 w-3" />
+                                  Schedule
+                                  <ExternalLink className="ml-1 h-3 w-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+                                  onClick={() => setShowMessagesModal(true)}
+                                >
+                                  <MessageSquare className="mr-1 h-3 w-3" />
+                                  Message
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Interests Modal - matches InterestsModal component from FounderDashboard */}
-        {showInterestsModal && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowInterestsModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-lg max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <Heart className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">Incoming Interests</h2>
-                    <p className="text-sm text-white/60">Investors who want to connect with you</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowInterestsModal(false)} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="p-4 space-y-3">
-                {demoInterests.length === 0 ? (
-                  <div className="text-center py-8 text-white/50">
-                    <Heart className="h-8 w-8 mx-auto mb-3 opacity-50" />
-                    <p>No incoming interests yet</p>
-                  </div>
-                ) : (
-                  demoInterests.map((interest) => (
-                    <div key={interest.id} className="p-4 bg-white/5 rounded-lg border border-white/10 hover:border-[hsl(var(--cyan-glow))]/30 transition-colors">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                            <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-white">{interest.firm_name}</p>
-                            <p className="text-xs text-white/50">{interest.analyst_name} • {interest.analyst_title}</p>
-                          </div>
-                        </div>
-                        <span className="text-xs text-white/40">{interest.created_at}</span>
-                      </div>
-                      {interest.sync_note && (
-                        <div className="mb-3 p-3 bg-white/5 rounded-lg">
-                          <p className="text-sm text-white/70 italic">"{interest.sync_note}"</p>
-                        </div>
-                      )}
-                      <div className="flex gap-2">
-                        <Button size="sm" className="flex-1 bg-[hsl(var(--cyan-glow))] text-navy-deep hover:bg-cyan-bright">
-                          <Check className="h-4 w-4 mr-1" /> Accept
-                        </Button>
-                        <Button size="sm" variant="outline" className="flex-1 border-white/20 text-white hover:bg-white/10">
-                          Decline
-                        </Button>
-                      </div>
-                    </div>
-                  ))
                 )}
-              </div>
-            </Card>
+              </ScrollArea>
+            </div>
           </div>
         )}
 
-        {/* Syncs Modal - matches SyncsModal from FounderDashboard */}
-        {showSyncsModal && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowSyncsModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-lg max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <img src={syncsLogo} alt="Syncs" className="h-6 w-10 object-contain" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">Active Syncs</h2>
-                    <p className="text-sm text-white/60">Your mutual connections</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowSyncsModal(false)} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="p-4 space-y-3">
-                {demoSyncs.map((sync) => (
-                  <div key={sync.id} className="p-4 bg-white/5 rounded-lg border border-white/10 hover:border-[hsl(var(--cyan-glow))]/30 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                          <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-white">{sync.firm_name}</p>
-                          <p className="text-xs text-white/50">{sync.analyst_name} • {sync.analyst_title}</p>
-                        </div>
-                      </div>
-                      <span className="text-xs text-white/40">Synced {sync.synced_at}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-white/50 mb-3">
-                      <MapPin className="h-3 w-3" />
-                      {sync.hq_location}
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {sync.stage_focus.map((stage, i) => (
-                        <span key={i} className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(stage)}`}>
-                          {stage}
-                        </span>
-                      ))}
-                      {sync.sector_tags.map((tag, i) => (
-                        <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1 border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10">
-                        <Eye className="h-4 w-4 mr-1" /> View Profile
-                      </Button>
-                      <Button size="sm" className="flex-1 bg-[hsl(var(--cyan-glow))] text-navy-deep hover:bg-cyan-bright">
-                        <MessageSquare className="h-4 w-4 mr-1" /> Message
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Pending Modal - matches PendingModal from FounderDashboard */}
+        {/* Pending Modal - EXACTLY matches PendingModal.tsx */}
         {showPendingModal && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowPendingModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-lg max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowPendingModal(false); setPendingIsFullscreen(false); }}>
+            <div
+              className={`bg-[hsl(var(--navy-deep))] border-white/10 border rounded-lg text-white overflow-hidden transition-all duration-300 ${
+                pendingIsFullscreen
+                  ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none"
+                  : "max-w-2xl max-h-[80vh] w-full"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-xl font-semibold">
                     <Eye className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">Pending Requests</h2>
-                    <p className="text-sm text-white/60">Your outgoing sync requests</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowPendingModal(false)} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="p-4 space-y-3">
-                {demoPending.map((pending) => (
-                  <div key={pending.id} className="p-4 bg-white/5 rounded-lg border border-white/10 hover:border-[hsl(var(--cyan-glow))]/30 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                          <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-white">{pending.firm_name}</p>
-                          <p className="text-xs text-white/50 flex items-center gap-1">
-                            <MapPin className="h-3 w-3" /> {pending.hq_location}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-xs text-white/40">Sent {pending.sent_at}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {pending.stage_focus.map((stage, i) => (
-                        <span key={i} className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(stage)}`}>
-                          {stage}
-                        </span>
-                      ))}
-                      {pending.sector_tags.map((tag, i) => (
-                        <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    {pending.sync_note && (
-                      <div className="mb-3 p-3 bg-white/5 rounded-lg">
-                        <p className="text-sm text-white/70 italic">"{pending.sync_note}"</p>
-                      </div>
-                    )}
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1 border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10">
-                        <Eye className="h-4 w-4 mr-1" /> View Profile
-                      </Button>
-                      <Button size="sm" variant="outline" className="flex-1 border-white/20 text-white/60 hover:bg-white/10">
-                        Cancel Request
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Messages Modal - matches MessagesModal from FounderDashboard */}
-        {showMessagesModal && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowMessagesModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-lg max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <MessageSquare className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">Messages</h2>
-                    <p className="text-sm text-white/60">Your conversations</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowMessagesModal(false)} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="divide-y divide-white/10">
-                {demoMessages.map((msg) => (
-                  <div key={msg.id} className={`p-4 hover:bg-white/5 cursor-pointer transition-colors ${msg.unread_count > 0 ? 'bg-[hsl(var(--cyan-glow))]/5' : ''}`}>
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center flex-shrink-0">
-                        <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="font-medium text-white">{msg.other_user_company}</p>
-                          <span className="text-xs text-white/40">{msg.last_message_time}</span>
-                        </div>
-                        <p className="text-xs text-white/50 mb-1">{msg.other_user_name}</p>
-                        <p className="text-sm text-white/70 truncate">{msg.last_message}</p>
-                        {msg.unread_count > 0 && (
-                          <div className="mt-2 flex items-center gap-1">
-                            <div className="w-2 h-2 rounded-full bg-[hsl(var(--cyan-glow))]" />
-                            <span className="text-xs text-[hsl(var(--cyan-glow))]">{msg.unread_count} new</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Investor Profile Modal - matches InvestorProfileModal from FounderDashboard */}
-        {showInvestorModal && selectedInvestor && (
-          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowInvestorModal(false)}>
-            <Card className="bg-navy-card border-white/10 w-full max-w-2xl max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <Building2 className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">{selectedInvestor.firm_name}</h2>
-                    <p className="text-sm text-white/60 flex items-center gap-1"><MapPin className="h-3 w-3" /> {selectedInvestor.hq_location}</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowInvestorModal(false)} className="text-white/60 hover:text-white">
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="p-6 space-y-6">
-                {/* Fund Info */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">AUM</p>
-                    <p className="text-sm text-white flex items-center gap-1"><DollarSign className="h-3 w-3" /> {selectedInvestor.aum}</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Fund Type</p>
-                    <p className="text-sm text-white">{selectedInvestor.fund_type}</p>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-lg">
-                    <p className="text-xs text-white/50 mb-1">Check Size</p>
-                    <p className="text-sm text-white">{selectedInvestor.check_sizes[0]}</p>
-                  </div>
-                </div>
-
-                {/* Stage & Sector Tags */}
-                <div className="flex flex-wrap gap-2">
-                  {selectedInvestor.stage_focus.map((stage, i) => (
-                    <span key={i} className={`text-xs px-3 py-1 rounded-full ${getStageColor(stage)}`}>{stage}</span>
-                  ))}
-                  {selectedInvestor.sector_tags.map((tag, i) => (
-                    <span key={i} className="text-xs px-3 py-1 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">{tag}</span>
-                  ))}
-                </div>
-
-                {/* Investment Thesis */}
-                <div>
-                  <h3 className="text-sm font-medium text-white/70 mb-2">Investment Thesis</h3>
-                  <p className="text-white/80">{selectedInvestor.thesis_statement}</p>
-                </div>
-
-                {/* Sub-themes */}
-                {selectedInvestor.sub_themes && selectedInvestor.sub_themes.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-white/70 mb-2">Sub-themes We're Prioritizing</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedInvestor.sub_themes.map((theme, i) => (
-                        <span key={i} className="px-3 py-1 bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] rounded-full text-sm">{theme}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Hard No's */}
-                {selectedInvestor.hard_nos && selectedInvestor.hard_nos.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-white/70 mb-2">Hard No's</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedInvestor.hard_nos.map((no, i) => (
-                        <span key={i} className="px-3 py-1 bg-red-500/10 text-red-400 rounded-full text-sm">{no}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Operating Support */}
-                {selectedInvestor.operating_support && selectedInvestor.operating_support.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-white/70 mb-2">Operating Support</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedInvestor.operating_support.map((support, i) => (
-                        <span key={i} className="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm">{support}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Lead/Follow */}
-                {selectedInvestor.lead_follow && (
-                  <div className="p-3 bg-white/5 rounded-lg inline-block">
-                    <p className="text-xs text-white/50 mb-1">Investment Style</p>
-                    <p className="text-sm text-white">{selectedInvestor.lead_follow}</p>
-                  </div>
-                )}
-
-                <div className="pt-4 border-t border-white/10">
-                  <Button className="w-full bg-[hsl(var(--cyan-glow))] text-navy-deep hover:bg-cyan-bright">
-                    <Heart className="h-4 w-4 mr-2" />
-                    Request to Sync
+                    Pending Requests
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPendingIsFullscreen(!pendingIsFullscreen)}
+                    className="text-white/60 hover:text-white hover:bg-white/10"
+                  >
+                    {pendingIsFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
                   </Button>
                 </div>
               </div>
-            </Card>
+
+              <ScrollArea className={`p-6 pt-4 ${pendingIsFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
+                {demoPending.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Eye className="h-12 w-12 text-white/20 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No pending requests</h3>
+                    <p className="text-white/60 text-sm">
+                      Your sync requests to analysts will appear here while awaiting response.
+                    </p>
+                  </div>
+                ) : (
+                  <div className={`${pendingIsFullscreen ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}`}>
+                    {demoPending.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-white/5 border border-white/10 rounded-lg p-4"
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Avatar */}
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/50 to-orange-500/50 flex items-center justify-center shrink-0">
+                            <Clock className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-semibold text-white cursor-pointer hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                                VC Analyst
+                              </h4>
+                              <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs">
+                                Pending
+                              </Badge>
+                            </div>
+
+                            {/* Show firm name underneath analyst name */}
+                            <p className="text-sm text-white/70 mb-1">
+                              {item.firm_name}
+                            </p>
+
+                            {item.hq_location && (
+                              <p className="text-sm text-white/60 flex items-center gap-1 mb-2">
+                                <MapPin className="h-3 w-3" />
+                                {item.hq_location}
+                              </p>
+                            )}
+
+                            {item.stage_focus && item.stage_focus.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {item.stage_focus.slice(0, 3).map((stage, i) => (
+                                  <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/20 text-xs">
+                                    {stage}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+
+                            {item.sync_note && (
+                              <div className="bg-white/5 rounded-md p-2 mb-2">
+                                <p className="text-sm text-white/70 italic">"{item.sync_note}"</p>
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                              <p className="text-xs text-white/50 flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Sent {item.sent_at}
+                              </p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                              >
+                                <X className="mr-1 h-3 w-3" />
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+          </div>
+        )}
+
+        {/* Messages Modal - EXACTLY matches MessagesModal.tsx */}
+        {showMessagesModal && (
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowMessagesModal(false); setMessagesIsFullscreen(false); setSelectedMessageThread(null); setNewMessage(""); }}>
+            <div
+              className={`bg-[hsl(var(--navy-deep))] border-white/10 border rounded-lg text-white overflow-hidden transition-all duration-300 ${
+                messagesIsFullscreen
+                  ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none"
+                  : "max-w-3xl max-h-[80vh] w-full"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-xl font-semibold">
+                    <MessageSquare className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+                    Messages
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setMessagesIsFullscreen(!messagesIsFullscreen)}
+                    className="text-white/60 hover:text-white hover:bg-white/10"
+                  >
+                    {messagesIsFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+                  </Button>
+                </div>
+              </div>
+
+              {demoMessages.length === 0 ? (
+                <div className="text-center py-12 px-6">
+                  <MessageSquare className="h-12 w-12 text-white/20 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
+                  <p className="text-white/60 text-sm">
+                    Start a conversation by syncing with investors.
+                  </p>
+                </div>
+              ) : selectedMessageThread ? (
+                // Thread view
+                <div className={`flex flex-col ${messagesIsFullscreen ? "h-[calc(100vh-100px)]" : "h-[60vh]"}`}>
+                  <div className="px-6 py-3 border-b border-white/10 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedMessageThread(null)}
+                        className="text-white/60 hover:text-white"
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-1" /> Back
+                      </Button>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center">
+                          <Building2 className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-white text-sm">{selectedMessageThread.other_user_company}</p>
+                          <p className="text-xs text-white/50">{selectedMessageThread.other_user_name}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-green-500/30 text-green-400 hover:bg-green-500/10"
+                    >
+                      <Video className="mr-1 h-3 w-3" />
+                      Schedule Meeting
+                      <ExternalLink className="ml-1 h-3 w-3" />
+                    </Button>
+                  </div>
+
+                  <ScrollArea className="flex-1 p-4">
+                    <div className="space-y-3">
+                      {selectedMessageThread.messages.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`flex ${msg.sender === "self" ? "justify-end" : "justify-start"}`}
+                        >
+                          <div
+                            className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                              msg.sender === "self"
+                                ? "bg-[hsl(var(--cyan-glow))]/20 text-white"
+                                : "bg-white/5 text-white/90"
+                            }`}
+                          >
+                            <p className="text-sm">{msg.content}</p>
+                            <p className="text-xs text-white/40 mt-1">{msg.timestamp}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+
+                  <div className="p-4 border-t border-white/10 flex gap-2">
+                    <Input
+                      placeholder="Type a message..."
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                    />
+                    <Button
+                      size="icon"
+                      disabled={!newMessage.trim()}
+                      className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-bright))] disabled:opacity-50"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                // Thread list view
+                <ScrollArea className={`p-6 pt-4 ${messagesIsFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
+                  <div className={`${messagesIsFullscreen ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}`}>
+                    {demoMessages.map((thread) => (
+                      <div
+                        key={thread.id}
+                        className="bg-white/5 border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-white/10 transition-colors"
+                        onClick={() => setSelectedMessageThread(thread)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shrink-0">
+                            <Building2 className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-semibold text-white text-sm truncate">
+                                {thread.other_user_company}
+                              </h4>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-white/50">
+                                  {thread.last_message_time}
+                                </span>
+                                {thread.unread_count > 0 && (
+                                  <Badge className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] text-xs h-5 w-5 p-0 flex items-center justify-center">
+                                    {thread.unread_count}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-xs text-white/50 mb-1">{thread.other_user_name}</p>
+                            <p className="text-sm text-white/70 truncate">{thread.last_message}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Investor Profile Modal - EXACTLY matches InvestorProfileModal.tsx */}
+        {showInvestorModal && selectedInvestor && (
+          <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowInvestorModal(false); setInvestorViewMode("condensed"); setInvestorIsFullscreen(false); }}>
+            <div
+              className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 border rounded-lg overflow-hidden transition-all duration-300 ${
+                investorIsFullscreen
+                  ? 'max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none'
+                  : 'max-w-5xl max-h-[95vh] w-full'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ScrollArea className={investorIsFullscreen ? "h-[100vh]" : "max-h-[95vh]"}>
+                <div className="p-6 space-y-6">
+                  {/* Back Button */}
+                  <Button
+                    onClick={() => { setShowInvestorModal(false); setInvestorViewMode("condensed"); setInvestorIsFullscreen(false); }}
+                    className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Dashboard
+                  </Button>
+
+                  {/* Header */}
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Investment Thesis</h2>
+                      <p className="text-white/60">Investor profile and investment criteria</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Tabs value={investorViewMode} onValueChange={(v) => setInvestorViewMode(v as "condensed" | "full")}>
+                        <TabsList className="bg-white/10">
+                          <TabsTrigger value="condensed" className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Condensed
+                          </TabsTrigger>
+                          <TabsTrigger value="full" className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]">
+                            <Eye className="h-4 w-4 mr-2" />
+                            Full Thesis
+                          </TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setInvestorIsFullscreen(!investorIsFullscreen)}
+                        className="border-white/20 text-white/70 hover:text-white hover:bg-white/10"
+                      >
+                        {investorIsFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Condensed View */}
+                  {investorViewMode === "condensed" && (
+                    <div className="space-y-6">
+                      {/* Executive Summary Card */}
+                      <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 relative overflow-hidden shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-[hsl(var(--cyan-glow))]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+
+                        <div className="relative z-10">
+                          <div className="flex items-start justify-between gap-6 mb-6">
+                            <div className="flex items-center gap-4">
+                              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20">
+                                <Building2 className="h-10 w-10 text-white" />
+                              </div>
+                              <div>
+                                <h1 className="text-3xl font-bold text-white mb-2">{selectedInvestor.firm_name}</h1>
+                                <div className="flex flex-wrap gap-2">
+                                  {selectedInvestor.sector_tags.slice(0, 1).map((sector, i) => (
+                                    <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30 text-sm">
+                                      {sector}
+                                    </Badge>
+                                  ))}
+                                  {selectedInvestor.stage_focus.slice(0, 1).map((stage, i) => (
+                                    <Badge key={i} className="bg-white/10 text-white/80 border-white/20 text-sm">
+                                      {stage}
+                                    </Badge>
+                                  ))}
+                                  {selectedInvestor.hq_location && (
+                                    <Badge className="bg-[hsl(var(--cyan-bright))]/20 text-[hsl(var(--cyan-bright))] border-[hsl(var(--cyan-bright))]/30 text-sm">
+                                      <MapPin className="h-3 w-3 mr-1" /> {selectedInvestor.hq_location}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Thesis Statement */}
+                          <div className="bg-white/5 rounded-xl p-4 mb-6">
+                            <p className="text-lg text-white/90 italic">
+                              "{selectedInvestor.thesis_statement?.slice(0, 200)}{selectedInvestor.thesis_statement && selectedInvestor.thesis_statement.length > 200 ? '...' : ''}"
+                            </p>
+                          </div>
+
+                          {/* Key Metrics Row */}
+                          <div className="grid grid-cols-3 gap-4">
+                            <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                              <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Check Size</p>
+                              <p className="text-xl font-bold text-white">{selectedInvestor.check_sizes?.[0] || "—"}</p>
+                              <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                                View details <ChevronRight className="h-3 w-3" />
+                              </p>
+                            </div>
+                            <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                              <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Stage Focus</p>
+                              <p className="text-xl font-bold text-white">{selectedInvestor.stage_focus?.[0] || "—"}</p>
+                              <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                                View details <ChevronRight className="h-3 w-3" />
+                              </p>
+                            </div>
+                            <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
+                              <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Decision Time</p>
+                              <p className="text-xl font-bold text-white">2-4 weeks</p>
+                              <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
+                                View details <ChevronRight className="h-3 w-3" />
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+
+                      {/* Quick Stats Grid */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                              <DollarSign className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
+                            </div>
+                            <div>
+                              <p className="text-white/40 text-xs font-medium">AUM</p>
+                              <p className="text-white font-semibold">{selectedInvestor.aum || "—"}</p>
+                            </div>
+                          </div>
+                        </Card>
+                        <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                              <Briefcase className="h-5 w-5 text-purple-400/70" />
+                            </div>
+                            <div>
+                              <p className="text-white/40 text-xs font-medium">Fund Type</p>
+                              <p className="text-white font-semibold">{selectedInvestor.fund_type || "—"}</p>
+                            </div>
+                          </div>
+                        </Card>
+                        <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                              <TrendingUp className="h-5 w-5 text-emerald-400/70" />
+                            </div>
+                            <div>
+                              <p className="text-white/40 text-xs font-medium">Lead/Follow</p>
+                              <p className="text-white font-semibold">{selectedInvestor.lead_follow || "—"}</p>
+                            </div>
+                          </div>
+                        </Card>
+                        <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                              <Handshake className="h-5 w-5 text-amber-400/70" />
+                            </div>
+                            <div>
+                              <p className="text-white/40 text-xs font-medium">Support Style</p>
+                              <p className="text-white font-semibold">Hands-on</p>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+
+                      {/* Fast Signals & Hard Nos */}
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                              <Zap className="h-4 w-4 text-emerald-400/70" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-white">Fast Signals</h3>
+                          </div>
+                          <p className="text-white/70 leading-relaxed">
+                            Strong technical team, product-market fit indicators, clear differentiation...
+                          </p>
+                        </Card>
+
+                        <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                              <XCircle className="h-4 w-4 text-rose-400/70" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-white">Hard Nos</h3>
+                          </div>
+                          <p className="text-white/70 leading-relaxed">
+                            {selectedInvestor.hard_nos.length > 0
+                              ? selectedInvestor.hard_nos.slice(0, 2).join(", ") + (selectedInvestor.hard_nos.length > 2 ? "..." : "")
+                              : "Dealbreakers for this investor."}
+                          </p>
+                        </Card>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Full Thesis View */}
+                  {investorViewMode === "full" && (
+                    <div className="space-y-8">
+                      {/* Header Section */}
+                      <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                        <div className="text-center mb-8">
+                          <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4">
+                            <Building2 className="h-12 w-12 text-white" />
+                          </div>
+                          <h1 className="text-4xl font-bold text-white mb-2">{selectedInvestor.firm_name}</h1>
+                          <p className="text-xl text-white/70 mb-4">{selectedInvestor.fund_type} • {selectedInvestor.lead_follow}</p>
+                          <div className="flex justify-center gap-4 text-sm text-white/60">
+                            <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {selectedInvestor.hq_location || "Location not specified"}</span>
+                            {selectedInvestor.aum && <span className="flex items-center gap-1"><DollarSign className="h-4 w-4" /> {selectedInvestor.aum}</span>}
+                          </div>
+                        </div>
+
+                        <div className="max-w-3xl mx-auto">
+                          <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                            <h3 className="text-sm font-semibold text-[hsl(var(--cyan-glow))] uppercase tracking-wider mb-3">Investment Thesis</h3>
+                            <p className="text-lg text-white/90 leading-relaxed">
+                              {selectedInvestor.thesis_statement || "Investment thesis will appear here."}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+
+                      {/* Firm Description */}
+                      {selectedInvestor.firm_description && (
+                        <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                              <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white">About the Firm</h2>
+                          </div>
+                          <p className="text-white/70 leading-relaxed">
+                            {selectedInvestor.firm_description}
+                          </p>
+                        </Card>
+                      )}
+
+                      {/* Focus Areas */}
+                      {selectedInvestor.sub_themes && selectedInvestor.sub_themes.length > 0 && (
+                        <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                              <Target className="h-5 w-5 text-purple-400/70" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white">Focus Areas</h2>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedInvestor.sub_themes.map((theme, i) => (
+                              <Badge key={i} className="bg-purple-500/20 border-purple-500/40 text-purple-300 px-3 py-1.5">
+                                {theme}
+                              </Badge>
+                            ))}
+                          </div>
+                        </Card>
+                      )}
+
+                      {/* Fast Signals & Hard Nos */}
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <Card className="bg-navy-card border-green-500/20 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                              <Zap className="h-5 w-5 text-green-400/70" />
+                            </div>
+                            <div>
+                              <h2 className="text-xl font-bold text-white">Fast Signals</h2>
+                              <p className="text-white/40 text-sm">What makes them move quickly</p>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-start gap-3 text-white/80">
+                              <div className="w-2 h-2 rounded-full bg-green-400 mt-2 flex-shrink-0" />
+                              <span>Strong technical founding team</span>
+                            </div>
+                            <div className="flex items-start gap-3 text-white/80">
+                              <div className="w-2 h-2 rounded-full bg-green-400 mt-2 flex-shrink-0" />
+                              <span>Clear product-market fit signals</span>
+                            </div>
+                            <div className="flex items-start gap-3 text-white/80">
+                              <div className="w-2 h-2 rounded-full bg-green-400 mt-2 flex-shrink-0" />
+                              <span>Differentiated technology or approach</span>
+                            </div>
+                          </div>
+                        </Card>
+
+                        <Card className="bg-navy-card border-red-500/20 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                              <XCircle className="h-5 w-5 text-red-400/70" />
+                            </div>
+                            <div>
+                              <h2 className="text-xl font-bold text-white">Hard Nos</h2>
+                              <p className="text-white/40 text-sm">Dealbreakers</p>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            {selectedInvestor.hard_nos.length > 0 ? (
+                              selectedInvestor.hard_nos.map((no, i) => (
+                                <div key={i} className="flex items-start gap-3 text-white/80">
+                                  <div className="w-2 h-2 rounded-full bg-red-400 mt-2 flex-shrink-0" />
+                                  <span>{no}</span>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-white/40 italic">Not specified</p>
+                            )}
+                          </div>
+                        </Card>
+                      </div>
+
+                      {/* Investment Parameters */}
+                      <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                            <DollarSign className="h-5 w-5 text-emerald-400/70" />
+                          </div>
+                          <h2 className="text-xl font-bold text-white">Investment Parameters</h2>
+                        </div>
+
+                        <div className="grid md:grid-cols-3 gap-6">
+                          <div>
+                            <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Check Size</p>
+                            <div className="flex flex-wrap gap-2">
+                              {selectedInvestor.check_sizes.map((size, i) => (
+                                <Badge key={i} className="bg-white/10 border-white/20 text-white">
+                                  {size}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Stage Focus</p>
+                            <div className="flex flex-wrap gap-2">
+                              {selectedInvestor.stage_focus.map((stage, i) => (
+                                <Badge key={i} className="bg-white/10 border-white/20 text-white">
+                                  {stage}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Decision Timeline</p>
+                            <span className="text-white">2-4 weeks</span>
+                          </div>
+                        </div>
+                      </Card>
+
+                      {/* Sectors & Target Customers */}
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                              <Briefcase className="h-5 w-5 text-blue-400/70" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white">Sectors</h2>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedInvestor.sector_tags.map((sector, i) => (
+                              <Badge key={i} className="bg-blue-500/20 border-blue-500/40 text-blue-300">
+                                {sector}
+                              </Badge>
+                            ))}
+                          </div>
+                        </Card>
+
+                        <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                              <Users className="h-5 w-5 text-cyan-400/70" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white">Target Customers</h2>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge className="bg-cyan-500/20 border-cyan-500/40 text-cyan-300">
+                              Enterprise
+                            </Badge>
+                            <Badge className="bg-cyan-500/20 border-cyan-500/40 text-cyan-300">
+                              SMB
+                            </Badge>
+                          </div>
+                        </Card>
+                      </div>
+
+                      {/* Value-Add */}
+                      <Card className="bg-navy-card border-amber-500/20 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                            <Handshake className="h-5 w-5 text-amber-400/70" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-white">How They Add Value</h2>
+                            <p className="text-white/40 text-sm">Hands-on engagement</p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {selectedInvestor.operating_support.map((support, i) => (
+                            <Badge key={i} className="bg-amber-500/20 border-amber-500/40 text-amber-300">
+                              {support}
+                            </Badge>
+                          ))}
+                        </div>
+                      </Card>
+                    </div>
+                  )}
+
+                  {/* Analysts Section */}
+                  <div className="border-t border-white/10 pt-6">
+                    <div className="mb-6">
+                      <h3 className="text-xl font-bold text-white mb-2">Team Members at {selectedInvestor.firm_name}</h3>
+                      <p className="text-white/60 text-sm">Connect directly with an analyst sourcing in your area</p>
+                    </div>
+
+                    <div className="grid gap-4">
+                      {[
+                        { id: "1", name: "Anna", location: "Boston, MA", vertical: "AI/ML", oneLiner: "Passionate about deep tech and founder-first investing." },
+                        { id: "2", name: "John", location: "New York, NY", vertical: "FinTech", oneLiner: "Former founder, now helping the next generation scale." },
+                      ].map((analyst) => (
+                        <Card
+                          key={analyst.id}
+                          className="bg-navy-card border-white/10 p-5 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 shadow-[0_0_15px_rgba(6,182,212,0.05)]"
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-4 flex-1">
+                              {/* Analyst Avatar */}
+                              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-[hsl(var(--primary))]/30 flex items-center justify-center border border-[hsl(var(--cyan-glow))]/20 flex-shrink-0">
+                                <Users className="h-7 w-7 text-[hsl(var(--cyan-glow))]/80" />
+                              </div>
+
+                              {/* Analyst Info */}
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-lg font-semibold text-white mb-1">{analyst.name}</h4>
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                  <Badge className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30 text-xs">
+                                    <MapPin className="h-3 w-3 mr-1" />
+                                    {analyst.location}
+                                  </Badge>
+                                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
+                                    <Target className="h-3 w-3 mr-1" />
+                                    {analyst.vertical}
+                                  </Badge>
+                                </div>
+                                <p className="text-white/60 text-sm italic">"{analyst.oneLiner}"</p>
+                              </div>
+                            </div>
+
+                            {/* Sync Button */}
+                            <Button
+                              className="bg-[hsl(220,60%,8%)] text-[hsl(var(--cyan-glow))] hover:bg-[hsl(220,60%,12%)] border border-[hsl(var(--cyan-glow))]/40 shadow-[0_0_15px_rgba(6,182,212,0.15)] flex-shrink-0 h-auto py-3 px-4"
+                            >
+                              <img
+                                src={insyncInfinity}
+                                alt="Sync"
+                                className="mr-3 h-12 w-20 object-contain brightness-125 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]"
+                              />
+                              <span className="text-sm whitespace-nowrap">
+                                Sync with {analyst.name}
+                              </span>
+                            </Button>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </ScrollArea>
+            </div>
           </div>
         )}
       </div>
@@ -880,7 +1903,12 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
 
   // Application Flow View - matches FounderApplication.tsx exactly
   return (
-    <div className="fixed inset-0 z-50 overflow-auto" style={{ background: "var(--gradient-navy-teal)" }}>
+    <div className="fixed inset-0 z-50 overflow-auto" style={{ background: "var(--gradient-navy-teal)" }} onWheel={(e) => {
+      // Prevent body scroll when modals are open
+      if (showMemoModal || showInterestsModal || showSyncsModal || showPendingModal || showMessagesModal || showInvestorModal) {
+        e.stopPropagation();
+      }
+    }}>
       {/* Decorative Elements - matching FounderApplication */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] border border-[hsl(var(--cyan-glow))]/30 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -888,7 +1916,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
       </div>
 
       {/* Header with demo controls */}
-      <div className="sticky top-0 z-10 bg-[hsl(var(--navy-deep))]/80 backdrop-blur-lg border-b border-white/10">
+      <div className="sticky top-0 z-20 bg-[hsl(var(--navy-deep))]/80 backdrop-blur-lg border-b border-white/10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={onClose} className="text-white/60 hover:text-white">
