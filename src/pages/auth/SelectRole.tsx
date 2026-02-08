@@ -284,10 +284,20 @@ export const SelectRole = () => {
 
   return (
     <div className="min-h-screen bg-navy-deep flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
-      {/* Background gradient orbs */}
+      {/* Background gradient orbs — soft breathing glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-glow/5 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cyan-glow/5 blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div
+          className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-glow/20 blur-[120px] animate-glow-soft opacity-30"
+          style={{ animationDelay: "0s" }}
+        />
+        <div
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cyan-glow/20 blur-[100px] animate-glow-soft opacity-30"
+          style={{ animationDelay: "1.2s" }}
+        />
+        <div
+          className="absolute top-1/2 left-1/2 w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-glow/10 blur-[80px] animate-glow-soft opacity-40"
+          style={{ animationDelay: "2.5s" }}
+        />
       </div>
 
       {/* Floating Particles */}
@@ -295,29 +305,40 @@ export const SelectRole = () => {
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-md">
-        {/* Logo */}
-        <Link to="/" className="block mb-6">
+        {/* Logo — first impression with soft breathing glow */}
+        <Link
+          to="/landing"
+          className="block mb-6 opacity-0 animate-fade-in-up"
+          style={{ animationDelay: "0ms" }}
+        >
           <div className="relative">
-            <div 
-              className="absolute inset-0 blur-[60px] animate-pulse"
+            <div
+              className="absolute inset-0 blur-[60px] animate-glow-breathe rounded-full scale-150"
               style={{
-                background: 'radial-gradient(ellipse at center, rgba(6,182,212,0.4) 0%, rgba(6,182,212,0.2) 40%, transparent 70%)',
+                background:
+                  "radial-gradient(ellipse at center, rgba(6,182,212,0.45) 0%, rgba(6,182,212,0.2) 40%, transparent 70%)",
               }}
             />
             <img
               src={inSyncLogo}
               alt="InSync"
-              className="relative h-20 w-auto max-w-[400px] mx-auto"
+              className="relative h-40 w-auto max-w-[500px] mx-auto animate-glow-breathe"
               style={{
-                filter: "drop-shadow(0 0 30px rgba(6,182,212,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.3))",
+                filter: "drop-shadow(0 0 28px rgba(6,182,212,0.45)) drop-shadow(0 0 56px rgba(6,182,212,0.25))",
               }}
             />
           </div>
         </Link>
 
-        {/* Card */}
-        <div className="bg-navy-card border border-white/10 rounded-2xl p-8 shadow-xl">
-          <div className="text-center mb-8">
+        {/* Card — subtle cyan halo, staggered entrance */}
+        <div
+          className="bg-navy-card border border-white/10 rounded-2xl p-8 shadow-xl opacity-0 animate-fade-in-up shadow-[0_0_0_1px_rgba(6,182,212,0.06),0_0_40px_-8px_rgba(6,182,212,0.15)]"
+          style={{ animationDelay: "120ms" }}
+        >
+          <div
+            className="text-center mb-8 opacity-0 animate-fade-in-up"
+            style={{ animationDelay: "220ms" }}
+          >
             <h1 className="text-2xl font-bold text-white mb-2">Select Your Role</h1>
             <p className="text-white/60">
               {session?.email && `Signed in as ${session.email}`}
@@ -326,7 +347,10 @@ export const SelectRole = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Role Selection */}
-            <div className="space-y-2">
+            <div
+              className="space-y-2 opacity-0 animate-fade-in-up"
+              style={{ animationDelay: "320ms" }}
+            >
               <Label className="text-white/80 mb-3 block">I am a... *</Label>
               <div className="flex bg-white/5 rounded-lg p-1">
                 <button
@@ -373,7 +397,10 @@ export const SelectRole = () => {
             </div>
 
             {/* Full Name - Always shown */}
-            <div className="space-y-2">
+            <div
+              className="space-y-2 opacity-0 animate-fade-in-up"
+              style={{ animationDelay: "420ms" }}
+            >
               <Label htmlFor="fullName" className="text-white/80">
                 Full Name *
               </Label>
@@ -398,7 +425,10 @@ export const SelectRole = () => {
             {role === "vc" && (
               <>
                 {/* Firm */}
-                <div className="space-y-2">
+                <div
+                  className="space-y-2 opacity-0 animate-fade-in-up"
+                  style={{ animationDelay: "80ms" }}
+                >
                   <Label className="text-white/80">Firm *</Label>
                   <Popover open={companySearchOpen} onOpenChange={(open) => {
                     setCompanySearchOpen(open);
@@ -517,7 +547,10 @@ export const SelectRole = () => {
                 </div>
 
                 {/* Title */}
-                <div className="space-y-2">
+                <div
+                  className="space-y-2 opacity-0 animate-fade-in-up"
+                  style={{ animationDelay: "160ms" }}
+                >
                   <Label htmlFor="title" className="text-white/80">
                     Title *
                   </Label>
@@ -539,7 +572,10 @@ export const SelectRole = () => {
                 </div>
 
                 {/* LinkedIn Profile */}
-                <div className="space-y-2">
+                <div
+                  className="space-y-2 opacity-0 animate-fade-in-up"
+                  style={{ animationDelay: "240ms" }}
+                >
                   <Label htmlFor="linkedinProfile" className="text-white/80">
                     LinkedIn Profile
                   </Label>
@@ -565,13 +601,18 @@ export const SelectRole = () => {
             )}
 
             {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={isSubmitting || !role}
-              className="w-full mt-6 bg-cyan-glow text-navy-deep hover:bg-cyan-bright font-semibold py-5 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+            <div
+              className="opacity-0 animate-fade-in-up mt-6"
+              style={{ animationDelay: "520ms" }}
             >
-              {isSubmitting ? "Processing..." : "Continue"}
-            </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !role}
+                className="w-full bg-cyan-glow text-navy-deep hover:bg-cyan-bright font-semibold py-5 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+              >
+                {isSubmitting ? "Processing..." : "Continue"}
+              </Button>
+            </div>
           </form>
         </div>
       </div>

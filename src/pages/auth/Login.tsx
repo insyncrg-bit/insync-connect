@@ -6,9 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
 import { signInWithEmailAndPassword, sendEmailVerification, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
-import { sessionManager } from "@/lib/session";
+import { auth } from "@/lib/firebase";
+import { sessionManager, SESSION_TIMEOUT_MS } from "@/lib/session";
 import { useToast } from "@/hooks/use-toast";
 
 type LoginStep = "email" | "password" | "verifying";
@@ -67,31 +66,6 @@ const checkEmailExists = async (email: string): Promise<boolean> => {
   }
 };
 
-// Fetch user role from Firestore (placeholder)
-const fetchUserRole = async (userId: string): Promise<string | null> => {
-  log.info("Fetching user role from Firestore", { userId });
-  
-  try {
-    // TODO: Replace with actual Firestore collection/document path
-    // This is placeholder code - adjust based on your Firestore structure
-    const userDocRef = doc(db, "users", userId);
-    const userDoc = await getDoc(userDocRef);
-    
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      log.info("User document found", { role: userData.role });
-      return userData.role || null;
-    }
-    
-    log.warn("User document not found in Firestore", { userId });
-    return null;
-  } catch (error) {
-    log.error("Error fetching user role", error);
-    // Return null on error - user will be redirected to role selection
-    return null;
-  }
-};
-
 export const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -111,6 +85,26 @@ export const Login = () => {
   const [emailVerifiedInDatabase, setEmailVerifiedInDatabase] = useState(false);
   const verificationCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const authUnsubscribeRef = useRef<(() => void) | null>(null);
+
+  // When landing on login with email (e.g. welcome back from signup), open password step immediately
+  useEffect(() => {
+    if (initialEmail.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(initialEmail)) {
+      setStep("password");
+      setEmailVerifiedInDatabase(true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- only on mount, initialEmail from location
+
+  // TEMPORARY: Redirect this email to superuser page until role is in claims. Then remove and gate by token claim role === "superuser".
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (!firebaseUser) return;
+      const userEmail = (firebaseUser.email || "").toLowerCase().trim();
+      if (userEmail === "shourya0523@gmail.com") {
+        navigate("/admin/set-superuser", { replace: true });
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -177,10 +171,11 @@ export const Login = () => {
       log.error("Error in email submission", error);
       
       let errorMessage = "An error occurred. Please try again.";
+      const msg = error?.message ?? "";
       
-      if (error.message.includes("Network error")) {
+      if (msg.includes("Network error") || msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
         errorMessage = "Network error. Please check your connection and try again.";
-      } else if (error.message.includes("API configuration")) {
+      } else if (msg.includes("API configuration")) {
         errorMessage = "Configuration error. Please contact support.";
       }
       
@@ -199,64 +194,100 @@ export const Login = () => {
     }
   };
 
-  // Handle redirect after email verification
-  const handleVerifiedUser = useCallback(async (user: any) => {
-    log.info("Handling verified user", { uid: user.uid, email: user.email, emailVerified: user.emailVerified });
-    
-    try {
-      // Fetch user role from Firestore
-      const userRole = await fetchUserRole(user.uid);
-      log.info("User role fetched", { role: userRole });
+  // Redirect targets by role (token claims). Users with roles go to onboarding flows.
+  // Superuser stays under /admin.
+  const redirectToRoleHome = useCallback(
+    (role: string, navigate: (path: string) => void) => {
+      switch (role) {
+        case "superuser":
+          navigate("/admin");
+          break;
+        case "vc":
+          navigate("/vc-onboarding");
+          break;
+        case "analyst":
+          navigate("/analyst"); // Analysts go through request-sent flow, then onboarding
+          break;
+        case "startup":
+          navigate("/startup-onboarding");
+          break;
+        default:
+          navigate("/select-role");
+      }
+    },
+    []
+  );
 
-      // Save session data
-      sessionManager.save({
-        email: user.email || email,
-        userId: user.uid,
-        role: userRole as "startup" | "vc" | "analyst" | undefined,
-      });
-      log.info("Session data saved");
+  // Handle redirect after email verification. Role from token claims only.
+  const handleVerifiedUser = useCallback(
+    async (user: any) => {
+      log.info("Handling verified user", { uid: user.uid, email: user.email, emailVerified: user.emailVerified });
 
-      // Redirect based on user.verified and user.role
-      if (user.emailVerified && !userRole) {
-        log.info("User verified but no role, redirecting to role selection");
-        // User is verified but has no role - redirect to role selection
-        navigate("/select-role");
-      } else if (userRole) {
-        log.info("User has role, redirecting to dashboard", { role: userRole });
-        // User has a role - redirect to appropriate dashboard
-        // Check if user has incomplete VC onboarding
-        const onboardingData = localStorage.getItem("vc_onboarding_data");
-        if (onboardingData) {
-          const data = JSON.parse(onboardingData);
-          if (data.firmName && !data.submitted) {
-            log.info("Incomplete VC onboarding found, redirecting to onboarding");
-            navigate("/vc-onboarding");
-            return;
+      // TEMPORARY: First-time superuser setup – remove once superuser is in claims and gate by claim.
+      const userEmail = (user.email || email || "").toLowerCase().trim();
+      if (userEmail === "shourya0523@gmail.com") {
+        log.info("Admin email detected, redirecting to superuser page");
+        try {
+          sessionManager.save({ email: user.email || email, userId: user.uid });
+          const token = await user.getIdToken();
+          sessionManager.setAuthToken(token, Date.now() + SESSION_TIMEOUT_MS);
+        } catch (e) {
+          log.error("Failed to save session before admin redirect", e);
+        }
+        navigate("/admin/set-superuser");
+        return;
+      }
+
+      try {
+        const result = await user.getIdTokenResult();
+        const userRole = (result.claims.role as string) || null;
+        log.info("User role from token", { role: userRole });
+
+        sessionManager.save({
+          email: user.email || email,
+          userId: user.uid,
+          role: userRole as "startup" | "vc" | "analyst" | "superuser" | undefined,
+        });
+        const token = await user.getIdToken();
+        sessionManager.setAuthToken(token, Date.now() + SESSION_TIMEOUT_MS);
+        log.info("Session data saved");
+
+        if (!userRole || !["superuser", "vc", "analyst", "startup"].includes(userRole)) {
+          log.info("No role in token, redirecting to role selection");
+          navigate("/select-role");
+          return;
+        }
+
+        // VC with incomplete onboarding → onboarding first
+        if (userRole === "vc") {
+          try {
+            const onboardingData = localStorage.getItem("vc_onboarding_data");
+            if (onboardingData) {
+              const data = JSON.parse(onboardingData);
+              if (data?.firmName && !data.submitted) {
+                log.info("Incomplete VC onboarding found, redirecting to onboarding");
+                navigate("/vc-onboarding");
+                return;
+              }
+            }
+          } catch (parseError) {
+            log.warn("Could not read onboarding data, skipping", parseError);
           }
         }
 
-        // Redirect based on role
-        if (userRole === "startup") {
-          navigate("/founder-dashboard");
-        } else if (userRole === "vc" || userRole === "analyst") {
-          navigate("/vc-admin?tab=dashboard");
-        } else {
-          navigate("/");
-        }
-      } else {
-        log.warn("Unexpected state: verified user with no role, redirecting to home");
-        // Fallback - should not happen if logic is correct
-        navigate("/");
+        redirectToRoleHome(userRole, navigate);
+      } catch (error) {
+        log.error("Error handling verified user", error);
+        toast({
+          title: "Error",
+          description: "Failed to load user data. Please try again.",
+          variant: "destructive",
+        });
+        navigate("/select-role");
       }
-    } catch (error) {
-      log.error("Error handling verified user", error);
-      toast({
-        title: "Error",
-        description: "Failed to load user data. Please try again.",
-        variant: "destructive",
-      });
-    }
-  }, [email, navigate, toast]);
+    },
+    [email, navigate, toast, redirectToRoleHome]
+  );
 
   // Set up polling to check email verification status
   useEffect(() => {
@@ -300,6 +331,11 @@ export const Login = () => {
           }
         } catch (error) {
           log.error("Error in auth state change handler", error);
+          toast({
+            title: "Verification check failed",
+            description: "We couldn't confirm your email. Please try again or refresh the page.",
+            variant: "destructive",
+          });
         }
       }
     });
@@ -328,6 +364,11 @@ export const Login = () => {
           }
         } catch (error) {
           log.error("Error in verification polling", error);
+          toast({
+            title: "Verification check failed",
+            description: "We couldn't confirm your email. Please try again or refresh the page.",
+            variant: "destructive",
+          });
         }
       } else {
         log.warn("No current user during verification polling");
@@ -389,7 +430,10 @@ export const Login = () => {
         // Send verification email if not already sent
         if (!verificationEmailSent) {
           try {
-            await sendEmailVerification(user);
+            await sendEmailVerification(user, {
+              url: `${window.location.origin}/verify-email`,
+              handleCodeInApp: false,
+            });
             setVerificationEmailSent(true);
             log.info("Verification email sent successfully");
             toast({
@@ -438,6 +482,9 @@ export const Login = () => {
       } else if (error.code === "auth/network-request-failed") {
         errorMessage = "Network error. Please check your connection and try again.";
         log.error("Network error", { email });
+      } else if (error.code === "auth/invalid-credential" || error.code === "auth/invalid-login-credentials") {
+        errorMessage = "Invalid email or password. Please try again.";
+        log.warn("Invalid credentials", { email });
       }
       
       setErrors((prev) => ({
@@ -510,7 +557,7 @@ export const Login = () => {
       {/* Content */}
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
-        <Link to="/" className="block mb-6">
+        <Link to="/landing" className="block mb-6">
           <div className="relative">
             <div 
               className="absolute inset-0 blur-[60px] animate-pulse"
@@ -521,7 +568,7 @@ export const Login = () => {
             <img
               src={inSyncLogo}
               alt="InSync"
-              className="relative h-20 w-auto max-w-[400px] mx-auto"
+              className="relative h-40 w-auto max-w-[500px] mx-auto"
               style={{
                 filter: "drop-shadow(0 0 30px rgba(6,182,212,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.3))",
               }}
@@ -647,6 +694,7 @@ export const Login = () => {
                   </Label>
                   <Link
                     to="/forgot-password"
+                    state={email ? { email } : undefined}
                     className="text-sm text-cyan-glow hover:text-cyan-bright transition-colors"
                   >
                     Forgot password?

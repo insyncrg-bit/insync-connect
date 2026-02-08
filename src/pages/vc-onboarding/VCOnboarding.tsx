@@ -74,7 +74,8 @@ export const VCOnboarding = () => {
   };
 
   const handleComplete = () => {
-    // Redirect to VC admin dashboard after onboarding completion
+    // After onboarding completion, redirect to VC memos (to be implemented)
+    // For now, redirects to dashboard
     navigate("/vc-admin?tab=dashboard");
   };
 

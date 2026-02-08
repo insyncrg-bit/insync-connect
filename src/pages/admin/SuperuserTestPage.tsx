@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Building2, UserCog, Rocket, LayoutDashboard } from "lucide-react";
-import infinityLogo from "@/landing/assets/infinity-logo.png";
 import { auth } from "@/lib/firebase";
 import { sessionManager } from "@/lib/session";
 
@@ -48,7 +47,7 @@ export const SuperuserTestPage = () => {
     if (!FIREBASE_API) return;
     const user = auth.currentUser;
     if (!user) {
-      navigate("/", { replace: true });
+      navigate("/landing", { replace: true });
       return;
     }
     let cancelled = false;
@@ -70,12 +69,12 @@ export const SuperuserTestPage = () => {
           const role = (result.claims.role as string) || "";
           if (role !== "superuser") {
             sessionManager.clear();
-            navigate("/", { replace: true });
+            navigate("/landing", { replace: true });
           }
         }).catch(() => {
           if (!cancelled) {
             sessionManager.clear();
-            navigate("/", { replace: true });
+            navigate("/landing", { replace: true });
           }
         });
       }
@@ -84,16 +83,7 @@ export const SuperuserTestPage = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-[#151a24] flex flex-col">
-      <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
-        <button onClick={() => navigate("/")} className="hover:opacity-80 transition-opacity">
-          <img src={infinityLogo} alt="Home" className="h-14 w-auto" />
-        </button>
-        <div className="flex-1" />
-        <span className="text-sm text-cyan-glow font-medium">Superuser Test Mode</span>
-      </header>
-
-      <main className="flex-1 p-8 max-w-4xl mx-auto w-full">
+    <div className="flex-1 p-8 max-w-4xl mx-auto w-full">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
             <LayoutDashboard className="h-8 w-8 text-cyan-glow" />
@@ -145,7 +135,6 @@ export const SuperuserTestPage = () => {
             complete onboarding for that role.
           </p>
         </div>
-      </main>
     </div>
   );
 };

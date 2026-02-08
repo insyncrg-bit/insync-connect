@@ -10,6 +10,7 @@ import { CompetitorsStep } from "./components/steps/CompetitorsStep";
 import { STEPS } from "./constants";
 import { StartupOnboardingData, defaultData } from "./hooks/useStartupOnboardingStorage";
 import { sessionManager } from "@/lib/session";
+import { useNavigate } from "react-router-dom";
 
 // Word count helper
 const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
@@ -98,6 +99,12 @@ export const StartupOnboarding = () => {
     sessionManager.updateOnboarding({
       fields: data,
     });
+  };
+
+  const handleComplete = () => {
+    // After onboarding completion, redirect to startup memos (to be implemented)
+    // For now, redirects to dashboard
+    navigate("/startup");
   };
 
   const renderStep = (
@@ -190,6 +197,7 @@ export const StartupOnboarding = () => {
       renderStep={renderStep}
       validateStep={validateStep}
       onSubmit={handleSubmit}
+      onComplete={handleComplete}
       requiredSteps={[1, 2, 3, 4, 5, 6]} // Step 7 (competitors) is optional
     />
   );

@@ -5,18 +5,21 @@ import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { sessionManager, SESSION_TIMEOUT_MS } from "@/lib/session";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthReady } from "@/hooks/useAuthReady";
 
 /**
- * Protects routes that require an authenticated session with a valid (non-expired) token.
- * On session timeout or missing token, clears session and redirects to /login.
- * Optionally refreshes the token when it is close to expiring.
+ * Protects routes that require an authenticated session. Waits for auth to be ready
+ * (useAuthReady restores session from Firebase on refresh), then requires valid session
+ * or redirects to /login.
  */
 export const RequireAuth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const ready = useAuthReady();
   const [allowed, setAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
+    if (!ready) return;
     const check = async () => {
       if (!sessionManager.isSessionValid()) {
         sessionManager.clear();
@@ -35,7 +38,6 @@ export const RequireAuth = () => {
           const token = await auth.currentUser.getIdToken(true);
           sessionManager.setAuthToken(token, Date.now() + SESSION_TIMEOUT_MS);
         } catch {
-          // Refresh failed (e.g. user signed out elsewhere) – treat as expired
           sessionManager.clear();
           await signOut(auth).catch(() => {});
           toast({
@@ -51,19 +53,15 @@ export const RequireAuth = () => {
       setAllowed(true);
     };
     check();
-  }, [navigate, toast]);
+  }, [ready, navigate, toast]);
 
-  if (allowed === null) {
+  if (!ready || allowed === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-navy-deep">
         <Loader2 className="h-8 w-8 animate-spin text-cyan-glow" />
       </div>
     );
   }
-
-  if (!allowed) {
-    return null;
-  }
-
+  if (!allowed) return null;
   return <Outlet />;
-};
+}

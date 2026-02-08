@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
-import { sessionManager } from "@/lib/session";
+import { sessionManager, SESSION_TIMEOUT_MS } from "@/lib/session";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
 import { signInWithEmailAndPassword, sendEmailVerification, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -206,10 +206,11 @@ export const SignUp = () => {
       log.error("Error in email submission", error);
       
       let errorMessage = "An error occurred. Please try again.";
+      const msg = error?.message ?? "";
       
-      if (error.message.includes("Network error")) {
+      if (msg.includes("Network error") || msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
         errorMessage = "Network error. Please check your connection and try again.";
-      } else if (error.message.includes("API configuration")) {
+      } else if (msg.includes("API configuration")) {
         errorMessage = "Configuration error. Please contact support.";
       }
       
@@ -239,7 +240,17 @@ export const SignUp = () => {
         userId: user.uid,
         // role will be set after role selection
       });
+      const token = await user.getIdToken();
+      sessionManager.setAuthToken(token, Date.now() + SESSION_TIMEOUT_MS);
       log.info("Session data saved");
+
+      // TEMPORARY: Remove once superuser is in claims; then gate by claim or remove this branch.
+      const userEmail = (user.email || email || "").toLowerCase().trim();
+      if (userEmail === "shourya0523@gmail.com") {
+        log.info("Admin email detected, redirecting to superuser page");
+        navigate("/admin/set-superuser");
+        return;
+      }
 
       // User is verified but has no role - redirect to role selection
       log.info("Redirecting to role selection");
@@ -296,6 +307,11 @@ export const SignUp = () => {
           }
         } catch (error) {
           log.error("Error in auth state change handler", error);
+          toast({
+            title: "Verification check failed",
+            description: "We couldn't confirm your email. Please try again or refresh the page.",
+            variant: "destructive",
+          });
         }
       }
     });
@@ -324,6 +340,11 @@ export const SignUp = () => {
           }
         } catch (error) {
           log.error("Error in verification polling", error);
+          toast({
+            title: "Verification check failed",
+            description: "We couldn't confirm your email. Please try again or refresh the page.",
+            variant: "destructive",
+          });
         }
       } else {
         log.warn("No current user during verification polling");
@@ -417,7 +438,11 @@ export const SignUp = () => {
       
       if (error.message.includes("User already exists")) {
         errorMessage = "User already exists with this email. Please sign in instead.";
-        // Redirect to login
+        toast({
+          title: "Account exists",
+          description: errorMessage,
+          variant: "destructive",
+        });
         navigate("/login", { state: { email } });
         return;
       } else if (error.message.includes("Network error") || error.message.includes("Failed to fetch")) {
@@ -426,6 +451,11 @@ export const SignUp = () => {
         errorMessage = "Configuration error. Please contact support.";
       } else if (error.code === "auth/email-already-in-use") {
         errorMessage = "This email is already registered. Please sign in instead.";
+        toast({
+          title: "Account exists",
+          description: errorMessage,
+          variant: "destructive",
+        });
         navigate("/login", { state: { email } });
         return;
       } else if (error.code === "auth/weak-password") {
@@ -434,6 +464,10 @@ export const SignUp = () => {
       } else if (error.code === "auth/invalid-email") {
         errorMessage = "Invalid email address.";
         setErrors({ email: errorMessage });
+      } else if (error.code === "auth/network-request-failed") {
+        errorMessage = "Network error. Please check your connection and try again.";
+      } else if (error.code === "auth/operation-not-allowed") {
+        errorMessage = "Email sign-up is not enabled. Please contact support.";
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -560,7 +594,7 @@ export const SignUp = () => {
       {/* Content */}
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
-        <Link to="/" className="block mb-6">
+        <Link to="/landing" className="block mb-6">
           <div className="relative">
             <div 
               className="absolute inset-0 blur-[60px] animate-pulse"
@@ -571,7 +605,7 @@ export const SignUp = () => {
             <img
               src={inSyncLogo}
               alt="InSync"
-              className="relative h-20 w-auto max-w-[400px] mx-auto"
+              className="relative h-40 w-auto max-w-[500px] mx-auto"
               style={{
                 filter: "drop-shadow(0 0 30px rgba(6,182,212,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.3))",
               }}

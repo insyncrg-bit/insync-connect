@@ -149,7 +149,7 @@ export const OnboardingPage = <T extends Record<string, any>>({
       if (onComplete) {
         onComplete();
       } else {
-        navigate("/");
+        navigate("/landing");
       }
     } catch (error) {
       console.error("Error submitting onboarding:", error);
@@ -199,7 +199,7 @@ export const OnboardingPage = <T extends Record<string, any>>({
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
         {/* Logo */}
         <div className="mb-6 flex justify-center">
-          <Link to="/" className="block">
+          <Link to="/landing" className="block">
             <div className="relative">
               <div 
                 className="absolute inset-0 blur-[60px] animate-pulse"
@@ -210,7 +210,7 @@ export const OnboardingPage = <T extends Record<string, any>>({
               <img
                 src={inSyncLogo}
                 alt="InSync"
-                className="relative h-16 w-auto max-w-[300px] mx-auto"
+                className="relative h-40 w-auto max-w-[500px] mx-auto"
                 style={{
                   filter: "drop-shadow(0 0 30px rgba(6,182,212,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.3))",
                 }}
