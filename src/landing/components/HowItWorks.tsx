@@ -265,28 +265,29 @@ export const HowItWorks = ({ onTryDemo }: HowItWorksProps) => {
                 </>
               ) : (
                 <>
-                  {/* Investor Application Steps Bar */}
+                  {/* Investor Application Steps Bar - matching actual application */}
                   <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-6">
                     <div className="flex items-center justify-between gap-2">
                       {[
                         { icon: Sparkles, label: "Welcome", active: true },
-                        { icon: Building2, label: "Firm Info", active: false },
-                        { icon: Target, label: "Investment Thesis", active: false },
-                        { icon: DollarSign, label: "Check Size", active: false },
-                        { icon: TrendingUp, label: "Stage Focus", active: false },
-                        { icon: Map, label: "Geography", active: false },
+                        { icon: Building2, label: "Admin & Verification", active: false },
+                        { icon: DollarSign, label: "Fund Overview", active: false },
+                        { icon: Target, label: "Investment Strategy", active: false },
+                        { icon: Users, label: "Value-Add", active: false },
+                        { icon: FileText, label: "Portfolio", active: false },
+                        { icon: TrendingUp, label: "Deal Mechanics", active: false },
                       ].map((step, index) => {
                         const Icon = step.icon;
                         return (
                           <div
                             key={index}
-                            className={`flex flex-col items-center gap-2 p-2 rounded-xl transition-all cursor-pointer flex-1 ${
+                            className={`flex flex-col items-center gap-2 p-2 rounded-xl transition-all cursor-pointer ${
                               step.active ? 'bg-white/20' : 'hover:bg-white/10'
                             }`}
                           >
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                              step.active 
-                                ? 'bg-white text-navy-deep' 
+                              step.active
+                                ? 'bg-white text-navy-deep'
                                 : 'bg-white/20 text-white/60'
                             }`}>
                               <Icon className="h-5 w-5" />
@@ -305,20 +306,24 @@ export const HowItWorks = ({ onTryDemo }: HowItWorksProps) => {
                   {/* Sample form preview */}
                   <div className="bg-navy-card border border-white/10 rounded-xl p-6">
                     <h3 className="text-lg font-semibold text-white mb-2">Welcome</h3>
-                    <p className="text-white/60 text-sm mb-4">Define your investment criteria to find the right startups</p>
-                    
-                    <div className="grid grid-cols-3 gap-3">
+                    <p className="text-white/60 text-sm mb-4">Help us understand your investment thesis and criteria</p>
+
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
-                        <span className="text-lg font-bold text-cyan-glow">THESIS</span>
+                        <span className="text-xl font-bold text-cyan-glow">THESIS</span>
                         <p className="text-xs text-white/50 mt-1">Your investment focus</p>
                       </div>
                       <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
-                        <span className="text-lg font-bold text-cyan-glow">CRITERIA</span>
+                        <span className="text-xl font-bold text-cyan-glow">CRITERIA</span>
                         <p className="text-xs text-white/50 mt-1">Stage, sector, check size</p>
                       </div>
                       <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
-                        <span className="text-lg font-bold text-cyan-glow">SUPPORT</span>
-                        <p className="text-xs text-white/50 mt-1">Value-add offerings</p>
+                        <span className="text-xl font-bold text-cyan-glow">PROCESS</span>
+                        <p className="text-xs text-white/50 mt-1">How you evaluate deals</p>
+                      </div>
+                      <div className="p-4 bg-white/5 border border-cyan-glow/20 rounded-lg">
+                        <span className="text-xl font-bold text-cyan-glow">VALUE-ADD</span>
+                        <p className="text-xs text-white/50 mt-1">What you offer portfolio</p>
                       </div>
                     </div>
                   </div>

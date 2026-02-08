@@ -1,0 +1,1304 @@
+import { useEffect, useState } from "react";
+import { Navigation } from "@/components/Navigation";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MemoEditor } from "@/components/MemoEditor";
+import { ProfileSettings } from "@/components/ProfileSettings";
+import { InvestorProfileModal } from "@/components/InvestorProfileModal";
+import { InterestsModal } from "@/components/InterestsModal";
+import { SyncsModal } from "@/components/SyncsModal";
+import { PendingModal } from "@/components/PendingModal";
+import { MessagesModal } from "@/components/MessagesModal";
+import { MatchScoreBadge } from "@/components/MatchScoreBadge";
+import { MatchExplainer } from "@/components/MatchExplainer";
+import syncsLogo from "@/assets/syncs-logo.png";
+import { useMatchmaking, MatchResult } from "@/hooks/useMatchmaking";
+import { useMessages } from "@/hooks/useMessages";
+import { 
+  Building2, 
+  Calendar, 
+  Eye, 
+  Heart,
+  ArrowRight,
+  MessageSquare,
+  MapPin,
+  DollarSign,
+  Loader2,
+  Sparkles
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+interface InvestorApplication {
+  id: string;
+  user_id: string;
+  firm_name: string;
+  firm_description: string | null;
+  thesis_statement: string | null;
+  sub_themes: string[];
+  fast_signals: string[];
+  hard_nos: string[];
+  check_sizes: string[];
+  stage_focus: string[];
+  sector_tags: string[];
+  customer_types: string[];
+  lead_follow: string | null;
+  operating_support: string[];
+  support_style: string | null;
+  hq_location: string | null;
+  aum: string | null;
+  fund_type: string | null;
+  geographic_focus: string | null;
+  b2b_b2c: string | null;
+  revenue_models: string[];
+  minimum_traction: string[];
+  board_involvement: string | null;
+  decision_process: string | null;
+  time_to_decision: string | null;
+}
+
+interface Event {
+  id: string;
+  title: string;
+  description: string;
+  event_type: string;
+  location: string;
+  event_date: string;
+  max_attendees: number;
+}
+
+interface ConnectionStats {
+  interests: number;
+  syncs: number;
+  pending: number;
+}
+
+interface InterestItem {
+  id: string;
+  requester_user_id: string;
+  sync_note: string | null;
+  created_at: string;
+  firm_name?: string;
+}
+
+export default function FounderDashboard() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
+  const [curatedInvestors, setCuratedInvestors] = useState<InvestorApplication[]>([]);
+  const [matchedInvestors, setMatchedInvestors] = useState<MatchResult[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [application, setApplication] = useState<any>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [connectionStats, setConnectionStats] = useState<ConnectionStats>({ interests: 0, syncs: 0, pending: 0 });
+  const [pendingRequests, setPendingRequests] = useState<Set<string>>(new Set());
+  
+  // Matchmaking hook
+  const { matches, loading: matchLoading, error: matchError, fetchMatches } = useMatchmaking();
+  
+  // Messages hook
+  const { threads: realThreads, loading: realMessagesLoading, sendMessage, markAsRead, fetchThreads } = useMessages(currentUserId, "founder");
+  
+  // Modal states
+  const [selectedInvestor, setSelectedInvestor] = useState<InvestorApplication | null>(null);
+  const [investorModalOpen, setInvestorModalOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  
+  // Interests modal
+  const [interestsModalOpen, setInterestsModalOpen] = useState(false);
+  const [incomingInterests, setIncomingInterests] = useState<InterestItem[]>([]);
+  const [interestsLoading, setInterestsLoading] = useState(false);
+  const [processingInterestId, setProcessingInterestId] = useState<string | null>(null);
+
+  // Syncs modal state
+  const [syncsModalOpen, setSyncsModalOpen] = useState(false);
+  const [activeSyncs, setActiveSyncs] = useState<any[]>([]);
+  const [syncsLoading, setSyncsLoading] = useState(false);
+
+  // Pending modal state
+  const [pendingModalOpen, setPendingModalOpen] = useState(false);
+  const [outgoingPending, setOutgoingPending] = useState<any[]>([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  // Messages modal state
+  const [messagesModalOpen, setMessagesModalOpen] = useState(false);
+  const [messageThreads, setMessageThreads] = useState<any[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [initialContactUserId, setInitialContactUserId] = useState<string | null>(null);
+
+  // Demo data for modals
+  const demoInterests = [
+    {
+      id: "demo-int-1",
+      requester_user_id: "demo-inv-1",
+      sync_note: "Your AI infrastructure approach is exactly what we look for. Would love to learn more about your technical roadmap.",
+      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      firm_name: "Horizon Ventures",
+      analyst_name: "Sarah Kim",
+      analyst_title: "Associate",
+      analyst_profile_picture_url: null,
+    },
+    {
+      id: "demo-int-2",
+      requester_user_id: "demo-inv-2",
+      sync_note: null,
+      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      firm_name: "Climate Capital",
+      analyst_name: "Michael Chen",
+      analyst_title: "Principal",
+      analyst_profile_picture_url: null,
+    },
+  ];
+
+  const demoSyncs = [
+    {
+      id: "demo-sync-1",
+      other_user_id: "demo-inv-3",
+      other_user_type: "investor",
+      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      firm_name: "HealthTech Partners",
+      hq_location: "Boston, MA",
+      stage_focus: ["Seed", "Series A"],
+      sector_tags: ["Digital Health", "HealthTech"],
+      analyst_name: "Emily Wang",
+      analyst_title: "Senior Associate",
+      analyst_profile_picture_url: null,
+    },
+    {
+      id: "demo-sync-2",
+      other_user_id: "demo-inv-4",
+      other_user_type: "investor",
+      created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+      firm_name: "Enterprise Fund",
+      hq_location: "New York, NY",
+      stage_focus: ["Pre-seed", "Seed"],
+      sector_tags: ["Enterprise SaaS", "B2B"],
+      analyst_name: "James Rodriguez",
+      analyst_title: "Analyst",
+      analyst_profile_picture_url: null,
+    },
+  ];
+
+  const demoPending = [
+    {
+      id: "demo-pend-1",
+      target_user_id: "demo-inv-5",
+      sync_note: "Impressed by your portfolio in AI infrastructure. Would love to discuss how our platform fits your thesis.",
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      firm_name: "DeepTech Ventures",
+      hq_location: "Palo Alto, CA",
+      stage_focus: ["Seed", "Series A"],
+      sector_tags: ["AI/ML", "Developer Tools"],
+      analyst_name: "David Park",
+      analyst_title: "Partner",
+      analyst_profile_picture_url: null,
+    },
+  ];
+
+  const demoMessages = [
+    {
+      id: "demo-msg-1",
+      other_user_id: "demo-inv-3",
+      other_user_name: "Sarah Miller",
+      other_user_company: "HealthTech Partners",
+      last_message: "Looking forward to our call next week!",
+      last_message_time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      unread_count: 2,
+      messages: [
+        { id: "m1", sender: "other" as const, content: "Hi! Thanks for connecting. I reviewed your deck and have some questions.", timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString() },
+        { id: "m2", sender: "self" as const, content: "Great to hear from you! Happy to answer any questions.", timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() },
+        { id: "m3", sender: "other" as const, content: "Would you be available for a 30-min call next Tuesday?", timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() },
+        { id: "m4", sender: "self" as const, content: "Tuesday works! How about 2pm PT?", timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() },
+        { id: "m5", sender: "other" as const, content: "Looking forward to our call next week!", timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
+      ],
+    },
+    {
+      id: "demo-msg-2",
+      other_user_id: "demo-inv-4",
+      other_user_name: "James Chen",
+      other_user_company: "Enterprise Fund",
+      last_message: "Sent over the term sheet. Let me know your thoughts.",
+      last_message_time: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      unread_count: 1,
+      messages: [
+        { id: "m1", sender: "other" as const, content: "Sent over the term sheet. Let me know your thoughts.", timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() },
+      ],
+    },
+  ];
+
+  const currentTab = searchParams.get("tab") || "dashboard";
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  // Fetch matches when we have a user
+  useEffect(() => {
+    if (currentUserId) {
+      fetchMatches('founder', currentUserId);
+    }
+  }, [currentUserId, fetchMatches]);
+
+  // Update matched investors when matches change
+  useEffect(() => {
+    if (matches.length > 0) {
+      setMatchedInvestors(matches);
+    }
+  }, [matches]);
+
+  const fetchDashboardData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        setCurrentUserId(user.id);
+        const { data: appData } = await supabase
+          .from("founder_applications")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        
+        setApplication(appData);
+        await fetchConnectionStats(user.id);
+      } else {
+        setApplication({
+          id: "demo",
+          founder_name: "Demo Founder",
+          company_name: "Demo Startup",
+          vertical: "FinTech",
+          stage: "Seed",
+          location: "San Francisco, CA",
+          website: "https://demo.com",
+          business_model: "We help businesses manage their finances more efficiently.",
+          application_sections: {}
+        });
+      }
+
+      // Fetch curated investor applications
+      const { data: investorApps } = await supabase
+        .from("investor_applications")
+        .select("*")
+        .eq("status", "active")
+        .eq("public_profile", true)
+        .limit(6);
+      
+      // Demo investors for preview
+      const demoInvestors: InvestorApplication[] = [
+        {
+          id: "demo-1",
+          user_id: "demo-user-1",
+          firm_name: "Horizon Ventures",
+          firm_description: "Early-stage VC focused on B2B SaaS and developer tools.",
+          thesis_statement: "We invest in technical founders building software that becomes critical infrastructure for enterprises. We look for companies solving hard problems with elegant solutions.",
+          sub_themes: ["Developer Tools", "AI/ML Infrastructure", "API-First Products"],
+          fast_signals: ["Technical founder with domain expertise", "Clear wedge into large market", "Early product-led growth"],
+          hard_nos: ["No clear path to $100M+ revenue", "Crowded market without differentiation"],
+          check_sizes: ["$500K - $2M"],
+          stage_focus: ["Pre-seed", "Seed"],
+          sector_tags: ["Enterprise SaaS", "Developer Tools", "AI/ML"],
+          customer_types: ["SMB", "Mid-Market", "Enterprise"],
+          lead_follow: "Lead",
+          operating_support: ["Go-to-Market Strategy", "Hiring", "Fundraising Prep"],
+          support_style: "Hands-on",
+          hq_location: "San Francisco, CA",
+          aum: "$75M",
+          fund_type: "Venture Capital",
+          geographic_focus: "US",
+          b2b_b2c: "B2B",
+          revenue_models: ["SaaS", "Usage-based"],
+          minimum_traction: ["$10K+ MRR"],
+          board_involvement: "Board seats on lead investments",
+          decision_process: "Partner meetings weekly",
+          time_to_decision: "2-3 weeks",
+        },
+        {
+          id: "demo-2",
+          user_id: "demo-user-2",
+          firm_name: "Climate Capital",
+          firm_description: "Dedicated to funding the transition to a sustainable economy.",
+          thesis_statement: "We back founders building solutions to the climate crisis. Focus on carbon reduction, clean energy, and sustainable supply chains.",
+          sub_themes: ["Clean Energy", "Carbon Tech", "Sustainable Supply Chain"],
+          fast_signals: ["Deep climate expertise", "Measurable carbon impact", "Clear regulatory tailwinds"],
+          hard_nos: ["Greenwashing", "No path to profitability"],
+          check_sizes: ["$1M - $5M"],
+          stage_focus: ["Seed", "Series A"],
+          sector_tags: ["Climate Tech", "Clean Energy", "AgTech"],
+          customer_types: ["Enterprise", "Government"],
+          lead_follow: "Lead or Co-lead",
+          operating_support: ["Climate Expertise", "Policy Connections", "Corporate Introductions"],
+          support_style: "Strategic",
+          hq_location: "New York, NY",
+          aum: "$200M",
+          fund_type: "Venture Capital",
+          geographic_focus: "Global",
+          b2b_b2c: "B2B",
+          revenue_models: ["SaaS", "Hardware"],
+          minimum_traction: ["Pilot customers"],
+          board_involvement: "Observer seats typical",
+          decision_process: "IC approval required",
+          time_to_decision: "3-4 weeks",
+        },
+        {
+          id: "demo-3",
+          user_id: "demo-user-3",
+          firm_name: "HealthTech Partners",
+          firm_description: "Investing in the future of healthcare and digital health.",
+          thesis_statement: "We partner with founders reimagining healthcare delivery, patient outcomes, and health system efficiency through technology.",
+          sub_themes: ["Digital Health", "Health AI", "Care Delivery"],
+          fast_signals: ["Clinical validation", "Health system partnerships", "Regulatory clarity"],
+          hard_nos: ["Consumer-only plays", "No clinical evidence"],
+          check_sizes: ["$2M - $8M"],
+          stage_focus: ["Seed", "Series A"],
+          sector_tags: ["Digital Health", "HealthTech", "BioTech"],
+          customer_types: ["Health Systems", "Payers", "Providers"],
+          lead_follow: "Lead",
+          operating_support: ["Health System Intros", "Regulatory Guidance", "Clinical Advisory"],
+          support_style: "Hands-on",
+          hq_location: "Boston, MA",
+          aum: "$150M",
+          fund_type: "Venture Capital",
+          geographic_focus: "US",
+          b2b_b2c: "B2B",
+          revenue_models: ["SaaS", "Per-patient"],
+          minimum_traction: ["1+ health system customer"],
+          board_involvement: "Board seats on all investments",
+          decision_process: "Partner consensus",
+          time_to_decision: "4-6 weeks",
+        },
+      ];
+
+      const realInvestors = (investorApps || []).map(inv => ({
+        ...inv,
+        sub_themes: (inv.sub_themes as string[]) || [],
+        fast_signals: (inv.fast_signals as string[]) || [],
+        hard_nos: (inv.hard_nos as string[]) || [],
+        check_sizes: (inv.check_sizes as string[]) || [],
+        stage_focus: (inv.stage_focus as string[]) || [],
+        sector_tags: (inv.sector_tags as string[]) || [],
+        customer_types: (inv.customer_types as string[]) || [],
+        operating_support: (inv.operating_support as string[]) || [],
+        revenue_models: (inv.revenue_models as string[]) || [],
+        minimum_traction: (inv.minimum_traction as string[]) || [],
+      }));
+
+      // Use real investors if available, otherwise show demo
+      setCuratedInvestors(realInvestors.length > 0 ? realInvestors : demoInvestors);
+
+      const { data: eventsData } = await supabase
+        .from("events")
+        .select("*")
+        .gte("event_date", new Date().toISOString())
+        .order("event_date", { ascending: true })
+        .limit(3);
+      
+      setEvents(eventsData || []);
+
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchConnectionStats = async (userId: string) => {
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .or(`requester_user_id.eq.${userId},target_user_id.eq.${userId}`);
+
+      // Interests: investors who requested to sync with this founder
+      const interests = (connections || []).filter(
+        c => c.target_user_id === userId && c.requester_type === 'investor' && c.status === 'pending'
+      ).length;
+
+      // Syncs: mutual connections
+      const syncs = (connections || []).filter(c => c.status === 'accepted').length;
+
+      // Pending: founder's pending requests to investors
+      const pending = (connections || []).filter(
+        c => c.requester_user_id === userId && c.requester_type === 'founder' && c.status === 'pending'
+      ).length;
+
+      // Track which investor user_ids the founder has already requested
+      const pendingInvestorIds = new Set(
+        (connections || [])
+          .filter(c => c.requester_user_id === userId && c.requester_type === 'founder')
+          .map(c => c.target_user_id)
+      );
+
+      setConnectionStats({ interests, syncs, pending });
+      setPendingRequests(pendingInvestorIds);
+    } catch (error) {
+      console.error("Error fetching connection stats:", error);
+    }
+  };
+
+  const fetchIncomingInterests = async () => {
+    if (!currentUserId) return;
+    
+    setInterestsLoading(true);
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("target_user_id", currentUserId)
+        .eq("requester_type", "investor")
+        .eq("status", "pending");
+
+      if (connections && connections.length > 0) {
+        // Fetch investor details for each connection
+        const investorIds = connections.map(c => c.requester_user_id);
+        const { data: investors } = await supabase
+          .from("investor_applications")
+          .select("user_id, firm_name")
+          .in("user_id", investorIds);
+
+        // Also fetch analyst profiles (if the requester is an analyst)
+        const { data: analysts } = await supabase
+          .from("analyst_profiles")
+          .select("user_id, name, title, firm_name, profile_picture_url")
+          .in("user_id", investorIds);
+
+        const enrichedInterests = connections.map(conn => {
+          const investor = investors?.find(i => i.user_id === conn.requester_user_id);
+          const analyst = analysts?.find(a => a.user_id === conn.requester_user_id);
+          
+          return {
+            id: conn.id,
+            requester_user_id: conn.requester_user_id,
+            sync_note: conn.sync_note as string | null,
+            created_at: conn.created_at,
+            firm_name: analyst?.firm_name || investor?.firm_name || "Unknown Investor",
+            analyst_name: analyst?.name,
+            analyst_title: analyst?.title,
+            analyst_profile_picture_url: analyst?.profile_picture_url,
+          };
+        });
+
+        setIncomingInterests(enrichedInterests);
+      } else {
+        setIncomingInterests([]);
+      }
+    } catch (error) {
+      console.error("Error fetching interests:", error);
+    } finally {
+      setInterestsLoading(false);
+    }
+  };
+
+  const handleOpenInterests = () => {
+    setInterestsModalOpen(true);
+    if (currentUserId) {
+      fetchIncomingInterests();
+    } else {
+      // Show demo data for preview
+      setInterestsLoading(true);
+      setTimeout(() => {
+        setIncomingInterests(demoInterests);
+        setInterestsLoading(false);
+      }, 500);
+    }
+  };
+
+  const handleAcceptInterest = async (requestId: string) => {
+    setProcessingInterestId(requestId);
+    try {
+      const { error } = await supabase
+        .from("connection_requests")
+        .update({ status: "accepted" })
+        .eq("id", requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Connection accepted!",
+        description: "You are now synced with this investor.",
+      });
+
+      // Update stats and list
+      setIncomingInterests(prev => prev.filter(i => i.id !== requestId));
+      setConnectionStats(prev => ({
+        ...prev,
+        interests: prev.interests - 1,
+        syncs: prev.syncs + 1
+      }));
+    } catch (error) {
+      console.error("Error accepting interest:", error);
+      toast({
+        title: "Error",
+        description: "Failed to accept connection",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingInterestId(null);
+    }
+  };
+
+  const handleDeclineInterest = async (requestId: string) => {
+    setProcessingInterestId(requestId);
+    try {
+      const { error } = await supabase
+        .from("connection_requests")
+        .update({ status: "declined" })
+        .eq("id", requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Connection declined",
+      });
+
+      setIncomingInterests(prev => prev.filter(i => i.id !== requestId));
+      setConnectionStats(prev => ({
+        ...prev,
+        interests: prev.interests - 1
+      }));
+    } catch (error) {
+      console.error("Error declining interest:", error);
+      toast({
+        title: "Error",
+        description: "Failed to decline connection",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingInterestId(null);
+    }
+  };
+
+  const handleOpenInvestorProfile = (investor: InvestorApplication) => {
+    setSelectedInvestor(investor);
+    setInvestorModalOpen(true);
+  };
+
+  const handleSyncWithInvestor = async (investorUserId: string, note: string) => {
+    if (!currentUserId) {
+      toast({
+        title: "Login required",
+        description: "Please log in to request a sync",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSyncing(true);
+    try {
+      const { error } = await supabase
+        .from("connection_requests")
+        .insert({
+          requester_user_id: currentUserId,
+          requester_type: 'founder',
+          target_user_id: investorUserId,
+          target_type: 'investor',
+          status: 'pending',
+          sync_note: note || null
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Already requested",
+            description: "You've already sent a sync request to this investor",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Sync requested!",
+          description: "Your request has been sent to the investor.",
+        });
+        setPendingRequests(prev => new Set([...prev, investorUserId]));
+        setConnectionStats(prev => ({ ...prev, pending: prev.pending + 1 }));
+        setInvestorModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error requesting sync:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send sync request",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const fetchActiveSyncs = async () => {
+    if (!currentUserId) return;
+    setSyncsLoading(true);
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("status", "accepted")
+        .or(`requester_user_id.eq.${currentUserId},target_user_id.eq.${currentUserId}`);
+
+      if (connections && connections.length > 0) {
+        const investorIds = connections.map(c => 
+          c.requester_user_id === currentUserId ? c.target_user_id : c.requester_user_id
+        );
+        
+        const { data: investors } = await supabase
+          .from("investor_applications")
+          .select("user_id, firm_name, hq_location, stage_focus, sector_tags")
+          .in("user_id", investorIds);
+
+        // Also fetch analyst profiles
+        const { data: analysts } = await supabase
+          .from("analyst_profiles")
+          .select("user_id, name, title, firm_name, profile_picture_url")
+          .in("user_id", investorIds);
+
+        const enriched = connections.map(conn => {
+          const otherUserId = conn.requester_user_id === currentUserId ? conn.target_user_id : conn.requester_user_id;
+          const inv = investors?.find(i => i.user_id === otherUserId);
+          const analyst = analysts?.find(a => a.user_id === otherUserId);
+          return {
+            id: conn.id,
+            other_user_id: otherUserId,
+            other_user_type: 'investor',
+            created_at: conn.updated_at || conn.created_at,
+            firm_name: analyst?.firm_name || inv?.firm_name,
+            hq_location: inv?.hq_location,
+            stage_focus: inv?.stage_focus as string[] || [],
+            sector_tags: inv?.sector_tags as string[] || [],
+            analyst_name: analyst?.name,
+            analyst_title: analyst?.title,
+            analyst_profile_picture_url: analyst?.profile_picture_url,
+          };
+        });
+        setActiveSyncs(enriched);
+      } else {
+        setActiveSyncs([]);
+      }
+    } catch (error) {
+      console.error("Error fetching syncs:", error);
+    } finally {
+      setSyncsLoading(false);
+    }
+  };
+
+  const handleOpenSyncs = () => {
+    setSyncsModalOpen(true);
+    if (currentUserId) {
+      fetchActiveSyncs();
+    } else {
+      // Show demo data for preview
+      setSyncsLoading(true);
+      setTimeout(() => {
+        setActiveSyncs(demoSyncs);
+        setSyncsLoading(false);
+      }, 500);
+    }
+  };
+
+  const fetchOutgoingPending = async () => {
+    if (!currentUserId) return;
+    setPendingLoading(true);
+    try {
+      const { data: connections } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("requester_user_id", currentUserId)
+        .eq("requester_type", "founder")
+        .eq("status", "pending");
+
+      if (connections && connections.length > 0) {
+        const investorIds = connections.map(c => c.target_user_id);
+        
+        const { data: investors } = await supabase
+          .from("investor_applications")
+          .select("user_id, firm_name, hq_location, stage_focus, sector_tags")
+          .in("user_id", investorIds);
+
+        const enriched = connections.map(conn => {
+          const inv = investors?.find(i => i.user_id === conn.target_user_id);
+          return {
+            id: conn.id,
+            target_user_id: conn.target_user_id,
+            sync_note: conn.sync_note,
+            created_at: conn.created_at,
+            firm_name: inv?.firm_name,
+            hq_location: inv?.hq_location,
+            stage_focus: inv?.stage_focus as string[] || [],
+            sector_tags: inv?.sector_tags as string[] || [],
+          };
+        });
+        setOutgoingPending(enriched);
+      } else {
+        setOutgoingPending([]);
+      }
+    } catch (error) {
+      console.error("Error fetching pending:", error);
+    } finally {
+      setPendingLoading(false);
+    }
+  };
+
+  const handleOpenPending = () => {
+    setPendingModalOpen(true);
+    if (currentUserId) {
+      fetchOutgoingPending();
+    } else {
+      // Show demo data for preview
+      setPendingLoading(true);
+      setTimeout(() => {
+        setOutgoingPending(demoPending);
+        setPendingLoading(false);
+      }, 500);
+    }
+  };
+
+  const handleCancelPending = async (requestId: string) => {
+    setCancellingId(requestId);
+    try {
+      await supabase.from("connection_requests").delete().eq("id", requestId);
+      toast({ title: "Request cancelled" });
+      setOutgoingPending(prev => prev.filter(p => p.id !== requestId));
+      setConnectionStats(prev => ({ ...prev, pending: prev.pending - 1 }));
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to cancel request", variant: "destructive" });
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
+  const handleOpenMessages = () => {
+    setMessagesModalOpen(true);
+    if (currentUserId) {
+      fetchThreads();
+    } else {
+      // Show demo data for preview
+      setMessagesLoading(true);
+      setTimeout(() => {
+        setMessageThreads(demoMessages);
+        setMessagesLoading(false);
+      }, 500);
+    }
+  };
+
+  // Get actual message threads (real or demo)
+  const displayThreads = currentUserId ? realThreads : messageThreads;
+  const displayMessagesLoading = currentUserId ? realMessagesLoading : messagesLoading;
+
+  // Get display counts (show demo counts when no real data)
+  const displayStats = {
+    interests: connectionStats.interests || (currentUserId ? 0 : demoInterests.length),
+    syncs: connectionStats.syncs || (currentUserId ? 0 : demoSyncs.length),
+    pending: connectionStats.pending || (currentUserId ? 0 : demoPending.length),
+    messages: currentUserId ? 0 : demoMessages.reduce((acc, t) => acc + t.unread_count, 0),
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const getStageColor = (stage: string) => {
+    const colors: Record<string, string> = {
+      "Pre-seed": "bg-purple-500/20 text-purple-400 border-purple-500/30",
+      "Seed": "bg-green-500/20 text-green-400 border-green-500/30",
+      "Series A": "bg-blue-500/20 text-blue-400 border-blue-500/30",
+      "Series B": "bg-orange-500/20 text-orange-400 border-orange-500/30",
+    };
+    return colors[stage] || "bg-white/10 text-white/80 border-white/20";
+  };
+
+  // Match-aware investor card - Clean minimalist design (matches InvestorDashboard's MatchedStartupCard)
+  const MatchedInvestorCard = ({ match }: { match: MatchResult }) => {
+    const investor = match.investor;
+    if (!investor) return null;
+    
+    const isRequested = pendingRequests.has(investor.user_id);
+
+    return (
+      <Card className="bg-navy-card border-white/10 p-5 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+              <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+            </div>
+            <div>
+              <h4 className="font-medium text-white group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                {investor.firm_name}
+              </h4>
+              {investor.hq_location && (
+                <p className="text-xs text-white/60 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {investor.hq_location}
+                </p>
+              )}
+            </div>
+          </div>
+          <MatchScoreBadge score={match.match_score} label={match.match_label} />
+        </div>
+
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {investor.stage_focus.slice(0, 1).map((stage, i) => (
+            <span key={i} className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(stage)}`}>
+              {stage}
+            </span>
+          ))}
+          {investor.sector_tags.slice(0, 1).map((sector, i) => (
+            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">
+              {sector}
+            </span>
+          ))}
+          {investor.check_sizes.length > 0 && (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+              {investor.check_sizes[0]}
+            </span>
+          )}
+        </div>
+
+        <p className="text-sm text-white/60 mb-4 line-clamp-2">
+          {investor.thesis_statement || investor.firm_description || "Investment thesis available"}
+        </p>
+
+        <div className="pt-3 border-t border-white/10">
+          {isRequested ? (
+            <div className="flex items-center gap-2 text-green-400 text-sm">
+              <Heart className="h-4 w-4" />
+              Sync Requested
+            </div>
+          ) : (
+            <Button 
+              variant="ghost"
+              size="sm"
+              className="w-full text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+              onClick={() => handleOpenInvestorProfile(investor as InvestorApplication)}
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              View Profile
+            </Button>
+          )}
+        </div>
+      </Card>
+    );
+  };
+
+  // Fallback investor card - Clean minimalist design (matches InvestorDashboard's StartupCard)
+  const InvestorCard = ({ investor }: { investor: InvestorApplication }) => {
+    const isRequested = pendingRequests.has(investor.user_id);
+
+    return (
+      <Card className="bg-navy-card border-white/10 p-5 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+              <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+            </div>
+            <div>
+              <h4 className="font-medium text-white group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
+                {investor.firm_name}
+              </h4>
+              {investor.hq_location && (
+                <p className="text-xs text-white/60 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {investor.hq_location}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {investor.stage_focus.slice(0, 1).map((stage, i) => (
+            <span key={i} className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(stage)}`}>
+              {stage}
+            </span>
+          ))}
+          {investor.sector_tags.slice(0, 1).map((sector, i) => (
+            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">
+              {sector}
+            </span>
+          ))}
+          {investor.check_sizes.length > 0 && (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+              {investor.check_sizes[0]}
+            </span>
+          )}
+        </div>
+
+        <p className="text-sm text-white/60 mb-4 line-clamp-2">
+          {investor.thesis_statement || investor.firm_description || "Investment thesis available"}
+        </p>
+
+        <div className="pt-3 border-t border-white/10">
+          {isRequested ? (
+            <div className="flex items-center gap-2 text-green-400 text-sm">
+              <Heart className="h-4 w-4" />
+              Sync Requested
+            </div>
+          ) : (
+            <Button 
+              variant="ghost"
+              size="sm"
+              className="w-full text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleOpenInvestorProfile(investor);
+              }}
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              View Profile
+            </Button>
+          )}
+        </div>
+      </Card>
+    );
+  };
+
+  const renderContent = () => {
+    switch (currentTab) {
+      case "memo":
+        return <MemoEditor application={application} onUpdate={fetchDashboardData} />;
+      
+      case "investors":
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                  Curated Investors
+                </h2>
+                <p className="text-white/60">AI-matched investors based on your company profile</p>
+              </div>
+              {matchLoading && (
+                <div className="flex items-center gap-2 text-white/60">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Finding matches...
+                </div>
+              )}
+            </div>
+            
+            {matchError && (
+              <Card className="bg-amber-500/10 border-amber-500/30 p-4">
+                <p className="text-amber-400 text-sm">
+                  Unable to load personalized matches. Showing default investors.
+                </p>
+              </Card>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {matchedInvestors.length > 0 ? (
+                matchedInvestors.map((match) => (
+                  <MatchedInvestorCard key={match.id} match={match} />
+                ))
+              ) : (
+                curatedInvestors.map((investor) => (
+                  <InvestorCard key={investor.id} investor={investor} />
+                ))
+              )}
+            </div>
+          </div>
+        );
+
+      case "events":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">Upcoming Events</h2>
+              <p className="text-white/60">Networking opportunities and pitch events</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event) => (
+                <Card key={event.id} className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                      <Calendar className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+                    </div>
+                    <Badge className="bg-white/10 text-white/80 border-white/20">{event.event_type}</Badge>
+                  </div>
+                  <h4 className="font-semibold text-white mb-2">{event.title}</h4>
+                  <p className="text-sm text-white/60 mb-4 line-clamp-2">{event.description}</p>
+                  <div className="space-y-2 text-sm text-white/50 mb-4">
+                    <p>📍 {event.location}</p>
+                    <p>📅 {formatDate(event.event_date)}</p>
+                  </div>
+                  <Button size="sm" className="w-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/20 border border-[hsl(var(--cyan-glow))]/30">
+                    Register
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "profile":
+        return <ProfileSettings userType="founder" userId={currentUserId} />;
+
+      default:
+        return (
+          <div className="max-w-6xl mx-auto space-y-10">
+            {/* Welcome Section - Prominent */}
+            <div>
+              <h1 className="text-4xl font-bold text-white">
+                Welcome, {application?.company_name || "Founder"}!
+              </h1>
+            </div>
+
+            {/* Memo Quick Access - Larger */}
+            <Card 
+              className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
+              onClick={() => navigate("/founder-dashboard?tab=memo")}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {application?.logo_url ? (
+                    <img 
+                      src={application.logo_url} 
+                      alt={`${application.company_name} logo`}
+                      className="w-14 h-14 rounded-xl object-cover"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                      <Building2 className="h-7 w-7 text-[hsl(var(--cyan-glow))]" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xl font-semibold text-white">{application?.company_name ? `${application.company_name}'s Memo` : "Your Memo"}</p>
+                    <p className="text-sm text-white/60">{application?.vertical} • {application?.stage}</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-6 w-6 text-white/60" />
+              </div>
+            </Card>
+
+            {/* Stats - Larger with horizontal layout */}
+            <div className="grid grid-cols-4 gap-4">
+              {[
+                { label: "Interests", value: displayStats.interests, icon: Heart, onClick: handleOpenInterests },
+                { label: "Syncs", value: displayStats.syncs, icon: null, image: syncsLogo, onClick: handleOpenSyncs },
+                { label: "Pending", value: displayStats.pending, icon: Eye, onClick: handleOpenPending },
+                { label: "Messages", value: displayStats.messages, icon: MessageSquare, onClick: handleOpenMessages },
+              ].map((stat) => (
+                <Card 
+                  key={stat.label}
+                  className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
+                  onClick={stat.onClick}
+                >
+                  <div className="flex items-center gap-4">
+                    {stat.icon ? (
+                      <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
+                    ) : stat.image ? (
+                      <img src={stat.image} alt={stat.label} className="h-12 w-20 object-contain" />
+                    ) : null}
+                    <p className="text-3xl font-bold text-white">{stat.value}</p>
+                    <p className="text-base text-white/60">{stat.label}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            {/* Curated Investors - Clean section */}
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-medium text-white">Curated Investors</h2>
+                <button 
+                  className="text-sm text-[hsl(var(--cyan-glow))] hover:underline flex items-center gap-1"
+                  onClick={() => navigate("/founder-dashboard?tab=investors")}
+                >
+                  View all <ArrowRight className="h-3 w-3" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {curatedInvestors.slice(0, 3).map((investor) => (
+                  <InvestorCard key={investor.id} investor={investor} />
+                ))}
+              </div>
+            </section>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#151a24]">
+      {/* Navigation - same as landing page */}
+      <Navigation />
+
+      {/* Content with top padding for fixed nav */}
+      <main className="flex-1 p-6 md:p-8 overflow-auto mt-20">
+        {renderContent()}
+      </main>
+
+        {/* Modals */}
+        <InvestorProfileModal
+          open={investorModalOpen}
+          onOpenChange={setInvestorModalOpen}
+          investor={selectedInvestor}
+          loading={false}
+          onSync={handleSyncWithInvestor}
+          isSyncing={isSyncing}
+          alreadySynced={selectedInvestor ? pendingRequests.has(selectedInvestor.user_id) : false}
+        />
+
+        <InterestsModal
+          open={interestsModalOpen}
+          onOpenChange={setInterestsModalOpen}
+          interests={incomingInterests}
+          loading={interestsLoading}
+          onAccept={handleAcceptInterest}
+          onDecline={handleDeclineInterest}
+          processingId={processingInterestId}
+          userType="founder"
+          onViewProfile={(userId, interest) => {
+            // Create an investor application object from interest data
+            const investorData: InvestorApplication = {
+              id: interest.id,
+              user_id: userId,
+              firm_name: interest.firm_name || "Unknown Firm",
+              firm_description: null,
+              thesis_statement: null,
+              sub_themes: [],
+              fast_signals: [],
+              hard_nos: [],
+              check_sizes: [],
+              stage_focus: [],
+              sector_tags: [],
+              customer_types: [],
+              lead_follow: null,
+              operating_support: [],
+              support_style: null,
+              hq_location: null,
+              aum: null,
+              fund_type: null,
+              geographic_focus: null,
+              b2b_b2c: null,
+              revenue_models: [],
+              minimum_traction: [],
+              board_involvement: null,
+              decision_process: null,
+              time_to_decision: null,
+            };
+            setSelectedInvestor(investorData);
+            setInvestorModalOpen(true);
+          }}
+        />
+
+        <SyncsModal
+          open={syncsModalOpen}
+          onOpenChange={setSyncsModalOpen}
+          syncs={activeSyncs}
+          loading={syncsLoading}
+          userType="founder"
+          onViewProfile={(userId, sync) => {
+            const investorData: InvestorApplication = {
+              id: sync.id,
+              user_id: userId,
+              firm_name: sync.firm_name || "Unknown Firm",
+              firm_description: null,
+              thesis_statement: null,
+              sub_themes: [],
+              fast_signals: [],
+              hard_nos: [],
+              check_sizes: [],
+              stage_focus: sync.stage_focus || [],
+              sector_tags: sync.sector_tags || [],
+              customer_types: [],
+              lead_follow: null,
+              operating_support: [],
+              support_style: null,
+              hq_location: sync.hq_location || null,
+              aum: null,
+              fund_type: null,
+              geographic_focus: null,
+              b2b_b2c: null,
+              revenue_models: [],
+              minimum_traction: [],
+              board_involvement: null,
+              decision_process: null,
+              time_to_decision: null,
+            };
+            setSelectedInvestor(investorData);
+            setInvestorModalOpen(true);
+          }}
+          onMessage={(userId, sync) => {
+            setSyncsModalOpen(false);
+            setInitialContactUserId(userId);
+            setMessagesModalOpen(true);
+            if (currentUserId) {
+              fetchThreads();
+            }
+          }}
+        />
+
+        <PendingModal
+          open={pendingModalOpen}
+          onOpenChange={setPendingModalOpen}
+          pending={outgoingPending}
+          loading={pendingLoading}
+          onCancel={handleCancelPending}
+          cancellingId={cancellingId}
+          userType="founder"
+          onViewProfile={(userId, item) => {
+            const investorData: InvestorApplication = {
+              id: item.id,
+              user_id: userId,
+              firm_name: item.firm_name || "Unknown Firm",
+              firm_description: null,
+              thesis_statement: null,
+              sub_themes: [],
+              fast_signals: [],
+              hard_nos: [],
+              check_sizes: [],
+              stage_focus: item.stage_focus || [],
+              sector_tags: item.sector_tags || [],
+              customer_types: [],
+              lead_follow: null,
+              operating_support: [],
+              support_style: null,
+              hq_location: item.hq_location || null,
+              aum: null,
+              fund_type: null,
+              geographic_focus: null,
+              b2b_b2c: null,
+              revenue_models: [],
+              minimum_traction: [],
+              board_involvement: null,
+              decision_process: null,
+              time_to_decision: null,
+            };
+            setSelectedInvestor(investorData);
+            setInvestorModalOpen(true);
+          }}
+        />
+
+        <MessagesModal
+          open={messagesModalOpen}
+          onOpenChange={(open) => {
+            setMessagesModalOpen(open);
+            if (!open) setInitialContactUserId(null);
+          }}
+          threads={displayThreads}
+          loading={displayMessagesLoading}
+          userType="founder"
+          onSendMessage={sendMessage}
+          onMarkAsRead={markAsRead}
+          initialContactUserId={initialContactUserId}
+          activeSyncs={activeSyncs.map(sync => ({
+            id: sync.id,
+            other_user_id: sync.other_user_id,
+            firm_name: sync.firm_name,
+            calendly_link: sync.calendly_link
+          }))}
+        />
+    </div>
+  );
+}
