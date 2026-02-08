@@ -24,7 +24,7 @@ import {
   Maximize2,
   Minimize2
 } from "lucide-react";
-import insyncInfinity from "@/assets/insync-infinity.png";
+import insyncInfinity from "@/landing/assets/infinity-logo-transparent.png";
 import {
   Dialog,
   DialogContent,

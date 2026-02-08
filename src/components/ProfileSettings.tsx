@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+// TODO: Integrate with backend API
 import { useToast } from "@/hooks/use-toast";
 import { Video, ExternalLink, Save, Loader2 } from "lucide-react";
 
@@ -29,15 +29,11 @@ export function ProfileSettings({ userType, userId }: ProfileSettingsProps) {
     setLoading(true);
     
     try {
-      const table = userType === "founder" ? "founder_applications" : "investor_applications";
-      const { data, error } = await supabase
-        .from(table)
-        .select("calendly_link")
-        .eq("user_id", userId)
-        .single();
-
-      if (error) throw error;
-      setCalendlyLink(data?.calendly_link || "");
+      // TODO: Integrate with backend API to fetch profile
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Placeholder data
+      setCalendlyLink("");
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {
@@ -57,13 +53,9 @@ export function ProfileSettings({ userType, userId }: ProfileSettingsProps) {
 
     setSaving(true);
     try {
-      const table = userType === "founder" ? "founder_applications" : "investor_applications";
-      const { error } = await supabase
-        .from(table)
-        .update({ calendly_link: calendlyLink || null })
-        .eq("user_id", userId);
-
-      if (error) throw error;
+      // TODO: Integrate with backend API to save settings
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       toast({
         title: "Settings saved",

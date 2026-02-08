@@ -17,10 +17,6 @@ export const Navigation = () => {
     }
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <nav className="fixed top-0 w-full z-50 bg-navy-deep/90 backdrop-blur-lg border-b border-cyan-glow/20">
       <div className="container mx-auto px-4 md:px-6">
@@ -42,7 +38,7 @@ export const Navigation = () => {
             </button>
 
             <Button
-              onClick={scrollToTop}
+              onClick={() => navigate("/signup")}
               size="sm"
               className="bg-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/90 text-[hsl(var(--navy-deep))] font-medium"
             >

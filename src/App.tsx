@@ -6,6 +6,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import SignUp from "./pages/auth/SignUp";
 import Login from "./pages/auth/Login";
+import RequestSent from "./pages/auth/RequestSent";
+import SelectRole from "./pages/auth/SelectRole";
+import VCOnboarding from "./pages/vc-onboarding/VCOnboarding";
+import StartupOnboarding from "./pages/startup-onboarding/StartupOnboarding";
+import VCAdminDashboard from "./pages/vc-admin/VCAdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +27,15 @@ const App = () => (
           {/* Auth Routes */}
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/select-role" element={<SelectRole />} />
+          <Route path="/request-sent" element={<RequestSent />} />
+          
+          {/* Onboarding */}
+          <Route path="/vc-onboarding" element={<VCOnboarding />} />
+          <Route path="/startup-onboarding" element={<StartupOnboarding />} />
+
+          {/* VC Admin Dashboard */}
+          <Route path="/vc-admin/*" element={<VCAdminDashboard />} />
 
           {/* TODO: Add real app routes here when building out the actual app */}
           {/* <Route path="/founder-application" element={<FounderApplication />} /> */}

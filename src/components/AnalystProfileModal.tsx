@@ -12,7 +12,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Target, User, Loader2, Camera, X, Linkedin } from "lucide-react";
 
 interface AnalystProfile {
@@ -92,30 +91,14 @@ export function AnalystProfileModal({
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${profile.user_id}/${Date.now()}.${fileExt}`;
-
-      // Delete old avatar if exists
-      if (profilePictureUrl) {
-        const oldPath = profilePictureUrl.split('/analyst-avatars/')[1];
-        if (oldPath) {
-          await supabase.storage.from('analyst-avatars').remove([oldPath]);
-        }
-      }
-
-      // Upload new avatar
-      const { error: uploadError } = await supabase.storage
-        .from('analyst-avatars')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('analyst-avatars')
-        .getPublicUrl(fileName);
-
-      setProfilePictureUrl(publicUrl);
+      // TODO: Integrate with backend API for file upload
+      // For now, create a local object URL as placeholder
+      const objectUrl = URL.createObjectURL(file);
+      
+      // Simulate upload delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      setProfilePictureUrl(objectUrl);
       toast({
         title: "Photo uploaded!",
         description: "Your profile picture has been updated.",
@@ -141,9 +124,10 @@ export function AnalystProfileModal({
 
     setIsUploading(true);
     try {
-      const oldPath = profilePictureUrl.split('/analyst-avatars/')[1];
-      if (oldPath) {
-        await supabase.storage.from('analyst-avatars').remove([oldPath]);
+      // TODO: Integrate with backend API to delete file
+      // For now, just clear the URL
+      if (profilePictureUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(profilePictureUrl);
       }
       setProfilePictureUrl("");
       toast({
@@ -176,19 +160,9 @@ export function AnalystProfileModal({
 
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from("analyst_profiles")
-        .update({
-          location: location.trim(),
-          vertical: vertical.trim(),
-          one_liner: oneLiner.trim(),
-          profile_picture_url: profilePictureUrl || null,
-          linkedin_url: linkedinUrl.trim() || null,
-          profile_completed: true,
-        })
-        .eq("id", profile.id);
-
-      if (error) throw error;
+      // TODO: Integrate with backend API to update profile
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const updatedProfile: AnalystProfile = {
         ...profile,

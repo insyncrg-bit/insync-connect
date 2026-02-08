@@ -20,7 +20,7 @@ import {
   Settings,
   LogOut
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+// TODO: Integrate with backend API for authentication
 
 const menuItems = [
   { title: "Dashboard", url: "/founder-dashboard", icon: LayoutDashboard },
@@ -43,7 +43,7 @@ export function FounderSidebar() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    // TODO: Integrate with backend API for logout
     navigate("/");
   };
 

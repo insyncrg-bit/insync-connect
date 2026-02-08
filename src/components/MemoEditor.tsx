@@ -36,7 +36,7 @@ import {
   Calculator
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+// TODO: Integrate with backend API
 
 interface MemoEditorProps {
   application: any;
@@ -77,20 +77,9 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from("founder_applications")
-        .update({
-          company_name: formData.company_name,
-          vertical: formData.vertical,
-          stage: formData.stage,
-          location: formData.location,
-          website: formData.website,
-          business_model: formData.business_model,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", application.id);
-
-      if (error) throw error;
+      // TODO: Integrate with backend API to update application
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       toast({
         title: "Memo Updated",

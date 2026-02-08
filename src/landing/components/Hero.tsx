@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { FloatingParticles } from "./FloatingParticles";
+import { useNavigate } from "react-router-dom";
 import inSyncLogo from "../assets/in-sync-logo.png";
 
 export const Hero = () => {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const navigate = useNavigate();
 
   const handleHowItWorksClick = () => {
     const element = document.getElementById('how-it-works');
@@ -59,7 +58,7 @@ export const Hero = () => {
           >
             <Button
               size="lg"
-              onClick={scrollToTop}
+              onClick={() => navigate("/signup")}
               className="text-base px-8 py-6 font-semibold bg-cyan-glow text-navy-deep hover:bg-cyan-bright overflow-hidden transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               style={{
                 boxShadow: '0 0 30px hsl(var(--cyan-glow) / 0.4)',

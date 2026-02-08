@@ -1,28 +1,19 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { User } from "@supabase/supabase-js";
+// TODO: Integrate with backend API for authentication
 import { LogIn, LogOut, User as UserIcon } from "lucide-react";
 import infinityLogo from "@/assets/infinity-logo.png";
 
 export const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    // TODO: Integrate with backend API for authentication state
+    // For now, no user is set (placeholder)
+    setUser(null);
   }, []);
 
   const handleHowItWorksClick = () => {
@@ -37,25 +28,17 @@ export const Navigation = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    // TODO: Integrate with backend API for logout
+    setUser(null);
     navigate("/");
   };
 
   const handleDashboardClick = async () => {
     if (!user) return;
     
-    // Check if user has an application
-    const { data: application } = await supabase
-      .from("founder_applications")
-      .select("id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (application) {
-      navigate("/founder-dashboard");
-    } else {
-      navigate("/founder-application");
-    }
+    // TODO: Integrate with backend API to check if user has an application
+    // For now, navigate to dashboard
+    navigate("/founder-dashboard");
   };
   
   return (
