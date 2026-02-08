@@ -19,8 +19,11 @@ import {
 import { Check, ChevronsUpDown, Building2, Briefcase, Linkedin, User, Mail, AlertCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sessionManager } from "@/lib/session";
+import { auth } from "@/lib/firebase";
 import { FloatingParticles } from "@/components/FloatingParticles";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
+
+const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
 
 type RoleType = "startup" | "vc";
 
@@ -201,11 +204,51 @@ export const SelectRole = () => {
 
     setIsSubmitting(true);
     try {
-      // Determine onboarding type
+      const user = auth.currentUser;
+      if (!user) {
+        setErrors({ submit: "You must be signed in to select a role." });
+        return;
+      }
+
+      let claimRole: "startup" | "vc" | "analyst";
       let onboardingType: "startup" | "vc_admin" | "vc_analyst";
-      
+
       if (role === "startup") {
+        claimRole = "startup";
         onboardingType = "startup";
+      } else if (role === "vc") {
+        if (selectedCompany) {
+          claimRole = "analyst";
+          onboardingType = "vc_analyst";
+        } else {
+          claimRole = "vc";
+          onboardingType = "vc_admin";
+        }
+      } else {
+        setErrors({ submit: "Please select a role." });
+        return;
+      }
+
+      if (FIREBASE_API) {
+        const token = await user.getIdToken(true);
+        const res = await fetch(`${FIREBASE_API}/auth/set-role`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ role: claimRole }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          setErrors({ submit: (err as { error?: string }).error || "Failed to set role. Please try again." });
+          return;
+        }
+        // Force refresh token result so claims include the newly assigned role (matches SignUp/Login pattern).
+        await user.getIdTokenResult(true);
+      }
+
+      if (role === "startup") {
         sessionManager.save({
           role: "startup",
           onboardingType: "startup",
@@ -214,18 +257,13 @@ export const SelectRole = () => {
         navigate("/startup-onboarding");
       } else if (role === "vc") {
         if (selectedCompany) {
-          // User selected an existing company - they are an analyst
-          onboardingType = "vc_analyst";
           sessionManager.save({
             role: "analyst",
             onboardingType: "vc_analyst",
             onboardingComplete: false,
           });
-          // TODO: API call to send analyst request
           navigate("/request-sent");
         } else {
-          // User typed a new company - they are a VC admin
-          onboardingType = "vc_admin";
           sessionManager.save({
             role: "vc",
             onboardingType: "vc_admin",
