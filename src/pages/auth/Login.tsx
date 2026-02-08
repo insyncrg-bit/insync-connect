@@ -1,38 +1,131 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
+import { signInWithEmailAndPassword, sendEmailVerification, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import { sessionManager } from "@/lib/session";
+import { useToast } from "@/hooks/use-toast";
 
-type LoginStep = "email" | "password";
+type LoginStep = "email" | "password" | "verifying";
 
-// API function to check if email exists (to be implemented later)
+// Get Firebase API URL from environment variable
+const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
+
+// Logging utility
+const log = {
+  info: (message: string, data?: any) => {
+    console.log(`[Login] ${message}`, data || "");
+  },
+  error: (message: string, error?: any) => {
+    console.error(`[Login] ERROR: ${message}`, error || "");
+  },
+  warn: (message: string, data?: any) => {
+    console.warn(`[Login] WARN: ${message}`, data || "");
+  },
+};
+
+// API function to check if email exists
 const checkEmailExists = async (email: string): Promise<boolean> => {
-  // TODO: Replace with actual API call
-  // const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
-  // const data = await response.json();
-  // return data.exists;
+  log.info("Checking if email exists", { email });
   
-  // Mock implementation for now
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return false; // Default to false (email doesn't exist) until API is implemented
+  if (!FIREBASE_API) {
+    log.error("FIREBASE_API environment variable is not set");
+    throw new Error("API configuration error. Please contact support.");
+  }
+
+  try {
+    const response = await fetch(`${FIREBASE_API}/auth/check-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    log.info("Email check response", { status: response.status, ok: response.ok });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      log.error("Email check failed", { status: response.status, error: errorText });
+      throw new Error(`Failed to check email: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    log.info("Email check result", { exists: data.exists });
+    return data.exists;
+  } catch (error: any) {
+    log.error("Error checking email", error);
+    
+    // Provide user-friendly error messages
+    if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+      throw new Error("Network error. Please check your connection and try again.");
+    }
+    throw error;
+  }
+};
+
+// Fetch user role from Firestore (placeholder)
+const fetchUserRole = async (userId: string): Promise<string | null> => {
+  log.info("Fetching user role from Firestore", { userId });
+  
+  try {
+    // TODO: Replace with actual Firestore collection/document path
+    // This is placeholder code - adjust based on your Firestore structure
+    const userDocRef = doc(db, "users", userId);
+    const userDoc = await getDoc(userDocRef);
+    
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      log.info("User document found", { role: userData.role });
+      return userData.role || null;
+    }
+    
+    log.warn("User document not found in Firestore", { userId });
+    return null;
+  } catch (error) {
+    log.error("Error fetching user role", error);
+    // Return null on error - user will be redirected to role selection
+    return null;
+  }
 };
 
 export const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   
   // Get email from location state (if redirected from signup)
   const initialEmail = (location.state as { email?: string })?.email || "";
   
-  const [step, setStep] = useState<LoginStep>(initialEmail ? "password" : "email");
+  const [step, setStep] = useState<LoginStep>("email");
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [waitingForVerification, setWaitingForVerification] = useState(false);
+  const [verificationEmailSent, setVerificationEmailSent] = useState(false);
+  const [emailVerifiedInDatabase, setEmailVerifiedInDatabase] = useState(false);
+  const verificationCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const authUnsubscribeRef = useRef<(() => void) | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      log.info("Cleaning up login component");
+      if (verificationCheckIntervalRef.current) {
+        clearInterval(verificationCheckIntervalRef.current);
+        verificationCheckIntervalRef.current = null;
+      }
+      if (authUnsubscribeRef.current) {
+        authUnsubscribeRef.current();
+        authUnsubscribeRef.current = null;
+      }
+    };
+  }, []);
 
   const validateEmail = (emailValue: string): boolean => {
     if (!emailValue.trim()) {
@@ -67,25 +160,193 @@ export const Login = () => {
     setErrors((prev) => ({ ...prev, email: "" }));
 
     try {
+      log.info("Email submission started", { email });
       const emailExists = await checkEmailExists(email);
       
       if (emailExists) {
-        // Email exists, proceed to password step
+        log.info("Email exists in database, proceeding to password step");
+        // Email exists, mark as verified and proceed to password step
+        setEmailVerifiedInDatabase(true);
         setStep("password");
       } else {
+        log.info("Email does not exist, redirecting to signup");
         // Email doesn't exist, redirect to signup with email pre-filled
         navigate("/signup", { state: { email } });
       }
-    } catch (error) {
-      console.error("Error checking email:", error);
+    } catch (error: any) {
+      log.error("Error in email submission", error);
+      
+      let errorMessage = "An error occurred. Please try again.";
+      
+      if (error.message.includes("Network error")) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      } else if (error.message.includes("API configuration")) {
+        errorMessage = "Configuration error. Please contact support.";
+      }
+      
       setErrors((prev) => ({
         ...prev,
-        email: "An error occurred. Please try again.",
+        email: errorMessage,
       }));
+      
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setIsCheckingEmail(false);
     }
   };
+
+  // Handle redirect after email verification
+  const handleVerifiedUser = useCallback(async (user: any) => {
+    log.info("Handling verified user", { uid: user.uid, email: user.email, emailVerified: user.emailVerified });
+    
+    try {
+      // Fetch user role from Firestore
+      const userRole = await fetchUserRole(user.uid);
+      log.info("User role fetched", { role: userRole });
+
+      // Save session data
+      sessionManager.save({
+        email: user.email || email,
+        userId: user.uid,
+        role: userRole as "startup" | "vc" | "analyst" | undefined,
+      });
+      log.info("Session data saved");
+
+      // Redirect based on user.verified and user.role
+      if (user.emailVerified && !userRole) {
+        log.info("User verified but no role, redirecting to role selection");
+        // User is verified but has no role - redirect to role selection
+        navigate("/select-role");
+      } else if (userRole) {
+        log.info("User has role, redirecting to dashboard", { role: userRole });
+        // User has a role - redirect to appropriate dashboard
+        // Check if user has incomplete VC onboarding
+        const onboardingData = localStorage.getItem("vc_onboarding_data");
+        if (onboardingData) {
+          const data = JSON.parse(onboardingData);
+          if (data.firmName && !data.submitted) {
+            log.info("Incomplete VC onboarding found, redirecting to onboarding");
+            navigate("/vc-onboarding");
+            return;
+          }
+        }
+
+        // Redirect based on role
+        if (userRole === "startup") {
+          navigate("/founder-dashboard");
+        } else if (userRole === "vc" || userRole === "analyst") {
+          navigate("/vc-admin?tab=dashboard");
+        } else {
+          navigate("/");
+        }
+      } else {
+        log.warn("Unexpected state: verified user with no role, redirecting to home");
+        // Fallback - should not happen if logic is correct
+        navigate("/");
+      }
+    } catch (error) {
+      log.error("Error handling verified user", error);
+      toast({
+        title: "Error",
+        description: "Failed to load user data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [email, navigate, toast]);
+
+  // Set up polling to check email verification status
+  useEffect(() => {
+    if (!waitingForVerification) {
+      // Cleanup if we're no longer waiting
+      if (verificationCheckIntervalRef.current) {
+        clearInterval(verificationCheckIntervalRef.current);
+        verificationCheckIntervalRef.current = null;
+      }
+      if (authUnsubscribeRef.current) {
+        authUnsubscribeRef.current();
+        authUnsubscribeRef.current = null;
+      }
+      return;
+    }
+
+    log.info("Setting up email verification polling");
+
+    // Listen for auth state changes (including email verification)
+    authUnsubscribeRef.current = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        log.info("Auth state changed, checking verification", { uid: user.uid });
+        try {
+          // Reload user to get latest emailVerified status
+          await user.reload();
+          log.info("User reloaded", { emailVerified: user.emailVerified });
+          
+          if (user.emailVerified) {
+            log.info("Email verified via auth state change");
+            // Email is now verified - proceed with redirect
+            setWaitingForVerification(false);
+            if (verificationCheckIntervalRef.current) {
+              clearInterval(verificationCheckIntervalRef.current);
+              verificationCheckIntervalRef.current = null;
+            }
+            if (authUnsubscribeRef.current) {
+              authUnsubscribeRef.current();
+              authUnsubscribeRef.current = null;
+            }
+            await handleVerifiedUser(user);
+          }
+        } catch (error) {
+          log.error("Error in auth state change handler", error);
+        }
+      }
+    });
+
+    // Also poll periodically to check verification status
+    verificationCheckIntervalRef.current = setInterval(async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        try {
+          log.info("Polling for email verification", { uid: currentUser.uid });
+          await currentUser.reload();
+          log.info("User reloaded in poll", { emailVerified: currentUser.emailVerified });
+          
+          if (currentUser.emailVerified) {
+            log.info("Email verified via polling");
+            setWaitingForVerification(false);
+            if (verificationCheckIntervalRef.current) {
+              clearInterval(verificationCheckIntervalRef.current);
+              verificationCheckIntervalRef.current = null;
+            }
+            if (authUnsubscribeRef.current) {
+              authUnsubscribeRef.current();
+              authUnsubscribeRef.current = null;
+            }
+            await handleVerifiedUser(currentUser);
+          }
+        } catch (error) {
+          log.error("Error in verification polling", error);
+        }
+      } else {
+        log.warn("No current user during verification polling");
+      }
+    }, 2000); // Check every 2 seconds
+
+    // Cleanup on unmount or when waitingForVerification changes
+    return () => {
+      log.info("Cleaning up verification polling");
+      if (verificationCheckIntervalRef.current) {
+        clearInterval(verificationCheckIntervalRef.current);
+        verificationCheckIntervalRef.current = null;
+      }
+      if (authUnsubscribeRef.current) {
+        authUnsubscribeRef.current();
+        authUnsubscribeRef.current = null;
+      }
+    };
+  }, [waitingForVerification, handleVerifiedUser]);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,34 +359,100 @@ export const Login = () => {
     setErrors((prev) => ({ ...prev, password: "" }));
 
     try {
-      // TODO: Integrate with backend authentication
-      // const response = await fetch("/api/auth/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email, password }),
-      // });
-      // const data = await response.json();
+      log.info("Password submission started", { email });
       
-      console.log("Login submitted:", { email, password });
+      // Sign in with Firebase Auth
+      const normalizedEmail = email.toLowerCase().trim();
+      log.info("Attempting Firebase sign in", { email: normalizedEmail });
       
-      // Check if user has incomplete VC onboarding
-      const onboardingData = localStorage.getItem("vc_onboarding_data");
-      if (onboardingData) {
-        const data = JSON.parse(onboardingData);
-        if (data.firmName && !data.submitted) {
-          navigate("/vc-onboarding");
-          return;
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        normalizedEmail,
+        password
+      );
+
+      const user = userCredential.user;
+      log.info("Firebase sign in successful", { 
+        uid: user.uid, 
+        email: user.email, 
+        emailVerified: user.emailVerified 
+      });
+
+      // Check email verification
+      if (!user.emailVerified) {
+        log.info("Email not verified, sending verification email");
+        // Email not verified - send verification email and wait
+        setWaitingForVerification(true);
+        setStep("verifying");
+        setIsLoading(false);
+
+        // Send verification email if not already sent
+        if (!verificationEmailSent) {
+          try {
+            await sendEmailVerification(user);
+            setVerificationEmailSent(true);
+            log.info("Verification email sent successfully");
+            toast({
+              title: "Verification email sent",
+              description: "Please check your email and click the verification link. We'll automatically proceed once you've verified.",
+            });
+          } catch (error: any) {
+            log.error("Error sending verification email", error);
+            toast({
+              title: "Error",
+              description: "Failed to send verification email. Please try again.",
+              variant: "destructive",
+            });
+            setWaitingForVerification(false);
+            setStep("password");
+          }
         }
+
+        return;
+      }
+
+      log.info("Email already verified, proceeding with redirect");
+      // Email is verified - proceed with redirect
+      await handleVerifiedUser(user);
+    } catch (error: any) {
+      log.error("Login error", error);
+      
+      // Handle specific Firebase Auth errors
+      let errorMessage = "Invalid email or password. Please try again.";
+      
+      if (error.code === "auth/user-not-found") {
+        errorMessage = "No account found with this email.";
+        log.warn("User not found", { email });
+      } else if (error.code === "auth/wrong-password") {
+        errorMessage = "Incorrect password. Please try again.";
+        log.warn("Wrong password", { email });
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address.";
+        log.warn("Invalid email", { email });
+      } else if (error.code === "auth/user-disabled") {
+        errorMessage = "This account has been disabled.";
+        log.warn("User disabled", { email });
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "Too many failed attempts. Please try again later.";
+        log.warn("Too many requests", { email });
+      } else if (error.code === "auth/network-request-failed") {
+        errorMessage = "Network error. Please check your connection and try again.";
+        log.error("Network error", { email });
       }
       
-      // For now, navigate to home
-      navigate("/");
-    } catch (error) {
-      console.error("Login error:", error);
       setErrors((prev) => ({
         ...prev,
-        password: "Invalid email or password. Please try again.",
+        password: errorMessage,
       }));
+      
+      toast({
+        title: "Sign in failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
+      setWaitingForVerification(false);
+      setStep("password");
     } finally {
       setIsLoading(false);
     }
@@ -148,9 +475,28 @@ export const Login = () => {
   };
 
   const handleBackToEmail = () => {
+    log.info("User going back to email step");
     setStep("email");
     setPassword("");
     setErrors({});
+    setWaitingForVerification(false);
+    setVerificationEmailSent(false);
+    setEmailVerifiedInDatabase(false);
+  };
+
+  const handleCancelVerification = () => {
+    log.info("User canceling verification wait");
+    setWaitingForVerification(false);
+    setVerificationEmailSent(false);
+    setStep("password");
+    if (verificationCheckIntervalRef.current) {
+      clearInterval(verificationCheckIntervalRef.current);
+      verificationCheckIntervalRef.current = null;
+    }
+    if (authUnsubscribeRef.current) {
+      authUnsubscribeRef.current();
+      authUnsubscribeRef.current = null;
+    }
   };
 
   return (
@@ -186,13 +532,19 @@ export const Login = () => {
         {/* Card */}
         <div className="bg-navy-card border border-white/10 rounded-2xl p-8 shadow-xl">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              {step === "verifying" ? "Verify your email" : "Welcome back"}
+            </h1>
             <p className="text-white/60">
-              {step === "email" ? "Enter your email to continue" : "Enter your password"}
+              {step === "verifying"
+                ? "Please check your email and click the verification link"
+                : step === "email" 
+                  ? "Enter your email to continue" 
+                  : "Enter your password"}
             </p>
           </div>
 
-          {step === "email" ? (
+          {step === "email" || !emailVerifiedInDatabase ? (
             <form onSubmit={handleEmailSubmit} className="space-y-5">
               {/* Email Input */}
               <div className="space-y-2">
@@ -234,6 +586,35 @@ export const Login = () => {
                 )}
               </Button>
             </form>
+          ) : step === "verifying" ? (
+            <div className="space-y-5">
+              <div className="bg-cyan-glow/10 border border-cyan-glow/30 rounded-lg p-6 text-center">
+                <div className="mb-4">
+                  <Mail className="h-12 w-12 text-cyan-glow mx-auto mb-3" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  Verification email sent!
+                </h3>
+                <p className="text-white/70 text-sm mb-4">
+                  We've sent a verification link to <strong>{email}</strong>
+                </p>
+                <p className="text-white/60 text-sm mb-4">
+                  Click the link in the email to verify your account. We'll automatically proceed once you've verified.
+                </p>
+                <div className="flex items-center justify-center gap-2 text-sm text-white/50">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Waiting for verification...</span>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancelVerification}
+                className="w-full border-white/20 text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+            </div>
           ) : (
             <form onSubmit={handlePasswordSubmit} className="space-y-5">
               {/* Email Display (read-only) */}
