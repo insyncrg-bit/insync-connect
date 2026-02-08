@@ -1,40 +1,45 @@
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { FloatingParticles } from "./FloatingParticles";
-import inSyncLogo from "@/assets/in-sync-logo.png";
+import inSyncLogo from "../assets/in-sync-logo.png";
 
 export const Hero = () => {
-  const navigate = useNavigate();
-  
+  // TODO: Integrate real signup flows here
+  const handleStartupSignup = () => {
+    // Will be connected to real signup flow
+  };
+
+  const handleVCSignup = () => {
+    // Will be connected to real signup flow
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden -mt-16">
       {/* Floating particles background */}
       <FloatingParticles />
-      
+
       {/* Gradient orbs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-glow/10 blur-[120px] animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cyan-glow/8 blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-
       {/* Content */}
       <div className="container relative z-10 px-4 md:px-6">
         <div className="max-w-5xl mx-auto text-center space-y-2">
-          
+
           {/* Logo with pulsing glow */}
           <div className="relative animate-fade-in">
-            <div 
+            <div
               className="absolute inset-0 blur-[80px] animate-glow-pulse"
               style={{
                 background: 'radial-gradient(ellipse at center, rgba(6,182,212,0.5) 0%, rgba(6,182,212,0.2) 40%, transparent 70%)',
               }}
             />
-            <img 
-              src={inSyncLogo} 
-              alt="In∞Sync" 
+            <img
+              src={inSyncLogo}
+              alt="In∞Sync"
               className="relative w-full max-w-4xl mx-auto"
-              style={{ 
+              style={{
                 filter: 'drop-shadow(0 0 40px rgba(6,182,212,0.4)) drop-shadow(0 0 80px rgba(6,182,212,0.2))',
               }}
             />
@@ -45,14 +50,14 @@ export const Hero = () => {
             Where founders and investors sync with their perfect match
           </p>
 
-          {/* Dual CTA */}
-          <div 
+          {/* Dual CTA - Placeholder for real signup integration */}
+          <div
             className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in"
             style={{ animationDelay: '0.2s' }}
           >
             <Button
               size="lg"
-              onClick={() => navigate("/founder-application")}
+              onClick={handleStartupSignup}
               className="text-base px-8 py-6 font-semibold bg-cyan-glow text-navy-deep hover:bg-cyan-bright overflow-hidden transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               style={{
                 boxShadow: '0 0 30px hsl(var(--cyan-glow) / 0.4)',
@@ -64,7 +69,7 @@ export const Hero = () => {
             <Button
               size="lg"
               variant="outline"
-              onClick={() => navigate("/investor-application")}
+              onClick={handleVCSignup}
               className="text-base px-8 py-6 font-semibold border-cyan-glow/40 text-cyan-glow hover:bg-cyan-glow/10 hover:border-cyan-glow transition-all duration-300 hover:scale-105 w-full sm:w-auto"
             >
               Join as a VC

@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import infinityLogoTransparent from "@/assets/infinity-logo-transparent.png";
+import infinityLogoTransparent from "../assets/infinity-logo-transparent.png";
 
 // Mock data for Founder Dashboard (seeing investors)
 const mockInvestors = [
@@ -69,7 +69,11 @@ const getStageColor = (stage: string) => {
   return colors[stage] || "bg-white/10 text-white/80 border-white/20";
 };
 
-export const HowItWorks = () => {
+interface HowItWorksProps {
+  onTryDemo?: (type: "founder" | "investor") => void;
+}
+
+export const HowItWorks = ({ onTryDemo }: HowItWorksProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'founder' | 'investor'>('founder');
   const [activeStep, setActiveStep] = useState(0);
@@ -549,6 +553,19 @@ export const HowItWorks = () => {
                   ))
                 )}
               </div>
+
+              {/* Try Demo CTA */}
+              {onTryDemo && (
+                <div className="px-6 pb-6 pt-2">
+                  <button
+                    onClick={() => onTryDemo(activeTab)}
+                    className="w-full py-3 rounded-lg bg-cyan-glow/10 border border-cyan-glow/30 text-cyan-glow font-medium hover:bg-cyan-glow/20 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Try Full Demo Dashboard
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
