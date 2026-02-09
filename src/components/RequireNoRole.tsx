@@ -1,63 +1,42 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
-import { useAuthReady } from "@/hooks/useAuthReady";
+import { useRole } from "@/hooks/useRole";
 
-/**
- * Redirects users who already have a role away from /select-role.
- * Only users without a role (or with no role claim) can access this page.
- */
 export const RequireNoRole = () => {
   const navigate = useNavigate();
-  const ready = useAuthReady();
-  const [allowed, setAllowed] = useState<boolean | null>(null);
+  const { role, loading } = useRole();
 
   useEffect(() => {
-    // Wait for Firebase auth to hydrate before checking
-    if (!ready) return;
+    if (loading) return;
 
-    const check = async () => {
-      const user = auth.currentUser;
-      if (!user) {
-        // Not authenticated - redirect to login
-        navigate("/login", { replace: true });
-        setAllowed(false);
-        return;
+    if (!auth.currentUser) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    if (role === "superuser") return;
+
+    if (role) {
+      switch (role) {
+        case "vc":
+          navigate("/vc-onboarding", { replace: true });
+          break;
+        case "analyst":
+          navigate("/analyst", { replace: true });
+          break;
+        case "startup":
+          navigate("/startup-onboarding", { replace: true });
+          break;
+        default:
+          navigate("/", { replace: true });
       }
+      return;
+    }
+  }, [loading, role, navigate]);
 
-      const { claims } = await user.getIdTokenResult();
-      const role = claims.role as string | undefined;
-
-      if (role && ["vc", "startup", "analyst", "superuser"].includes(role)) {
-        // User already has a role, redirect to their appropriate home
-        switch (role) {
-          case "superuser":
-            navigate("/admin", { replace: true });
-            break;
-          case "vc":
-            navigate("/vc-onboarding", { replace: true });
-            break;
-          case "analyst":
-            navigate("/analyst", { replace: true });
-            break;
-          case "startup":
-            navigate("/startup-onboarding", { replace: true });
-            break;
-          default:
-            navigate("/", { replace: true });
-        }
-        setAllowed(false);
-        return;
-      }
-
-      // No role - allow access to select-role
-      setAllowed(true);
-    };
-    check();
-  }, [ready, navigate]);
-
-  if (allowed === null) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-navy-deep">
         <Loader2 className="h-8 w-8 animate-spin text-cyan-glow" />
@@ -65,9 +44,8 @@ export const RequireNoRole = () => {
     );
   }
 
-  if (!allowed) {
-    return null;
-  }
+  if (role === "superuser") return <Outlet />;
+  if (role) return null;
 
   return <Outlet />;
 };

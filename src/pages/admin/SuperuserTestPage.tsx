@@ -4,9 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Building2, UserCog, Rocket, LayoutDashboard } from "lucide-react";
 import { auth } from "@/lib/firebase";
-import { sessionManager } from "@/lib/session";
-
-const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
+import { useRole } from "@/hooks/useRole";
 
 const DASHBOARDS = [
   {
@@ -35,52 +33,22 @@ const DASHBOARDS = [
   },
 ];
 
-/**
- * Superuser-only page to test all dashboards.
- * Provides links to impersonate/view each role's experience.
- */
 export const SuperuserTestPage = () => {
   const navigate = useNavigate();
+  const { role, loading } = useRole();
 
-  // Re-validate superuser on mount (e.g. if demoted elsewhere, redirect)
   useEffect(() => {
-    if (!FIREBASE_API) return;
-    const user = auth.currentUser;
-    if (!user) {
+    if (loading) return;
+
+    if (!auth.currentUser) {
       navigate("/landing", { replace: true });
       return;
     }
-    let cancelled = false;
-    user.getIdToken().then((token) => {
-      if (cancelled) return;
-      return fetch(`${FIREBASE_API}/auth/admin/superusers`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    }).then((res) => {
-      if (cancelled || !res) return;
-      if (res.status === 401) {
-        sessionManager.clear();
-        navigate("/login", { replace: true });
-        return;
-      }
-      if (res.status === 403) {
-        user.getIdTokenResult(true).then((result) => {
-          if (cancelled) return;
-          const role = (result.claims.role as string) || "";
-          if (role !== "superuser") {
-            sessionManager.clear();
-            navigate("/landing", { replace: true });
-          }
-        }).catch(() => {
-          if (!cancelled) {
-            sessionManager.clear();
-            navigate("/landing", { replace: true });
-          }
-        });
-      }
-    }).catch(() => { /* ignore network errors for this soft check */ });
-    return () => { cancelled = true; };
-  }, [navigate]);
+
+    if (role !== "superuser") {
+      navigate("/landing", { replace: true });
+    }
+  }, [loading, role, navigate]);
 
   return (
     <div className="flex-1 p-8 max-w-4xl mx-auto w-full">
