@@ -302,7 +302,7 @@ export const VCAdminDashboard = () => {
 
   const handleLogout = async () => {
     // TODO: Integrate with backend logout when ready
-    navigate("/");
+    navigate("/landing");
   };
 
   const formatDate = (dateString: string) => {
@@ -814,7 +814,7 @@ export const VCAdminDashboard = () => {
       {/* Header */}
       <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
         <button 
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/vc-admin")}
           className="hover:opacity-80 transition-opacity"
         >
           <img src={infinityLogo} alt="Home" className="h-14 w-auto" />

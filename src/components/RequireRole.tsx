@@ -15,10 +15,16 @@ interface RequireRoleProps {
  * Role is read from Firebase ID token custom claims only.
  * Redirects to /login if not authenticated, /select-role if no role, or /403 if role not allowed.
  */
+/** Stable dependency for allowedRoles so inline arrays from parent don't retrigger the effect. */
+function allowedRolesKey(roles: AllowedRole[]) {
+  return roles.slice().sort().join(",");
+}
+
 export const RequireRole = ({ allowedRoles }: RequireRoleProps) => {
   const navigate = useNavigate();
   const ready = useAuthReady();
   const [allowed, setAllowed] = useState<boolean | null>(null);
+  const rolesKey = allowedRolesKey(allowedRoles);
 
   useEffect(() => {
     // Wait for Firebase auth to hydrate before checking
@@ -32,20 +38,25 @@ export const RequireRole = ({ allowedRoles }: RequireRoleProps) => {
         setAllowed(false);
         return;
       }
-      const { claims } = await user.getIdTokenResult();
-      const role = (claims.role as AllowedRole) || null;
+      try {
+        const { claims } = await user.getIdTokenResult();
+        const role = (claims.role as AllowedRole) || null;
 
-      if (!role) {
+        if (!role) {
+          navigate("/select-role", { replace: true });
+          setAllowed(false);
+          return;
+        }
+        if (!allowedRoles.includes(role)) {
+          navigate("/403", { replace: true });
+          setAllowed(false);
+          return;
+        }
+        setAllowed(true);
+      } catch {
         navigate("/select-role", { replace: true });
         setAllowed(false);
-        return;
       }
-      if (!allowedRoles.includes(role)) {
-        navigate("/403", { replace: true });
-        setAllowed(false);
-        return;
-      }
-      setAllowed(true);
     };
     check();
   }, [ready, allowedRoles, navigate]);

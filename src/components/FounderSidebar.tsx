@@ -44,7 +44,7 @@ export function FounderSidebar() {
 
   const handleLogout = async () => {
     // TODO: Integrate with backend API for logout
-    navigate("/");
+    navigate("/landing");
   };
 
   return (

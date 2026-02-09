@@ -409,7 +409,7 @@ export function AnalystDashboard() {
   return (
     <div className="min-h-screen flex flex-col bg-[#151a24]">
       <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
-        <button onClick={() => navigate("/")} className="hover:opacity-80 transition-opacity">
+        <button onClick={() => navigate("/analyst")} className="hover:opacity-80 transition-opacity">
           <img src={infinityLogo} alt="Home" className="h-14 w-auto" />
         </button>
         <div className="flex-1" />

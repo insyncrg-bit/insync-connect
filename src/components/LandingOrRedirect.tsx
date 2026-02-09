@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { useAuthReady } from "@/hooks/useAuthReady";
@@ -9,9 +9,9 @@ type AppRole = "startup" | "vc" | "analyst" | "superuser";
 
 const VALID_ROLES: AppRole[] = ["startup", "vc", "analyst", "superuser"];
 
-/** 
- * Role → onboarding flow. Users with roles go through onboarding/signup flow.
- * Superuser stays separate under /admin.
+/**
+ * Role → app entry. Users with roles go to onboarding or dashboard.
+ * Superuser stays under /admin.
  */
 function getAppHomeByRole(role: AppRole): string {
   switch (role) {
@@ -20,7 +20,7 @@ function getAppHomeByRole(role: AppRole): string {
     case "vc":
       return "/vc-onboarding";
     case "analyst":
-      return "/analyst"; // Analysts go through request-sent flow, then onboarding
+      return "/analyst";
     case "startup":
       return "/startup-onboarding";
     default:
@@ -29,24 +29,32 @@ function getAppHomeByRole(role: AppRole): string {
 }
 
 /**
- * Navigation from / and /landing:
- * - Not logged in → show landing.
- * - Logged in, no role (token claims) → /select-role.
- * - Logged in with role → onboarding flow (vc → /vc-onboarding, startup → /startup-onboarding, analyst → /analyst).
- * Role is read from Firebase ID token claims only.
+ * Landing vs app separation:
+ * - "/" = redirect only. Never renders landing. Unauthenticated → /landing; authenticated → app home or /select-role.
+ * - "/landing" = canonical marketing page. Renders <Landing /> only when not logged in; logged-in users are redirected to app.
+ * This avoids loading the landing experience when the user is already in or heading to the app.
  */
 export const LandingOrRedirect = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const ready = useAuthReady();
   const [showLanding, setShowLanding] = useState(false);
+  const isRoot = location.pathname === "/";
+  const isLandingRoute = location.pathname === "/landing";
 
   useEffect(() => {
     if (!ready) return;
     const user = auth.currentUser;
+
     if (!user) {
-      setShowLanding(true);
+      if (isRoot) {
+        navigate("/landing", { replace: true });
+        return;
+      }
+      if (isLandingRoute) setShowLanding(true);
       return;
     }
+
     user
       .getIdTokenResult()
       .then((result) => {
@@ -59,7 +67,7 @@ export const LandingOrRedirect = () => {
         }
       })
       .catch(() => navigate("/select-role", { replace: true }));
-  }, [ready, navigate]);
+  }, [ready, navigate, isRoot, isLandingRoute]);
 
   if (!ready) {
     return (
@@ -68,6 +76,6 @@ export const LandingOrRedirect = () => {
       </div>
     );
   }
-  if (showLanding) return <Landing />;
+  if (showLanding && isLandingRoute) return <Landing />;
   return null;
 };

@@ -14,7 +14,7 @@ export function NotFoundPage() {
         The page you're looking for doesn't exist or has been moved.
       </p>
       <Button asChild className="bg-cyan-glow/20 text-cyan-glow border border-cyan-glow/50 hover:bg-cyan-glow/30">
-        <Link to="/">Go home</Link>
+        <Link to="/landing">Go home</Link>
       </Button>
     </div>
   );
@@ -32,7 +32,7 @@ export function ForbiddenPage() {
         You don't have permission to access this page.
       </p>
       <Button asChild className="bg-cyan-glow/20 text-cyan-glow border border-cyan-glow/50 hover:bg-cyan-glow/30">
-        <Link to="/">Go home</Link>
+        <Link to="/landing">Go home</Link>
       </Button>
     </div>
   );
@@ -50,7 +50,7 @@ export function ErrorPage({ statusCode = 500 }: { statusCode?: number }) {
         Something went wrong. Please try again later.
       </p>
       <Button asChild className="bg-cyan-glow/20 text-cyan-glow border border-cyan-glow/50 hover:bg-cyan-glow/30">
-        <Link to="/">Go home</Link>
+        <Link to="/landing">Go home</Link>
       </Button>
     </div>
   );

@@ -82,6 +82,7 @@ export const Login = () => {
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [waitingForVerification, setWaitingForVerification] = useState(false);
   const [verificationEmailSent, setVerificationEmailSent] = useState(false);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [emailVerifiedInDatabase, setEmailVerifiedInDatabase] = useState(false);
   const verificationCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const authUnsubscribeRef = useRef<(() => void) | null>(null);
@@ -415,39 +416,12 @@ export const Login = () => {
         emailVerified: user.emailVerified 
       });
 
-      // Check email verification
+      // Check email verification (don't auto-send; user can request from this screen)
       if (!user.emailVerified) {
-        log.info("Email not verified, sending verification email");
-        // Email not verified - send verification email and wait
+        log.info("Email not verified, showing verification prompt");
         setWaitingForVerification(true);
         setStep("verifying");
         setIsLoading(false);
-
-        // Send verification email if not already sent
-        if (!verificationEmailSent) {
-          try {
-            await sendEmailVerification(user, {
-              url: `${window.location.origin}/verify-email`,
-              handleCodeInApp: false,
-            });
-            setVerificationEmailSent(true);
-            log.info("Verification email sent successfully");
-            toast({
-              title: "Verification email sent",
-              description: "Please check your email and click the verification link. We'll automatically proceed once you've verified.",
-            });
-          } catch (error: any) {
-            log.error("Error sending verification email", error);
-            toast({
-              title: "Error",
-              description: "Failed to send verification email. Please try again.",
-              variant: "destructive",
-            });
-            setWaitingForVerification(false);
-            setStep("password");
-          }
-        }
-
         return;
       }
 
@@ -531,6 +505,7 @@ export const Login = () => {
     log.info("User canceling verification wait");
     setWaitingForVerification(false);
     setVerificationEmailSent(false);
+    setIsResendingVerification(false);
     setStep("password");
     if (verificationCheckIntervalRef.current) {
       clearInterval(verificationCheckIntervalRef.current);
@@ -539,6 +514,33 @@ export const Login = () => {
     if (authUnsubscribeRef.current) {
       authUnsubscribeRef.current();
       authUnsubscribeRef.current = null;
+    }
+  };
+
+  const handleResendVerification = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    setIsResendingVerification(true);
+    try {
+      await sendEmailVerification(user, {
+        url: `${window.location.origin}/verify-email`,
+        handleCodeInApp: false,
+      });
+      setVerificationEmailSent(true);
+      log.info("Verification email sent successfully");
+      toast({
+        title: "Verification email sent",
+        description: "Please check your email and click the verification link. We'll automatically proceed once you've verified.",
+      });
+    } catch (error: any) {
+      log.error("Error sending verification email", error);
+      toast({
+        title: "Error",
+        description: "Failed to send verification email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResendingVerification(false);
     }
   };
 
@@ -636,19 +638,42 @@ export const Login = () => {
                   <Mail className="h-12 w-12 text-cyan-glow mx-auto mb-3" />
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">
-                  Verification email sent!
+                  {verificationEmailSent ? "Verification email sent!" : "Please verify your email"}
                 </h3>
                 <p className="text-white/70 text-sm mb-4">
-                  We've sent a verification link to <strong>{email}</strong>
+                  {verificationEmailSent
+                    ? <>We've sent a verification link to <strong>{email}</strong></>
+                    : <>Your email isn't verified yet. Click below to send a verification link to <strong>{email}</strong>.</>}
                 </p>
                 <p className="text-white/60 text-sm mb-4">
-                  Click the link in the email to verify your account. We'll automatically proceed once you've verified.
+                  {verificationEmailSent
+                    ? "Click the link in the email to verify your account. We'll automatically proceed once you've verified."
+                    : "You can also use a verification link you received earlier."}
                 </p>
-                <div className="flex items-center justify-center gap-2 text-sm text-white/50">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Waiting for verification...</span>
-                </div>
+                {waitingForVerification && (
+                  <div className="flex items-center justify-center gap-2 text-sm text-white/50 mb-4">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Waiting for verification...</span>
+                  </div>
+                )}
               </div>
+              <Button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={isResendingVerification}
+                className="w-full bg-cyan-glow text-navy-deep hover:bg-cyan-bright font-semibold disabled:opacity-50"
+              >
+                {isResendingVerification ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : verificationEmailSent ? (
+                  "Resend verification email"
+                ) : (
+                  "Send verification email"
+                )}
+              </Button>
               <Button
                 type="button"
                 variant="outline"

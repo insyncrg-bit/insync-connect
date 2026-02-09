@@ -35,9 +35,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* / = landing only when not logged in; when logged in redirects to app home */}
+          {/* / = redirect only (never renders landing): unauthenticated → /landing, authenticated → app */}
           <Route path="/" element={<LandingOrRedirect />} />
-          {/* /landing = canonical landing URL; signed-in users are redirected to app home */}
+          {/* /landing = canonical marketing page; only route that renders Landing; signed-in users redirect to app */}
           <Route path="/landing" element={<LandingOrRedirect />} />
 
           {/* Auth Routes - redirect authenticated users away */}

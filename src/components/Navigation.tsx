@@ -17,20 +17,20 @@ export const Navigation = () => {
   }, []);
 
   const handleHowItWorksClick = () => {
-    if (location.pathname === "/") {
+    if (location.pathname === "/landing" || location.pathname === "/") {
       const element = document.getElementById('how-it-works');
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
-      navigate("/#how-it-works");
+      navigate("/landing#how-it-works");
     }
   };
 
   const handleLogout = async () => {
     // TODO: Integrate with backend API for logout
     setUser(null);
-    navigate("/");
+    navigate("/landing");
   };
 
   const handleDashboardClick = async () => {
@@ -45,7 +45,7 @@ export const Navigation = () => {
     <nav className="fixed top-0 w-full z-50 bg-navy-deep/90 backdrop-blur-lg border-b border-cyan-glow/20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/landing")}>
             <img 
               src={infinityLogo} 
               alt="In∞Sync" 
