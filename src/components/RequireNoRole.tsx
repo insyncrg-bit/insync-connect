@@ -16,10 +16,11 @@ export const RequireNoRole = () => {
       return;
     }
 
-    if (role === "superuser") return;
-
     if (role) {
       switch (role) {
+        case "superuser":
+          navigate("/admin", { replace: true });
+          break;
         case "vc":
           navigate("/vc-onboarding", { replace: true });
           break;
@@ -44,7 +45,6 @@ export const RequireNoRole = () => {
     );
   }
 
-  if (role === "superuser") return <Outlet />;
   if (role) return null;
 
   return <Outlet />;

@@ -3,17 +3,25 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowLeft, Loader2, Building2, Rocket, UserCog } from "lucide-react";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
-import { signInWithEmailAndPassword, sendEmailVerification, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { sessionManager } from "@/lib/session";
 import { useToast } from "@/hooks/use-toast";
 
-type LoginStep = "email" | "password" | "verifying";
+type LoginStep = "email" | "password";
 
 // Get Firebase API URL from environment variable
 const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
+
+// Demo / test sign-in (dummy data dashboards). Set in .env for local testing.
+const DEMO_VC_EMAIL = import.meta.env.VITE_DEMO_VC_EMAIL || "";
+const DEMO_STARTUP_EMAIL = import.meta.env.VITE_DEMO_STARTUP_EMAIL || "";
+const DEMO_ANALYST_EMAIL = import.meta.env.VITE_DEMO_ANALYST_EMAIL || "";
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD || "";
+const DEMO_CREDENTIALS_SET =
+  !!(DEMO_VC_EMAIL && DEMO_STARTUP_EMAIL && DEMO_ANALYST_EMAIL && DEMO_PASSWORD);
 
 // Logging utility
 const log = {
@@ -79,13 +87,9 @@ export const Login = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
-  const [waitingForVerification, setWaitingForVerification] = useState(false);
-  const [verificationEmailSent, setVerificationEmailSent] = useState(false);
-  const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [emailVerifiedInDatabase, setEmailVerifiedInDatabase] = useState(false);
-  const verificationCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const authUnsubscribeRef = useRef<(() => void) | null>(null);
 
   // When landing on login with email (e.g. welcome back from signup), open password step immediately
   useEffect(() => {
@@ -95,31 +99,9 @@ export const Login = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- only on mount, initialEmail from location
 
-  // TEMPORARY: Redirect this email to superuser page until role is in claims. Then remove and gate by token claim role === "superuser".
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser) return;
-      const userEmail = (firebaseUser.email || "").toLowerCase().trim();
-      if (userEmail === "shourya0523@gmail.com") {
-        navigate("/admin/set-superuser", { replace: true });
-      }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
-
   // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      log.info("Cleaning up login component");
-      if (verificationCheckIntervalRef.current) {
-        clearInterval(verificationCheckIntervalRef.current);
-        verificationCheckIntervalRef.current = null;
-      }
-      if (authUnsubscribeRef.current) {
-        authUnsubscribeRef.current();
-        authUnsubscribeRef.current = null;
-      }
-    };
+    return () => log.info("Cleaning up login component");
   }, []);
 
   const validateEmail = (emailValue: string): boolean => {
@@ -224,19 +206,6 @@ export const Login = () => {
     async (user: any) => {
       log.info("Handling verified user", { uid: user.uid, email: user.email, emailVerified: user.emailVerified });
 
-      // TEMPORARY: First-time superuser setup – remove once superuser is in claims and gate by claim.
-      const userEmail = (user.email || email || "").toLowerCase().trim();
-      if (userEmail === "shourya0523@gmail.com") {
-        log.info("Admin email detected, redirecting to superuser page");
-        try {
-          sessionManager.save({ email: user.email || email, userId: user.uid });
-        } catch (e) {
-          log.error("Failed to save session before admin redirect", e);
-        }
-        navigate("/admin/set-superuser");
-        return;
-      }
-
       try {
         const result = await user.getIdTokenResult();
         const userRole = (result.claims.role as string) || null;
@@ -247,7 +216,6 @@ export const Login = () => {
           userId: user.uid,
           role: userRole as "startup" | "vc" | "analyst" | "superuser" | undefined,
         });
-        log.info("Session data saved");
 
         if (!userRole || !["superuser", "vc", "analyst", "startup"].includes(userRole)) {
           log.info("No role in token, redirecting to role selection");
@@ -286,106 +254,6 @@ export const Login = () => {
     [email, navigate, toast, redirectToRoleHome]
   );
 
-  // Set up polling to check email verification status
-  useEffect(() => {
-    if (!waitingForVerification) {
-      // Cleanup if we're no longer waiting
-      if (verificationCheckIntervalRef.current) {
-        clearInterval(verificationCheckIntervalRef.current);
-        verificationCheckIntervalRef.current = null;
-      }
-      if (authUnsubscribeRef.current) {
-        authUnsubscribeRef.current();
-        authUnsubscribeRef.current = null;
-      }
-      return;
-    }
-
-    log.info("Setting up email verification polling");
-
-    // Listen for auth state changes (including email verification)
-    authUnsubscribeRef.current = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        log.info("Auth state changed, checking verification", { uid: user.uid });
-        try {
-          // Reload user to get latest emailVerified status
-          await user.reload();
-          log.info("User reloaded", { emailVerified: user.emailVerified });
-          
-          if (user.emailVerified) {
-            log.info("Email verified via auth state change");
-            // Email is now verified - proceed with redirect
-            setWaitingForVerification(false);
-            if (verificationCheckIntervalRef.current) {
-              clearInterval(verificationCheckIntervalRef.current);
-              verificationCheckIntervalRef.current = null;
-            }
-            if (authUnsubscribeRef.current) {
-              authUnsubscribeRef.current();
-              authUnsubscribeRef.current = null;
-            }
-            await handleVerifiedUser(user);
-          }
-        } catch (error) {
-          log.error("Error in auth state change handler", error);
-          toast({
-            title: "Verification check failed",
-            description: "We couldn't confirm your email. Please try again or refresh the page.",
-            variant: "destructive",
-          });
-        }
-      }
-    });
-
-    // Also poll periodically to check verification status
-    verificationCheckIntervalRef.current = setInterval(async () => {
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        try {
-          log.info("Polling for email verification", { uid: currentUser.uid });
-          await currentUser.reload();
-          log.info("User reloaded in poll", { emailVerified: currentUser.emailVerified });
-          
-          if (currentUser.emailVerified) {
-            log.info("Email verified via polling");
-            setWaitingForVerification(false);
-            if (verificationCheckIntervalRef.current) {
-              clearInterval(verificationCheckIntervalRef.current);
-              verificationCheckIntervalRef.current = null;
-            }
-            if (authUnsubscribeRef.current) {
-              authUnsubscribeRef.current();
-              authUnsubscribeRef.current = null;
-            }
-            await handleVerifiedUser(currentUser);
-          }
-        } catch (error) {
-          log.error("Error in verification polling", error);
-          toast({
-            title: "Verification check failed",
-            description: "We couldn't confirm your email. Please try again or refresh the page.",
-            variant: "destructive",
-          });
-        }
-      } else {
-        log.warn("No current user during verification polling");
-      }
-    }, 2000); // Check every 2 seconds
-
-    // Cleanup on unmount or when waitingForVerification changes
-    return () => {
-      log.info("Cleaning up verification polling");
-      if (verificationCheckIntervalRef.current) {
-        clearInterval(verificationCheckIntervalRef.current);
-        verificationCheckIntervalRef.current = null;
-      }
-      if (authUnsubscribeRef.current) {
-        authUnsubscribeRef.current();
-        authUnsubscribeRef.current = null;
-      }
-    };
-  }, [waitingForVerification, handleVerifiedUser]);
-
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -410,23 +278,9 @@ export const Login = () => {
       );
 
       const user = userCredential.user;
-      log.info("Firebase sign in successful", { 
-        uid: user.uid, 
-        email: user.email, 
-        emailVerified: user.emailVerified 
-      });
+      log.info("Firebase sign in successful", { uid: user.uid, email: user.email });
 
-      // Check email verification (don't auto-send; user can request from this screen)
-      if (!user.emailVerified) {
-        log.info("Email not verified, showing verification prompt");
-        setWaitingForVerification(true);
-        setStep("verifying");
-        setIsLoading(false);
-        return;
-      }
-
-      log.info("Email already verified, proceeding with redirect");
-      // Email is verified - proceed with redirect
+      // Login = existing account. Verification is only required at signup; do not re-verify on login.
       await handleVerifiedUser(user);
     } catch (error: any) {
       log.error("Login error", error);
@@ -468,7 +322,6 @@ export const Login = () => {
         variant: "destructive",
       });
       
-      setWaitingForVerification(false);
       setStep("password");
     } finally {
       setIsLoading(false);
@@ -496,51 +349,31 @@ export const Login = () => {
     setStep("email");
     setPassword("");
     setErrors({});
-    setWaitingForVerification(false);
-    setVerificationEmailSent(false);
     setEmailVerifiedInDatabase(false);
   };
 
-  const handleCancelVerification = () => {
-    log.info("User canceling verification wait");
-    setWaitingForVerification(false);
-    setVerificationEmailSent(false);
-    setIsResendingVerification(false);
-    setStep("password");
-    if (verificationCheckIntervalRef.current) {
-      clearInterval(verificationCheckIntervalRef.current);
-      verificationCheckIntervalRef.current = null;
-    }
-    if (authUnsubscribeRef.current) {
-      authUnsubscribeRef.current();
-      authUnsubscribeRef.current = null;
-    }
-  };
-
-  const handleResendVerification = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-    setIsResendingVerification(true);
+  const handleDemoSignIn = async (demoEmail: string) => {
+    if (!DEMO_PASSWORD || !demoEmail) return;
+    setIsDemoLoading(true);
     try {
-      await sendEmailVerification(user, {
-        url: `${window.location.origin}/verify-email`,
-        handleCodeInApp: false,
-      });
-      setVerificationEmailSent(true);
-      log.info("Verification email sent successfully");
-      toast({
-        title: "Verification email sent",
-        description: "Please check your email and click the verification link. We'll automatically proceed once you've verified.",
-      });
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        demoEmail.trim().toLowerCase(),
+        DEMO_PASSWORD
+      );
+      await handleVerifiedUser(userCredential.user);
     } catch (error: any) {
-      log.error("Error sending verification email", error);
+      log.error("Demo sign-in error", error);
       toast({
-        title: "Error",
-        description: "Failed to send verification email. Please try again.",
+        title: "Demo sign-in failed",
+        description:
+          error.code === "auth/invalid-credential" || error.code === "auth/invalid-login-credentials"
+            ? "Invalid demo credentials. Check .env (VITE_DEMO_*)."
+            : error.message || "Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsResendingVerification(false);
+      setIsDemoLoading(false);
     }
   };
 
@@ -577,15 +410,9 @@ export const Login = () => {
         {/* Card */}
         <div className="bg-navy-card border border-white/10 rounded-2xl p-8 shadow-xl">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-white mb-2">
-              {step === "verifying" ? "Verify your email" : "Welcome back"}
-            </h1>
+            <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
             <p className="text-white/60">
-              {step === "verifying"
-                ? "Please check your email and click the verification link"
-                : step === "email" 
-                  ? "Enter your email to continue" 
-                  : "Enter your password"}
+              {step === "email" ? "Enter your email to continue" : "Enter your password"}
             </p>
           </div>
 
@@ -631,58 +458,6 @@ export const Login = () => {
                 )}
               </Button>
             </form>
-          ) : step === "verifying" ? (
-            <div className="space-y-5">
-              <div className="bg-cyan-glow/10 border border-cyan-glow/30 rounded-lg p-6 text-center">
-                <div className="mb-4">
-                  <Mail className="h-12 w-12 text-cyan-glow mx-auto mb-3" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  {verificationEmailSent ? "Verification email sent!" : "Please verify your email"}
-                </h3>
-                <p className="text-white/70 text-sm mb-4">
-                  {verificationEmailSent
-                    ? <>We've sent a verification link to <strong>{email}</strong></>
-                    : <>Your email isn't verified yet. Click below to send a verification link to <strong>{email}</strong>.</>}
-                </p>
-                <p className="text-white/60 text-sm mb-4">
-                  {verificationEmailSent
-                    ? "Click the link in the email to verify your account. We'll automatically proceed once you've verified."
-                    : "You can also use a verification link you received earlier."}
-                </p>
-                {waitingForVerification && (
-                  <div className="flex items-center justify-center gap-2 text-sm text-white/50 mb-4">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Waiting for verification...</span>
-                  </div>
-                )}
-              </div>
-              <Button
-                type="button"
-                onClick={handleResendVerification}
-                disabled={isResendingVerification}
-                className="w-full bg-cyan-glow text-navy-deep hover:bg-cyan-bright font-semibold disabled:opacity-50"
-              >
-                {isResendingVerification ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
-                  </>
-                ) : verificationEmailSent ? (
-                  "Resend verification email"
-                ) : (
-                  "Send verification email"
-                )}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCancelVerification}
-                className="w-full border-white/20 text-white hover:bg-white/10"
-              >
-                Cancel
-              </Button>
-            </div>
           ) : (
             <form onSubmit={handlePasswordSubmit} className="space-y-5">
               {/* Email Display (read-only) */}
@@ -768,6 +543,54 @@ export const Login = () => {
               Create one
             </Link>
           </p>
+
+          {/* Test sign in (demo / dummy data) */}
+          {DEMO_CREDENTIALS_SET && (
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <p className="text-center text-white/50 text-sm mb-3">
+                Test sign in (dummy data)
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isDemoLoading}
+                  onClick={() => handleDemoSignIn(DEMO_VC_EMAIL)}
+                  className="border-white/20 text-white/80 hover:bg-white/10"
+                >
+                  {isDemoLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Building2 className="h-4 w-4 mr-1.5" />
+                  )}
+                  VC
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isDemoLoading}
+                  onClick={() => handleDemoSignIn(DEMO_STARTUP_EMAIL)}
+                  className="border-white/20 text-white/80 hover:bg-white/10"
+                >
+                  <Rocket className="h-4 w-4 mr-1.5" />
+                  Startup
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isDemoLoading}
+                  onClick={() => handleDemoSignIn(DEMO_ANALYST_EMAIL)}
+                  className="border-white/20 text-white/80 hover:bg-white/10"
+                >
+                  <UserCog className="h-4 w-4 mr-1.5" />
+                  Analyst
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

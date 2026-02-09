@@ -11,9 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 
 const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
 
-// TEMPORARY: Used only to set the first superuser. Once your role is in claims, remove this and allow access when token claim role === "superuser".
-const ALLOWED_ADMIN_EMAIL = "shourya0523@gmail.com";
-
 type SuperuserEntry = { uid: string; email: string | null };
 
 function parseErrorBody(res: Response): Promise<{ error?: string; path?: string }> {
@@ -33,16 +30,11 @@ export const SuperuserConfig = () => {
   const [listError, setListError] = useState("");
   const [removingUid, setRemovingUid] = useState<string | null>(null);
 
-  // Wait for Firebase auth to be ready before deciding
+  // RequireAuth + RequireRole(superuser) already gate this route; just confirm user is signed in
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser) {
-        navigate("/landing", { replace: true });
-        return;
-      }
-      const currentEmail = (firebaseUser.email || sessionManager.get()?.email || "").toLowerCase().trim();
-      if (currentEmail !== ALLOWED_ADMIN_EMAIL) {
-        navigate("/landing", { replace: true });
+        navigate("/login", { replace: true });
         return;
       }
       setAllowed(true);

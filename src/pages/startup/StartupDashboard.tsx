@@ -16,7 +16,6 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import infinityLogo from "@/landing/assets/infinity-logo.png";
 import syncsLogo from "@/landing/assets/infinity-logo-transparent.png";
 import { InterestsModal } from "@/components/InterestsModal";
 import { SyncsModal } from "@/components/SyncsModal";
@@ -248,13 +247,6 @@ export function StartupDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#151a24]">
-      <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
-        <button onClick={() => navigate("/startup")} className="hover:opacity-80 transition-opacity">
-          <img src={infinityLogo} alt="Home" className="h-14 w-auto" />
-        </button>
-        <div className="flex-1" />
-      </header>
-
       <main className="flex-1 p-6 md:p-8 overflow-auto">
         <div className="container mx-auto max-w-6xl space-y-10">
           <div>

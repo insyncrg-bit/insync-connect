@@ -15,19 +15,10 @@ import {
   FileText,
   MessageSquare,
   UserCog,
-  LayoutDashboard,
-  ChevronDown,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import infinityLogo from "@/landing/assets/infinity-logo.png";
 import { InterestsModal } from "@/components/InterestsModal";
 import { SyncsModal } from "@/components/SyncsModal";
 import { PendingModal } from "@/components/PendingModal";
@@ -408,33 +399,6 @@ export function AnalystDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#151a24]">
-      <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
-        <button onClick={() => navigate("/analyst")} className="hover:opacity-80 transition-opacity">
-          <img src={infinityLogo} alt="Home" className="h-14 w-auto" />
-        </button>
-        <div className="flex-1" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
-              {currentTab === "dashboard" ? <><LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard</> : <><UserCog className="h-4 w-4 mr-2" /> Profile</>}
-              <ChevronDown className="h-4 w-4 ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-[#151a24] border-white/10">
-            <DropdownMenuItem onClick={() => handleTabChange("dashboard")} className={cn("text-white hover:bg-white/10 cursor-pointer", currentTab === "dashboard" && "bg-[hsl(var(--cyan-glow))]/20")}>
-              <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleTabChange("profile")} className={cn("text-white hover:bg-white/10 cursor-pointer", currentTab === "profile" && "bg-[hsl(var(--cyan-glow))]/20")}>
-              <UserCog className="h-4 w-4 mr-2" /> Profile
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button variant="outline" size="sm" onClick={() => setProfileModalOpen(true)} className="border-white/20 text-white hover:bg-white/10">
-          <UserCog className="h-4 w-4 mr-2" />
-          Edit My Profile
-        </Button>
-      </header>
-
       <main className="flex-1 p-6 md:p-8 overflow-auto">
         {currentTab === "profile" ? (
           <div className="max-w-4xl mx-auto">

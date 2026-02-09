@@ -57,15 +57,8 @@ export function useRole(): UseRoleReturn {
   useEffect(() => {
     if (!ready) return;
 
-    const session = sessionManager.get();
     const user = auth.currentUser;
-
-    if (user && session?.role && session?.email === user.email) {
-      setRole(session.role as AllowedRole);
-      setUserEmail(user.email || session.email);
-      setUserId(user.uid);
-      setLoading(false);
-    } else if (user) {
+    if (user) {
       fetchRoleFromFirebase(user);
     } else {
       setRole(null);
@@ -76,15 +69,7 @@ export function useRole(): UseRoleReturn {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const session = sessionManager.get();
-        if (session?.role && session?.email === firebaseUser.email) {
-          setRole(session.role as AllowedRole);
-          setUserEmail(firebaseUser.email || session.email);
-          setUserId(firebaseUser.uid);
-          setLoading(false);
-        } else {
-          await fetchRoleFromFirebase(firebaseUser);
-        }
+        await fetchRoleFromFirebase(firebaseUser);
       } else {
         setRole(null);
         setUserEmail("");

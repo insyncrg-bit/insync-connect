@@ -18,21 +18,9 @@ import {
   FileText,
   Sparkles,
   UserCog,
-  Users,
-  Settings,
-  ChevronDown,
-  LayoutDashboard
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import infinityLogo from "@/landing/assets/infinity-logo.png";
 import { VCAdminOrganisation } from "./components/VCAdminOrganisation";
 import { VCAdminSettings } from "./components/VCAdminSettings";
 import { InvestorThesisModal } from "@/components/InvestorThesisModal";
@@ -298,11 +286,6 @@ export const VCAdminDashboard = () => {
 
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab }, { replace: true });
-  };
-
-  const handleLogout = async () => {
-    // TODO: Integrate with backend logout when ready
-    navigate("/landing");
   };
 
   const formatDate = (dateString: string) => {
@@ -811,98 +794,7 @@ export const VCAdminDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#151a24]">
-      {/* Header */}
-      <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
-        <button 
-          onClick={() => navigate("/vc-admin")}
-          className="hover:opacity-80 transition-opacity"
-        >
-          <img src={infinityLogo} alt="Home" className="h-14 w-auto" />
-        </button>
-        <div className="flex-1" />
-        
-        {/* Admin Menu Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-white/20 text-white hover:bg-white/10"
-            >
-              {currentTab === "dashboard" && (
-                <>
-                  <LayoutDashboard className="h-4 w-4 mr-2" />
-                  Dashboard
-                </>
-              )}
-              {currentTab === "organisation" && (
-                <>
-                  <Users className="h-4 w-4 mr-2" />
-                  Organisation
-                </>
-              )}
-              {currentTab === "settings" && (
-                <>
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </>
-              )}
-              {!["dashboard", "organisation", "settings"].includes(currentTab) && (
-                <>
-                  <LayoutDashboard className="h-4 w-4 mr-2" />
-                  Dashboard
-                </>
-              )}
-              <ChevronDown className="h-4 w-4 ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-[#151a24] border-white/10">
-            <DropdownMenuItem
-              onClick={() => handleTabChange("dashboard")}
-              className={cn(
-                "text-white hover:bg-white/10 cursor-pointer",
-                currentTab === "dashboard" && "bg-[hsl(var(--cyan-glow))]/20"
-              )}
-            >
-              <LayoutDashboard className="h-4 w-4 mr-2" />
-              Dashboard
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleTabChange("organisation")}
-              className={cn(
-                "text-white hover:bg-white/10 cursor-pointer",
-                currentTab === "organisation" && "bg-[hsl(var(--cyan-glow))]/20"
-              )}
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Organisation
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleTabChange("settings")}
-              className={cn(
-                "text-white hover:bg-white/10 cursor-pointer",
-                currentTab === "settings" && "bg-[hsl(var(--cyan-glow))]/20"
-              )}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Edit Profile Button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setProfileModalOpen(true)}
-          className="border-white/20 text-white hover:bg-white/10"
-        >
-          <UserCog className="h-4 w-4 mr-2" />
-          Edit My Profile
-        </Button>
-      </header>
-
-      {/* Content */}
+      {/* Navbar is rendered by AppLayoutWithNavbar; tab navigation uses URL so navbar stays in sync */}
       <main className="flex-1 p-6 md:p-8 overflow-auto">
         {renderContent()}
       </main>

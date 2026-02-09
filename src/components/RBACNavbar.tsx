@@ -1,7 +1,10 @@
-import { useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { signOut, deleteUser } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { sessionManager } from "@/lib/session";
 import { useRole } from "@/hooks/useRole";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,6 +14,16 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   LayoutDashboard,
   Users,
   Settings,
@@ -18,6 +31,11 @@ import {
   LogOut,
   ChevronDown,
   Building2,
+  Trash2,
+  Rocket,
+  UserPlus,
+  Send,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import infinityLogo from "@/landing/assets/infinity-logo.png";
@@ -46,20 +64,37 @@ const ROLE_NAV_ITEMS: Record<AllowedRole, NavItem[]> = {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/analyst" },
     { id: "startups", label: "Startups", icon: Building2, path: "/analyst/startups" },
   ],
-  superuser: [
-    { id: "test", label: "Test dashboards", icon: LayoutDashboard, path: "/admin/test" },
-    { id: "superuser", label: "Superuser management", icon: Users, path: "/admin/set-superuser" },
-  ],
+  superuser: [],
 };
+
+/** Routes shown in navbar for superusers to jump between pages (testing). */
+const ADMIN_TEST_ROUTES: NavItem[] = [
+  { id: "select-role", label: "Select role", icon: UserPlus, path: "/select-role" },
+  { id: "vc-onboarding", label: "VC onboarding", icon: Building2, path: "/vc-onboarding" },
+  { id: "vc-admin", label: "VC admin", icon: LayoutDashboard, path: "/vc-admin" },
+  { id: "startup-onboarding", label: "Startup onboarding", icon: Rocket, path: "/startup-onboarding" },
+  { id: "startup", label: "Startup", icon: Rocket, path: "/startup" },
+  { id: "analyst", label: "Analyst", icon: UserCog, path: "/analyst" },
+  { id: "request-sent", label: "Request sent", icon: Send, path: "/request-sent" },
+  { id: "admin-test", label: "Admin: Test page", icon: LayoutDashboard, path: "/admin/test" },
+  { id: "admin-superuser", label: "Admin: Set superuser", icon: Shield, path: "/admin/set-superuser" },
+];
 
 interface RBACNavbarProps {
   currentPath?: string;
   onNavigate?: (path: string) => void;
 }
 
-export const RBACNavbar = ({ currentPath, onNavigate }: RBACNavbarProps) => {
+export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNavbarProps) => {
   const navigate = useNavigate();
-  const { role, userEmail, loading } = useRole();
+  const location = useLocation();
+  const { toast } = useToast();
+  const { role, userEmail, userId, loading } = useRole();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const currentPath =
+    propCurrentPath ?? `${location.pathname}${location.search || ""}`;
 
   const handleNavigate = (path: string) => {
     if (onNavigate) {
@@ -72,18 +107,78 @@ export const RBACNavbar = ({ currentPath, onNavigate }: RBACNavbarProps) => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      sessionManager.clear();
       navigate("/login");
     } catch (error) {
       console.error("Error signing out:", error);
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
-  // Don't render if loading, not authenticated, or no role
-  if (loading || !role) {
+  const handleDeleteAccount = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteUser(user);
+      sessionManager.clear();
+      toast({
+        title: "Account deleted",
+        description: "Your account has been permanently deleted.",
+      });
+      navigate("/landing");
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+      
+      if (error.code === "auth/requires-recent-login") {
+        toast({
+          title: "Re-authentication required",
+          description: "Please sign in again before deleting your account.",
+          variant: "destructive",
+        });
+        await signOut(auth);
+        navigate("/login");
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete account. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  if (loading || !auth.currentUser) {
     return null;
   }
 
-  const navItems = ROLE_NAV_ITEMS[role] || [];
+  const path = currentPath?.split("?")[0] || "";
+  const superuserViewingRole =
+    role === "superuser" &&
+    (path.startsWith("/vc-admin")
+      ? "vc"
+      : path.startsWith("/startup")
+        ? "startup"
+        : path.startsWith("/analyst")
+          ? "analyst"
+          : null);
+
+  const navItems =
+    superuserViewingRole
+      ? ROLE_NAV_ITEMS[superuserViewingRole]
+      : role === "superuser"
+        ? ADMIN_TEST_ROUTES
+        : role
+          ? ROLE_NAV_ITEMS[role] || []
+          : [];
   const currentNavItem = navItems.find(
     (item) => currentPath?.startsWith(item.path.split("?")[0])
   ) || navItems[0];
@@ -100,7 +195,7 @@ export const RBACNavbar = ({ currentPath, onNavigate }: RBACNavbarProps) => {
 
       <div className="flex-1" />
 
-      {/* Navigation Dropdown */}
+      {/* Navigation: role-based dropdown, or for superuser a list of routes to test */}
       {navItems.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -109,13 +204,17 @@ export const RBACNavbar = ({ currentPath, onNavigate }: RBACNavbarProps) => {
               size="sm"
               className="border-white/20 text-white hover:bg-white/10"
             >
-              {currentNavItem && (
+              {role === "superuser" && !superuserViewingRole ? (
+                <>
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  Test routes
+                </>
+              ) : currentNavItem ? (
                 <>
                   <currentNavItem.icon className="h-4 w-4 mr-2" />
                   {currentNavItem.label}
                 </>
-              )}
-              {!currentNavItem && (
+              ) : (
                 <>
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Dashboard
@@ -142,6 +241,18 @@ export const RBACNavbar = ({ currentPath, onNavigate }: RBACNavbarProps) => {
                 </DropdownMenuItem>
               );
             })}
+            {superuserViewingRole && (
+              <>
+                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuItem
+                  onClick={() => handleNavigate("/admin/test")}
+                  className="text-white/80 hover:bg-white/10 cursor-pointer"
+                >
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  All test routes
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )}
@@ -173,10 +284,41 @@ export const RBACNavbar = ({ currentPath, onNavigate }: RBACNavbarProps) => {
             className="text-white hover:bg-white/10 cursor-pointer"
           >
             <LogOut className="h-4 w-4 mr-2" />
-            Logout
+            Sign Out
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="bg-white/10" />
+          <DropdownMenuItem
+            onClick={() => setDeleteDialogOpen(true)}
+            className="text-red-400 hover:bg-red-400/10 cursor-pointer"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Account
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-[#151a24] border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Delete Account</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? "Deleting..." : "Delete Account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </header>
   );
 };

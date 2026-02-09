@@ -18,7 +18,6 @@ import {
   Calendar, 
   UserCircle,
   Settings,
-  LogOut
 } from "lucide-react";
 // TODO: Integrate with backend API for authentication
 
@@ -40,11 +39,6 @@ export function FounderSidebar() {
   const isActive = (url: string) => {
     if (url === "/founder-dashboard" && !location.search) return true;
     return currentPath.includes(url);
-  };
-
-  const handleLogout = async () => {
-    // TODO: Integrate with backend API for logout
-    navigate("/landing");
   };
 
   return (
@@ -99,15 +93,6 @@ export function FounderSidebar() {
                 >
                   <Settings className="h-5 w-5 shrink-0" />
                   {!collapsed && <span>Settings</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/50 hover:bg-white/10 hover:text-white/80 transition-all"
-                >
-                  <LogOut className="h-5 w-5 shrink-0" />
-                  {!collapsed && <span>Logout</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

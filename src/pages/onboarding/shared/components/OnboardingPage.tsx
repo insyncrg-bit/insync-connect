@@ -5,13 +5,10 @@ import { StepIndicator } from "./StepIndicator";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, LogOut } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FloatingParticles } from "@/components/FloatingParticles";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { sessionManager } from "@/lib/session";
 
 
 export interface StepValidation {
@@ -60,34 +57,6 @@ export const OnboardingPage = <T extends Record<string, any>>({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [invalidSteps, setInvalidSteps] = useState<number[]>([]);
   const [validationWarnings, setValidationWarnings] = useState<Array<{ step: number; errors: string[] }>>([]);
-  const [isSigningOut, setIsSigningOut] = useState(false);
-
-  // Sign out handler - clears all localStorage and Firebase auth
-  const handleSignOut = async () => {
-    setIsSigningOut(true);
-    try {
-      // Clear session manager data
-      sessionManager.clear();
-      // Clear onboarding-specific data
-      clearData();
-      localStorage.removeItem(`${stepKey}_completed`);
-      // Clear any other localStorage items
-      localStorage.clear();
-      // Sign out from Firebase
-      await signOut(auth);
-      // Navigate to login
-      navigate("/login", { replace: true });
-    } catch (error) {
-      console.error("Error signing out:", error);
-      toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSigningOut(false);
-    }
-  };
 
   // Load completed steps from localStorage
   useEffect(() => {
@@ -253,18 +222,7 @@ export const OnboardingPage = <T extends Record<string, any>>({
         </div>
 
         {/* Header */}
-        <div className="mb-8 text-center relative">
-          {/* Sign Out Button - positioned top right */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-            disabled={isSigningOut}
-            className="absolute right-0 top-0 text-white/60 hover:text-white hover:bg-white/10"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            {isSigningOut ? "Signing out..." : "Sign Out"}
-          </Button>
+        <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
           <p className="text-white/60">{description}</p>
         </div>

@@ -242,14 +242,6 @@ export const SignUp = () => {
       });
       log.info("Session data saved");
 
-      // TEMPORARY: Remove once superuser is in claims; then gate by claim or remove this branch.
-      const userEmail = (user.email || email || "").toLowerCase().trim();
-      if (userEmail === "shourya0523@gmail.com") {
-        log.info("Admin email detected, redirecting to superuser page");
-        navigate("/admin/set-superuser");
-        return;
-      }
-
       // User is verified but has no role - redirect to role selection
       log.info("Redirecting to role selection");
       navigate("/select-role");
