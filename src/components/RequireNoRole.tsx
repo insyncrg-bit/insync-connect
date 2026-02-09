@@ -4,18 +4,11 @@ import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { useAuthReady } from "@/hooks/useAuthReady";
 
-type AllowedRole = "startup" | "vc" | "analyst" | "superuser";
-
-interface RequireRoleProps {
-  allowedRoles: AllowedRole[];
-}
-
 /**
- * Renders children only if the current user's token has one of the allowed roles.
- * Role is read from Firebase ID token custom claims only.
- * Redirects to /login if not authenticated, /select-role if no role, or /403 if role not allowed.
+ * Redirects users who already have a role away from /select-role.
+ * Only users without a role (or with no role claim) can access this page.
  */
-export const RequireRole = ({ allowedRoles }: RequireRoleProps) => {
+export const RequireNoRole = () => {
   const navigate = useNavigate();
   const ready = useAuthReady();
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -27,28 +20,42 @@ export const RequireRole = ({ allowedRoles }: RequireRoleProps) => {
     const check = async () => {
       const user = auth.currentUser;
       if (!user) {
-        // Not authenticated - redirect to login, not select-role
+        // Not authenticated - redirect to login
         navigate("/login", { replace: true });
         setAllowed(false);
         return;
       }
-      const { claims } = await user.getIdTokenResult();
-      const role = (claims.role as AllowedRole) || null;
 
-      if (!role) {
-        navigate("/select-role", { replace: true });
+      const { claims } = await user.getIdTokenResult();
+      const role = claims.role as string | undefined;
+
+      if (role && ["vc", "startup", "analyst", "superuser"].includes(role)) {
+        // User already has a role, redirect to their appropriate home
+        switch (role) {
+          case "superuser":
+            navigate("/admin", { replace: true });
+            break;
+          case "vc":
+            navigate("/vc-onboarding", { replace: true });
+            break;
+          case "analyst":
+            navigate("/analyst", { replace: true });
+            break;
+          case "startup":
+            navigate("/startup-onboarding", { replace: true });
+            break;
+          default:
+            navigate("/", { replace: true });
+        }
         setAllowed(false);
         return;
       }
-      if (!allowedRoles.includes(role)) {
-        navigate("/403", { replace: true });
-        setAllowed(false);
-        return;
-      }
+
+      // No role - allow access to select-role
       setAllowed(true);
     };
     check();
-  }, [ready, allowedRoles, navigate]);
+  }, [ready, navigate]);
 
   if (allowed === null) {
     return (
