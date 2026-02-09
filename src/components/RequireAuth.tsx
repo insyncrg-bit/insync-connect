@@ -2,15 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
-import { sessionManager, SESSION_TIMEOUT_MS } from "@/lib/session";
+import { sessionManager } from "@/lib/session";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthReady } from "@/hooks/useAuthReady";
 
 /**
  * Protects routes that require an authenticated session. Waits for auth to be ready
- * (useAuthReady restores session from Firebase on refresh), then requires valid session
- * or redirects to /login.
+ * (useAuthReady restores session from Firebase on refresh), then requires valid Firebase
+ * user or redirects to /login.
  */
 export const RequireAuth = () => {
   const navigate = useNavigate();
@@ -20,39 +19,22 @@ export const RequireAuth = () => {
 
   useEffect(() => {
     if (!ready) return;
-    const check = async () => {
-      if (!sessionManager.isSessionValid()) {
-        sessionManager.clear();
-        await signOut(auth).catch(() => {});
-        toast({
-          title: "Session expired",
-          description: "Please sign in again to continue.",
-          variant: "destructive",
-        });
-        navigate("/login", { replace: true });
-        setAllowed(false);
-        return;
-      }
-      if (sessionManager.shouldRefreshToken() && auth.currentUser) {
-        try {
-          const token = await auth.currentUser.getIdToken(true);
-          sessionManager.setAuthToken(token, Date.now() + SESSION_TIMEOUT_MS);
-        } catch {
-          sessionManager.clear();
-          await signOut(auth).catch(() => {});
-          toast({
-            title: "Session expired",
-            description: "Please sign in again to continue.",
-            variant: "destructive",
-          });
-          navigate("/login", { replace: true });
-          setAllowed(false);
-          return;
-        }
-      }
-      setAllowed(true);
-    };
-    check();
+    
+    // Simply check if Firebase has a valid current user
+    // Firebase SDK handles token refresh automatically
+    if (!auth.currentUser) {
+      sessionManager.clear();
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to access this page.",
+        variant: "destructive",
+      });
+      navigate("/login", { replace: true });
+      setAllowed(false);
+      return;
+    }
+    
+    setAllowed(true);
   }, [ready, navigate, toast]);
 
   if (!ready || allowed === null) {

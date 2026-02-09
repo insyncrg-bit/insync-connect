@@ -7,7 +7,7 @@ import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
 import { signInWithEmailAndPassword, sendEmailVerification, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { sessionManager, SESSION_TIMEOUT_MS } from "@/lib/session";
+import { sessionManager } from "@/lib/session";
 import { useToast } from "@/hooks/use-toast";
 
 type LoginStep = "email" | "password" | "verifying";
@@ -229,8 +229,6 @@ export const Login = () => {
         log.info("Admin email detected, redirecting to superuser page");
         try {
           sessionManager.save({ email: user.email || email, userId: user.uid });
-          const token = await user.getIdToken();
-          sessionManager.setAuthToken(token, Date.now() + SESSION_TIMEOUT_MS);
         } catch (e) {
           log.error("Failed to save session before admin redirect", e);
         }
@@ -248,8 +246,6 @@ export const Login = () => {
           userId: user.uid,
           role: userRole as "startup" | "vc" | "analyst" | "superuser" | undefined,
         });
-        const token = await user.getIdToken();
-        sessionManager.setAuthToken(token, Date.now() + SESSION_TIMEOUT_MS);
         log.info("Session data saved");
 
         if (!userRole || !["superuser", "vc", "analyst", "startup"].includes(userRole)) {

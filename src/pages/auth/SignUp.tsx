@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
-import { sessionManager, SESSION_TIMEOUT_MS } from "@/lib/session";
+import { sessionManager } from "@/lib/session";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
 import { signInWithEmailAndPassword, sendEmailVerification, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -240,8 +240,6 @@ export const SignUp = () => {
         userId: user.uid,
         // role will be set after role selection
       });
-      const token = await user.getIdToken();
-      sessionManager.setAuthToken(token, Date.now() + SESSION_TIMEOUT_MS);
       log.info("Session data saved");
 
       // TEMPORARY: Remove once superuser is in claims; then gate by claim or remove this branch.
