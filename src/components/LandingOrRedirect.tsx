@@ -4,23 +4,11 @@ import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { useRole } from "@/hooks/useRole";
 import { Landing } from "@/landing";
+import { getSmartRedirectPath } from "@/lib/onboarding";
 
 type AppRole = "startup" | "vc" | "analyst" | "superuser";
 
-function getAppHomeByRole(role: AppRole): string {
-  switch (role) {
-    case "superuser":
-      return "/admin";
-    case "vc":
-      return "/vc-onboarding";
-    case "analyst":
-      return "/analyst";
-    case "startup":
-      return "/startup-onboarding";
-    default:
-      return "/select-role";
-  }
-}
+
 
 export const LandingOrRedirect = () => {
   const navigate = useNavigate();
@@ -45,7 +33,9 @@ export const LandingOrRedirect = () => {
     }
 
     if (role) {
-      navigate(getAppHomeByRole(role), { replace: true });
+      getSmartRedirectPath(user, role).then((path) => {
+        navigate(path, { replace: true });
+      });
     } else {
       navigate("/select-role", { replace: true });
     }

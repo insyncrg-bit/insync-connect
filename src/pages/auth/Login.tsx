@@ -9,6 +9,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { sessionManager } from "@/lib/session";
 import { useToast } from "@/hooks/use-toast";
+import { getSmartRedirectPath } from "@/lib/onboarding";
 
 type LoginStep = "email" | "password";
 
@@ -180,22 +181,31 @@ export const Login = () => {
   // Redirect targets by role (token claims). Users with roles go to onboarding flows.
   // Superuser stays under /admin.
   const redirectToRoleHome = useCallback(
-    (role: string, navigate: (path: string) => void) => {
-      switch (role) {
-        case "superuser":
-          navigate("/admin");
-          break;
-        case "vc":
-          navigate("/vc-onboarding");
-          break;
-        case "analyst":
-          navigate("/analyst"); // Analysts go through request-sent flow, then onboarding
-          break;
-        case "startup":
-          navigate("/startup-onboarding");
-          break;
-        default:
-          navigate("/select-role");
+    async (role: string, navigate: (path: string) => void, user: any) => {
+      // Use smart routing to check if onboarding is complete
+      try {
+        const path = await getSmartRedirectPath(user, role);
+        log.info("Smart routing determined path", { role, path });
+        navigate(path);
+      } catch (e) {
+        log.error("Smart routing failed, using fallback", e);
+        // Fallback logic
+        switch (role) {
+          case "superuser":
+            navigate("/admin");
+            break;
+          case "vc":
+            navigate("/vc-onboarding");
+            break;
+          case "analyst":
+            navigate("/analyst");
+            break;
+          case "startup":
+            navigate("/startup-onboarding");
+            break;
+          default:
+            navigate("/select-role");
+        }
       }
     },
     []
@@ -240,7 +250,7 @@ export const Login = () => {
           }
         }
 
-        redirectToRoleHome(userRole, navigate);
+        redirectToRoleHome(userRole, navigate, user);
       } catch (error) {
         log.error("Error handling verified user", error);
         toast({
