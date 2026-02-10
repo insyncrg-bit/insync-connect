@@ -27,7 +27,7 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 
-interface InvestorApplication {
+export interface InvestorApplication {
   id: string;
   firm_name: string;
   firm_description: string | null;
@@ -156,7 +156,7 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                   </TabsList>
                 </Tabs>
                 <Button
-                  onClick={() => navigate("/investor-application")}
+                  onClick={() => navigate("/vc-onboarding")}
                   className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30"
                 >
                   <Edit2 className="h-4 w-4 mr-2" />

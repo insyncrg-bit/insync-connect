@@ -6,6 +6,7 @@ export interface UserSession {
   role?: "startup" | "vc" | "analyst" | "superuser";
   onboardingType?: "startup" | "vc_admin" | "vc_analyst";
   onboardingComplete?: boolean;
+  firmId?: string; // Firestore firm doc ID (VC users only)
   onboardingData?: {
     currentStep?: number;
     completedSteps?: number[];

@@ -32,6 +32,8 @@ import { MessagesModal } from "@/components/MessagesModal";
 import { MemoModal } from "@/components/MemoModal";
 import { MatchScoreBadge } from "@/components/MatchScoreBadge";
 import { AnalystProfileModal } from "@/components/AnalystProfileModal";
+import { sessionManager } from "@/lib/session";
+import { InvestorApplication } from "@/components/InvestorThesisModal";
 
 interface FounderApplication {
   id: string;
@@ -81,7 +83,7 @@ export const VCAdminDashboard = () => {
   const [firmName, setFirmName] = useState<string>("Your VC Firm");
   const [adminTitle, setAdminTitle] = useState<string>("Admin");
   const [adminProfile, setAdminProfile] = useState<any>(null);
-  const [investorApplication, setInvestorApplication] = useState<any>(null);
+  const [investorApplication, setInvestorApplication] = useState<InvestorApplication | null>(null);
   
   // Modal states
   const [interestsModalOpen, setInterestsModalOpen] = useState(false);
@@ -212,38 +214,105 @@ export const VCAdminDashboard = () => {
   ];
 
   const fetchDashboardData = async () => {
-    // TODO: Integrate with backend API when ready
-    setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      setLoading(true);
+      const session = sessionManager.get();
+      const firmId = session?.firmId;
 
-    // Placeholder data
-    setApplications([
-      {
-        id: "1",
-        founder_name: "Demo Founder",
-        company_name: "Demo Startup",
-        vertical: "AI/ML",
-        stage: "Seed",
-        location: "San Francisco, CA",
-        website: "https://example.com",
-        business_model: "Example business model",
-        funding_goal: "$2M",
-        traction: "Example traction",
-        created_at: new Date().toISOString(),
-      },
-    ]);
+      if (firmId) {
+        // Fetch memo data
+        const { getAuth } = await import("firebase/auth");
+        const auth = getAuth();
+        const user = auth.currentUser;
+        
+        if (user) {
+          try {
+            const token = await user.getIdToken();
+            const apiUrl = import.meta.env.VITE_FIREBASE_API;
+            
+            const response = await fetch(`${apiUrl}/api/firms/${firmId}/memo`, {
+              headers: {
+                "Authorization": `Bearer ${token}`
+              }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              const memo = data.memo;
+              
+              // Map memo data to InvestorApplication format
+              if (memo) {
+                setInvestorApplication({
+                  id: memo.id,
+                  firm_name: memo.firmName,
+                  firm_description: memo.firmDescription,
+                  thesis_statement: memo.thesisStatement,
+                  sub_themes: memo.subThemes || [],
+                  fast_signals: memo.fastSignals || [],
+                  hard_nos: memo.hardNos || [],
+                  check_sizes: memo.checkSizes || [],
+                  stage_focus: memo.stageFocus || [],
+                  sector_tags: memo.sectorTags || [],
+                  customer_types: [], // Not in current schema
+                  lead_follow: memo.leadFollow,
+                  operating_support: memo.operatingSupport || [],
+                  support_style: memo.firmInvolvement,
+                  hq_location: memo.hqLocation,
+                  aum: memo.aum,
+                  fund_type: memo.fundType,
+                  geographic_focus: memo.geographicFocus === "boston" ? "Boston" : (memo.geographicFocusDetail || memo.geographicFocus),
+                  b2b_b2c: null,
+                  revenue_models: [],
+                  minimum_traction: [],
+                  board_involvement: memo.boardInvolvement,
+                  decision_process: memo.decisionProcess,
+                  time_to_decision: memo.timeToDecision,
+                });
+                
+                // Also update admin/firm name in dashboard header if available
+                if (memo.firmName) setFirmName(memo.firmName);
+              }
+            }
+          } catch (err) {
+            console.error("Error fetching memo:", err);
+          }
+        }
+      }
 
-    setEvents([
-      {
-        id: "1",
-        title: "VC Networking Event",
-        description: "Connect with other VCs and startups",
-        event_type: "Networking",
-        location: "San Francisco, CA",
-        event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        max_attendees: 100,
-      },
-    ]);
+      // Placeholder data for other sections
+      setApplications([
+        {
+          id: "1",
+          founder_name: "Demo Founder",
+          company_name: "Demo Startup",
+          vertical: "AI/ML",
+          stage: "Seed",
+          location: "San Francisco, CA",
+          website: "https://example.com",
+          business_model: "Example business model",
+          funding_goal: "$2M",
+          traction: "Example traction",
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      setEvents([
+        {
+          id: "1",
+          title: "VC Networking Event",
+          description: "Connect with other VCs and startups",
+          event_type: "Networking",
+          location: "San Francisco, CA",
+          event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          max_attendees: 100,
+        },
+      ]);
+      
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      setLoading(false);
+    }
 
     setConnectionStats({ interests: 5, syncs: 12, pending: 3 });
     
@@ -253,33 +322,7 @@ export const VCAdminDashboard = () => {
     setOutgoingPending(demoPending);
     setMessageThreads(demoMessages);
     
-    // Set investor application for thesis
-    setInvestorApplication({
-      id: "demo-firm",
-      firm_name: firmName,
-      firm_description: "Early-stage venture fund focused on B2B software and AI infrastructure.",
-      thesis_statement: "We invest in technical founders building category-defining B2B software companies.",
-      sub_themes: ["Developer Tools", "AI Infrastructure", "Data Platforms"],
-      fast_signals: ["Strong technical team", "Early revenue traction"],
-      hard_nos: ["Consumer apps", "Hardware-only"],
-      check_sizes: ["$500K - $2M"],
-      stage_focus: ["Pre-seed", "Seed"],
-      sector_tags: ["AI/ML", "B2B SaaS", "Developer Tools"],
-      customer_types: ["Enterprise", "SMB"],
-      lead_follow: "Lead",
-      operating_support: ["Hiring", "GTM Strategy"],
-      support_style: "Hands-on",
-      hq_location: "San Francisco, CA",
-      aum: "$150M",
-      fund_type: "Early Stage",
-      geographic_focus: "North America",
-      b2b_b2c: "B2B",
-      revenue_models: ["SaaS", "Usage-based"],
-      minimum_traction: ["$50K ARR"],
-      board_involvement: "Board seat at Seed+",
-      decision_process: "2 partner meetings",
-      time_to_decision: "2-3 weeks",
-    });
+
     
     setLoading(false);
   };

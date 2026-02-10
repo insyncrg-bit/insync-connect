@@ -48,13 +48,35 @@ export const SelectRole = () => {
   const [committedFirmName, setCommittedFirmName] = useState<string>(""); // Firm name user has committed to
   const [showCompanyNotFound, setShowCompanyNotFound] = useState(false);
 
-  // TODO: Re-enable authentication check when backend is implemented
-  // useEffect(() => {
-  //   const session = sessionManager.get();
-  //   if (!session?.email) {
-  //     navigate("/signup", { replace: true });
-  //   }
-  // }, [navigate]);
+  // Firms loaded from Firestore via GET /firms
+  const [firmsFromDb, setFirmsFromDb] = useState<{ id: string; name: string }[]>([]);
+  const [selectedFirmId, setSelectedFirmId] = useState<string>(""); // Firestore id of selected firm
+  const [firmsLoading, setFirmsLoading] = useState(false);
+
+  // Fetch all firms on mount
+  useEffect(() => {
+    if (!FIREBASE_API) return;
+    const fetchFirms = async () => {
+      setFirmsLoading(true);
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+        const token = await user.getIdToken();
+        const res = await fetch(`${FIREBASE_API}/firms`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFirmsFromDb(data.firms || []);
+        }
+      } catch (error) {
+        console.error("Error fetching firms:", error);
+      } finally {
+        setFirmsLoading(false);
+      }
+    };
+    fetchFirms();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -69,56 +91,31 @@ export const SelectRole = () => {
     }
   };
 
-  // Company search function
-  const searchCompanies = async (query: string) => {
-    if (!query.trim()) {
-      setCompanySearchResults([]);
-      setShowCompanyNotFound(false);
-      setCommittedFirmName("");
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      // TODO: Replace with actual API call
-      // const response = await fetch(`/api/companies/search?q=${encodeURIComponent(query)}`);
-      // const data = await response.json();
-      // setCompanySearchResults(data.companies || []);
-      
-      // Mock data for now - replace with API call
-      await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
-      setCompanySearchResults([]); // Empty results to show "not found" message
-    } catch (error) {
-      console.error("Error searching companies:", error);
-      setCompanySearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  // Debounce company search
+  // Client-side filtering of firms from DB
   useEffect(() => {
     if (role !== "vc") {
       setCompanySearchQuery("");
       setSelectedCompany("");
+      setSelectedFirmId("");
       setCompanySearchResults([]);
       setShowCompanyNotFound(false);
       setCommittedFirmName("");
       return;
     }
 
-    const timeoutId = setTimeout(() => {
-      if (companySearchQuery.trim()) {
-        searchCompanies(companySearchQuery);
-      } else {
-        setCompanySearchResults([]);
-        setShowCompanyNotFound(false);
-        setCommittedFirmName("");
-      }
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [companySearchQuery, role]);
+    // Filter firms client-side based on search query
+    if (companySearchQuery.trim()) {
+      const query = companySearchQuery.trim().toLowerCase();
+      const filtered = firmsFromDb
+        .filter((f) => f.name.toLowerCase().includes(query))
+        .map((f) => f.name);
+      setCompanySearchResults(filtered);
+    } else {
+      setCompanySearchResults([]);
+      setShowCompanyNotFound(false);
+      setCommittedFirmName("");
+    }
+  }, [companySearchQuery, role, firmsFromDb]);
 
   // Show warning only when user has committed to a firm name (on blur or after selection)
   useEffect(() => {
@@ -137,6 +134,9 @@ export const SelectRole = () => {
 
   const handleCompanySelect = (company: string) => {
     setSelectedCompany(company);
+    // Look up the firm ID from our DB list
+    const firm = firmsFromDb.find((f) => f.name === company);
+    setSelectedFirmId(firm?.id || "");
     setFormData((prev) => ({ ...prev, companyName: company }));
     setCompanySearchOpen(false);
     setCompanySearchQuery(company);
@@ -156,6 +156,7 @@ export const SelectRole = () => {
   const handleClearFirm = (e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedCompany("");
+    setSelectedFirmId("");
     setCompanySearchQuery("");
     setCommittedFirmName("");
     setShowCompanyNotFound(false);
@@ -210,44 +211,95 @@ export const SelectRole = () => {
         return;
       }
 
+      // Determine the Firebase Auth custom-claim role and onboarding type
+      const isExistingFirm = !!(selectedCompany && selectedFirmId);
       let claimRole: "startup" | "vc" | "analyst";
-      let onboardingType: "startup" | "vc_admin" | "vc_analyst";
 
       if (role === "startup") {
         claimRole = "startup";
-        onboardingType = "startup";
       } else if (role === "vc") {
-        if (selectedCompany) {
-          claimRole = "analyst";
-          onboardingType = "vc_analyst";
-        } else {
-          claimRole = "vc";
-          onboardingType = "vc_admin";
-        }
+        claimRole = isExistingFirm ? "analyst" : "vc";
       } else {
         setErrors({ submit: "Please select a role." });
         return;
       }
 
-      if (FIREBASE_API) {
-        const token = await user.getIdToken(true);
-        const res = await fetch(`${FIREBASE_API}/auth/set-role`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ role: claimRole }),
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          setErrors({ submit: (err as { error?: string }).error || "Failed to set role. Please try again." });
-          return;
-        }
-        // Force refresh token result so claims include the newly assigned role (matches SignUp/Login pattern).
-        await user.getIdTokenResult(true);
+      if (!FIREBASE_API) {
+        setErrors({ submit: "API endpoint not configured." });
+        return;
       }
 
+      const token = await user.getIdToken(true);
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+
+      // 1. Set the Firebase Auth custom claim
+      const roleRes = await fetch(`${FIREBASE_API}/auth/set-role`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ role: claimRole }),
+      });
+      if (!roleRes.ok) {
+        const err = await roleRes.json().catch(() => ({}));
+        setErrors({ submit: (err as { error?: string }).error || "Failed to set role. Please try again." });
+        return;
+      }
+      // Refresh token so new claims are available
+      await user.getIdTokenResult(true);
+      // Re-grab fresh token for subsequent calls
+      const freshToken = await user.getIdToken(true);
+      const freshHeaders = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${freshToken}`,
+      };
+
+      // 2. Create or join firm (VC path only)
+      let firmId = "";
+      if (role === "vc") {
+        if (isExistingFirm) {
+          // Join existing firm as analyst
+          const joinRes = await fetch(`${FIREBASE_API}/firms/join`, {
+            method: "POST",
+            headers: freshHeaders,
+            body: JSON.stringify({
+              firmId: selectedFirmId,
+              displayName: formData.fullName.trim(),
+              title: formData.title.trim(),
+              linkedinUrl: formData.linkedinProfile.trim() || undefined,
+            }),
+          });
+          if (!joinRes.ok) {
+            const err = await joinRes.json().catch(() => ({}));
+            setErrors({ submit: (err as { error?: string }).error || "Failed to join firm. Please try again." });
+            return;
+          }
+          const joinData = await joinRes.json();
+          firmId = joinData.firmId;
+        } else {
+          // Create new firm as admin
+          const createRes = await fetch(`${FIREBASE_API}/firms`, {
+            method: "POST",
+            headers: freshHeaders,
+            body: JSON.stringify({
+              firmName: formData.companyName.trim(),
+              displayName: formData.fullName.trim(),
+              title: formData.title.trim(),
+              linkedinUrl: formData.linkedinProfile.trim() || undefined,
+            }),
+          });
+          if (!createRes.ok) {
+            const err = await createRes.json().catch(() => ({}));
+            setErrors({ submit: (err as { error?: string }).error || "Failed to create firm. Please try again." });
+            return;
+          }
+          const createData = await createRes.json();
+          firmId = createData.firmId;
+        }
+      }
+
+      // 3. Save session and navigate
       if (role === "startup") {
         sessionManager.save({
           role: "startup",
@@ -256,11 +308,12 @@ export const SelectRole = () => {
         });
         navigate("/startup-onboarding");
       } else if (role === "vc") {
-        if (selectedCompany) {
+        if (isExistingFirm) {
           sessionManager.save({
             role: "analyst",
             onboardingType: "vc_analyst",
             onboardingComplete: false,
+            firmId,
           });
           navigate("/request-sent");
         } else {
@@ -268,6 +321,7 @@ export const SelectRole = () => {
             role: "vc",
             onboardingType: "vc_admin",
             onboardingComplete: false,
+            firmId,
           });
           navigate("/vc-onboarding");
         }

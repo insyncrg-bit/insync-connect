@@ -54,28 +54,67 @@ export const VCOnboarding = () => {
   };
 
   const handleSubmit = async (data: VCOnboardingData) => {
-    // TODO: Integrate with backend API
-    // const response = await fetch('/api/vc/onboarding', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(data)
-    // });
-    
-    // For now, just simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Mark onboarding as complete in session
-    sessionManager.completeOnboarding();
-    
-    // Save onboarding data to session
-    sessionManager.updateOnboarding({
-      fields: data,
-    });
+    try {
+      const session = sessionManager.get();
+      const firmId = session?.firmId;
+
+      if (!firmId) {
+        console.error("No firm ID in session");
+        // Handle error - maybe redirect to select-role?
+        // navigate("/select-role");
+        return;
+      }
+
+      // Get auth token
+      const { getAuth } = await import("firebase/auth");
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
+        console.error("User not authenticated");
+        return;
+      }
+
+      const token = await user.getIdToken();
+      const apiUrl = import.meta.env.VITE_FIREBASE_API;
+
+      const response = await fetch(`${apiUrl}/api/firms/${firmId}/memo`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save memo");
+      }
+      
+      // Mark onboarding as complete in session
+      sessionManager.completeOnboarding();
+      
+      // Save onboarding data to session (legacy/backup)
+      sessionManager.updateOnboarding({
+        fields: data,
+      });
+
+      // Force token refresh to get new claims (onboarding_complete)
+      await user.getIdToken(true);
+
+      navigate("/vc-admin?tab=dashboard");
+    } catch (error) {
+      console.error("Error submitting onboarding:", error);
+      // Show error toast
+    }
   };
 
   const handleComplete = () => {
-    // After onboarding completion, redirect to VC memos (to be implemented)
-    // For now, redirects to dashboard
+    // This function might be redundant if handleSubmit handles navigation, 
+    // but keep it if the OnboardingPage component uses it for the "Finish" button action separate from submit?
+    // In OnboardingPage, `onSubmit` is called on the final step. `onComplete` might be called after?
+    // Looking at OnboardingPage usage in other files, onSubmit is usually the main handler.
+    // We'll keep handleComplete as a fallback or for the "Next" button on the final step if it acts as submit.
     navigate("/vc-admin?tab=dashboard");
   };
 
