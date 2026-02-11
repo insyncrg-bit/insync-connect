@@ -1,15 +1,13 @@
 import { useState, useEffect, ReactNode } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { OnboardingStep, useOnboardingStorage } from "../hooks/useOnboardingStorage";
+import { OnboardingStep, useOnboardingStorage } from "./hooks/useOnboardingStorage";
 import { StepIndicator } from "./StepIndicator";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FloatingParticles } from "@/components/FloatingParticles";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
-
 
 export interface StepValidation {
   isValid: boolean;
@@ -27,7 +25,7 @@ interface OnboardingPageProps<T extends Record<string, any>> {
   validateStep: (step: number, data: T) => StepValidation;
   onSubmit: (data: T) => Promise<void>;
   onComplete?: () => void;
-  requiredSteps?: number[]; // Steps that must be completed before submission
+  requiredSteps?: number[];
 }
 
 export const OnboardingPage = <T extends Record<string, any>>({
@@ -45,20 +43,12 @@ export const OnboardingPage = <T extends Record<string, any>>({
 }: OnboardingPageProps<T>) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const {
-    data,
-    currentStep,
-    isLoaded,
-    saveData,
-    saveStep,
-    clearData,
-  } = useOnboardingStorage<T>(storageKey, stepKey, defaultData);
+  const { data, currentStep, isLoaded, saveData, saveStep, clearData } = useOnboardingStorage<T>(storageKey, stepKey, defaultData);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [invalidSteps, setInvalidSteps] = useState<number[]>([]);
   const [validationWarnings, setValidationWarnings] = useState<Array<{ step: number; errors: string[] }>>([]);
 
-  // Load completed steps from localStorage
   useEffect(() => {
     const saved = localStorage.getItem(`${stepKey}_completed`);
     if (saved) {
@@ -70,7 +60,6 @@ export const OnboardingPage = <T extends Record<string, any>>({
     }
   }, [stepKey]);
 
-  // Save completed steps
   const markStepComplete = (step: number) => {
     if (!completedSteps.includes(step)) {
       const updated = [...completedSteps, step];
@@ -81,99 +70,53 @@ export const OnboardingPage = <T extends Record<string, any>>({
 
   const handleNext = () => {
     markStepComplete(currentStep);
-    if (currentStep < steps.length - 1) {
-      saveStep(currentStep + 1);
-    }
+    if (currentStep < steps.length - 1) saveStep(currentStep + 1);
   };
 
   const handleBack = () => {
-    if (currentStep > 0) {
-      saveStep(currentStep - 1);
-    }
-  };
-
-  const handleStepClick = (stepIndex: number) => {
-    saveStep(stepIndex);
+    if (currentStep > 0) saveStep(currentStep - 1);
   };
 
   const validateAllSteps = (): { isValid: boolean; warnings: Array<{ step: number; errors: string[] }> } => {
     const stepsToValidate = requiredSteps || steps.map((_, i) => i);
     const warnings: Array<{ step: number; errors: string[] }> = [];
-    const invalid: number[] = [];
-
     stepsToValidate.forEach((stepIndex) => {
       const validation = validateStep(stepIndex, data);
-      if (!validation.isValid) {
-        warnings.push({ step: stepIndex, errors: validation.errors });
-        invalid.push(stepIndex);
-      }
+      if (!validation.isValid) warnings.push({ step: stepIndex, errors: validation.errors });
     });
-
-    return {
-      isValid: warnings.length === 0,
-      warnings,
-    };
+    return { isValid: warnings.length === 0, warnings };
   };
 
   const handleSubmit = async () => {
-    // Validate all required steps
     const validation = validateAllSteps();
-    
     if (!validation.isValid) {
-      setInvalidSteps(validation.warnings.map(w => w.step));
+      setInvalidSteps(validation.warnings.map((w) => w.step));
       setValidationWarnings(validation.warnings);
-      
-      // Scroll to first invalid step
-      const firstInvalidStep = validation.warnings[0].step;
-      saveStep(firstInvalidStep);
-      
-      toast({
-        title: "Please Complete Required Sections",
-        description: `${validation.warnings.length} section(s) need to be completed before submission.`,
-        variant: "destructive",
-      });
+      saveStep(validation.warnings[0].step);
+      toast({ title: "Please Complete Required Sections", description: `${validation.warnings.length} section(s) need to be completed before submission.`, variant: "destructive" });
       return;
     }
-
     setIsSubmitting(true);
     try {
       await onSubmit(data);
-      
-      // Clear localStorage after successful submission
       clearData();
       localStorage.removeItem(`${stepKey}_completed`);
-      
-      toast({
-        title: "Application Submitted!",
-        description: "Your onboarding has been completed successfully.",
-      });
-      
-      if (onComplete) {
-        onComplete();
-      } else {
-        navigate("/landing");
-      }
+      toast({ title: "Application Submitted!", description: "Your onboarding has been completed successfully." });
+      onComplete ? onComplete() : navigate("/landing");
     } catch (error) {
       console.error("Error submitting onboarding:", error);
-      toast({
-        title: "Error",
-        description: "Failed to submit application. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to submit application. Please try again.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Clear validation warnings when user fixes issues and navigates
   useEffect(() => {
-    // Re-validate current step when data changes to clear warnings if fixed
     if (invalidSteps.length > 0) {
       const validation = validateStep(currentStep, data);
       if (validation.isValid && invalidSteps.includes(currentStep)) {
-        // Step is now valid, remove from invalid list
-        setInvalidSteps(prev => prev.filter(step => step !== currentStep));
-        setValidationWarnings(prev => prev.filter(w => w.step !== currentStep));
+        setInvalidSteps((prev) => prev.filter((step) => step !== currentStep));
+        setValidationWarnings((prev) => prev.filter((w) => w.step !== currentStep));
       }
     }
   }, [data, currentStep, invalidSteps, validateStep]);
@@ -188,57 +131,27 @@ export const OnboardingPage = <T extends Record<string, any>>({
 
   return (
     <div className="min-h-screen bg-navy-deep relative overflow-hidden">
-      {/* Background gradient orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-glow/5 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cyan-glow/5 blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cyan-glow/5 blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
-
-      {/* Floating Particles */}
       <FloatingParticles />
-
-      {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        {/* Logo */}
         <div className="mb-6 flex justify-center">
           <Link to="/landing" className="block">
             <div className="relative">
-              <div 
-                className="absolute inset-0 blur-[60px] animate-pulse"
-                style={{
-                  background: 'radial-gradient(ellipse at center, rgba(6,182,212,0.4) 0%, rgba(6,182,212,0.2) 40%, transparent 70%)',
-                }}
-              />
-              <img
-                src={inSyncLogo}
-                alt="InSync"
-                className="relative h-40 w-auto max-w-[500px] mx-auto"
-                style={{
-                  filter: "drop-shadow(0 0 30px rgba(6,182,212,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.3))",
-                }}
-              />
+              <div className="absolute inset-0 blur-[60px] animate-pulse" style={{ background: "radial-gradient(ellipse at center, rgba(6,182,212,0.4) 0%, rgba(6,182,212,0.2) 40%, transparent 70%)" }} />
+              <img src={inSyncLogo} alt="InSync" className="relative h-40 w-auto max-w-[500px] mx-auto" style={{ filter: "drop-shadow(0 0 30px rgba(6,182,212,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.3))" }} />
             </div>
           </Link>
         </div>
-
-        {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
           <p className="text-white/60">{description}</p>
         </div>
-
-        {/* Step Indicator */}
         <div className="bg-navy-card border border-white/10 rounded-2xl p-6 mb-6">
-          <StepIndicator
-            steps={steps}
-            currentStep={currentStep}
-            completedSteps={completedSteps}
-            invalidSteps={invalidSteps}
-            onStepClick={handleStepClick}
-          />
+          <StepIndicator steps={steps} currentStep={currentStep} completedSteps={completedSteps} invalidSteps={invalidSteps} onStepClick={saveStep} />
         </div>
-
-        {/* Validation Warnings */}
         {validationWarnings.length > 0 && (
           <div className="mb-6 space-y-2">
             <Alert variant="destructive" className="bg-red-500/10 border-red-500/20">
@@ -248,8 +161,7 @@ export const OnboardingPage = <T extends Record<string, any>>({
                 <div className="mt-2 space-y-1">
                   {validationWarnings.map((warning, idx) => (
                     <div key={idx} className="text-sm">
-                      <span className="font-medium">{steps[warning.step].title}:</span>{" "}
-                      {warning.errors.join(", ")}
+                      <span className="font-medium">{steps[warning.step].title}:</span> {warning.errors.join(", ")}
                     </div>
                   ))}
                 </div>
@@ -257,21 +169,10 @@ export const OnboardingPage = <T extends Record<string, any>>({
             </Alert>
           </div>
         )}
-
-        {/* Step Content */}
-        <div className={cn(
-          "bg-navy-card border rounded-2xl p-8 transition-all",
-          invalidSteps.includes(currentStep)
-            ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
-            : "border-white/10"
-        )}>
+        <div className={cn("bg-navy-card border rounded-2xl p-8 transition-all", invalidSteps.includes(currentStep) ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]" : "border-white/10")}>
           {renderStep(currentStep, data, saveData, handleNext, handleBack, handleSubmit)}
         </div>
-
-        {/* Save indicator */}
-        <div className="mt-4 text-center text-white/40 text-sm">
-          Your progress is saved automatically
-        </div>
+        <div className="mt-4 text-center text-white/40 text-sm">Your progress is saved automatically</div>
       </div>
     </div>
   );

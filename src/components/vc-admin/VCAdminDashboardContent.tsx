@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Building2, 
-  Users, 
+import {
+  Building2,
+  Users,
   TrendingUp,
   MessageSquare,
   Calendar,
@@ -47,13 +47,7 @@ export const VCAdminDashboardContent = () => {
   }, []);
 
   const fetchDashboardData = async () => {
-    // TODO: Integrate with backend API when ready
-    // For now, using placeholder data
-    
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Placeholder data
     setFirmName("Your VC Firm");
     setStats({
       totalAnalysts: 5,
@@ -61,8 +55,6 @@ export const VCAdminDashboardContent = () => {
       activeSyncs: 12,
       messages: 8,
     });
-
-    // Placeholder events
     setEvents([
       {
         id: "1",
@@ -83,7 +75,6 @@ export const VCAdminDashboardContent = () => {
         max_attendees: 50,
       },
     ]);
-
     setLoading(false);
   };
 
@@ -105,7 +96,6 @@ export const VCAdminDashboardContent = () => {
 
   return (
     <div className="max-w-6xl mx-auto space-y-10">
-      {/* Welcome Section */}
       <div>
         <h1 className="text-4xl font-bold text-white">
           Welcome, {firmName || "VC Admin"}!
@@ -113,7 +103,6 @@ export const VCAdminDashboardContent = () => {
         <p className="text-white/60 mt-2">Manage your firm and team</p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300">
           <div className="flex items-center gap-4">
@@ -124,7 +113,6 @@ export const VCAdminDashboardContent = () => {
             </div>
           </div>
         </Card>
-
         <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300">
           <div className="flex items-center gap-4">
             <TrendingUp className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -134,7 +122,6 @@ export const VCAdminDashboardContent = () => {
             </div>
           </div>
         </Card>
-
         <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300">
           <div className="flex items-center gap-4">
             <Building2 className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -144,7 +131,6 @@ export const VCAdminDashboardContent = () => {
             </div>
           </div>
         </Card>
-
         <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300">
           <div className="flex items-center gap-4">
             <MessageSquare className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
@@ -156,7 +142,6 @@ export const VCAdminDashboardContent = () => {
         </Card>
       </div>
 
-      {/* Upcoming Events */}
       {events.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
@@ -177,9 +162,7 @@ export const VCAdminDashboardContent = () => {
                   </Badge>
                 </div>
                 <h4 className="font-semibold text-white mb-2">{event.title}</h4>
-                <p className="text-sm text-white/60 mb-4 line-clamp-2">
-                  {event.description}
-                </p>
+                <p className="text-sm text-white/60 mb-4 line-clamp-2">{event.description}</p>
                 <div className="space-y-2 text-sm text-white/50 mb-4">
                   <p className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
@@ -202,38 +185,28 @@ export const VCAdminDashboardContent = () => {
         </section>
       )}
 
-      {/* Quick Actions */}
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card
-            className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer"
-          >
+          <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Users className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                 <div>
                   <p className="font-semibold text-white">Manage Organisation</p>
-                  <p className="text-sm text-white/60">
-                    View and manage your team members
-                  </p>
+                  <p className="text-sm text-white/60">View and manage your team members</p>
                 </div>
               </div>
               <ArrowRight className="h-5 w-5 text-white/60" />
             </div>
           </Card>
-
-          <Card
-            className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer"
-          >
+          <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 cursor-pointer">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Settings className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
                 <div>
                   <p className="font-semibold text-white">Settings</p>
-                  <p className="text-sm text-white/60">
-                    Configure your firm settings
-                  </p>
+                  <p className="text-sm text-white/60">Configure your firm settings</p>
                 </div>
               </div>
               <ArrowRight className="h-5 w-5 text-white/60" />

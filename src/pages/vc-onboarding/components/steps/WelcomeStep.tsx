@@ -1,4 +1,4 @@
-import { WelcomeStep as SharedWelcomeStep } from "@/pages/onboarding/shared";
+import { WelcomeStep as SharedWelcomeStep } from "@/components/onboarding";
 
 interface WelcomeStepProps {
   onNext: () => void;

@@ -1,4 +1,4 @@
-import { useOnboardingStorage } from "@/pages/onboarding/shared/hooks/useOnboardingStorage";
+import { useOnboardingStorage } from "@/components/onboarding";
 
 export interface TeamMember {
   name: string;

@@ -21,8 +21,9 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { VCAdminOrganisation } from "./components/VCAdminOrganisation";
-import { VCAdminSettings } from "./components/VCAdminSettings";
+import { VCAdminOrganisation, VCAdminSettings } from "@/components/vc-admin";
+import { InvestorDashboardContent, StartupCard } from "@/components/dashboards";
+import type { StartupCardData } from "@/components/dashboards";
 import { InvestorThesisModal } from "@/components/InvestorThesisModal";
 import { ProfileSettings } from "@/components/ProfileSettings";
 import { InterestsModal } from "@/components/InterestsModal";
@@ -339,15 +340,17 @@ export const VCAdminDashboard = () => {
     });
   };
 
-  const getStageColor = (stage: string) => {
-    const colors: Record<string, string> = {
-      "Pre-seed": "bg-purple-500/20 text-purple-400 border-purple-500/30",
-      "Seed": "bg-green-500/20 text-green-400 border-green-500/30",
-      "Series A": "bg-blue-500/20 text-blue-400 border-blue-500/30",
-      "Series B": "bg-orange-500/20 text-orange-400 border-orange-500/30",
-    };
-    return colors[stage] || "bg-white/10 text-white/80 border-white/20";
-  };
+  const toStartupCardData = (app: FounderApplication): StartupCardData => ({
+    id: app.id,
+    user_id: app.user_id,
+    founder_name: app.founder_name,
+    company_name: app.company_name,
+    vertical: app.vertical,
+    stage: app.stage,
+    location: app.location,
+    business_model: app.business_model,
+    funding_goal: app.funding_goal,
+  });
 
   const filteredApplications = applications.filter(app => 
     app.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -494,151 +497,43 @@ export const VCAdminDashboard = () => {
 
   const curatedStartups = applications;
 
-  const StartupCard = ({ app }: { app: FounderApplication }) => {
-    const isRequested = app.user_id ? pendingRequests.has(app.user_id) : false;
-
-    return (
-      <Card className="bg-navy-card border-white/10 p-5 shadow-[0_0_15px_rgba(6,182,212,0.08)] hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-            </div>
-            <div>
-              <h4 className="font-medium text-white group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
-                {app.company_name}
-              </h4>
-              <p className="text-xs text-white/60 flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {app.location}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          <span className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(app.stage)}`}>
-            {app.stage}
-          </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">
-            {app.vertical}
-          </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
-            {app.funding_goal}
-          </span>
-        </div>
-
-        <p className="text-sm text-white/60 mb-4 line-clamp-2">{app.business_model}</p>
-
-        <div className="pt-3 border-t border-white/10">
-          {isRequested ? (
-            <div className="flex items-center gap-2 text-green-400 text-sm">
-              <Check className="h-4 w-4" />
-              Sync Requested
-            </div>
-          ) : (
-            <Button 
-              variant="ghost"
-              size="sm"
-              className="w-full text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
-              onClick={() => {
-                setSelectedStartup(app);
-                setMemoModalOpen(true);
-              }}
-            >
-              <FileText className="mr-2 h-4 w-4" />
-              View Memo
-            </Button>
-          )}
-        </div>
-      </Card>
-    );
-  };
+  const VCCuratedStartupCard = ({ app }: { app: FounderApplication }) => (
+    <StartupCard
+      startup={toStartupCardData(app)}
+      onViewMemo={() => {
+        setSelectedStartup(app);
+        setMemoModalOpen(true);
+      }}
+      isSyncRequested={app.user_id ? pendingRequests.has(app.user_id) : false}
+    />
+  );
 
   const renderContent = () => {
     switch (currentTab) {
       case "dashboard":
         return (
-          <div className="max-w-6xl mx-auto space-y-10">
-            {/* Welcome Section */}
-            <div>
-              <h1 className="text-4xl font-bold text-white">
-                Welcome {adminName} from {firmName}!
-              </h1>
-              <p className="text-white/60 mt-2">{adminTitle}</p>
-            </div>
-
-            {/* Thesis Quick Access */}
-            <Card 
-              className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
-              onClick={() => {
-                toast({
-                  title: "Firm Thesis",
-                  description: "Thesis view will be implemented soon.",
-                });
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <FileText className="h-7 w-7 text-[hsl(var(--cyan-glow))]" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-semibold text-white">{firmName}'s Thesis</p>
-                    <p className="text-sm text-white/60">Seed • Series A • AI/ML</p>
-                  </div>
-                </div>
-                <ArrowRight className="h-6 w-6 text-white/60" />
-              </div>
-            </Card>
-
-            {/* Stats */}
-            <div className="grid grid-cols-4 gap-4">
-              {[
-                { label: "Interests", value: displayStats.interests, icon: Heart, onClick: () => setInterestsModalOpen(true) },
-                { label: "Syncs", value: displayStats.syncs, icon: null, image: true, onClick: () => setSyncsModalOpen(true) },
-                { label: "Pending", value: displayStats.pending, icon: Eye, onClick: () => setPendingModalOpen(true) },
-                { label: "Messages", value: displayStats.messages, icon: MessageSquare, onClick: () => setMessagesModalOpen(true) },
-              ].map((stat) => (
-                <Card 
-                  key={stat.label}
-                  className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
-                  onClick={stat.onClick}
-                >
-                  <div className="flex items-center gap-4">
-                    {stat.icon ? (
-                      <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                    ) : stat.image ? (
-                      <div className="h-12 w-20 flex items-center justify-center bg-[hsl(var(--cyan-glow))]/10 rounded">
-                        <span className="text-[hsl(var(--cyan-glow))] font-bold text-lg">∞</span>
-                      </div>
-                    ) : null}
-                    <p className="text-3xl font-bold text-white">{stat.value}</p>
-                    <p className="text-base text-white/60">{stat.label}</p>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            {/* Curated Startups */}
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium text-white">Curated Startups</h2>
-                <button 
-                  className="text-sm text-[hsl(var(--cyan-glow))] hover:underline flex items-center gap-1"
-                  onClick={() => handleTabChange("startups")}
-                >
-                  View all <ArrowRight className="h-3 w-3" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {curatedStartups.slice(0, 3).map((app) => (
-                  <StartupCard key={app.id} app={app} />
-                ))}
-              </div>
-            </section>
-          </div>
+          <InvestorDashboardContent
+            adminName={adminName}
+            firmName={firmName}
+            adminTitle={adminTitle}
+            thesisSubtitle="Seed • Series A • AI/ML"
+            onViewAll={() => handleTabChange("startups")}
+            stats={displayStats}
+            startups={curatedStartups.map(toStartupCardData)}
+            pendingRequestIds={pendingRequests}
+            onThesisClick={() => toast({ title: "Firm Thesis", description: "Thesis view will be implemented soon." })}
+            onInterestsClick={() => setInterestsModalOpen(true)}
+            onSyncsClick={() => setSyncsModalOpen(true)}
+            onPendingClick={() => setPendingModalOpen(true)}
+            onMessagesClick={() => setMessagesModalOpen(true)}
+            onViewStartup={(s) => {
+              const app = curatedStartups.find((a) => a.id === s.id);
+              if (app) {
+                setSelectedStartup(app);
+                setMemoModalOpen(true);
+              }
+            }}
+          />
         );
 
       case "startups":
@@ -672,7 +567,7 @@ export const VCAdminDashboard = () => {
             {filteredApplications.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredApplications.map((app) => (
-                  <StartupCard key={app.id} app={app} />
+                  <VCCuratedStartupCard key={app.id} app={app} />
                 ))}
               </div>
             ) : (
@@ -741,88 +636,29 @@ export const VCAdminDashboard = () => {
         );
 
       default:
-        // Default to dashboard if tab is not recognized - render dashboard content
         return (
-          <div className="max-w-6xl mx-auto space-y-10">
-            {/* Welcome Section */}
-            <div>
-              <h1 className="text-4xl font-bold text-white">
-                Welcome {adminName} from {firmName}!
-              </h1>
-              <p className="text-white/60 mt-2">{adminTitle}</p>
-            </div>
-
-            {/* Thesis Quick Access */}
-            <Card 
-              className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
-              onClick={() => {
-                toast({
-                  title: "Firm Thesis",
-                  description: "Thesis view will be implemented soon.",
-                });
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                    <FileText className="h-7 w-7 text-[hsl(var(--cyan-glow))]" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-semibold text-white">{firmName}'s Thesis</p>
-                    <p className="text-sm text-white/60">Seed • Series A • AI/ML</p>
-                  </div>
-                </div>
-                <ArrowRight className="h-6 w-6 text-white/60" />
-              </div>
-            </Card>
-
-            {/* Stats */}
-            <div className="grid grid-cols-4 gap-4">
-              {[
-                { label: "Interests", value: displayStats.interests, icon: Heart, onClick: () => setInterestsModalOpen(true) },
-                { label: "Syncs", value: displayStats.syncs, icon: null, image: true, onClick: () => setSyncsModalOpen(true) },
-                { label: "Pending", value: displayStats.pending, icon: Eye, onClick: () => setPendingModalOpen(true) },
-                { label: "Messages", value: displayStats.messages, icon: MessageSquare, onClick: () => setMessagesModalOpen(true) },
-              ].map((stat) => (
-                <Card 
-                  key={stat.label}
-                  className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:shadow-[0_0_30px_rgba(6,182,212,0.25)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all duration-300 cursor-pointer"
-                  onClick={stat.onClick}
-                >
-                  <div className="flex items-center gap-4">
-                    {stat.icon ? (
-                      <stat.icon className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                    ) : stat.image ? (
-                      <div className="h-12 w-20 flex items-center justify-center bg-[hsl(var(--cyan-glow))]/10 rounded">
-                        <span className="text-[hsl(var(--cyan-glow))] font-bold text-lg">∞</span>
-                      </div>
-                    ) : null}
-                    <p className="text-3xl font-bold text-white">{stat.value}</p>
-                    <p className="text-base text-white/60">{stat.label}</p>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            {/* Curated Startups */}
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium text-white">Curated Startups</h2>
-                <button 
-                  className="text-sm text-[hsl(var(--cyan-glow))] hover:underline flex items-center gap-1"
-                  onClick={() => handleTabChange("startups")}
-                >
-                  View all <ArrowRight className="h-3 w-3" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {curatedStartups.slice(0, 3).map((app) => (
-                  <StartupCard key={app.id} app={app} />
-                ))}
-              </div>
-            </section>
-          </div>
+          <InvestorDashboardContent
+            adminName={adminName}
+            firmName={firmName}
+            adminTitle={adminTitle}
+            thesisSubtitle="Seed • Series A • AI/ML"
+            onViewAll={() => handleTabChange("startups")}
+            stats={displayStats}
+            startups={curatedStartups.map(toStartupCardData)}
+            pendingRequestIds={pendingRequests}
+            onThesisClick={() => toast({ title: "Firm Thesis", description: "Thesis view will be implemented soon." })}
+            onInterestsClick={() => setInterestsModalOpen(true)}
+            onSyncsClick={() => setSyncsModalOpen(true)}
+            onPendingClick={() => setPendingModalOpen(true)}
+            onMessagesClick={() => setMessagesModalOpen(true)}
+            onViewStartup={(s) => {
+              const app = curatedStartups.find((a) => a.id === s.id);
+              if (app) {
+                setSelectedStartup(app);
+                setMemoModalOpen(true);
+              }
+            }}
+          />
         );
     }
   };

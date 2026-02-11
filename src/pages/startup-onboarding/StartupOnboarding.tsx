@@ -1,4 +1,4 @@
-import { OnboardingPage, StepValidation } from "@/pages/onboarding/shared";
+import { OnboardingPage, StepValidation } from "@/components/onboarding";
 import { WelcomeStep } from "./components/steps/WelcomeStep";
 import { CompanyInfoStep } from "./components/steps/CompanyInfoStep";
 import { TeamOverviewStep } from "./components/steps/TeamOverviewStep";
@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 
 export const StartupOnboarding = () => {
+  const navigate = useNavigate();
   // Validation function for each step
   const validateStep = (step: number, data: StartupOnboardingData): StepValidation => {
     const errors: string[] = [];

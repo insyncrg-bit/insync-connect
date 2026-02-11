@@ -1,4 +1,4 @@
-import { OnboardingPage, StepValidation } from "@/pages/onboarding/shared";
+import { OnboardingPage, StepValidation } from "@/components/onboarding";
 import { WelcomeStep } from "./components/steps/WelcomeStep";
 import { AdminVerificationStep } from "./components/steps/AdminVerificationStep";
 import { FundOverviewStep } from "./components/steps/FundOverviewStep";

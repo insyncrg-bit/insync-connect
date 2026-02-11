@@ -15,17 +15,14 @@ export const useOnboardingStorage = <T extends Record<string, any>>(
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load from localStorage on mount
   useEffect(() => {
     try {
       const savedData = localStorage.getItem(storageKey);
       const savedStep = localStorage.getItem(stepKey);
-      
       if (savedData) {
         const parsed = JSON.parse(savedData);
         setData({ ...defaultData, ...parsed });
       }
-      
       if (savedStep) {
         setCurrentStep(parseInt(savedStep, 10));
       }
@@ -36,7 +33,6 @@ export const useOnboardingStorage = <T extends Record<string, any>>(
     }
   }, [storageKey, stepKey, defaultData]);
 
-  // Save to localStorage whenever data changes
   const saveData = useCallback((newData: Partial<T>) => {
     const updatedData = { ...data, ...newData };
     setData(updatedData);
@@ -47,7 +43,6 @@ export const useOnboardingStorage = <T extends Record<string, any>>(
     }
   }, [data, storageKey]);
 
-  // Save current step
   const saveStep = useCallback((step: number) => {
     setCurrentStep(step);
     try {
@@ -57,7 +52,6 @@ export const useOnboardingStorage = <T extends Record<string, any>>(
     }
   }, [stepKey]);
 
-  // Clear all data
   const clearData = useCallback(() => {
     setData(defaultData);
     setCurrentStep(0);
@@ -69,14 +63,5 @@ export const useOnboardingStorage = <T extends Record<string, any>>(
     }
   }, [storageKey, stepKey, defaultData]);
 
-  return {
-    data,
-    currentStep,
-    isLoaded,
-    saveData,
-    saveStep,
-    clearData,
-    setData: saveData,
-    setCurrentStep: saveStep,
-  };
+  return { data, currentStep, isLoaded, saveData, saveStep, clearData, setData: saveData, setCurrentStep: saveStep };
 };

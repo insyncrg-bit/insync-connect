@@ -1,33 +1,15 @@
 /**
  * Startup (Founder) Dashboard – demo page.
- * Reference: DemoStartupFlow and VCAdminDashboard.
+ * Uses shared dashboard components from @/components/dashboards.
  */
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  Building2,
-  Eye,
-  Heart,
-  MapPin,
-  ArrowRight,
-  FileText,
-  MessageSquare,
-} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import syncsLogo from "@/landing/assets/infinity-logo-transparent.png";
 import { InterestsModal } from "@/components/InterestsModal";
 import { SyncsModal } from "@/components/SyncsModal";
 import { PendingModal } from "@/components/PendingModal";
 import { MessagesModal } from "@/components/MessagesModal";
 import { InvestorProfileModal } from "@/components/InvestorProfileModal";
-
-const demoMemo = {
-  company_name: "Demo Startup",
-  vertical: "AI/ML",
-  stage: "Seed",
-};
+import { StartupDashboardContent } from "@/components/dashboards";
 
 const emptyArr: string[] = [];
 const mockInvestors = [
@@ -114,7 +96,6 @@ const mockInvestors = [
   },
 ];
 
-// Demo data for founder-side modals (investors interested in this startup, syncs, pending, messages)
 const demoInterests = [
   {
     id: "int-1",
@@ -166,18 +147,7 @@ const demoMessages = [
   },
 ];
 
-function getStageColor(stage: string) {
-  const colors: Record<string, string> = {
-    "Pre-seed": "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    "Seed": "bg-green-500/20 text-green-400 border-green-500/30",
-    "Series A": "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    "Series B": "bg-orange-500/20 text-orange-400 border-orange-500/30",
-  };
-  return colors[stage] || "bg-white/10 text-white/80 border-white/20";
-}
-
 export function StartupDashboard() {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [interestsModalOpen, setInterestsModalOpen] = useState(false);
@@ -237,145 +207,30 @@ export function StartupDashboard() {
     }, 300);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#151a24]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[hsl(var(--cyan-glow))] border-t-transparent" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col bg-[#151a24]">
-      <main className="flex-1 p-6 md:p-8 overflow-auto">
-        <div className="container mx-auto max-w-6xl space-y-10">
-          <div>
-            <h1 className="text-4xl font-bold text-white">Welcome, {demoMemo.company_name}!</h1>
-          </div>
-
-          <Card
-            className="bg-navy-card border-white/10 p-6 shadow-[0_0_20px_rgba(6,182,212,0.12)] hover:border-[hsl(var(--cyan-glow))]/50 transition-all cursor-pointer"
-            onClick={() => toast({ title: "Company Memo", description: "View and edit your memo (demo)." })}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                  <Building2 className="h-7 w-7 text-[hsl(var(--cyan-glow))]" />
-                </div>
-                <div>
-                  <p className="text-xl font-semibold text-white">{demoMemo.company_name}'s Memo</p>
-                  <p className="text-sm text-white/60">{demoMemo.vertical} • {demoMemo.stage}</p>
-                </div>
-              </div>
-              <ArrowRight className="h-6 w-6 text-white/60" />
-            </div>
-          </Card>
-
-          <div className="grid grid-cols-4 gap-4">
-            <Card
-              className="bg-navy-card border-white/10 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/50 transition-all"
-              onClick={openInterests}
-            >
-              <div className="flex items-center gap-4">
-                <Heart className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                <p className="text-3xl font-bold text-white">{demoInterests.length}</p>
-                <p className="text-base text-white/60">Interests</p>
-              </div>
-            </Card>
-            <Card
-              className="bg-navy-card border-white/10 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/50 transition-all"
-              onClick={openSyncs}
-            >
-              <div className="flex items-center gap-4">
-                <img src={syncsLogo} alt="Syncs" className="h-12 w-20 object-contain" />
-                <p className="text-3xl font-bold text-white">{demoSyncs.length}</p>
-                <p className="text-base text-white/60">Syncs</p>
-              </div>
-            </Card>
-            <Card
-              className="bg-navy-card border-white/10 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/50 transition-all"
-              onClick={openPending}
-            >
-              <div className="flex items-center gap-4">
-                <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                <p className="text-3xl font-bold text-white">{demoPending.length}</p>
-                <p className="text-base text-white/60">Pending</p>
-              </div>
-            </Card>
-            <Card
-              className="bg-navy-card border-white/10 p-6 cursor-pointer hover:border-[hsl(var(--cyan-glow))]/50 transition-all"
-              onClick={openMessages}
-            >
-              <div className="flex items-center gap-4">
-                <MessageSquare className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
-                <p className="text-3xl font-bold text-white">{demoMessages.reduce((acc, m) => acc + m.unread_count, 0)}</p>
-                <p className="text-base text-white/60">Messages</p>
-              </div>
-            </Card>
-          </div>
-
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-white">Curated Investors</h2>
-              <button className="text-sm text-[hsl(var(--cyan-glow))] hover:underline flex items-center gap-1">
-                View all <ArrowRight className="h-3 w-3" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mockInvestors.map((investor) => (
-                <Card
-                  key={investor.id}
-                  className="bg-navy-card border-white/10 p-5 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                        <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-white group-hover:text-[hsl(var(--cyan-glow))] transition-colors">
-                          {investor.firm_name}
-                        </h4>
-                        <p className="text-xs text-white/60 flex items-center gap-1">
-                          <MapPin className="h-3 w-3" /> {investor.hq_location}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 mb-4">
-                    {investor.stage_focus.slice(0, 1).map((stage, i) => (
-                      <span key={i} className={`text-xs px-2 py-0.5 rounded-full ${getStageColor(stage)}`}>{stage}</span>
-                    ))}
-                    {investor.sector_tags.slice(0, 1).map((sector, i) => (
-                      <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))]">{sector}</span>
-                    ))}
-                    {investor.check_sizes.length > 0 && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">{investor.check_sizes[0]}</span>
-                    )}
-                  </div>
-                  <p className="text-sm text-white/60 mb-4 line-clamp-2">
-                    {investor.thesis_statement || investor.firm_description || "Investment thesis available"}
-                  </p>
-                  <div className="pt-3 border-t border-white/10">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
-                      onClick={() => {
-                        setSelectedInvestor(investor);
-                        setInvestorModalOpen(true);
-                      }}
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      View Profile
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </section>
-        </div>
-      </main>
+    <>
+      <StartupDashboardContent
+        loading={loading}
+        companyName="Demo Startup"
+        vertical="AI/ML"
+        stage="Seed"
+        stats={{
+          interests: demoInterests.length,
+          syncs: demoSyncs.length,
+          pending: demoPending.length,
+          messages: demoMessages.reduce((acc, m) => acc + m.unread_count, 0),
+        }}
+        investors={mockInvestors}
+        onMemoClick={() => toast({ title: "Company Memo", description: "View and edit your memo (demo)." })}
+        onInterestsClick={openInterests}
+        onSyncsClick={openSyncs}
+        onPendingClick={openPending}
+        onMessagesClick={openMessages}
+        onViewInvestor={(inv) => {
+          setSelectedInvestor(inv as (typeof mockInvestors)[0]);
+          setInvestorModalOpen(true);
+        }}
+      />
 
       <InterestsModal
         open={interestsModalOpen}
@@ -445,6 +300,6 @@ export function StartupDashboard() {
           alreadySynced={syncedIds.has(selectedInvestor.user_id)}
         />
       )}
-    </div>
+    </>
   );
 }
