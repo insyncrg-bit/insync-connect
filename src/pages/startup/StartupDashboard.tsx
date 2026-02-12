@@ -221,6 +221,7 @@ export function StartupDashboard() {
           messages: demoMessages.reduce((acc, m) => acc + m.unread_count, 0),
         }}
         investors={mockInvestors}
+        pendingRequestIds={syncedIds}
         onMemoClick={() => toast({ title: "Company Memo", description: "View and edit your memo (demo)." })}
         onInterestsClick={openInterests}
         onSyncsClick={openSyncs}

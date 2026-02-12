@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building2, Eye, MapPin } from "lucide-react";
+import { Building2, Check, Eye, MapPin } from "lucide-react";
 import { getStageColor } from "@/lib/utils";
 
 export interface InvestorCardData {
@@ -18,9 +18,10 @@ export interface InvestorCardData {
 interface InvestorCardProps {
   investor: InvestorCardData;
   onViewProfile: () => void;
+  isSyncRequested?: boolean;
 }
 
-export function InvestorCard({ investor, onViewProfile }: InvestorCardProps) {
+export function InvestorCard({ investor, onViewProfile, isSyncRequested }: InvestorCardProps) {
   return (
     <Card className="bg-navy-card border-white/10 p-5 hover:border-[hsl(var(--cyan-glow))]/40 transition-all duration-300 group">
       <div className="flex items-start justify-between mb-4">
@@ -59,15 +60,22 @@ export function InvestorCard({ investor, onViewProfile }: InvestorCardProps) {
         {investor.thesis_statement || investor.firm_description || "Investment thesis available"}
       </p>
       <div className="pt-3 border-t border-white/10">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
-          onClick={onViewProfile}
-        >
-          <Eye className="mr-2 h-4 w-4" />
-          View Profile
-        </Button>
+        {isSyncRequested ? (
+          <div className="flex items-center gap-2 text-green-400 text-sm">
+            <Check className="h-4 w-4" />
+            Sync Requested
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10"
+            onClick={onViewProfile}
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            View Profile
+          </Button>
+        )}
       </div>
     </Card>
   );

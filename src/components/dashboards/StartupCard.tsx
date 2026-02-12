@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building2, FileText, MapPin } from "lucide-react";
+import { Building2, Check, FileText, MapPin } from "lucide-react";
 import { getStageColor } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -51,7 +51,10 @@ export function StartupCard({ startup, onViewMemo, isSyncRequested }: StartupCar
       <p className="text-sm text-white/60 mb-4 line-clamp-2">{startup.business_model}</p>
       <div className="pt-3 border-t border-white/10">
         {isSyncRequested ? (
-          <span className="text-sm text-green-400">Sync Requested</span>
+          <div className="flex items-center gap-2 text-green-400 text-sm">
+            <Check className="h-4 w-4" />
+            Sync Requested
+          </div>
         ) : (
           <Button
             variant="ghost"

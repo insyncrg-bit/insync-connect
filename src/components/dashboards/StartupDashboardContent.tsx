@@ -21,6 +21,7 @@ interface StartupDashboardContentProps {
     messages: number;
   };
   investors: InvestorCardData[];
+  pendingRequestIds?: Set<string>;
   onMemoClick: () => void;
   onInterestsClick: () => void;
   onSyncsClick: () => void;
@@ -36,6 +37,7 @@ export function StartupDashboardContent({
   stage,
   stats,
   investors,
+  pendingRequestIds = new Set(),
   onMemoClick,
   onInterestsClick,
   onSyncsClick,
@@ -78,6 +80,7 @@ export function StartupDashboardContent({
                 key={investor.id}
                 investor={investor}
                 onViewProfile={() => onViewInvestor(investor)}
+                isSyncRequested={investor.user_id ? pendingRequestIds.has(investor.user_id) : false}
               />
             ))}
           </div>
