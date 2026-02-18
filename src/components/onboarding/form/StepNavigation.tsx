@@ -24,7 +24,7 @@ export const StepNavigation = ({
 }: StepNavigationProps) => (
   <div className="flex justify-between pt-4">
     {showBack && !isFirstStep && (
-      <Button variant="outline" onClick={onBack} className="border-white/10 text-white">
+      <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back
       </Button>

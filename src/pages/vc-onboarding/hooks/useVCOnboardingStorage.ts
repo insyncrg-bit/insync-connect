@@ -12,7 +12,8 @@ export interface VCOnboardingData {
   companyLinkedIn: string;
   hqLocation: string;
   otherLocationBranches: string[];
-  contacts: Array<{ name: string; title: string; email: string }>;
+  companyLogo?: File | null;
+  logoPreview?: string | null;
   publicProfile: boolean;
   
   // Step 2: Fund Overview
@@ -67,7 +68,8 @@ export const defaultData: VCOnboardingData = {
   companyLinkedIn: "",
   hqLocation: "",
   otherLocationBranches: [],
-  contacts: [{ name: "", title: "", email: "" }],
+  companyLogo: null,
+  logoPreview: null,
   publicProfile: true,
   firmDescription: "",
   aum: "",

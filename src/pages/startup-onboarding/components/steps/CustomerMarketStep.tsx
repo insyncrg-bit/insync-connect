@@ -20,92 +20,92 @@ export const CustomerMarketStep = ({ data, onUpdate, onNext, onBack }: CustomerM
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-white">Customer & Market</h2>
-        <p className="text-white/60">Define your target customer and market size</p>
+        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Customer & Market</h2>
+        <p className="text-[hsl(var(--navy-deep))]/60">Define your target customer and market size</p>
       </div>
 
       <div className="space-y-2">
-        <Label className="text-white/80">Target Geography *</Label>
+        <Label className="text-[hsl(var(--navy-deep))]/80">Target Geography *</Label>
         <Input
           value={data.targetGeography}
           onChange={(e) => onUpdate({ targetGeography: e.target.value })}
           placeholder="e.g. United States, Global, Europe"
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+          className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50"
         />
       </div>
 
       <div className="space-y-2">
-        <Label className="text-white/80">
+        <Label className="text-[hsl(var(--navy-deep))]/80">
           Target Customer Description * (min 20 words)
         </Label>
         <Textarea
           value={data.targetCustomerDescription}
           onChange={(e) => onUpdate({ targetCustomerDescription: e.target.value })}
           placeholder="Describe your ideal customer: demographics, psychographics, pain points, buying behavior..."
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow min-h-[150px]"
+          className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow min-h-[150px]"
           rows={6}
         />
-        <p className={`text-xs ${wordCount >= 20 ? "text-cyan-glow" : "text-white/50"}`}>
+        <p className={`text-xs ${wordCount >= 20 ? "text-cyan-glow" : "text-[hsl(var(--navy-deep))]/50"}`}>
           {wordCount} / 20 words
         </p>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Market Sizing</h3>
+        <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">Market Sizing</h3>
         
         <div className="grid md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label className="text-white/80">TAM (Total Addressable Market) *</Label>
+            <Label className="text-[hsl(var(--navy-deep))]/80">TAM (Total Addressable Market) *</Label>
             <Input
               value={data.tamValue}
               onChange={(e) => onUpdate({ tamValue: e.target.value })}
               placeholder="e.g. $10B"
-              className="bg-white/5 border-white/10 text-white"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))]"
             />
             <Textarea
               value={data.tamBreakdown}
               onChange={(e) => onUpdate({ tamBreakdown: e.target.value })}
               placeholder="Breakdown..."
-              className="bg-white/5 border-white/10 text-white min-h-[80px] text-sm"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] min-h-[80px] text-sm"
               rows={3}
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-white/80">SAM (Serviceable Addressable Market) *</Label>
+            <Label className="text-[hsl(var(--navy-deep))]/80">SAM (Serviceable Addressable Market) *</Label>
             <Input
               value={data.samValue}
               onChange={(e) => onUpdate({ samValue: e.target.value })}
               placeholder="e.g. $1B"
-              className="bg-white/5 border-white/10 text-white"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))]"
             />
             <Textarea
               value={data.samBreakdown}
               onChange={(e) => onUpdate({ samBreakdown: e.target.value })}
               placeholder="Breakdown..."
-              className="bg-white/5 border-white/10 text-white min-h-[80px] text-sm"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] min-h-[80px] text-sm"
               rows={3}
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-white/80">SOM (Serviceable Obtainable Market) *</Label>
+            <Label className="text-[hsl(var(--navy-deep))]/80">SOM (Serviceable Obtainable Market) *</Label>
             <Input
               value={data.somValue}
               onChange={(e) => onUpdate({ somValue: e.target.value })}
               placeholder="e.g. $100M"
-              className="bg-white/5 border-white/10 text-white"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))]"
             />
             <div className="space-y-2">
               <Input
                 value={data.somTimeframe}
                 onChange={(e) => onUpdate({ somTimeframe: e.target.value })}
                 placeholder="Timeframe (e.g. 3 years)"
-                className="bg-white/5 border-white/10 text-white text-sm"
+                className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] text-sm"
               />
               <Textarea
                 value={data.somBreakdown}
                 onChange={(e) => onUpdate({ somBreakdown: e.target.value })}
                 placeholder="Breakdown..."
-                className="bg-white/5 border-white/10 text-white min-h-[60px] text-sm"
+                className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] min-h-[60px] text-sm"
                 rows={2}
               />
             </div>
@@ -114,7 +114,7 @@ export const CustomerMarketStep = ({ data, onUpdate, onNext, onBack }: CustomerM
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={onBack} className="border-white/10 text-white">
+        <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           Back
         </Button>
         <Button onClick={onNext} className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright">

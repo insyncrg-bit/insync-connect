@@ -14,34 +14,34 @@ export const GoToMarketStep = ({ data, onUpdate, onNext, onBack }: GoToMarketSte
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-white">Go-to-Market Strategy</h2>
-        <p className="text-white/60">Describe your customer acquisition strategy</p>
+        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Go-to-Market Strategy</h2>
+        <p className="text-[hsl(var(--navy-deep))]/60">Describe your customer acquisition strategy</p>
       </div>
 
       <div className="space-y-2">
-        <Label className="text-white/80">Customer Acquisition Strategy *</Label>
+        <Label className="text-[hsl(var(--navy-deep))]/80">Customer Acquisition Strategy *</Label>
         <Textarea
           value={data.gtmAcquisition}
           onChange={(e) => onUpdate({ gtmAcquisition: e.target.value })}
           placeholder="How will you acquire customers? Describe your channels, partnerships, marketing strategy..."
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow min-h-[150px]"
+          className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow min-h-[150px]"
           rows={6}
         />
       </div>
 
       <div className="space-y-2">
-        <Label className="text-white/80">Go-to-Market Timeline</Label>
+        <Label className="text-[hsl(var(--navy-deep))]/80">Go-to-Market Timeline</Label>
         <Textarea
           value={data.gtmTimeline}
           onChange={(e) => onUpdate({ gtmTimeline: e.target.value })}
           placeholder="What is your timeline for launching and scaling? Key milestones..."
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[100px]"
+          className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[100px]"
           rows={4}
         />
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={onBack} className="border-white/10 text-white">
+        <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           Back
         </Button>
         <Button onClick={onNext} className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright">

@@ -28,15 +28,15 @@ export const ValueAddStep = ({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white mb-2">Value-Add</h2>
-        <p className="text-white/60 text-sm">
+        <h2 className="text-xl font-bold text-[hsl(var(--navy-deep))] mb-2">Value-Add</h2>
+        <p className="text-[hsl(var(--navy-deep))]/60 text-sm">
           Describe how your firm supports portfolio companies.
         </p>
       </div>
 
       <div className="space-y-5">
         <div className="space-y-2">
-          <Label className="text-white/80">Operating Support *</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Operating Support *</Label>
           <div className="flex flex-wrap gap-2">
             {OPERATING_SUPPORT.map((support) => (
               <button
@@ -46,7 +46,7 @@ export const ValueAddStep = ({
                 className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                   data.operatingSupport.includes(support)
                     ? "bg-cyan-glow text-navy-deep"
-                    : "bg-white/5 text-white/60 hover:bg-white/10"
+                    : "bg-[hsl(var(--navy-deep))]/5 text-[hsl(var(--navy-deep))]/70 hover:bg-[hsl(var(--navy-deep))]/10 border border-[hsl(var(--navy-deep))]/10"
                 }`}
               >
                 {support}
@@ -56,7 +56,7 @@ export const ValueAddStep = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="operatingSupportOther" className="text-white/80">
+          <Label htmlFor="operatingSupportOther" className="text-[hsl(var(--navy-deep))]/80">
             Additional Support Details
           </Label>
           <Textarea
@@ -64,12 +64,12 @@ export const ValueAddStep = ({
             value={data.operatingSupportOther}
             onChange={(e) => onUpdate({ operatingSupportOther: e.target.value })}
             placeholder="Describe any additional support you provide..."
-            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[100px]"
+            className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[100px]"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="firmInvolvement" className="text-white/80">
+          <Label htmlFor="firmInvolvement" className="text-[hsl(var(--navy-deep))]/80">
             Firm Involvement *
           </Label>
           <Textarea
@@ -77,13 +77,13 @@ export const ValueAddStep = ({
             value={data.firmInvolvement}
             onChange={(e) => onUpdate({ firmInvolvement: e.target.value })}
             placeholder="Describe how your firm typically gets involved with portfolio companies..."
-            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[120px]"
+            className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[120px]"
           />
         </div>
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={onBack} className="border-white/10 text-white">
+        <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           Back
         </Button>
         <Button

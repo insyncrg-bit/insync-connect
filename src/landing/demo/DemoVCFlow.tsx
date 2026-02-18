@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeft,
   ArrowRight,
@@ -384,9 +383,9 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
   // Dashboard View - Matching AnalystDashboard.tsx exactly
   if (showDashboard) {
     return (
-      <div className={`fixed inset-0 z-50 bg-[#151a24] ${showThesisModal || showInterestsModal || showSyncsModal || showPendingModal || showMessagesModal || showMemoModal || showProfileModal ? 'overflow-hidden' : 'overflow-auto'}`}>
+      <div className={`fixed inset-0 z-50 bg-[#151a24] flex flex-col min-h-0 ${showThesisModal || showInterestsModal || showSyncsModal || showPendingModal || showMessagesModal || showMemoModal || showProfileModal ? 'overflow-hidden' : ''}`}>
         {/* Header - Matching AnalystDashboard header */}
-        <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4 sticky top-0 z-20">
+        <header className="h-14 shrink-0 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4 sticky top-0 z-20">
           <Button variant="ghost" size="sm" onClick={goBack} className="text-white/60 hover:text-white">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Application
@@ -410,7 +409,7 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
         </header>
 
         {/* Content - Matching AnalystDashboard layout */}
-        <main className="flex-1 p-6 md:p-8 overflow-auto">
+        <main className="flex-1 min-h-0 overflow-auto p-6 md:p-8">
           <div className="max-w-6xl mx-auto space-y-10">
             {/* Welcome Section - Matching AnalystDashboard */}
             <div>
@@ -1290,7 +1289,7 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
                     </div>
                   </div>
 
-                  <div className="flex-1 overflow-auto p-4">
+                  <div className="flex-1 min-h-0 overflow-auto p-4">
                     <div className="space-y-3">
                       {selectedThread.messages.map((msg) => (
                         <div
@@ -1381,8 +1380,8 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
         {/* MemoModal - matches MemoModal exactly */}
         {showMemoModal && selectedStartup && (
           <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowMemoModal(false)}>
-            <div className="max-w-5xl w-full max-h-[95vh] bg-[hsl(var(--navy-deep))] border border-[hsl(var(--cyan-glow))]/20 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              <ScrollArea className="max-h-[95vh]">
+            <div className="max-w-5xl w-full max-h-[95vh] bg-[hsl(var(--navy-deep))] border border-[hsl(var(--cyan-glow))]/20 rounded-lg overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+              <div className="flex-1 min-h-0 overflow-auto">
                 <div className="p-6 space-y-6">
                 {/* Back Button */}
                 <Button
@@ -1716,7 +1715,7 @@ export const DemoVCFlow = ({ onClose }: DemoVCFlowProps) => {
                   </Button>
                 </div>
                 </div>
-              </ScrollArea>
+              </div>
             </div>
           </div>
         )}

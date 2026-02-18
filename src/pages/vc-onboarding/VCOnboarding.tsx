@@ -24,12 +24,6 @@ export const VCOnboarding = () => {
       case 1: // Admin & Verification
         if (!data.firmName.trim()) errors.push("Firm name is required");
         if (!data.hqLocation.trim()) errors.push("HQ location is required");
-        if (data.contacts.length === 0 || !data.contacts[0]?.name.trim()) {
-          errors.push("At least one contact name is required");
-        }
-        if (data.contacts.length === 0 || !data.contacts[0]?.email.trim()) {
-          errors.push("At least one contact email is required");
-        }
         break;
       case 2: // Fund Overview
         if (!data.firmDescription.trim()) errors.push("Firm description is required");

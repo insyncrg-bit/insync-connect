@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
@@ -494,14 +493,14 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
         {showMemoModal && (
           <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowMemoModal(false); setMemoViewMode("condensed"); setMemoIsFullscreen(false); }}>
             <div
-              className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 border rounded-lg overflow-hidden transition-all duration-300 ${
+              className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 border rounded-lg overflow-hidden transition-all duration-300 flex flex-col ${
                 memoIsFullscreen
                   ? 'max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none'
                   : 'max-w-5xl max-h-[95vh] w-full'
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              <ScrollArea className={memoIsFullscreen ? "h-[100vh]" : "max-h-[95vh]"}>
+              <div className={`flex-1 min-h-0 overflow-auto ${memoIsFullscreen ? "h-[100vh]" : ""}`}>
                 <div className="p-6 space-y-6">
                   {/* Back Button */}
                   <Button
@@ -923,7 +922,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                     </div>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </div>
           </div>
         )}
@@ -932,14 +931,14 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
         {showInterestsModal && (
           <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowInterestsModal(false); setInterestsIsFullscreen(false); }}>
             <div
-              className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 border rounded-lg overflow-hidden transition-all duration-300 ${
+              className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 border rounded-lg overflow-hidden transition-all duration-300 flex flex-col ${
                 interestsIsFullscreen
                   ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none"
                   : "max-w-2xl max-h-[80vh] w-full"
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 pb-0">
+              <div className="p-6 pb-0 shrink-0">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold text-white">
@@ -960,7 +959,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                 </div>
               </div>
 
-              <ScrollArea className={`p-6 pt-4 ${interestsIsFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
+              <div className={`flex-1 min-h-0 overflow-auto p-6 pt-4 ${interestsIsFullscreen ? "h-[calc(100vh-100px)]" : ""}`}>
                 {demoInterests.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
@@ -1037,7 +1036,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                     ))}
                   </div>
                 )}
-              </ScrollArea>
+              </div>
             </div>
           </div>
         )}
@@ -1046,14 +1045,14 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
         {showSyncsModal && (
           <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowSyncsModal(false); setSyncsIsFullscreen(false); }}>
             <div
-              className={`bg-[hsl(var(--navy-deep))] border-white/10 border rounded-lg text-white overflow-hidden transition-all duration-300 ${
+              className={`bg-[hsl(var(--navy-deep))] border-white/10 border rounded-lg text-white overflow-hidden transition-all duration-300 flex flex-col ${
                 syncsIsFullscreen
                   ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none"
                   : "max-w-2xl max-h-[80vh] w-full"
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 pb-0">
+              <div className="p-6 pb-0 shrink-0">
                 <div className="flex items-center justify-between">
                   <h2 className="flex items-center gap-2 text-xl font-semibold">
                     <img src={syncsLogo} alt="Syncs" className="h-6 w-10 object-contain" />
@@ -1070,7 +1069,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                 </div>
               </div>
 
-              <ScrollArea className={`p-6 pt-4 ${syncsIsFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
+              <div className={`flex-1 min-h-0 overflow-auto p-6 pt-4 ${syncsIsFullscreen ? "h-[calc(100vh-100px)]" : ""}`}>
                 {demoSyncs.length === 0 ? (
                   <div className="text-center py-12">
                     <img src={syncsLogo} alt="Syncs" className="h-16 w-24 object-contain mx-auto mb-4 opacity-20" />
@@ -1155,7 +1154,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                     ))}
                   </div>
                 )}
-              </ScrollArea>
+              </div>
             </div>
           </div>
         )}
@@ -1164,14 +1163,14 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
         {showPendingModal && (
           <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowPendingModal(false); setPendingIsFullscreen(false); }}>
             <div
-              className={`bg-[hsl(var(--navy-deep))] border-white/10 border rounded-lg text-white overflow-hidden transition-all duration-300 ${
+              className={`bg-[hsl(var(--navy-deep))] border-white/10 border rounded-lg text-white overflow-hidden transition-all duration-300 flex flex-col ${
                 pendingIsFullscreen
                   ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none"
                   : "max-w-2xl max-h-[80vh] w-full"
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 pb-0">
+              <div className="p-6 pb-0 shrink-0">
                 <div className="flex items-center justify-between">
                   <h2 className="flex items-center gap-2 text-xl font-semibold">
                     <Eye className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
@@ -1188,7 +1187,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                 </div>
               </div>
 
-              <ScrollArea className={`p-6 pt-4 ${pendingIsFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
+              <div className={`flex-1 min-h-0 overflow-auto p-6 pt-4 ${pendingIsFullscreen ? "h-[calc(100vh-100px)]" : ""}`}>
                 {demoPending.length === 0 ? (
                   <div className="text-center py-12">
                     <Eye className="h-12 w-12 text-white/20 mx-auto mb-4" />
@@ -1267,7 +1266,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                     ))}
                   </div>
                 )}
-              </ScrollArea>
+              </div>
             </div>
           </div>
         )}
@@ -1276,14 +1275,14 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
         {showMessagesModal && (
           <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowMessagesModal(false); setMessagesIsFullscreen(false); setSelectedMessageThread(null); setNewMessage(""); }}>
             <div
-              className={`bg-[hsl(var(--navy-deep))] border-white/10 border rounded-lg text-white overflow-hidden transition-all duration-300 ${
+              className={`bg-[hsl(var(--navy-deep))] border-white/10 border rounded-lg text-white overflow-hidden transition-all duration-300 flex flex-col ${
                 messagesIsFullscreen
                   ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none"
                   : "max-w-3xl max-h-[80vh] w-full"
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 pb-0">
+              <div className="p-6 pb-0 shrink-0">
                 <div className="flex items-center justify-between">
                   <h2 className="flex items-center gap-2 text-xl font-semibold">
                     <MessageSquare className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
@@ -1342,7 +1341,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                     </Button>
                   </div>
 
-                  <ScrollArea className="flex-1 p-4">
+                  <div className="flex-1 min-h-0 overflow-auto p-4">
                     <div className="space-y-3">
                       {selectedMessageThread.messages.map((msg) => (
                         <div
@@ -1362,7 +1361,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                         </div>
                       ))}
                     </div>
-                  </ScrollArea>
+                  </div>
 
                   <div className="p-4 border-t border-white/10 flex gap-2">
                     <Input
@@ -1382,7 +1381,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                 </div>
               ) : (
                 // Thread list view
-                <ScrollArea className={`p-6 pt-4 ${messagesIsFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>
+                <div className={`flex-1 min-h-0 overflow-auto p-6 pt-4 ${messagesIsFullscreen ? "h-[calc(100vh-100px)]" : ""}`}>
                   <div className={`${messagesIsFullscreen ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}`}>
                     {demoMessages.map((thread) => (
                       <div
@@ -1417,7 +1416,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                       </div>
                     ))}
                   </div>
-                </ScrollArea>
+                </div>
               )}
             </div>
           </div>
@@ -1427,14 +1426,14 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
         {showInvestorModal && selectedInvestor && (
           <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4" onClick={() => { setShowInvestorModal(false); setInvestorViewMode("condensed"); setInvestorIsFullscreen(false); }}>
             <div
-              className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 border rounded-lg overflow-hidden transition-all duration-300 ${
+              className={`bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 border rounded-lg overflow-hidden transition-all duration-300 flex flex-col ${
                 investorIsFullscreen
                   ? 'max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none'
                   : 'max-w-5xl max-h-[95vh] w-full'
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              <ScrollArea className={investorIsFullscreen ? "h-[100vh]" : "max-h-[95vh]"}>
+              <div className={`flex-1 min-h-0 overflow-auto ${investorIsFullscreen ? "h-[100vh]" : ""}`}>
                 <div className="p-6 space-y-6">
                   {/* Back Button */}
                   <Button
@@ -1893,7 +1892,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                     </div>
                   </div>
                 </div>
-              </ScrollArea>
+              </div>
             </div>
           </div>
         )}

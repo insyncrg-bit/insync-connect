@@ -27,26 +27,26 @@ export const ContactList = ({ contacts, onChange, minContacts = 1 }: ContactList
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-white/80">Contacts</span>
-        <Button type="button" variant="outline" size="sm" onClick={addContact} className="bg-white/5 border-white/10 text-white hover:bg-white/10">
+        <span className="text-[hsl(var(--navy-deep))]/80">Contacts</span>
+        <Button type="button" variant="outline" size="sm" onClick={addContact} className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           <Plus className="h-4 w-4 mr-1" />
           Add Contact
         </Button>
       </div>
       {contacts.map((contact, index) => (
-        <div key={index} className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
+        <div key={index} className="bg-white border border-[hsl(var(--navy-deep))]/10 rounded-lg p-4 space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-white/60 text-sm">Contact {index + 1}</span>
+            <span className="text-[hsl(var(--navy-deep))]/60 text-sm">Contact {index + 1}</span>
             {contacts.length > minContacts && (
-              <Button type="button" variant="ghost" size="sm" onClick={() => removeContact(index)} className="text-red-400 hover:text-red-300 h-6 w-6 p-0">
+              <Button type="button" variant="ghost" size="sm" onClick={() => removeContact(index)} className="text-red-500 hover:text-red-600 h-6 w-6 p-0">
                 <X className="h-4 w-4" />
               </Button>
             )}
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <Input placeholder="Name" value={contact.name} onChange={(e) => updateContact(index, "name", e.target.value)} className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-            <Input placeholder="Title" value={contact.title} onChange={(e) => updateContact(index, "title", e.target.value)} className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
-            <Input type="email" placeholder="Email" value={contact.email} onChange={(e) => updateContact(index, "email", e.target.value)} className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
+            <Input placeholder="Name" value={contact.name} onChange={(e) => updateContact(index, "name", e.target.value)} className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50" />
+            <Input placeholder="Title" value={contact.title} onChange={(e) => updateContact(index, "title", e.target.value)} className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50" />
+            <Input type="email" placeholder="Email" value={contact.email} onChange={(e) => updateContact(index, "email", e.target.value)} className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50" />
           </div>
         </div>
       ))}

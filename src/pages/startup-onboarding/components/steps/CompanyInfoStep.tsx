@@ -42,21 +42,21 @@ export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoS
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-white">Company Information</h2>
-        <p className="text-white/60">Tell us about your company</p>
+        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Company Information</h2>
+        <p className="text-[hsl(var(--navy-deep))]/60">Tell us about your company</p>
       </div>
 
       {/* Logo Upload */}
       <div className="space-y-2">
-        <Label className="text-white/80">Company Logo (Optional)</Label>
+        <Label className="text-[hsl(var(--navy-deep))]/80">Company Logo (Optional)</Label>
         <div className="flex items-center gap-4">
           {data.logoPreview ? (
             <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-cyan-glow/30">
               <img src={data.logoPreview} alt="Company logo" className="w-full h-full object-cover" />
             </div>
           ) : (
-            <div className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center">
-              <Upload className="w-8 h-8 text-white/40" />
+            <div className="w-24 h-24 rounded-lg border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center">
+              <Upload className="w-8 h-8 text-[hsl(var(--navy-deep))]/40" />
             </div>
           )}
           <div>
@@ -68,26 +68,26 @@ export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoS
               id="logo-upload"
             />
             <Label htmlFor="logo-upload" className="cursor-pointer">
-              <Button type="button" variant="outline" asChild className="border-white/10 text-white hover:bg-white/10">
+              <Button type="button" variant="outline" asChild className="border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
                 <span>Upload Logo</span>
               </Button>
             </Label>
-            <p className="text-xs text-white/50 mt-1">PNG, JPG up to 5MB</p>
+            <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PNG, JPG up to 5MB</p>
           </div>
         </div>
       </div>
 
       {/* Pitchdeck Upload */}
       <div className="space-y-2">
-        <Label className="text-white/80">Pitch Deck (Optional)</Label>
+        <Label className="text-[hsl(var(--navy-deep))]/80">Pitch Deck (Optional)</Label>
         <div className="flex items-center gap-4">
-          <div className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center">
+          <div className="w-24 h-24 rounded-lg border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center">
             {data.pitchdeckName ? (
               <div className="text-center p-2">
-                <p className="text-[10px] text-white/70 truncate max-w-[80px]">{data.pitchdeckName}</p>
+                <p className="text-[10px] text-[hsl(var(--navy-deep))]/70 truncate max-w-[80px]">{data.pitchdeckName}</p>
               </div>
             ) : (
-              <Upload className="w-8 h-8 text-white/40" />
+              <Upload className="w-8 h-8 text-[hsl(var(--navy-deep))]/40" />
             )}
           </div>
           <div>
@@ -99,61 +99,61 @@ export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoS
               id="pitchdeck-upload"
             />
             <Label htmlFor="pitchdeck-upload" className="cursor-pointer">
-              <Button type="button" variant="outline" asChild className="border-white/10 text-white hover:bg-white/10">
+              <Button type="button" variant="outline" asChild className="border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
                 <span>{data.pitchdeckName ? 'Replace Pitch Deck' : 'Upload Pitch Deck'}</span>
               </Button>
             </Label>
-            <p className="text-xs text-white/50 mt-1">PDF up to 20MB</p>
+            <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PDF up to 20MB</p>
           </div>
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label className="text-white/80">Company Name *</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Company Name *</Label>
           <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--navy-deep))]/60" />
             <Input
               value={data.companyName}
               onChange={(e) => onUpdate({ companyName: e.target.value })}
               placeholder="Your company name"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
             />
           </div>
         </div>
         <div className="space-y-2">
-          <Label className="text-white/80">Website</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Website</Label>
           <div className="relative">
-            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--navy-deep))]/60" />
             <Input
               value={data.website}
               onChange={(e) => onUpdate({ website: e.target.value })}
               placeholder="https://yourcompany.com"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
             />
           </div>
         </div>
         <div className="space-y-2">
-          <Label className="text-white/80">LinkedIn</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">LinkedIn</Label>
           <div className="relative">
-            <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+            <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--navy-deep))]/60" />
             <Input
               value={data.linkedIn}
               onChange={(e) => onUpdate({ linkedIn: e.target.value })}
               placeholder="Company LinkedIn URL"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
             />
           </div>
         </div>
         <div className="space-y-2">
-          <Label className="text-white/80">Vertical *</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Vertical *</Label>
           <Select value={data.vertical} onValueChange={(v) => onUpdate({ vertical: v })}>
-            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))]">
               <SelectValue placeholder="Select vertical" />
             </SelectTrigger>
-            <SelectContent className="bg-navy-card border-white/10">
+            <SelectContent className="bg-white border border-[hsl(var(--navy-deep))]/10">
               {VERTICALS.map((vertical) => (
-                <SelectItem key={vertical} value={vertical} className="text-white">
+                <SelectItem key={vertical} value={vertical} className="text-[hsl(var(--navy-deep))]">
                   {vertical}
                 </SelectItem>
               ))}
@@ -161,14 +161,14 @@ export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoS
           </Select>
         </div>
         <div className="space-y-2">
-          <Label className="text-white/80">Stage *</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Stage *</Label>
           <Select value={data.stage} onValueChange={(v) => onUpdate({ stage: v })}>
-            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))]">
               <SelectValue placeholder="Select stage" />
             </SelectTrigger>
-            <SelectContent className="bg-navy-card border-white/10">
+            <SelectContent className="bg-white border border-[hsl(var(--navy-deep))]/10">
               {STAGES.map((stage) => (
-                <SelectItem key={stage} value={stage} className="text-white">
+                <SelectItem key={stage} value={stage} className="text-[hsl(var(--navy-deep))]">
                   {stage}
                 </SelectItem>
               ))}
@@ -176,48 +176,48 @@ export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoS
           </Select>
         </div>
         <div className="space-y-2">
-          <Label className="text-white/80">Headquarters *</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Headquarters *</Label>
           <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--navy-deep))]/60" />
             <Input
               value={data.location}
               onChange={(e) => onUpdate({ location: e.target.value })}
               placeholder="City, State/Country"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
             />
           </div>
         </div>
       </div>
 
       {/* Founder Information */}
-      <div className="space-y-4 pt-6 border-t border-white/10">
+      <div className="space-y-4 pt-6 border-t border-[hsl(var(--navy-deep))]/10">
         <div className="space-y-2">
-          <Label className="text-base font-semibold text-white">Your Information</Label>
-          <p className="text-sm text-white/60">Primary contact for this application</p>
+          <Label className="text-base font-semibold text-[hsl(var(--navy-deep))]">Your Information</Label>
+          <p className="text-sm text-[hsl(var(--navy-deep))]/60">Primary contact for this application</p>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label className="text-white/80">Your Name *</Label>
+            <Label className="text-[hsl(var(--navy-deep))]/80">Your Name *</Label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--navy-deep))]/60" />
               <Input
                 value={data.founderName}
                 onChange={(e) => onUpdate({ founderName: e.target.value })}
                 placeholder="Full name"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
+                className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
               />
             </div>
           </div>
           <div className="space-y-2">
-            <Label className="text-white/80">Your Email *</Label>
+            <Label className="text-[hsl(var(--navy-deep))]/80">Your Email *</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--navy-deep))]/60" />
               <Input
                 type="email"
                 value={data.founderEmail}
                 onChange={(e) => onUpdate({ founderEmail: e.target.value })}
                 placeholder="you@company.com"
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
+                className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
               />
             </div>
             <p className="text-xs text-cyan-glow/80 italic">
@@ -228,7 +228,7 @@ export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoS
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={onBack} className="border-white/10 text-white">
+        <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           Back
         </Button>
         <Button onClick={onNext} className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright">

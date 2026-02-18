@@ -38,21 +38,21 @@ export const CompetitorsStep = ({ data, onUpdate, onSubmit, onBack }: Competitor
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-white">Competitors</h2>
-        <p className="text-white/60">Tell us about your competitive landscape (Optional)</p>
+        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Competitors</h2>
+        <p className="text-[hsl(var(--navy-deep))]/60">Tell us about your competitive landscape (Optional)</p>
       </div>
 
       {data.competitors.map((competitor, index) => (
-        <div key={index} className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-4">
+        <div key={index} className="bg-white border border-[hsl(var(--navy-deep))]/10 rounded-lg p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <Label className="text-white/80 font-medium">Competitor {index + 1}</Label>
+            <Label className="text-[hsl(var(--navy-deep))]/80 font-medium">Competitor {index + 1}</Label>
             {data.competitors.length > 3 && (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => removeCompetitor(index)}
-                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -61,31 +61,31 @@ export const CompetitorsStep = ({ data, onUpdate, onSubmit, onBack }: Competitor
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-white/60">Name</Label>
+              <Label className="text-[hsl(var(--navy-deep))]/60">Name</Label>
               <Input
                 value={competitor.name}
                 onChange={(e) => updateCompetitor(index, "name", e.target.value)}
                 placeholder="Competitor name"
-                className="bg-white/5 border-white/10 text-white"
+                className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))]"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-white/60">Description</Label>
+              <Label className="text-[hsl(var(--navy-deep))]/60">Description</Label>
               <Textarea
                 value={competitor.description}
                 onChange={(e) => updateCompetitor(index, "description", e.target.value)}
                 placeholder="What do they do?"
-                className="bg-white/5 border-white/10 text-white min-h-[80px]"
+                className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] min-h-[80px]"
                 rows={3}
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-white/60">How You Differ</Label>
+              <Label className="text-[hsl(var(--navy-deep))]/60">How You Differ</Label>
               <Textarea
                 value={competitor.howYouDiffer}
                 onChange={(e) => updateCompetitor(index, "howYouDiffer", e.target.value)}
                 placeholder="What makes you different?"
-                className="bg-white/5 border-white/10 text-white min-h-[80px]"
+                className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] min-h-[80px]"
                 rows={3}
               />
             </div>
@@ -98,25 +98,25 @@ export const CompetitorsStep = ({ data, onUpdate, onSubmit, onBack }: Competitor
           type="button"
           variant="outline"
           onClick={addCompetitor}
-          className="border-white/10 text-white hover:bg-white/10"
+          className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5"
         >
           Add Competitor
         </Button>
       )}
 
       <div className="space-y-2">
-        <Label className="text-white/80">Competitive Moat</Label>
+        <Label className="text-[hsl(var(--navy-deep))]/80">Competitive Moat</Label>
         <Textarea
           value={data.competitiveMoat}
           onChange={(e) => onUpdate({ competitiveMoat: e.target.value })}
           placeholder="What is your competitive advantage? What prevents others from copying you?"
-          className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[120px]"
+          className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[120px]"
           rows={5}
         />
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={onBack} className="border-white/10 text-white">
+        <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           Back
         </Button>
         <Button onClick={onSubmit} className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright">

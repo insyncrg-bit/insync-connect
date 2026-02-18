@@ -10,12 +10,12 @@ interface SelectFieldProps {
 
 export const SelectField = ({ value, onChange, options, placeholder = "Select an option", className }: SelectFieldProps) => (
   <Select value={value} onValueChange={onChange}>
-    <SelectTrigger className={className || "bg-white/5 border-white/10 text-white"}>
+    <SelectTrigger className={className || "bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))]"}>
       <SelectValue placeholder={placeholder} />
     </SelectTrigger>
-    <SelectContent className="bg-navy-card border-white/10">
+    <SelectContent className="bg-white border border-[hsl(var(--navy-deep))]/10">
       {options.map((option) => (
-        <SelectItem key={option} value={option} className="text-white">
+        <SelectItem key={option} value={option} className="text-[hsl(var(--navy-deep))]">
           {option}
         </SelectItem>
       ))}

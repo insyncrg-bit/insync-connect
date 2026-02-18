@@ -149,7 +149,7 @@ export const OnboardingPage = <T extends Record<string, any>>({
           <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
           <p className="text-white/60">{description}</p>
         </div>
-        <div className="bg-navy-card border border-white/10 rounded-2xl p-6 mb-6">
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 mb-6">
           <StepIndicator steps={steps} currentStep={currentStep} completedSteps={completedSteps} invalidSteps={invalidSteps} onStepClick={saveStep} />
         </div>
         {validationWarnings.length > 0 && (
@@ -169,7 +169,7 @@ export const OnboardingPage = <T extends Record<string, any>>({
             </Alert>
           </div>
         )}
-        <div className={cn("bg-navy-card border rounded-2xl p-8 transition-all", invalidSteps.includes(currentStep) ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]" : "border-white/10")}>
+        <div className={cn("bg-white/95 backdrop-blur-sm border-2 rounded-2xl p-8 md:p-10 shadow-2xl transition-all", invalidSteps.includes(currentStep) ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]" : "border-[hsl(var(--cyan-glow))]/20")}>
           {renderStep(currentStep, data, saveData, handleNext, handleBack, handleSubmit)}
         </div>
         <div className="mt-4 text-center text-white/40 text-sm">Your progress is saved automatically</div>

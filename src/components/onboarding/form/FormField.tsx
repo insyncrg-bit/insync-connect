@@ -14,11 +14,11 @@ interface FormFieldProps {
 
 export const FormField = ({ label, required, error, children, className }: FormFieldProps) => (
   <div className={cn("space-y-2", className)}>
-    <Label className="text-white/80">
-      {label} {required && <span className="text-red-400">*</span>}
+    <Label className="text-[hsl(var(--navy-deep))]/80">
+      {label} {required && <span className="text-red-500">*</span>}
     </Label>
     {children}
-    {error && <p className="text-red-400 text-sm">{error}</p>}
+    {error && <p className="text-red-500 text-sm">{error}</p>}
   </div>
 );
 
@@ -40,7 +40,7 @@ export const TextInput = ({ id, value, onChange, placeholder, type = "text", dis
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
     disabled={disabled}
-    className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20", className)}
+    className={cn("bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20", className)}
   />
 );
 
@@ -62,6 +62,6 @@ export const TextAreaInput = ({ id, value, onChange, placeholder, minHeight = "1
     placeholder={placeholder}
     disabled={disabled}
     style={{ minHeight }}
-    className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20", className)}
+    className={cn("bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20", className)}
   />
 );

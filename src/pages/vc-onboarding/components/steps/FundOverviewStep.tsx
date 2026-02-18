@@ -42,15 +42,15 @@ export const FundOverviewStep = ({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white mb-2">Fund Overview</h2>
-        <p className="text-white/60 text-sm">
+        <h2 className="text-xl font-bold text-[hsl(var(--navy-deep))] mb-2">Fund Overview</h2>
+        <p className="text-[hsl(var(--navy-deep))]/60 text-sm">
           Tell us about your fund structure and investment focus.
         </p>
       </div>
 
       <div className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="firmDescription" className="text-white/80">
+          <Label htmlFor="firmDescription" className="text-[hsl(var(--navy-deep))]/80">
             Firm Description *
           </Label>
           <Textarea
@@ -58,13 +58,13 @@ export const FundOverviewStep = ({
             value={data.firmDescription}
             onChange={(e) => onUpdate({ firmDescription: e.target.value })}
             placeholder="Describe your firm's mission, history, and approach..."
-            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[120px]"
+            className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[120px]"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="aum" className="text-white/80">
+            <Label htmlFor="aum" className="text-[hsl(var(--navy-deep))]/80">
               AUM
             </Label>
             <Input
@@ -72,11 +72,11 @@ export const FundOverviewStep = ({
               value={data.aum}
               onChange={(e) => onUpdate({ aum: e.target.value })}
               placeholder="e.g. $50M"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="fundVintage" className="text-white/80">
+            <Label htmlFor="fundVintage" className="text-[hsl(var(--navy-deep))]/80">
               Fund Vintage
             </Label>
             <Input
@@ -84,20 +84,20 @@ export const FundOverviewStep = ({
               value={data.fundVintage}
               onChange={(e) => onUpdate({ fundVintage: e.target.value })}
               placeholder="e.g. 2024"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="fundType" className="text-white/80">
+          <Label htmlFor="fundType" className="text-[hsl(var(--navy-deep))]/80">
             Fund Type *
           </Label>
           <Select
             value={data.fundType}
             onValueChange={(value) => onUpdate({ fundType: value })}
           >
-            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))]">
               <SelectValue placeholder="Select fund type" />
             </SelectTrigger>
             <SelectContent>
@@ -112,7 +112,7 @@ export const FundOverviewStep = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="ownershipTarget" className="text-white/80">
+            <Label htmlFor="ownershipTarget" className="text-[hsl(var(--navy-deep))]/80">
               Ownership Target
             </Label>
             <Input
@@ -120,18 +120,18 @@ export const FundOverviewStep = ({
               value={data.ownershipTarget}
               onChange={(e) => onUpdate({ ownershipTarget: e.target.value })}
               placeholder="e.g. 5-15%"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="leadFollow" className="text-white/80">
+            <Label htmlFor="leadFollow" className="text-[hsl(var(--navy-deep))]/80">
               Lead/Follow
             </Label>
             <Select
               value={data.leadFollow}
               onValueChange={(value) => onUpdate({ leadFollow: value })}
             >
-              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+              <SelectTrigger className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))]">
                 <SelectValue placeholder="Select preference" />
               </SelectTrigger>
               <SelectContent>
@@ -146,7 +146,7 @@ export const FundOverviewStep = ({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-white/80">Check Sizes *</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Check Sizes *</Label>
           <div className="flex flex-wrap gap-2">
             {CHECK_SIZES.map((size) => (
               <button
@@ -156,7 +156,7 @@ export const FundOverviewStep = ({
                 className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                   data.checkSizes.includes(size)
                     ? "bg-cyan-glow text-navy-deep"
-                    : "bg-white/5 text-white/60 hover:bg-white/10"
+                    : "bg-[hsl(var(--navy-deep))]/5 text-[hsl(var(--navy-deep))]/70 hover:bg-[hsl(var(--navy-deep))]/10 border border-[hsl(var(--navy-deep))]/10"
                 }`}
               >
                 {size}
@@ -166,7 +166,7 @@ export const FundOverviewStep = ({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-white/80">Stage Focus *</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Stage Focus *</Label>
           <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
             {STAGE_FOCUS.map((stage) => (
               <button
@@ -176,7 +176,7 @@ export const FundOverviewStep = ({
                 className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                   data.stageFocus.includes(stage)
                     ? "bg-cyan-glow text-navy-deep"
-                    : "bg-white/5 text-white/60 hover:bg-white/10"
+                    : "bg-[hsl(var(--navy-deep))]/5 text-[hsl(var(--navy-deep))]/70 hover:bg-[hsl(var(--navy-deep))]/10 border border-[hsl(var(--navy-deep))]/10"
                 }`}
               >
                 {stage}
@@ -186,7 +186,7 @@ export const FundOverviewStep = ({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-white/80">Sector Tags</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Sector Tags</Label>
           <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
             {SECTOR_TAGS.map((sector) => (
               <button
@@ -196,7 +196,7 @@ export const FundOverviewStep = ({
                 className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                   data.sectorTags.includes(sector)
                     ? "bg-cyan-glow text-navy-deep"
-                    : "bg-white/5 text-white/60 hover:bg-white/10"
+                    : "bg-[hsl(var(--navy-deep))]/5 text-[hsl(var(--navy-deep))]/70 hover:bg-[hsl(var(--navy-deep))]/10 border border-[hsl(var(--navy-deep))]/10"
                 }`}
               >
                 {sector}
@@ -207,7 +207,7 @@ export const FundOverviewStep = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="portfolioCount" className="text-white/80">
+            <Label htmlFor="portfolioCount" className="text-[hsl(var(--navy-deep))]/80">
               Portfolio Count
             </Label>
             <Input
@@ -215,13 +215,13 @@ export const FundOverviewStep = ({
               value={data.portfolioCount}
               onChange={(e) => onUpdate({ portfolioCount: e.target.value })}
               placeholder="e.g. 50"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="topInvestments" className="text-white/80">
+          <Label htmlFor="topInvestments" className="text-[hsl(var(--navy-deep))]/80">
             Top Investments
           </Label>
           <Textarea
@@ -229,13 +229,13 @@ export const FundOverviewStep = ({
             value={data.topInvestments}
             onChange={(e) => onUpdate({ topInvestments: e.target.value })}
             placeholder="List notable portfolio companies..."
-            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[80px]"
+            className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[80px]"
           />
         </div>
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={onBack} className="border-white/10 text-white">
+        <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           Back
         </Button>
         <Button

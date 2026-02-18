@@ -33,24 +33,24 @@ export const DealMechanicsStep = ({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white mb-2">
+        <h2 className="text-xl font-bold text-[hsl(var(--navy-deep))] mb-2">
           Deal Mechanics (Optional)
         </h2>
-        <p className="text-white/60 text-sm">
+        <p className="text-[hsl(var(--navy-deep))]/60 text-sm">
           Share details about your deal process. This step is optional.
         </p>
       </div>
 
       <div className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="decisionProcess" className="text-white/80">
+          <Label htmlFor="decisionProcess" className="text-[hsl(var(--navy-deep))]/80">
             Decision Process
           </Label>
           <Select
             value={data.decisionProcess}
             onValueChange={(value) => onUpdate({ decisionProcess: value })}
           >
-            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
               <SelectValue placeholder="Select decision process" />
             </SelectTrigger>
             <SelectContent>
@@ -65,7 +65,7 @@ export const DealMechanicsStep = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="timeToFirstResponse" className="text-white/80">
+            <Label htmlFor="timeToFirstResponse" className="text-[hsl(var(--navy-deep))]/80">
               Time to First Response
             </Label>
             <Select
@@ -74,7 +74,7 @@ export const DealMechanicsStep = ({
                 onUpdate({ timeToFirstResponse: value })
               }
             >
-              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+              <SelectTrigger className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
                 <SelectValue placeholder="Select time" />
               </SelectTrigger>
               <SelectContent>
@@ -87,14 +87,14 @@ export const DealMechanicsStep = ({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="timeToDecision" className="text-white/80">
+            <Label htmlFor="timeToDecision" className="text-[hsl(var(--navy-deep))]/80">
               Time to Decision
             </Label>
             <Select
               value={data.timeToDecision}
               onValueChange={(value) => onUpdate({ timeToDecision: value })}
             >
-              <SelectTrigger className="bg-white/5 border-white/10 text-white">
+              <SelectTrigger className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
                 <SelectValue placeholder="Select time" />
               </SelectTrigger>
               <SelectContent>
@@ -108,10 +108,10 @@ export const DealMechanicsStep = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-white border border-[hsl(var(--navy-deep))]/10 rounded-lg">
           <div>
-            <Label className="text-white/80">Gives No with Feedback</Label>
-            <p className="text-white/60 text-sm">
+            <Label className="text-[hsl(var(--navy-deep))]/80">Gives No with Feedback</Label>
+            <p className="text-[hsl(var(--navy-deep))]/60 text-sm">
               Do you provide feedback when declining?
             </p>
           </div>
@@ -125,7 +125,7 @@ export const DealMechanicsStep = ({
 
         {data.givesNoWithFeedback && (
           <div className="space-y-2">
-            <Label htmlFor="feedbackWhen" className="text-white/80">
+            <Label htmlFor="feedbackWhen" className="text-[hsl(var(--navy-deep))]/80">
               Feedback When
             </Label>
             <Textarea
@@ -133,14 +133,14 @@ export const DealMechanicsStep = ({
               value={data.feedbackWhen}
               onChange={(e) => onUpdate({ feedbackWhen: e.target.value })}
               placeholder="Describe when and how you provide feedback..."
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[80px]"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[80px]"
             />
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="followOnReserves" className="text-white/80">
+            <Label htmlFor="followOnReserves" className="text-[hsl(var(--navy-deep))]/80">
               Follow-on Reserves
             </Label>
             <Textarea
@@ -148,11 +148,11 @@ export const DealMechanicsStep = ({
               value={data.followOnReserves}
               onChange={(e) => onUpdate({ followOnReserves: e.target.value })}
               placeholder="e.g. 50% reserved"
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 placeholder:text-[hsl(var(--navy-deep))]/50"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="followOnWhen" className="text-white/80">
+            <Label htmlFor="followOnWhen" className="text-[hsl(var(--navy-deep))]/80">
               Follow-on When
             </Label>
             <Textarea
@@ -160,20 +160,20 @@ export const DealMechanicsStep = ({
               value={data.followOnWhen}
               onChange={(e) => onUpdate({ followOnWhen: e.target.value })}
               placeholder="Describe follow-on strategy..."
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 placeholder:text-[hsl(var(--navy-deep))]/50"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="boardInvolvement" className="text-white/80">
+          <Label htmlFor="boardInvolvement" className="text-[hsl(var(--navy-deep))]/80">
             Board Involvement
           </Label>
           <Select
             value={data.boardInvolvement}
             onValueChange={(value) => onUpdate({ boardInvolvement: value })}
           >
-            <SelectTrigger className="bg-white/5 border-white/10 text-white">
+            <SelectTrigger className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
               <SelectValue placeholder="Select board involvement" />
             </SelectTrigger>
             <SelectContent>
@@ -188,7 +188,7 @@ export const DealMechanicsStep = ({
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={onBack} className="border-white/10 text-white">
+        <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           Back
         </Button>
         <Button

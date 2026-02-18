@@ -29,15 +29,15 @@ export const InvestmentStrategyStep = ({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white mb-2">Investment Strategy</h2>
-        <p className="text-white/60 text-sm">
+        <h2 className="text-xl font-bold text-[hsl(var(--navy-deep))] mb-2">Investment Strategy</h2>
+        <p className="text-[hsl(var(--navy-deep))]/60 text-sm">
           Define your investment thesis and criteria.
         </p>
       </div>
 
       <div className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="thesisStatement" className="text-white/80">
+          <Label htmlFor="thesisStatement" className="text-[hsl(var(--navy-deep))]/80">
             Thesis Statement *
           </Label>
           <Textarea
@@ -45,12 +45,12 @@ export const InvestmentStrategyStep = ({
             value={data.thesisStatement}
             onChange={(e) => onUpdate({ thesisStatement: e.target.value })}
             placeholder="Describe your investment thesis and what you look for in companies..."
-            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 min-h-[150px]"
+            className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[150px]"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="subThemesOther" className="text-white/80">
+          <Label htmlFor="subThemesOther" className="text-[hsl(var(--navy-deep))]/80">
             Sub-themes
           </Label>
           <Input
@@ -58,12 +58,12 @@ export const InvestmentStrategyStep = ({
             value={data.subThemesOther}
             onChange={(e) => onUpdate({ subThemesOther: e.target.value })}
             placeholder="e.g. AI infrastructure, climate tech, etc."
-            className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+            className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="text-white/80">Fast Signals</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Fast Signals</Label>
           <div className="flex flex-wrap gap-2">
             {FAST_SIGNALS.map((signal) => (
               <button
@@ -73,7 +73,7 @@ export const InvestmentStrategyStep = ({
                 className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                   data.fastSignals.includes(signal)
                     ? "bg-cyan-glow text-navy-deep"
-                    : "bg-white/5 text-white/60 hover:bg-white/10"
+                    : "bg-[hsl(var(--navy-deep))]/5 text-[hsl(var(--navy-deep))]/70 hover:bg-[hsl(var(--navy-deep))]/10 border border-[hsl(var(--navy-deep))]/10"
                 }`}
               >
                 {signal}
@@ -83,7 +83,7 @@ export const InvestmentStrategyStep = ({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-white/80">Hard Nos</Label>
+          <Label className="text-[hsl(var(--navy-deep))]/80">Hard Nos</Label>
           <div className="flex flex-wrap gap-2">
             {HARD_NOS.map((no) => (
               <button
@@ -93,7 +93,7 @@ export const InvestmentStrategyStep = ({
                 className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                   data.hardNos.includes(no)
                     ? "bg-cyan-glow text-navy-deep"
-                    : "bg-white/5 text-white/60 hover:bg-white/10"
+                    : "bg-[hsl(var(--navy-deep))]/5 text-[hsl(var(--navy-deep))]/70 hover:bg-[hsl(var(--navy-deep))]/10 border border-[hsl(var(--navy-deep))]/10"
                 }`}
               >
                 {no}
@@ -104,7 +104,7 @@ export const InvestmentStrategyStep = ({
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={onBack} className="border-white/10 text-white">
+        <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           Back
         </Button>
         <Button

@@ -22,7 +22,7 @@ export const MultiSelect = ({ options, selected, onChange, className, maxHeight 
           onClick={() => toggleOption(option)}
           className={cn(
             "px-3 py-1.5 rounded-lg text-sm transition-all",
-            selected.includes(option) ? "bg-cyan-glow text-navy-deep" : "bg-white/5 text-white/60 hover:bg-white/10"
+            selected.includes(option) ? "bg-cyan-glow text-navy-deep" : "bg-[hsl(var(--navy-deep))]/5 text-[hsl(var(--navy-deep))]/70 hover:bg-[hsl(var(--navy-deep))]/10 border border-[hsl(var(--navy-deep))]/10"
           )}
         >
           {option}
