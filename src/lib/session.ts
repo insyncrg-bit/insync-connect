@@ -47,6 +47,9 @@ export const sessionManager = {
   clear: () => {
     try {
       localStorage.removeItem(SESSION_KEY);
+      // Also clear VC onboarding data (including image previews)
+      localStorage.removeItem("vc_onboarding_data");
+      localStorage.removeItem("vc_onboarding_current_step");
     } catch (error) {
       console.error("Error clearing session:", error);
     }

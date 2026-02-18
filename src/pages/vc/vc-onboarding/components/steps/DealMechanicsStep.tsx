@@ -22,6 +22,7 @@ interface DealMechanicsStepProps {
   onUpdate: (data: Partial<VCOnboardingData>) => void;
   onSubmit: () => void;
   onBack: () => void;
+  submitLabel?: string;
 }
 
 export const DealMechanicsStep = ({
@@ -29,6 +30,7 @@ export const DealMechanicsStep = ({
   onUpdate,
   onSubmit,
   onBack,
+  submitLabel = "Submit Application",
 }: DealMechanicsStepProps) => {
   return (
     <div className="space-y-6">
@@ -195,7 +197,7 @@ export const DealMechanicsStep = ({
           onClick={onSubmit}
           className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright"
         >
-          Submit Application
+          {submitLabel}
         </Button>
       </div>
     </div>

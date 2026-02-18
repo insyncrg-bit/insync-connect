@@ -27,6 +27,7 @@ interface InvestorDashboardContentProps {
   onPendingClick: () => void;
   onMessagesClick: () => void;
   onViewStartup: (startup: StartupCardData) => void;
+  companyLogoUrl?: string | null;
 }
 
 export function InvestorDashboardContent({
@@ -44,6 +45,7 @@ export function InvestorDashboardContent({
   onPendingClick,
   onMessagesClick,
   onViewStartup,
+  companyLogoUrl,
 }: InvestorDashboardContentProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-10">
@@ -59,6 +61,7 @@ export function InvestorDashboardContent({
           title={`${firmName}'s Thesis`}
           subtitle={thesisSubtitle}
           onClick={onThesisClick}
+          logoUrl={companyLogoUrl}
         />
 
         <DashboardStatsGrid
@@ -75,16 +78,9 @@ export function InvestorDashboardContent({
           ]}
         />
 
-        <CuratedSection title="Curated Startups" onViewAll={onViewAll}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {startups.slice(0, 3).map((startup) => (
-              <StartupCard
-                key={startup.id}
-                startup={startup}
-                onViewMemo={() => onViewStartup(startup)}
-                isSyncRequested={startup.user_id ? pendingRequestIds.has(startup.user_id) : false}
-              />
-            ))}
+        <CuratedSection title="Curated Startups">
+          <div className="flex items-center justify-center py-10">
+            <p className="text-white/40 text-sm">Coming Soon</p>
           </div>
         </CuratedSection>
       </div>

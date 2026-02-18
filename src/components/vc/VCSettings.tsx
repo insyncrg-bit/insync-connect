@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Settings as SettingsIcon } from "lucide-react";
 
-export const VCAdminSettings = () => {
+export const VCSettings = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>

@@ -1,16 +1,17 @@
 import {
-  CircleDot,
   Shield,
   Building2,
   Target,
   Handshake,
   FolderOpen,
   Briefcase,
+  Sparkles,
+  User,
 } from "lucide-react";
 
 export const STEPS = [
-  { id: 0, title: "Welcome", icon: CircleDot },
-  { id: 1, title: "Admin & Verification", icon: Shield },
+  { id: 0, title: "Welcome", icon: Sparkles },
+  { id: 1, title: "Personal Profile", icon: User },
   { id: 2, title: "Fund Overview", icon: Building2 },
   { id: 3, title: "Investment Strategy", icon: Target },
   { id: 4, title: "Value-Add", icon: Handshake },
@@ -144,7 +145,6 @@ export const OPERATING_SUPPORT = [
   "Security guidance",
   "Founder community",
   "Events/networking",
-  "Other",
 ];
 
 export const DECISION_PROCESS = ["Partner-led", "IC", "Rolling", "Committee"];
@@ -157,20 +157,23 @@ export const BOARD_INVOLVEMENT = [
   "Usually",
 ];
 export const CONFLICTS_POLICY = ["Strict", "Case-by-case", "Flexible"];
-export const FAST_SIGNALS = [
-  "Customer pull",
-  "Retention",
-  "Revenue",
-  "Pilots",
-  "Technical moat",
-  "Regulatory clearance",
-  "Other",
-];
-export const HARD_NOS = [
-  "Geography restrictions",
-  "Certain sectors",
-  "Business model types",
-  "Other",
+export const BUSINESS_MODELS = [
+  "B2B SaaS",
+  "Enterprise",
+  "B2C",
+  "Marketplace",
+  "D2C",
+  "E-commerce",
+  "API/Infrastructure",
+  "Hardware",
+  "DeepTech",
+  "Bio/Health",
+  "FinTech",
+  "Usage-based",
+  "Subscription",
+  "Transactional",
+  "Advertising",
+  "Open Source",
 ];
 
 export const LOCATION_BRANCHES = [

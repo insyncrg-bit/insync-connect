@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, ArrowLeft, Loader2, Building2, Rocket, UserCog } from "lucide-react";
+import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -15,14 +15,6 @@ type LoginStep = "email" | "password";
 
 // Get Firebase API URL from environment variable
 const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
-
-// Demo / test sign-in (dummy data dashboards). Set in .env for local testing.
-const DEMO_VC_EMAIL = import.meta.env.VITE_DEMO_VC_EMAIL || "";
-const DEMO_STARTUP_EMAIL = import.meta.env.VITE_DEMO_STARTUP_EMAIL || "";
-const DEMO_ANALYST_EMAIL = import.meta.env.VITE_DEMO_ANALYST_EMAIL || "";
-const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD || "";
-const DEMO_CREDENTIALS_SET =
-  !!(DEMO_VC_EMAIL && DEMO_STARTUP_EMAIL && DEMO_ANALYST_EMAIL && DEMO_PASSWORD);
 
 // Logging utility
 const log = {
@@ -88,7 +80,6 @@ export const Login = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [emailVerifiedInDatabase, setEmailVerifiedInDatabase] = useState(false);
 
@@ -98,7 +89,7 @@ export const Login = () => {
       setStep("password");
       setEmailVerifiedInDatabase(true);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- only on mount, initialEmail from location
+  }, [initialEmail]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -179,17 +170,14 @@ export const Login = () => {
   };
 
   // Redirect targets by role (token claims). Users with roles go to onboarding flows.
-  // Superuser stays under /admin.
   const redirectToRoleHome = useCallback(
     async (role: string, navigate: (path: string) => void, user: any) => {
-      // Use smart routing to check if onboarding is complete
       try {
         const path = await getSmartRedirectPath(user, role);
         log.info("Smart routing determined path", { role, path });
         navigate(path);
       } catch (e) {
         log.error("Smart routing failed, using fallback", e);
-        // Fallback logic
         switch (role) {
           case "superuser":
             navigate("/admin");
@@ -211,7 +199,7 @@ export const Login = () => {
     []
   );
 
-  // Handle redirect after email verification. Role from token claims only.
+  // Handle redirect after email verification.
   const handleVerifiedUser = useCallback(
     async (user: any) => {
       log.info("Handling verified user", { uid: user.uid, email: user.email, emailVerified: user.emailVerified });
@@ -231,23 +219,6 @@ export const Login = () => {
           log.info("No role in token, redirecting to role selection");
           navigate("/select-role");
           return;
-        }
-
-        // VC with incomplete onboarding → onboarding first
-        if (userRole === "vc") {
-          try {
-            const onboardingData = localStorage.getItem("vc_onboarding_data");
-            if (onboardingData) {
-              const data = JSON.parse(onboardingData);
-              if (data?.firmName && !data.submitted) {
-                log.info("Incomplete VC onboarding found, redirecting to onboarding");
-                navigate("/vc-onboarding");
-                return;
-              }
-            }
-          } catch (parseError) {
-            log.warn("Could not read onboarding data, skipping", parseError);
-          }
         }
 
         redirectToRoleHome(userRole, navigate, user);
@@ -290,35 +261,26 @@ export const Login = () => {
       const user = userCredential.user;
       log.info("Firebase sign in successful", { uid: user.uid, email: user.email });
 
-      // Login = existing account. Verification is only required at signup; do not re-verify on login.
       await handleVerifiedUser(user);
     } catch (error: any) {
       log.error("Login error", error);
       
-      // Handle specific Firebase Auth errors
       let errorMessage = "Invalid email or password. Please try again.";
       
       if (error.code === "auth/user-not-found") {
         errorMessage = "No account found with this email.";
-        log.warn("User not found", { email });
       } else if (error.code === "auth/wrong-password") {
         errorMessage = "Incorrect password. Please try again.";
-        log.warn("Wrong password", { email });
       } else if (error.code === "auth/invalid-email") {
         errorMessage = "Invalid email address.";
-        log.warn("Invalid email", { email });
       } else if (error.code === "auth/user-disabled") {
         errorMessage = "This account has been disabled.";
-        log.warn("User disabled", { email });
       } else if (error.code === "auth/too-many-requests") {
         errorMessage = "Too many failed attempts. Please try again later.";
-        log.warn("Too many requests", { email });
       } else if (error.code === "auth/network-request-failed") {
         errorMessage = "Network error. Please check your connection and try again.";
-        log.error("Network error", { email });
       } else if (error.code === "auth/invalid-credential" || error.code === "auth/invalid-login-credentials") {
         errorMessage = "Invalid email or password. Please try again.";
-        log.warn("Invalid credentials", { email });
       }
       
       setErrors((prev) => ({
@@ -331,8 +293,6 @@ export const Login = () => {
         description: errorMessage,
         variant: "destructive",
       });
-      
-      setStep("password");
     } finally {
       setIsLoading(false);
     }
@@ -360,31 +320,6 @@ export const Login = () => {
     setPassword("");
     setErrors({});
     setEmailVerifiedInDatabase(false);
-  };
-
-  const handleDemoSignIn = async (demoEmail: string) => {
-    if (!DEMO_PASSWORD || !demoEmail) return;
-    setIsDemoLoading(true);
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        demoEmail.trim().toLowerCase(),
-        DEMO_PASSWORD
-      );
-      await handleVerifiedUser(userCredential.user);
-    } catch (error: any) {
-      log.error("Demo sign-in error", error);
-      toast({
-        title: "Demo sign-in failed",
-        description:
-          error.code === "auth/invalid-credential" || error.code === "auth/invalid-login-credentials"
-            ? "Invalid demo credentials. Check .env (VITE_DEMO_*)."
-            : error.message || "Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDemoLoading(false);
-    }
   };
 
   return (
@@ -553,54 +488,6 @@ export const Login = () => {
               Create one
             </Link>
           </p>
-
-          {/* Test sign in (demo / dummy data) */}
-          {DEMO_CREDENTIALS_SET && (
-            <div className="mt-8 pt-6 border-t border-white/10">
-              <p className="text-center text-white/50 text-sm mb-3">
-                Test sign in (dummy data)
-              </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isDemoLoading}
-                  onClick={() => handleDemoSignIn(DEMO_VC_EMAIL)}
-                  className="border-white/20 text-white/80 hover:bg-white/10"
-                >
-                  {isDemoLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Building2 className="h-4 w-4 mr-1.5" />
-                  )}
-                  VC
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isDemoLoading}
-                  onClick={() => handleDemoSignIn(DEMO_STARTUP_EMAIL)}
-                  className="border-white/20 text-white/80 hover:bg-white/10"
-                >
-                  <Rocket className="h-4 w-4 mr-1.5" />
-                  Startup
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isDemoLoading}
-                  onClick={() => handleDemoSignIn(DEMO_ANALYST_EMAIL)}
-                  className="border-white/20 text-white/80 hover:bg-white/10"
-                >
-                  <UserCog className="h-4 w-4 mr-1.5" />
-                  Analyst
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

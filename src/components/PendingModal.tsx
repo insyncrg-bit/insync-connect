@@ -67,26 +67,41 @@ export function PendingModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`bg-[hsl(var(--navy-deep))] border-white/10 text-white p-0 overflow-hidden transition-all duration-300 ${
+      <DialogContent className={`bg-[hsl(var(--navy-deep))] border-white/10 text-white p-0 overflow-hidden transition-all duration-300 [&>button]:hidden ${
         isFullscreen 
           ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none" 
           : "max-w-2xl max-h-[80vh]"
       }`}>
         <DialogHeader className="p-6 pb-0">
           <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Eye className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <Eye className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
               Pending Requests
             </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="text-white/60 hover:text-white hover:bg-white/10"
-            >
-              {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                className="text-white/60 hover:text-white hover:bg-white/10 h-10 w-10"
+              >
+                {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+                className="text-white/60 hover:text-white hover:bg-white/10 h-10 w-10"
+              >
+                <X className="h-6 w-6" />
+              </Button>
+            </div>
           </div>
+          <p className="text-white/60 text-sm mt-1">
+            {userType === "founder" 
+              ? "Your sync requests awaiting response"
+              : "Sync requests you've sent to founders"}
+          </p>
         </DialogHeader>
 
         <ScrollArea className={`p-6 pt-4 ${isFullscreen ? "h-[calc(100vh-100px)]" : "max-h-[60vh]"}`}>

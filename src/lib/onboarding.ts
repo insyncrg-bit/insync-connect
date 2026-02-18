@@ -9,18 +9,20 @@ const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
  * @param role The user's role (from custom claims)
  * @returns The absolute path to redirect to
  */
-export async function getSmartRedirectPath(user: User, role: string): Promise<string> {
-    if (!user || !role) return "/select-role";
+export async function getSmartRedirectPath(user: User, claims: any): Promise<string> {
+    const userType = claims?.user_type;
+    const requestStatus = claims?.request_status;
 
-    // Default paths
+    if (!user || !userType) return "/select-role";
+
+    // Default paths based on user_type
     const defaultPaths: Record<string, string> = {
         superuser: "/admin",
-        analyst: "/analyst",
-        vc: "/vc-onboarding",
-        startup: "/startup-onboarding",
+        "vc-user": "/vc-onboarding",
+        "founder-user": "/startup-onboarding",
     };
 
-    const defaultPath = defaultPaths[role] || "/select-role";
+    const defaultPath = defaultPaths[userType] || "/select-role";
 
     // If no API, we can't check smart status, so return default
     if (!FIREBASE_API) {
@@ -35,31 +37,41 @@ export async function getSmartRedirectPath(user: User, role: string): Promise<st
             Authorization: `Bearer ${token}`
         };
 
-        if (role === "vc") {
-            // 1. Get VC User details (to find firmId)
-            const userRes = await fetch(`${FIREBASE_API}/users/vc-users/${user.uid}`, { headers });
+        if (userType === "vc-user") {
+            // Check request_status
+            if (requestStatus === "sent") {
+                return "/request-sent";
+            }
+            if (requestStatus === "rejected") {
+                // TODO: Handle rejection
+                return "/select-role";
+            }
+            if (requestStatus === "accepted") {
+                // If accepted, check if they finished onboarding (via firm data)
+                // 1. Get VC User details (to find firmId)
+                const userRes = await fetch(`${FIREBASE_API}/users/vc-users/${user.uid}`, { headers });
+                if (!userRes.ok) return "/vc-onboarding";
 
-            // If user doc not found (404), they probably haven't finished creating/joining a firm? 
-            // Actually SelectRole creates a user doc. So if 404, valid state is obscure.
-            // But safe to send to onboarding.
-            if (!userRes.ok) return "/vc-onboarding";
+                const userData = await userRes.json();
+                const firmId = userData.user?.firmId;
 
-            const userData = await userRes.json();
-            const firmId = userData.user?.firmId;
+                if (!firmId) return "/vc-onboarding";
 
-            if (!firmId) return "/vc-onboarding";
+                // 2. Get Firm details (to check onboarding status)
+                const firmRes = await fetch(`${FIREBASE_API}/firms/${firmId}`, { headers });
+                if (!firmRes.ok) return "/vc-onboarding";
 
-            // 2. Get Firm details (to check onboarding status)
-            const firmRes = await fetch(`${FIREBASE_API}/firms/${firmId}`, { headers });
-            if (!firmRes.ok) return "/vc-onboarding";
+                const firmData = await firmRes.json();
+                const onboardingComplete = firmData.firm?.onboardingComplete;
 
-            const firmData = await firmRes.json();
-            const onboardingComplete = firmData.firm?.onboardingComplete;
+                return onboardingComplete ? "/vc-dashboard" : "/vc-onboarding";
+            }
 
-            return onboardingComplete ? "/vc-admin" : "/vc-onboarding";
+            // If request_status is null, they haven't joined/created a firm yet
+            return "/select-role";
         }
 
-        if (role === "startup") {
+        if (userType === "founder-user") {
             // 1. Get Founder User details
             const userRes = await fetch(`${FIREBASE_API}/users/founder-users/${user.uid}`, { headers });
 
@@ -69,7 +81,6 @@ export async function getSmartRedirectPath(user: User, role: string): Promise<st
             const userData = await userRes.json();
 
             // Check if they have marked onboarding as complete
-            // (Assuming we save this flag on the user or a related company doc)
             if (userData.user?.onboardingComplete) {
                 return "/startup";
             }

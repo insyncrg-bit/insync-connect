@@ -4,14 +4,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Building2, UserCog, Rocket, LayoutDashboard } from "lucide-react";
 import { auth } from "@/lib/firebase";
-import { useRole } from "@/hooks/useRole";
+import { useUserClaims } from "@/hooks/useUserClaims";
 
 const DASHBOARDS = [
   {
-    id: "vc-admin",
+    id: "vc",
     title: "VC Admin Dashboard",
     description: "Full access: dashboard, organisation, settings, profile",
-    path: "/vc-admin",
+    path: "/vc-dashboard",
     icon: Building2,
     role: "vc",
   },
@@ -35,7 +35,7 @@ const DASHBOARDS = [
 
 export const SuperuserTestPage = () => {
   const navigate = useNavigate();
-  const { role, loading } = useRole();
+  const { userType, loading } = useUserClaims();
 
   useEffect(() => {
     if (loading) return;
@@ -45,10 +45,10 @@ export const SuperuserTestPage = () => {
       return;
     }
 
-    if (role !== "superuser") {
+    if (userType !== "superuser") {
       navigate("/landing", { replace: true });
     }
-  }, [loading, role, navigate]);
+  }, [loading, userType, navigate]);
 
   return (
     <div className="flex-1 p-8 max-w-4xl mx-auto w-full">

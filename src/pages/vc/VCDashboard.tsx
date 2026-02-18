@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { VCAdminOrganisation, VCAdminSettings } from "@/components/vc-admin";
+import { VCOrganisation, VCSettings } from "@/components/vc";
 import { InvestorDashboardContent, StartupCard } from "@/components/dashboards";
 import type { StartupCardData } from "@/components/dashboards";
 import { InvestorThesisModal } from "@/components/InvestorThesisModal";
@@ -25,6 +25,54 @@ import { MemoModal } from "@/components/MemoModal";
 import { AnalystProfileModal } from "@/components/AnalystProfileModal";
 import { sessionManager } from "@/lib/session";
 import type { InvestorApplication } from "@/components/InvestorThesisModal";
+import { EditMemoTab } from "./EditMemoTab";
+import type { VCOnboardingData } from "./vc-onboarding/hooks/useVCOnboardingStorage";
+
+
+interface MemoApiResponse {
+  id: string;
+  firmName: string;
+  firmDescription: string | null;
+  thesisStatement: string | null;
+  subThemes: string[];
+  fastSignals: string[];
+  hardNos: string[];
+  checkSizes: string[];
+  stageFocus: string[];
+  sectorTags: string[];
+  leadFollow: string | null;
+  operatingSupport: string[];
+  firmInvolvement: string | null;
+  hqLocation: string | null;
+  aum: string | null;
+  fundType: string | null;
+  geographicFocus: string | null;
+  geographicFocusDetail: string | null;
+  boardInvolvement: string | null;
+  decisionProcess: string | null;
+  timeToDecision: string | null;
+  companyLogo: string | null;
+  website: string | null;
+  companyLinkedIn: string | null;
+  ownershipTarget: string | null;
+  topInvestments: { name: string; website: string }[] | null;
+  subThemesOther: string | null;
+  nonNegotiables: string | null;
+  businessModels: string[] | null;
+  keyMetrics: string[] | null;
+  operatingSupportOther: string | null;
+  timeToFirstResponse: string | null;
+  givesNoWithFeedback: boolean | null;
+  feedbackWhen: string | null;
+  followOnReserves: string | null;
+  followOnWhen: string | null;
+  [key: string]: unknown; // allow extra fields for prefill
+}
+
+interface DashboardData {
+  firm?: { name: string };
+  memo?: MemoApiResponse;
+}
 
 interface FounderApplication {
   id: string;
@@ -57,7 +105,7 @@ interface ConnectionStats {
   pending: number;
 }
 
-export const VCAdminDashboard = () => {
+export const VCDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [applications, setApplications] = useState<FounderApplication[]>([]);
@@ -84,6 +132,9 @@ export const VCAdminDashboard = () => {
     profile_completed: boolean;
   } | null>(null);
   const [investorApplication, setInvestorApplication] = useState<InvestorApplication | null>(null);
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [rawMemoData, setRawMemoData] = useState<Partial<VCOnboardingData> | null>(null);
+  const [rawFirmId, setRawFirmId] = useState<string | null>(null);
 
   const [interestsModalOpen, setInterestsModalOpen] = useState(false);
   const [syncsModalOpen, setSyncsModalOpen] = useState(false);
@@ -151,204 +202,189 @@ export const VCAdminDashboard = () => {
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
-  const demoInterests = [
-    {
-      id: "demo-int-1",
-      requester_user_id: "demo-founder-1",
-      sync_note: "Your thesis on AI infrastructure aligns perfectly with our roadmap.",
-      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      company_name: "NeuralFlow AI",
-      founder_name: "Sarah Chen",
-      vertical: "AI/ML Infrastructure",
-      stage: "Seed",
-      location: "San Francisco, CA",
-      funding_goal: "$3M",
-    },
-    {
-      id: "demo-int-2",
-      requester_user_id: "demo-founder-2",
-      sync_note: null,
-      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      company_name: "ClimateLedger",
-      founder_name: "Marcus Johnson",
-      vertical: "Climate Tech",
-      stage: "Pre-seed",
-      location: "Austin, TX",
-      funding_goal: "$1.5M",
-    },
-  ];
-
-  const demoSyncs = [
-    {
-      id: "demo-sync-1",
-      other_user_id: "demo-founder-3",
-      other_user_type: "founder",
-      created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      company_name: "MedSync Health",
-      founder_name: "Priya Patel",
-      vertical: "Digital Health",
-      stage: "Seed",
-      location: "Boston, MA",
-    },
-    {
-      id: "demo-sync-2",
-      other_user_id: "demo-founder-4",
-      other_user_type: "founder",
-      created_at: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-      company_name: "FinanceOS",
-      founder_name: "David Kim",
-      vertical: "Fintech",
-      stage: "Series A",
-      location: "New York, NY",
-    },
-  ];
-
-  const demoPending = [
-    {
-      id: "demo-pend-1",
-      target_user_id: "demo-founder-5",
-      sync_note: "Your traction in the supply chain space is impressive.",
-      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      company_name: "SupplyChain360",
-      founder_name: "Elena Rodriguez",
-      vertical: "Supply Chain & Logistics",
-      stage: "Seed",
-      location: "Miami, FL",
-    },
-  ];
-
-  const demoMessages = [
-    {
-      id: "demo-msg-1",
-      other_user_id: "demo-founder-3",
-      other_user_name: "Priya Patel",
-      other_user_company: "MedSync Health",
-      last_message: "Thanks for the intro to the health system. The meeting went great!",
-      last_message_time: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-      unread_count: 1,
-      messages: [
-        { id: "m1", sender: "self" as const, content: "I'd like to introduce you to our portfolio company's head of partnerships.", timestamp: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString() },
-        { id: "m2", sender: "other" as const, content: "That would be amazing!", timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString() },
-        { id: "m3", sender: "self" as const, content: "I'll set up the intro.", timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() },
-        { id: "m4", sender: "other" as const, content: "Thanks for the intro to the health system. The meeting went great!", timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() },
-      ],
-    },
-    {
-      id: "demo-msg-2",
-      other_user_id: "demo-founder-4",
-      other_user_name: "David Kim",
-      other_user_company: "FinanceOS",
-      last_message: "The board deck is ready for your review.",
-      last_message_time: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-      unread_count: 0,
-      messages: [
-        { id: "m1", sender: "other" as const, content: "The board deck is ready for your review.", timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString() },
-      ],
-    },
-  ];
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [searchParams]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const session = sessionManager.get();
-      const firmId = session?.firmId;
+      
+      const { getAuth } = await import("firebase/auth");
+      const auth = getAuth();
+      const user = auth.currentUser;
 
-      if (firmId) {
-        const { getAuth } = await import("firebase/auth");
-        const auth = getAuth();
-        const user = auth.currentUser;
+      if (user) {
+        let firmId = sessionManager.get()?.firmId;
+        console.log("[VCDashboard] Initial firmId from session:", firmId);
 
-        if (user) {
-          try {
-            const token = await user.getIdToken();
-            const apiUrl = import.meta.env.VITE_FIREBASE_API;
-
-            const response = await fetch(`${apiUrl}/api/firms/${firmId}/memo`, {
-              headers: { Authorization: `Bearer ${token}` },
+        const token = await user.getIdToken();
+        const apiUrl = import.meta.env.VITE_FIREBASE_API;
+        
+        // Fetch user profile to get fresh name & firmId if missing
+        try {
+            const userRes = await fetch(`${apiUrl}/api/users/vc-users/${user.uid}`, { 
+                headers: { Authorization: `Bearer ${token}` } 
             });
-
-            if (response.ok) {
-              const data = await response.json();
-              const memo = data.memo;
-
-              if (memo) {
-                setInvestorApplication({
-                  id: memo.id,
-                  firm_name: memo.firmName,
-                  firm_description: memo.firmDescription,
-                  thesis_statement: memo.thesisStatement,
-                  sub_themes: memo.subThemes || [],
-                  fast_signals: memo.fastSignals || [],
-                  hard_nos: memo.hardNos || [],
-                  check_sizes: memo.checkSizes || [],
-                  stage_focus: memo.stageFocus || [],
-                  sector_tags: memo.sectorTags || [],
-                  customer_types: [],
-                  lead_follow: memo.leadFollow,
-                  operating_support: memo.operatingSupport || [],
-                  support_style: memo.firmInvolvement,
-                  hq_location: memo.hqLocation,
-                  aum: memo.aum,
-                  fund_type: memo.fundType,
-                  geographic_focus: memo.geographicFocus === "boston" ? "Boston" : (memo.geographicFocusDetail || memo.geographicFocus),
-                  b2b_b2c: null,
-                  revenue_models: [],
-                  minimum_traction: [],
-                  board_involvement: memo.boardInvolvement,
-                  decision_process: memo.decisionProcess,
-                  time_to_decision: memo.timeToDecision,
-                });
-                if (memo.firmName) setFirmName(memo.firmName);
-              }
+            
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                console.log("[VCDashboard] User data fetched:", userData);
+                if (userData.user) {
+                    if (userData.user.fullName) {
+                        const firstName = userData.user.fullName.split(' ')[0];
+                         setAdminName(firstName);
+                    }
+                    if (userData.user.firmId) {
+                        firmId = userData.user.firmId;
+                        console.log("[VCDashboard] Found firmId in user profile:", firmId);
+                        // Update session
+                         sessionManager.save({ 
+                            ...sessionManager.get(), 
+                            firmId
+                        });
+                    }
+                }
+            } else {
+                console.error("[VCDashboard] Failed to fetch user profile:", await userRes.text());
+                // Fallback to auth display name if fetch fails
+                 setAdminName(user.displayName ? user.displayName.split(' ')[0] : "VC User");
             }
-          } catch (err) {
-            console.error("Error fetching memo:", err);
+        } catch (e) {
+            console.error("[VCDashboard] Error fetching user profile:", e);
+             // Fallback to auth display name if error
+             setAdminName(user.displayName ? user.displayName.split(' ')[0] : "VC User");
+        }
+
+        if (firmId) {
+          const cacheKey = `dashboardData_${firmId}`;
+          const cachedData = sessionStorage.getItem(cacheKey);
+
+          if (cachedData) {
+            console.log("[VCDashboard] Using cached data:", JSON.parse(cachedData));
+            const data = JSON.parse(cachedData);
+            applyDashboardData(data);
+            setLoading(false);
+            return;
           }
+
+          try {
+            console.log("[VCDashboard] Fetching data from:", apiUrl);
+
+            const [firmRes, memoRes] = await Promise.all([
+              fetch(`${apiUrl}/api/firms/${firmId}`, { headers: { Authorization: `Bearer ${token}` } }),
+              fetch(`${apiUrl}/api/firms/${firmId}/memo`, { headers: { Authorization: `Bearer ${token}` } })
+            ]);
+
+            const dashboardData: DashboardData = {};
+
+            if (firmRes.ok) {
+              const firmData = await firmRes.json();
+              console.log("[VCDashboard] Firm data fetched:", firmData);
+              dashboardData.firm = firmData.firm;
+            } else {
+                console.error("[VCDashboard] Failed to fetch firm:", await firmRes.text());
+            }
+
+            if (memoRes.ok) {
+              const memoData = await memoRes.json();
+              console.log("[VCDashboard] Memo data fetched:", memoData);
+              dashboardData.memo = memoData.memo;
+            } else {
+                console.error("[VCDashboard] Failed to fetch memo:", await memoRes.text());
+            }
+            
+            console.log("[VCDashboard] Final dashboard data:", dashboardData);
+            // Cache and apply
+            sessionStorage.setItem(cacheKey, JSON.stringify(dashboardData));
+            applyDashboardData(dashboardData);
+
+          } catch (err) {
+            console.error("Error fetching dashboard resources:", err);
+          }
+        } else {
+             console.warn("[VCDashboard] Could not determine firmId even after user profile fetch.");
         }
       }
 
-      setApplications([
-        {
-          id: "1",
-          founder_name: "Demo Founder",
-          company_name: "Demo Startup",
-          vertical: "AI/ML",
-          stage: "Seed",
-          location: "San Francisco, CA",
-          website: "https://example.com",
-          business_model: "Example business model",
-          funding_goal: "$2M",
-          traction: "Example traction",
-          created_at: new Date().toISOString(),
-        },
-      ]);
-
-      setEvents([
-        {
-          id: "1",
-          title: "VC Networking Event",
-          description: "Connect with other VCs and startups",
-          event_type: "Networking",
-          location: "San Francisco, CA",
-          event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          max_attendees: 100,
-        },
-      ]);
-
-      setConnectionStats({ interests: 5, syncs: 12, pending: 3 });
-      setIncomingInterests(demoInterests);
-      setActiveSyncs(demoSyncs);
-      setOutgoingPending(demoPending);
-      setMessageThreads(demoMessages);
+      // Mock data for other parts
+      setApplications([]);
+      setConnectionStats({ interests: 0, syncs: 0, pending: 0 });
+      setIncomingInterests([]);
+      setActiveSyncs([]);
+      setOutgoingPending([]);
+      setMessageThreads([]);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyDashboardData = (data: DashboardData) => {
+    if (data.memo) {
+      const memo = data.memo;
+      setInvestorApplication({
+        id: memo.id,
+        firm_name: memo.firmName,
+        firm_description: memo.firmDescription,
+        thesis_statement: memo.thesisStatement,
+        sub_themes: memo.subThemes || [],
+        fast_signals: memo.fastSignals || [],
+        hard_nos: memo.hardNos || [],
+        check_sizes: memo.checkSizes || [],
+        stage_focus: memo.stageFocus || [],
+        sector_tags: memo.sectorTags || [],
+        customer_types: [],
+        lead_follow: memo.leadFollow,
+        operating_support: memo.operatingSupport || [],
+        support_style: memo.firmInvolvement,
+        hq_location: memo.hqLocation,
+        aum: memo.aum,
+        fund_type: memo.fundType,
+        geographic_focus: memo.geographicFocus === "boston" ? "Boston" : (memo.geographicFocusDetail || memo.geographicFocus),
+        b2b_b2c: null,
+        revenue_models: [],
+        minimum_traction: [],
+        board_involvement: memo.boardInvolvement,
+        decision_process: memo.decisionProcess,
+        time_to_decision: memo.timeToDecision,
+        website: memo.website,
+        company_linkedin: memo.companyLinkedIn,
+        ownership_target: memo.ownershipTarget,
+        company_logo: memo.companyLogo,
+        top_investments: memo.topInvestments || [],
+        sub_themes_other: memo.subThemesOther,
+        non_negotiables: memo.nonNegotiables,
+        business_models: memo.businessModels || [],
+        key_metrics: memo.keyMetrics || [],
+        operating_support_other: memo.operatingSupportOther,
+        time_to_first_response: memo.timeToFirstResponse,
+        gives_no_with_feedback: memo.givesNoWithFeedback,
+        feedback_when: memo.feedbackWhen,
+        follow_on_reserves: memo.followOnReserves,
+        follow_on_when: memo.followOnWhen,
+      });
+      // Always prefer memo.firmName — it's what the user edits directly
+      if (memo.firmName) setFirmName(memo.firmName);
+      else if (data.firm) setFirmName(data.firm.name);
+      // Set company logo if available
+      if (memo.companyLogo) setCompanyLogo(memo.companyLogo);
+      // Store raw memo for EditMemoTab prefill (cast geographicFocus to the correct union)
+      setRawMemoData({
+        ...memo,
+        geographicFocus: (memo.geographicFocus === "boston" || memo.geographicFocus === "other")
+          ? memo.geographicFocus
+          : "",
+      } as Partial<VCOnboardingData>);
+    } else if (data.firm) {
+      // No memo yet — fall back to firm name from the firms collection
+      setFirmName(data.firm.name);
+    }
+    // Store firmId for EditMemoTab
+    const firmId = sessionManager.get()?.firmId;
+    if (firmId) setRawFirmId(firmId);
   };
 
   const handleTabChange = (tab: string) => {
@@ -456,7 +492,7 @@ export const VCAdminDashboard = () => {
     interests: connectionStats.interests,
     syncs: connectionStats.syncs,
     pending: connectionStats.pending,
-    messages: demoMessages.reduce((acc, t) => acc + t.unread_count, 0),
+    messages: 0,
   };
 
   const curatedStartups = applications;
@@ -504,7 +540,7 @@ export const VCAdminDashboard = () => {
             adminName={adminName}
             firmName={firmName}
             adminTitle={adminTitle}
-            thesisSubtitle="Seed • Series A • AI/ML"
+            thesisSubtitle={(investorApplication?.stage_focus ?? []).join(' • ') || undefined}
             onViewAll={() => handleTabChange("startups")}
             stats={displayStats}
             startups={curatedStartups.map(toStartupCardData)}
@@ -521,6 +557,7 @@ export const VCAdminDashboard = () => {
                 setMemoModalOpen(true);
               }
             }}
+            companyLogoUrl={companyLogo}
           />
         );
 
@@ -614,10 +651,30 @@ export const VCAdminDashboard = () => {
         );
 
       case "organisation":
-        return <VCAdminOrganisation />;
+        return (
+          <div className="flex items-center justify-center h-[50vh]">
+             <div className="text-center">
+                <h2 className="text-3xl font-bold text-white mb-2">Organization</h2>
+                <Badge variant="outline" className="text-white/60 border-white/20">Coming Soon</Badge>
+             </div>
+          </div>
+        );
 
-      case "settings":
-        return <VCAdminSettings />;
+      case "edit-memo":
+        return (
+          <EditMemoTab
+            memoData={rawMemoData}
+            firmId={rawFirmId}
+            onSaved={() => {
+              // Bust the cache so the dashboard re-fetches fresh data
+              if (rawFirmId) {
+                sessionStorage.removeItem(`dashboardData_${rawFirmId}`);
+              }
+              fetchDashboardData();
+              handleTabChange("");
+            }}
+          />
+        );
 
       case "profile":
         return (
@@ -629,13 +686,17 @@ export const VCAdminDashboard = () => {
           </div>
         );
 
+      case "settings":
+         return <VCSettings />;
+
       default:
+        // Dashboard Default
         return (
           <InvestorDashboardContent
             adminName={adminName}
             firmName={firmName}
             adminTitle={adminTitle}
-            thesisSubtitle="Seed • Series A • AI/ML"
+            thesisSubtitle={(investorApplication?.stage_focus ?? []).join(' • ') || undefined}
             onViewAll={() => handleTabChange("startups")}
             stats={displayStats}
             startups={curatedStartups.map(toStartupCardData)}
@@ -652,6 +713,7 @@ export const VCAdminDashboard = () => {
                 setMemoModalOpen(true);
               }
             }}
+            companyLogoUrl={companyLogo}
           />
         );
     }
@@ -674,6 +736,10 @@ export const VCAdminDashboard = () => {
         onOpenChange={setThesisModalOpen}
         application={investorApplication}
         loading={thesisLoading}
+        onEditMemo={() => {
+          setThesisModalOpen(false);
+          handleTabChange("edit-memo");
+        }}
       />
 
       <InterestsModal
@@ -767,4 +833,4 @@ export const VCAdminDashboard = () => {
   );
 };
 
-export default VCAdminDashboard;
+export default VCDashboard;

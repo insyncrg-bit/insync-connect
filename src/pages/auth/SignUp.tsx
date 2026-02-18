@@ -127,7 +127,7 @@ export const SignUp = () => {
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [waitingForVerification, setWaitingForVerification] = useState(false);
   const [verificationEmailSent, setVerificationEmailSent] = useState(false);
-  const [emailVerifiedInDatabase, setEmailVerifiedInDatabase] = useState(false);
+  const [emailVerifiedInDatabase, setEmailVerifiedInDatabase] = useState(!!initialEmail);
   const verificationCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const authUnsubscribeRef = useRef<(() => void) | null>(null);
 

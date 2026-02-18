@@ -31,7 +31,7 @@ interface Event {
   max_attendees: number;
 }
 
-export const VCAdminDashboardContent = () => {
+export const VCDashboardContent = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({
     totalAnalysts: 0,

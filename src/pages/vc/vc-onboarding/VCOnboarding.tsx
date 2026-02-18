@@ -1,6 +1,6 @@
 import { OnboardingPage, StepValidation } from "@/components/onboarding";
+import { PersonalProfileStep } from "./components/steps/PersonalProfileStep";
 import { WelcomeStep } from "./components/steps/WelcomeStep";
-import { AdminVerificationStep } from "./components/steps/AdminVerificationStep";
 import { FundOverviewStep } from "./components/steps/FundOverviewStep";
 import { InvestmentStrategyStep } from "./components/steps/InvestmentStrategyStep";
 import { ValueAddStep } from "./components/steps/ValueAddStep";
@@ -19,13 +19,19 @@ export const VCOnboarding = () => {
     const errors: string[] = [];
     
     switch (step) {
-      case 0: // Welcome - no validation
+      case 0: // Welcome
         return { isValid: true, errors: [] };
-      case 1: // Admin & Verification
+      case 1: // Personal Profile
+        // Optional profile image, but sector list is good to have?
+        // User said: "investing sectors... list of strings... save as a tag looking thing"
+        // Validation: maybe check if full name/email loaded? They are read-only so should be there.
+        // Let's enforce at least one sector for better profile quality?
+        // "At the end of the say we will be saving a list of strings."
+        if (data.investingSectors.length === 0) errors.push("Add at least one investing sector");
+        break;
+      case 2: // Fund Overview (Merged Admin & Verification)
         if (!data.firmName.trim()) errors.push("Firm name is required");
         if (!data.hqLocation.trim()) errors.push("HQ location is required");
-        break;
-      case 2: // Fund Overview
         if (!data.firmDescription.trim()) errors.push("Firm description is required");
         if (!data.fundType) errors.push("Fund type is required");
         if (data.checkSizes.length === 0) errors.push("Select at least one check size");
@@ -54,8 +60,6 @@ export const VCOnboarding = () => {
 
       if (!firmId) {
         console.error("No firm ID in session");
-        // Handle error - maybe redirect to select-role?
-        // navigate("/select-role");
         return;
       }
 
@@ -71,17 +75,60 @@ export const VCOnboarding = () => {
 
       const token = await user.getIdToken();
       const apiUrl = import.meta.env.VITE_FIREBASE_API;
-
-      const response = await fetch(`${apiUrl}/api/firms/${firmId}/memo`, {
-        method: "POST",
-        headers: {
+      const headers = {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
+      };
+
+      // 1. Prepare Profile Data (for vc-users collection)
+      // These are fields to ADD to the existing user record
+      const profileData = {
+        profileImage: data.profileImage,
+        investingSectors: data.investingSectors,
+        funFact: data.funFact,
+      };
+
+      // 2. Prepare Memo Data (for memos collection)
+      // Exclude personal profile fields completely
+      // const { 
+      //   fullName, email, linkedIn, title, // Read-only from step 1
+      //   profileImage, profileImagePreview, investingSectors, funFact, // User inputs from step 1
+      //   ...memoFields 
+      // } = data;
+      
+      // Explicitly destructure to omit them from memoData
+      const {
+        fullName,
+        email,
+        linkedIn,
+        title,
+        profileImage,
+        profileImagePreview,
+        investingSectors,
+        funFact,
+        ...memoData
+      } = data;
+
+      // 3. Update User Profile
+      // Uses the new PATCH endpoint we just created
+      const profileRes = await fetch(`${apiUrl}/api/users/vc-users/${user.uid}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(profileData)
       });
 
-      if (!response.ok) {
+      if (!profileRes.ok) {
+         throw new Error("Failed to update user profile");
+      }
+
+      // 4. Update Firm Memo
+      const memoRes = await fetch(`${apiUrl}/api/firms/${firmId}/memo`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(memoData)
+      });
+
+      if (!memoRes.ok) {
         throw new Error("Failed to save memo");
       }
       
@@ -96,7 +143,7 @@ export const VCOnboarding = () => {
       // Force token refresh to get new claims (onboarding_complete)
       await user.getIdToken(true);
 
-      navigate("/vc-admin?tab=dashboard");
+      navigate("/vc-dashboard");
     } catch (error) {
       console.error("Error submitting onboarding:", error);
       // Show error toast
@@ -109,7 +156,7 @@ export const VCOnboarding = () => {
     // In OnboardingPage, `onSubmit` is called on the final step. `onComplete` might be called after?
     // Looking at OnboardingPage usage in other files, onSubmit is usually the main handler.
     // We'll keep handleComplete as a fallback or for the "Next" button on the final step if it acts as submit.
-    navigate("/vc-admin?tab=dashboard");
+    navigate("/vc-dashboard");
   };
 
   const renderStep = (
@@ -118,18 +165,18 @@ export const VCOnboarding = () => {
     onUpdate: (data: Partial<VCOnboardingData>) => void,
     onNext: () => void,
     onBack: () => void,
-    onSubmit: () => void
+    onSubmit: () => void,
+    submitLabel?: string
   ) => {
     switch (step) {
       case 0:
         return <WelcomeStep onNext={onNext} />;
       case 1:
         return (
-          <AdminVerificationStep
+          <PersonalProfileStep
             data={data}
             onUpdate={onUpdate}
             onNext={onNext}
-            onBack={onBack}
           />
         );
       case 2:
@@ -175,6 +222,7 @@ export const VCOnboarding = () => {
             onUpdate={onUpdate}
             onSubmit={onSubmit}
             onBack={onBack}
+            submitLabel={submitLabel}
           />
         );
       default:
@@ -194,7 +242,7 @@ export const VCOnboarding = () => {
       validateStep={validateStep}
       onSubmit={handleSubmit}
       onComplete={handleComplete}
-      requiredSteps={[1, 2, 3, 4]} // Steps 0 (welcome), 5 (portfolio), and 6 (deal mechanics) are optional
+      requiredSteps={[1, 2, 3, 4]} // Welcome (0) is implicit. Personal Profile (1) to Value Add (4) required.
     />
   );
 };

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +19,8 @@ import {
   FileText,
   Eye,
   ChevronRight,
-  Edit2
+  Edit2,
+  X
 } from "lucide-react";
 import {
   Dialog,
@@ -52,6 +52,21 @@ export interface InvestorApplication {
   board_involvement: string | null;
   decision_process: string | null;
   time_to_decision: string | null;
+  website: string | null;
+  company_linkedin: string | null;
+  ownership_target: string | null;
+  company_logo: string | null;
+  top_investments: { name: string; website: string }[];
+  sub_themes_other: string | null;
+  non_negotiables: string | null;
+  business_models: string[];
+  key_metrics: string[];
+  operating_support_other: string | null;
+  time_to_first_response: string | null;
+  gives_no_with_feedback: boolean | null;
+  feedback_when: string | null;
+  follow_on_reserves: string | null;
+  follow_on_when: string | null;
 }
 
 interface InvestorThesisModalProps {
@@ -59,10 +74,10 @@ interface InvestorThesisModalProps {
   onOpenChange: (open: boolean) => void;
   application: InvestorApplication | null;
   loading: boolean;
+  onEditMemo?: () => void;
 }
 
-export function InvestorThesisModal({ open, onOpenChange, application, loading }: InvestorThesisModalProps) {
-  const navigate = useNavigate();
+export function InvestorThesisModal({ open, onOpenChange, application, loading, onEditMemo }: InvestorThesisModalProps) {
   const [viewMode, setViewMode] = useState<"condensed" | "full">("condensed");
 
   const handleClose = () => {
@@ -108,6 +123,25 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
     board_involvement: "Take board seats on lead investments",
     decision_process: "Partner meetings weekly, term sheets within 2 weeks of first meeting",
     time_to_decision: "1-2 weeks",
+    website: "https://horizonventures.vc",
+    company_linkedin: null,
+    ownership_target: "10-15%",
+    company_logo: null,
+    top_investments: [
+      { name: "Stripe", website: "https://stripe.com" },
+      { name: "Airbnb", website: "https://airbnb.com" },
+      { name: "SpaceX", website: "https://spacex.com" }
+    ],
+    sub_themes_other: null,
+    non_negotiables: "Must have a technical co-founder.",
+    business_models: ["SaaS", "Marketplace"],
+    key_metrics: ["NPS > 50", "30% MoM growth"],
+    operating_support_other: null,
+    time_to_first_response: "24-48 hours",
+    gives_no_with_feedback: true,
+    feedback_when: "Within 48 hours of meeting",
+    follow_on_reserves: "Pro-rata is reserved for all investments",
+    follow_on_when: "Series A and B",
   };
 
   const displayData = application || sampleData;
@@ -115,18 +149,9 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[95vh] bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden">
+      <DialogContent className="max-w-5xl max-h-[95vh] bg-[hsl(var(--navy-deep))] border-[hsl(var(--cyan-glow))]/20 p-0 overflow-hidden [&>button]:hidden">
         <ScrollArea className="max-h-[95vh]">
           <div className="p-6 space-y-6">
-            {/* Back Button */}
-            <Button
-              onClick={handleClose}
-              className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Your Dashboard
-            </Button>
-
             {/* Preview Banner */}
             {isPreview && (
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
@@ -155,13 +180,27 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
-                <Button
-                  onClick={() => navigate("/vc-onboarding")}
-                  className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30"
-                >
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={() => {
+                      handleClose();
+                      onEditMemo?.();
+                    }}
+                    className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30 h-10 px-4"
+                  >
+                    <Edit2 className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClose}
+                    className="text-white/60 hover:text-white hover:bg-white/10 h-10 w-10"
+                    title="Close"
+                  >
+                    <X className="h-6 w-6" />
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -175,26 +214,50 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                   <div className="relative z-10">
                     <div className="flex items-start justify-between gap-6 mb-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20">
-                          <Building2 className="h-10 w-10 text-white" />
+                        {/* Logo or fallback building icon */}
+                        <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg shadow-[hsl(var(--cyan-glow))]/20">
+                          {displayData.company_logo ? (
+                            <img src={displayData.company_logo} alt={displayData.firm_name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center">
+                              <Building2 className="h-10 w-10 text-white" />
+                            </div>
+                          )}
                         </div>
                         <div>
-                          <h1 className="text-3xl font-bold text-white mb-2">{displayData.firm_name}</h1>
-                          <div className="flex flex-wrap gap-2">
-                            {displayData.sector_tags.slice(0, 1).map((sector, i) => (
-                              <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] border-[hsl(var(--cyan-glow))]/30 text-sm">
-                                {sector}
-                              </Badge>
-                            ))}
-                            {displayData.stage_focus.slice(0, 1).map((stage, i) => (
-                              <Badge key={i} className="bg-white/10 text-white/80 border-white/20 text-sm">
-                                {stage}
-                              </Badge>
-                            ))}
+                          {/* Firm name — hyperlinked to website if available */}
+                          {displayData.website ? (
+                            <a
+                              href={displayData.website.startsWith("http") ? displayData.website : `https://${displayData.website}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-3xl font-bold text-white hover:text-[hsl(var(--cyan-glow))] transition-colors"
+                            >
+                              {displayData.firm_name}
+                            </a>
+                          ) : (
+                            <h1 className="text-3xl font-bold text-white">{displayData.firm_name}</h1>
+                          )}
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            {/* HQ location only */}
                             {displayData.hq_location && (
                               <Badge className="bg-[hsl(var(--cyan-bright))]/20 text-[hsl(var(--cyan-bright))] border-[hsl(var(--cyan-bright))]/30 text-sm">
                                 📍 {displayData.hq_location}
                               </Badge>
+                            )}
+                            {/* LinkedIn icon — only if URL exists */}
+                            {displayData.company_linkedin && (
+                              <a
+                                href={displayData.company_linkedin.startsWith("http") ? displayData.company_linkedin : `https://${displayData.company_linkedin}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center w-7 h-7 rounded bg-[#0A66C2]/20 hover:bg-[#0A66C2]/40 transition-colors"
+                                title="LinkedIn"
+                              >
+                                <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#0A66C2]">
+                                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                </svg>
+                              </a>
                             )}
                           </div>
                         </div>
@@ -208,7 +271,7 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                       </p>
                     </div>
 
-                    {/* Key Metrics Row */}
+                    {/* Key Metrics Row: Check Size | Stage Focus | AUM */}
                     <div className="grid grid-cols-3 gap-4">
                       <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
                         <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Check Size</p>
@@ -225,8 +288,8 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                         </p>
                       </div>
                       <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
-                        <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Decision Time</p>
-                        <p className="text-xl font-bold text-white">{displayData.time_to_decision || "—"}</p>
+                        <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">AUM</p>
+                        <p className="text-xl font-bold text-white">{displayData.aum || "—"}</p>
                         <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
                           View details <ChevronRight className="h-3 w-3" />
                         </p>
@@ -235,16 +298,16 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                   </div>
                 </Card>
 
-                {/* Quick Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Quick Stats Row: Ownership Target | Fund Type | Lead/Follow */}
+                <div className="grid grid-cols-3 gap-4">
                   <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                        <DollarSign className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
+                        <Target className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
                       </div>
                       <div>
-                        <p className="text-white/40 text-xs font-medium">AUM</p>
-                        <p className="text-white font-semibold">{displayData.aum || "—"}</p>
+                        <p className="text-white/40 text-xs font-medium">Ownership Target</p>
+                        <p className="text-white font-semibold">{displayData.ownership_target || "—"}</p>
                       </div>
                     </div>
                   </Card>
@@ -270,49 +333,20 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                       </div>
                     </div>
                   </Card>
-                  <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                        <Handshake className="h-5 w-5 text-amber-400/70" />
-                      </div>
-                      <div>
-                        <p className="text-white/40 text-xs font-medium">Support Style</p>
-                        <p className="text-white font-semibold">{displayData.support_style || "—"}</p>
-                      </div>
-                    </div>
-                  </Card>
                 </div>
 
-                {/* Fast Signals & Hard Nos */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                        <Zap className="h-4 w-4 text-emerald-400/70" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white">Fast Signals</h3>
+                {/* Full-width Support Style */}
+                <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                      <Handshake className="h-4 w-4 text-amber-400/70" />
                     </div>
-                    <p className="text-white/70 leading-relaxed">
-                      {displayData.fast_signals.length > 0 
-                        ? displayData.fast_signals.slice(0, 2).join(", ") + (displayData.fast_signals.length > 2 ? "..." : "")
-                        : "What makes you move quickly on deals."}
-                    </p>
-                  </Card>
-
-                  <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
-                        <XCircle className="h-4 w-4 text-rose-400/70" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white">Hard Nos</h3>
-                    </div>
-                    <p className="text-white/70 leading-relaxed">
-                      {displayData.hard_nos.length > 0 
-                        ? displayData.hard_nos.slice(0, 2).join(", ") + (displayData.hard_nos.length > 2 ? "..." : "")
-                        : "Your dealbreakers."}
-                    </p>
-                  </Card>
-                </div>
+                    <h3 className="text-lg font-semibold text-white">Support Style</h3>
+                  </div>
+                  <p className="text-white/70 leading-relaxed">
+                    {displayData.support_style || "How the firm supports its portfolio companies."}
+                  </p>
+                </Card>
               </div>
             )}
 
@@ -322,10 +356,29 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                 {/* Header Section */}
                 <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
                   <div className="text-center mb-8">
-                    <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4">
-                      <Building2 className="h-12 w-12 text-white" />
+                    {/* Logo or fallback building icon */}
+                    <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4">
+                      {displayData.company_logo ? (
+                        <img src={displayData.company_logo} alt={displayData.firm_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[hsl(var(--cyan-glow))] to-[hsl(var(--primary))] flex items-center justify-center">
+                          <Building2 className="h-12 w-12 text-white" />
+                        </div>
+                      )}
                     </div>
-                    <h1 className="text-4xl font-bold text-white mb-2">{displayData.firm_name}</h1>
+                    {/* Firm name — hyperlinked to website if available */}
+                    {displayData.website ? (
+                      <a
+                        href={displayData.website.startsWith("http") ? displayData.website : `https://${displayData.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-4xl font-bold text-white hover:text-[hsl(var(--cyan-glow))] transition-colors mb-2 block"
+                      >
+                        {displayData.firm_name}
+                      </a>
+                    ) : (
+                      <h1 className="text-4xl font-bold text-white mb-2">{displayData.firm_name}</h1>
+                    )}
                     <p className="text-xl text-white/70 mb-4">{displayData.fund_type} • {displayData.lead_follow}</p>
                     <div className="flex justify-center gap-4 text-sm text-white/60">
                       <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {displayData.hq_location || "Location not specified"}</span>
@@ -336,223 +389,251 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading }
                   <div className="max-w-3xl mx-auto">
                     <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                       <h3 className="text-sm font-semibold text-[hsl(var(--cyan-glow))] uppercase tracking-wider mb-3">Investment Thesis</h3>
-                      <p className="text-lg text-white/90 leading-relaxed">
-                        {displayData.thesis_statement || "Investment thesis will appear here."}
+                      <p className="text-lg text-white/90 leading-relaxed italic">
+                        {displayData.thesis_statement ? `"${displayData.thesis_statement}"` : "Investment thesis will appear here."}
                       </p>
                     </div>
                   </div>
                 </Card>
 
-                {/* Firm Description */}
-                {displayData.firm_description && (
-                  <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                        <Building2 className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
-                      </div>
-                      <h2 className="text-xl font-bold text-white">About the Firm</h2>
-                    </div>
-                    <p className="text-white/70 leading-relaxed">
-                      {displayData.firm_description}
-                    </p>
-                  </Card>
-                )}
-
-                {/* Focus Areas */}
-                {displayData.sub_themes.length > 0 && (
+                {/* Investment Strategy & Parameters */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Strategy Fields */}
                   <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
                         <Target className="h-5 w-5 text-purple-400/70" />
                       </div>
-                      <h2 className="text-xl font-bold text-white">Focus Areas</h2>
+                      <h2 className="text-xl font-bold text-white">Investment Strategy</h2>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {displayData.sub_themes.map((theme, i) => (
-                        <Badge key={i} className="bg-purple-500/20 border-purple-500/40 text-purple-300 px-3 py-1.5">
-                          {theme}
-                        </Badge>
+                    
+                    <div className="space-y-6">
+                      {displayData.sub_themes.length > 0 && (
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Focus Areas</p>
+                          <div className="flex flex-wrap gap-2">
+                            {displayData.sub_themes.map((theme, i) => (
+                              <Badge key={i} className="bg-purple-500/20 border-purple-500/40 text-purple-300">
+                                {theme}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {displayData.sector_tags.length > 0 && (
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Sector Focus</p>
+                          <div className="flex flex-wrap gap-2">
+                            {displayData.sector_tags.map((tag, i) => (
+                              <Badge key={i} className="bg-emerald-500/20 border-emerald-500/40 text-emerald-300">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {displayData.business_models.length > 0 && (
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Target Business Models</p>
+                          <div className="flex flex-wrap gap-2">
+                            {displayData.business_models.map((model, i) => (
+                              <Badge key={i} className="bg-blue-500/20 border-blue-500/40 text-blue-300">
+                                {model}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {displayData.key_metrics.length > 0 && (
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Key Metrics Tracked</p>
+                          <div className="space-y-2">
+                            {displayData.key_metrics.map((metric, i) => (
+                              <div key={i} className="flex items-start gap-3 text-white/80 text-sm">
+                                <div className="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1.5 flex-shrink-0" />
+                                <span>{metric}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {displayData.non_negotiables && (
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Non-Negotiables</p>
+                          <p className="text-white/70 text-sm leading-relaxed">{displayData.non_negotiables}</p>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+
+                  {/* Fund Parameters */}
+                  <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)] h-fit">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                        <TrendingUp className="h-5 w-5 text-emerald-400/70" />
+                      </div>
+                      <h2 className="text-xl font-bold text-white">Fund Parameters</h2>
+                    </div>
+
+                    <div className="space-y-8">
+                      <div>
+                        <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Check Size</p>
+                        <div className="flex flex-wrap gap-2">
+                          {displayData.check_sizes.length > 0 ? (
+                            displayData.check_sizes.map((size, i) => (
+                              <Badge key={i} className="bg-white/10 border-white/20 text-white">
+                                {size}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-white/40 italic">Not specified</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Stage Focus</p>
+                        <div className="flex flex-wrap gap-2">
+                          {displayData.stage_focus.length > 0 ? (
+                            displayData.stage_focus.map((stage, i) => (
+                              <Badge key={i} className="bg-white/10 border-white/20 text-white">
+                                {stage}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-white/40 italic">Not specified</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Ownership Target</p>
+                        <span className="text-white font-medium">{displayData.ownership_target || "Not specified"}</span>
+                      </div>
+
+                      {displayData.geographic_focus && (
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Geographic Focus</p>
+                          <span className="text-white font-medium">{displayData.geographic_focus}</span>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                </div>
+
+                {/* Top Investments */}
+                {displayData.top_investments.length > 0 && (
+                  <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                        <Zap className="h-5 w-5 text-amber-400/70" />
+                      </div>
+                      <h2 className="text-xl font-bold text-white">Top Investments</h2>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                      {displayData.top_investments.map((inv, i) => (
+                        <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10 text-center hover:bg-white/10 transition-all group">
+                          <p className="text-white font-medium mb-2">{inv.name}</p>
+                          {inv.website && (
+                            <a 
+                              href={inv.website.startsWith("http") ? inv.website : `https://${inv.website}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-[hsl(var(--cyan-glow))] hover:underline flex items-center justify-center gap-1"
+                            >
+                              Website <ChevronRight className="h-3 w-3" />
+                            </a>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </Card>
                 )}
 
-                {/* Fast Signals & Hard Nos */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="bg-navy-card border-green-500/20 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                        <Zap className="h-5 w-5 text-green-400/70" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-white">Fast Signals</h2>
-                        <p className="text-white/40 text-sm">What makes you move quickly</p>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      {displayData.fast_signals.length > 0 ? (
-                        displayData.fast_signals.map((signal, i) => (
-                          <div key={i} className="flex items-start gap-3 text-white/80">
-                            <div className="w-2 h-2 rounded-full bg-green-400 mt-2 flex-shrink-0" />
-                            <span>{signal}</span>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-white/40 italic">Not specified</p>
-                      )}
-                    </div>
-                  </Card>
-
-                  <Card className="bg-navy-card border-red-500/20 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                        <XCircle className="h-5 w-5 text-red-400/70" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-white">Hard Nos</h2>
-                        <p className="text-white/40 text-sm">Dealbreakers</p>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      {displayData.hard_nos.length > 0 ? (
-                        displayData.hard_nos.map((no, i) => (
-                          <div key={i} className="flex items-start gap-3 text-white/80">
-                            <div className="w-2 h-2 rounded-full bg-red-400 mt-2 flex-shrink-0" />
-                            <span>{no}</span>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-white/40 italic">Not specified</p>
-                      )}
-                    </div>
-                  </Card>
-                </div>
-
-                {/* Investment Parameters */}
+                {/* Value Add & Engagement */}
                 <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                      <DollarSign className="h-5 w-5 text-emerald-400/70" />
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="w-10 h-10 rounded-xl bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
+                      <Handshake className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
                     </div>
-                    <h2 className="text-xl font-bold text-white">Investment Parameters</h2>
+                    <h2 className="text-xl font-bold text-white">Value Add & Engagement</h2>
                   </div>
-                  
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div>
-                      <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Check Size</p>
-                      <div className="flex flex-wrap gap-2">
-                        {displayData.check_sizes.length > 0 ? (
-                          displayData.check_sizes.map((size, i) => (
-                            <Badge key={i} className="bg-white/10 border-white/20 text-white">
-                              {size}
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-white/40 italic">Not specified</span>
-                        )}
+
+                  <div className="grid md:grid-cols-2 gap-12">
+                    <div className="space-y-8">
+                      <div>
+                        <p className="text-white/40 text-xs uppercase tracking-wider mb-4">Post-Investment Support</p>
+                        <div className="flex flex-wrap gap-2">
+                          {displayData.operating_support.length > 0 ? (
+                            displayData.operating_support.map((support, i) => (
+                              <Badge key={i} className="bg-[hsl(var(--cyan-glow))]/10 border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))]">
+                                {support}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-white/40 italic">Not specified</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Board Involvement</p>
+                        <p className="text-white/70 text-sm leading-relaxed">{displayData.board_involvement || "Not specified"}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Decision Process</p>
+                        <p className="text-white/70 text-sm leading-relaxed">{displayData.decision_process || "Not specified"}</p>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Stage Focus</p>
-                      <div className="flex flex-wrap gap-2">
-                        {displayData.stage_focus.length > 0 ? (
-                          displayData.stage_focus.map((stage, i) => (
-                            <Badge key={i} className="bg-white/10 border-white/20 text-white">
-                              {stage}
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-white/40 italic">Not specified</span>
-                        )}
+
+                    <div className="space-y-8">
+                      <div>
+                        <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Engagement Style</p>
+                        <span className="text-white font-medium">
+                          {displayData.support_style || "Standard"}
+                        </span>
                       </div>
-                    </div>
-                    <div>
-                      <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Decision Timeline</p>
-                      <span className="text-white">{displayData.time_to_decision || "Not specified"}</span>
+
+                      <div>
+                        <p className="text-white/40 text-xs uppercase tracking-wider mb-3">First Response Timeline</p>
+                        <span className="text-white font-medium">{displayData.time_to_first_response || "Not specified"}</span>
+                      </div>
+
+                      <div>
+                        <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Feedback Policy</p>
+                        <p className="text-white/70 text-sm italic">
+                          {displayData.gives_no_with_feedback 
+                            ? `Provide constructive feedback ${displayData.feedback_when ? ' ' + displayData.feedback_when : 'on all deals'}.`
+                            : "Standard rejection process."}
+                        </p>
+                      </div>
+
+                      {(displayData.follow_on_reserves || displayData.follow_on_when) && (
+                        <div>
+                          <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Follow-on Reserves</p>
+                          <p className="text-white/70 text-sm leading-relaxed">
+                            {displayData.follow_on_reserves} {displayData.follow_on_when && `(${displayData.follow_on_when})`}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
 
-                {/* Sectors & Target Customers */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                        <Briefcase className="h-5 w-5 text-blue-400/70" />
-                      </div>
-                      <h2 className="text-xl font-bold text-white">Sectors</h2>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {displayData.sector_tags.length > 0 ? (
-                        displayData.sector_tags.map((sector, i) => (
-                          <Badge key={i} className="bg-blue-500/20 border-blue-500/40 text-blue-300">
-                            {sector}
-                          </Badge>
-                        ))
-                      ) : (
-                        <span className="text-white/40 italic">Sector agnostic</span>
-                      )}
-                    </div>
-                  </Card>
-
-                  <Card className="bg-navy-card border-white/10 p-6 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
-                        <Users className="h-5 w-5 text-cyan-400/70" />
-                      </div>
-                      <h2 className="text-xl font-bold text-white">Target Customers</h2>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {displayData.customer_types.length > 0 ? (
-                        displayData.customer_types.map((type, i) => (
-                          <Badge key={i} className="bg-cyan-500/20 border-cyan-500/40 text-cyan-300">
-                            {type}
-                          </Badge>
-                        ))
-                      ) : (
-                        <span className="text-white/40 italic">Not specified</span>
-                      )}
-                    </div>
-                    {displayData.b2b_b2c && (
-                      <p className="text-white/60 text-sm mt-4">
-                        <span className="text-white/40">Focus:</span> {displayData.b2b_b2c}
-                      </p>
-                    )}
-                  </Card>
-                </div>
-
-                {/* Value-Add */}
-                <Card className="bg-navy-card border-amber-500/20 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                      <Handshake className="h-5 w-5 text-amber-400/70" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-white">How You Add Value</h2>
-                      {displayData.support_style && (
-                        <p className="text-white/40 text-sm">{displayData.support_style} engagement</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {displayData.operating_support.length > 0 ? (
-                      displayData.operating_support.map((support, i) => (
-                        <Badge key={i} className="bg-amber-500/20 border-amber-500/40 text-amber-300">
-                          {support}
-                        </Badge>
-                      ))
-                    ) : (
-                      <span className="text-white/40 italic">Not specified</span>
-                    )}
-                  </div>
-
-                  {displayData.board_involvement && (
-                    <p className="text-white/60 text-sm">
-                      <span className="text-white/40">Board involvement:</span> {displayData.board_involvement}
+                {/* Firm Description (Move to bottom as more of a "Bio" section) */}
+                {displayData.firm_description && (
+                  <Card className="bg-navy-card border-white/5 p-8 opacity-80">
+                    <h2 className="text-sm font-semibold text-[hsl(var(--cyan-glow))] uppercase tracking-wider mb-4">About {displayData.firm_name}</h2>
+                    <p className="text-white/60 leading-relaxed text-sm">
+                      {displayData.firm_description}
                     </p>
-                  )}
-                </Card>
+                  </Card>
+                )}
               </div>
             )}
           </div>

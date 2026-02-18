@@ -29,7 +29,7 @@ type RoleType = "startup" | "vc";
 
 export const SelectRole = () => {
   const navigate = useNavigate();
-  const [role, setRole] = useState<RoleType | null>(null);
+  const [role, setRole] = useState<RoleType | null>("vc");
   const [formData, setFormData] = useState({
     fullName: "",
     companyName: "",
@@ -211,14 +211,14 @@ export const SelectRole = () => {
         return;
       }
 
-      // Determine the Firebase Auth custom-claim role and onboarding type
+      // Determine the Firebase Auth custom-claim user_type
       const isExistingFirm = !!(selectedCompany && selectedFirmId);
-      let claimRole: "startup" | "vc" | "analyst";
+      let userType: "vc-user" | "founder-user";
 
       if (role === "startup") {
-        claimRole = "startup";
+        userType = "founder-user";
       } else if (role === "vc") {
-        claimRole = isExistingFirm ? "analyst" : "vc";
+        userType = "vc-user";
       } else {
         setErrors({ submit: "Please select a role." });
         return;
@@ -235,15 +235,20 @@ export const SelectRole = () => {
         Authorization: `Bearer ${token}`,
       };
 
-      // 1. Set the Firebase Auth custom claim
-      const roleRes = await fetch(`${FIREBASE_API}/auth/set-role`, {
+      // 1. Set the Firebase Auth custom claim (user_type)
+      const sanitizedApi = FIREBASE_API.replace(/\/$/, "");
+      const setRoleUrl = `${sanitizedApi}/auth/set-user-type`;
+      console.log("Calling set-user-type:", setRoleUrl, { userType });
+      
+      const roleRes = await fetch(setRoleUrl, {
         method: "POST",
         headers,
-        body: JSON.stringify({ role: claimRole }),
+        body: JSON.stringify({ user_type: userType }),
       });
       if (!roleRes.ok) {
         const err = await roleRes.json().catch(() => ({}));
-        setErrors({ submit: (err as { error?: string }).error || "Failed to set role. Please try again." });
+        console.error("set-user-type failed:", roleRes.status, err);
+        setErrors({ submit: `Set User Type failed: ${(err as { error?: string }).error || roleRes.statusText || "Unknown error"}` });
         return;
       }
       // Refresh token so new claims are available
@@ -265,7 +270,7 @@ export const SelectRole = () => {
             headers: freshHeaders,
             body: JSON.stringify({
               firmId: selectedFirmId,
-              displayName: formData.fullName.trim(),
+              fullName: formData.fullName.trim(),
               title: formData.title.trim(),
               linkedinUrl: formData.linkedinProfile.trim() || undefined,
             }),
@@ -279,19 +284,24 @@ export const SelectRole = () => {
           firmId = joinData.firmId;
         } else {
           // Create new firm as admin
-          const createRes = await fetch(`${FIREBASE_API}/firms`, {
+          const sanitizedApi = FIREBASE_API.replace(/\/$/, "");
+          const createFirmUrl = `${sanitizedApi}/firms`; 
+          console.log("Calling create firm:", createFirmUrl);
+
+          const createRes = await fetch(createFirmUrl, {
             method: "POST",
             headers: freshHeaders,
             body: JSON.stringify({
               firmName: formData.companyName.trim(),
-              displayName: formData.fullName.trim(),
+              fullName: formData.fullName.trim(),
               title: formData.title.trim(),
               linkedinUrl: formData.linkedinProfile.trim() || undefined,
             }),
           });
           if (!createRes.ok) {
             const err = await createRes.json().catch(() => ({}));
-            setErrors({ submit: (err as { error?: string }).error || "Failed to create firm. Please try again." });
+            console.error("create firm failed:", createRes.status, err);
+            setErrors({ submit: `Create Firm failed: ${(err as { error?: string }).error || createRes.statusText || "Unknown error"}` });
             return;
           }
           const createData = await createRes.json();
@@ -299,7 +309,30 @@ export const SelectRole = () => {
         }
       }
 
-      // 3. Save session and navigate
+      // 3. Explicitly wait for the claim to propagate
+      // We loop briefly to ensure the claim is actually on the token result object before navigating.
+      // This prevents race conditions where the backend set it, but the token refresh didn't catch it yet 
+      // or the local state hasn't updated.
+      let attempts = 0;
+      let hasClaim = false;
+      while (attempts < 10 && !hasClaim) {
+        const tokenResult = await user.getIdTokenResult(true);
+        if (tokenResult.claims.user_type === userType) {
+            hasClaim = true;
+        } else {
+            // Wait 1 second before retrying
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            attempts++;
+        }
+      }
+
+      if (!hasClaim) {
+          // If after retries we still don't see it, it might be a genuine error or just slow.
+          // We'll proceed but log a warning. The route guard might bounce them back if it's strictly checking.
+          console.warn("User type claim not detected after polling. Navigation might fail.");
+      }
+
+      // 4. Save session and navigate
       if (role === "startup") {
         sessionManager.save({
           role: "startup",
@@ -317,6 +350,34 @@ export const SelectRole = () => {
           });
           navigate("/request-sent");
         } else {
+          // Save preliminary data to VC onboarding storage so it's pre-filled
+          // We use the same key as useVCOnboardingStorage: "vc_onboarding_data"
+          const prefillData = {
+              fullName: formData.fullName.trim(),
+              title: formData.title.trim(),
+              linkedIn: formData.linkedinProfile.trim() || "",
+              email: session?.email || user.email || "", // effective prefill of email too
+              firmName: formData.companyName.trim(), // Might as well prefill firm name if we have it in the target data structure
+          };
+          try {
+             // We need to be careful not to overwrite existing full data if the user is coming back, 
+             // but usually this is a fresh start. 
+             // To be safe, we can read, merge, and write.
+             const existing = localStorage.getItem("vc_onboarding_data");
+             let merged = prefillData;
+             if (existing) {
+                 try {
+                     const parsed = JSON.parse(existing);
+                     merged = { ...parsed, ...prefillData };
+                 } catch (e) {
+                     console.warn("Could not parse existing onboarding data, overwriting.");
+                 }
+             }
+             localStorage.setItem("vc_onboarding_data", JSON.stringify(merged));
+          } catch (e) {
+              console.error("Failed to save prefill data to local storage", e);
+          }
+
           sessionManager.save({
             role: "vc",
             onboardingType: "vc_admin",
@@ -405,7 +466,7 @@ export const SelectRole = () => {
               className="space-y-2 opacity-0 animate-fade-in-up"
               style={{ animationDelay: "320ms" }}
             >
-              <Label className="text-white/80 mb-3 block">I am a... *</Label>
+              <Label className="text-white/80 mb-3 block">I am a... </Label>
               <div className="flex bg-white/5 rounded-lg p-1">
                 <button
                   type="button"
@@ -524,9 +585,9 @@ export const SelectRole = () => {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0 bg-navy-card border-white/10" align="start">
-                      <Command className="bg-navy-card">
+                      <Command className="bg-navy-card w-full">
                         <CommandInput
-                          placeholder="Search for your firm..."
+                          placeholder="Start typing.."
                           value={companySearchQuery}
                           onValueChange={(value) => {
                             setCompanySearchQuery(value);
@@ -568,13 +629,12 @@ export const SelectRole = () => {
                           ) : companySearchQuery.trim() && !isSearching ? (
                             <CommandEmpty className="py-6 text-center text-sm">
                               <div className="text-white/60">
-                                <p className="font-medium mb-1">Firm not found</p>
-                                <p className="text-xs text-white/40">Press Enter to create new firm</p>
+                                <p className="font-medium mb-1">Not found</p>
+                                <p className="text-xs text-white/40">Enter to create new firm</p>
                               </div>
                             </CommandEmpty>
                           ) : (
-                            <div className="py-6 text-center text-sm text-white/60">
-                              Start typing to search for your firm...
+                            <div className="py-6 px-9 text-center text-sm text-white/60">
                             </div>
                           )}
                         </CommandList>
@@ -587,10 +647,10 @@ export const SelectRole = () => {
                       <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm text-red-400 font-medium mb-1">
-                          Firm not found in database
+                          You are creating a new firm
                         </p>
                         <p className="text-xs text-red-400/90 leading-relaxed">
-                          <strong>You are creating a new VC firm admin account.</strong> By continuing, you will become the administrator for this firm and will be responsible for setting up the firm profile and managing team members. You'll be able to invite analysts to join your firm after completing onboarding.
+                          By continuing, you will become the administrator for this firm and will be responsible for setting up the firm profile and managing team members. You'll be able to invite analysts to join your firm after onboarding.
                         </p>
                       </div>
                     </div>

@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Building2, MessageSquare, Calendar, Send, Maximize2, Minimize2, Video, ExternalLink, Plus } from "lucide-react";
+import { Building2, MessageSquare, Calendar, Send, Maximize2, Minimize2, Video, ExternalLink, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -160,26 +160,39 @@ export function MessagesModal({
         setShowNewConversation(false);
       }
     }}>
-      <DialogContent className={`bg-[hsl(var(--navy-deep))] border-white/10 text-white overflow-hidden p-0 transition-all duration-300 ${
+      <DialogContent className={`bg-[hsl(var(--navy-deep))] border-white/10 text-white overflow-hidden p-0 transition-all duration-300 [&>button]:hidden ${
         isFullscreen 
           ? "max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none" 
           : "max-w-3xl max-h-[80vh]"
       }`}>
         <DialogHeader className="p-6 pb-0">
           <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <MessageSquare className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <MessageSquare className="h-6 w-6 text-[hsl(var(--cyan-glow))]" />
               Messages
             </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="text-white/60 hover:text-white hover:bg-white/10"
-            >
-              {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                className="text-white/60 hover:text-white hover:bg-white/10 h-10 w-10"
+              >
+                {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+                className="text-white/60 hover:text-white hover:bg-white/10 h-10 w-10"
+              >
+                <X className="h-6 w-6" />
+              </Button>
+            </div>
           </div>
+          <p className="text-white/60 text-sm mt-1">
+            Direct messages with your active syncs
+          </p>
         </DialogHeader>
 
         {loading ? (

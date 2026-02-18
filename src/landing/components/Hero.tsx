@@ -51,29 +51,29 @@ export const Hero = () => {
             />
           </div>
 
-          {/* Unified CTAs - Get Started + How it works */}
+          {/* Unified CTAs - For Founders + For VCs */}
           <div
             className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in pt-2"
             style={{ animationDelay: '0.2s' }}
           >
             <Button
               size="lg"
-              onClick={() => navigate("/signup")}
+              onClick={() => navigate("/login")}
               className="text-base px-8 py-6 font-semibold bg-cyan-glow text-navy-deep hover:bg-cyan-bright overflow-hidden transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               style={{
                 boxShadow: '0 0 30px hsl(var(--cyan-glow) / 0.4)',
               }}
             >
-              Get Started
+              For Founders
             </Button>
 
             <Button
               size="lg"
               variant="outline"
-              onClick={handleHowItWorksClick}
+              onClick={() => navigate("/login")}
               className="text-base px-8 py-6 font-semibold border-cyan-glow/40 text-cyan-glow hover:bg-cyan-glow/10 hover:border-cyan-glow transition-all duration-300 hover:scale-105 w-full sm:w-auto"
             >
-              How It Works
+              For VCs
             </Button>
           </div>
 

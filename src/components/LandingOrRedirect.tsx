@@ -1,54 +1,33 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Loader2 } from "lucide-react";
-import { auth } from "@/lib/firebase";
-import { useRole } from "@/hooks/useRole";
-import { Landing } from "@/landing";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthReady } from "@/hooks/useAuthReady";
+import { useUserClaims } from "@/hooks/useUserClaims";
+import { Landing } from "@/landing/Landing";
 import { getSmartRedirectPath } from "@/lib/onboarding";
-
-type AppRole = "startup" | "vc" | "analyst" | "superuser";
-
-
+import { auth } from "@/lib/firebase";
 
 export const LandingOrRedirect = () => {
+  const ready = useAuthReady();
+  const { userType, loading } = useUserClaims();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { role, loading } = useRole();
-  const [showLanding, setShowLanding] = useState(false);
-  const isRoot = location.pathname === "/";
-  const isLandingRoute = location.pathname === "/landing";
 
   useEffect(() => {
-    if (loading) return;
+    if (!ready || loading) return;
 
-    const user = auth.currentUser;
-
-    if (!user) {
-      if (isRoot) {
-        navigate("/landing", { replace: true });
-        return;
-      }
-      if (isLandingRoute) setShowLanding(true);
-      return;
-    }
-
-    if (role) {
-      getSmartRedirectPath(user, role).then((path) => {
-        navigate(path, { replace: true });
+    if (userType && auth.currentUser) {
+      // Use smart redirect logic
+      auth.currentUser.getIdTokenResult().then((token) => {
+          getSmartRedirectPath(auth.currentUser!, token.claims).then((path) => {
+              navigate(path, { replace: true });
+          });
       });
-    } else {
-      navigate("/select-role", { replace: true });
+    } else if (auth.currentUser) {
+        // Logged in but no userType -> select role
+        navigate("/select-role", { replace: true });
     }
-  }, [loading, role, navigate, isRoot, isLandingRoute]);
+  }, [ready, loading, userType, navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-navy-deep">
-        <Loader2 className="h-8 w-8 animate-spin text-cyan-glow" />
-      </div>
-    );
-  }
+  if (!ready || loading) return null;
 
-  if (showLanding && isLandingRoute) return <Landing />;
-  return null;
+  return <Landing />;
 };

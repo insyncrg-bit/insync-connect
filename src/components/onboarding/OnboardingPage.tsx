@@ -21,11 +21,23 @@ interface OnboardingPageProps<T extends Record<string, any>> {
   storageKey: string;
   stepKey: string;
   defaultData: T;
-  renderStep: (step: number, data: T, onUpdate: (data: Partial<T>) => void, onNext: () => void, onBack: () => void, onSubmit: () => void) => ReactNode;
+  renderStep: (
+    step: number,
+    data: T,
+    onUpdate: (data: Partial<T>) => void,
+    onNext: () => void,
+    onBack: () => void,
+    onSubmit: () => void,
+    submitLabel?: string
+  ) => ReactNode;
   validateStep: (step: number, data: T) => StepValidation;
   onSubmit: (data: T) => Promise<void>;
   onComplete?: () => void;
   requiredSteps?: number[];
+  submitLabel?: string;
+  loadingText?: string;
+  successTitle?: string;
+  successDescription?: string;
 }
 
 export const OnboardingPage = <T extends Record<string, any>>({
@@ -40,6 +52,10 @@ export const OnboardingPage = <T extends Record<string, any>>({
   onSubmit,
   onComplete,
   requiredSteps,
+  submitLabel = "Submit Application",
+  loadingText = "Submitting application...",
+  successTitle = "Application Submitted!",
+  successDescription = "Your onboarding has been completed successfully.",
 }: OnboardingPageProps<T>) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -101,11 +117,11 @@ export const OnboardingPage = <T extends Record<string, any>>({
       await onSubmit(data);
       clearData();
       localStorage.removeItem(`${stepKey}_completed`);
-      toast({ title: "Application Submitted!", description: "Your onboarding has been completed successfully." });
+      toast({ title: successTitle, description: successDescription });
       onComplete ? onComplete() : navigate("/landing");
     } catch (error) {
-      console.error("Error submitting onboarding:", error);
-      toast({ title: "Error", description: "Failed to submit application. Please try again.", variant: "destructive" });
+      console.error("Error submitting:", error);
+      toast({ title: "Error", description: `Failed to ${submitLabel.toLowerCase()}. Please try again.`, variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -161,7 +177,7 @@ export const OnboardingPage = <T extends Record<string, any>>({
                 <div className="mt-2 space-y-1">
                   {validationWarnings.map((warning, idx) => (
                     <div key={idx} className="text-sm">
-                      <span className="font-medium">{steps[warning.step].title}:</span> {warning.errors.join(", ")}
+                      <span className="font-bold">{steps[warning.step].title}:</span> {warning.errors.join(", ")}
                     </div>
                   ))}
                 </div>
@@ -170,10 +186,24 @@ export const OnboardingPage = <T extends Record<string, any>>({
           </div>
         )}
         <div className={cn("bg-white/95 backdrop-blur-sm border-2 rounded-2xl p-8 md:p-10 shadow-2xl transition-all", invalidSteps.includes(currentStep) ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]" : "border-[hsl(var(--cyan-glow))]/20")}>
-          {renderStep(currentStep, data, saveData, handleNext, handleBack, handleSubmit)}
+          {renderStep(currentStep, data, saveData, handleNext, handleBack, handleSubmit, submitLabel)}
         </div>
         <div className="mt-4 text-center text-white/40 text-sm">Your progress is saved automatically</div>
       </div>
+
+      {/* Submission Loading Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-deep/80 backdrop-blur-sm">
+          <div className="text-center">
+            <div className="relative w-20 h-20 mx-auto mb-6">
+              <div className="absolute inset-0 rounded-full border-4 border-cyan-glow/20" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-cyan-glow animate-spin" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">{loadingText}</h3>
+            <p className="text-white/60">This will only take a moment</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

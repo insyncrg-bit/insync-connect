@@ -5,18 +5,28 @@ const STORAGE_STEP_KEY = "vc_onboarding_current_step";
 
 export interface VCOnboardingData {
   // Step 0: Welcome (no data needed)
-  
-  // Step 1: Admin & Verification
+
+  // Step 1: Personal Profile
+  fullName: string;
+  email: string;
+  linkedIn: string;
+  title: string;
+  profileImage?: string | null;
+  profileImagePreview?: string | null;
+  investingSectors: string[];
+  funFact: string;
+
+  // Step 2: Fund Overview (includes Admin & Verification)
   firmName: string;
   website: string;
   companyLinkedIn: string;
   hqLocation: string;
   otherLocationBranches: string[];
-  companyLogo?: File | null;
+  companyLogo?: string | null;
   logoPreview?: string | null;
   publicProfile: boolean;
-  
-  // Step 2: Fund Overview
+
+  // Fund Overview fields
   firmDescription: string;
   aum: string;
   fundVintage: string;
@@ -27,30 +37,30 @@ export interface VCOnboardingData {
   stageFocus: string[];
   sectorTags: string[];
   portfolioCount: string;
-  topInvestments: string;
+  topInvestments: { name: string; website: string }[];
   geographicFocus: "" | "boston" | "other";
   geographicFocusDetail: string;
-  
+
   // Step 3: Investment Strategy
   thesisStatement: string;
   subThemes: string[];
   subThemesOther: string;
-  nonNegotiables: string | Record<string, boolean>;
-  hardNos: string[];
-  fastSignals: string[];
-  
+  nonNegotiables: string;
+  businessModels: string[];
+  keyMetrics: string[];
+
   // Step 4: Value-Add
   operatingSupport: string[];
   operatingSupportOther: string;
   firmInvolvement: string;
-  
+
   // Step 5: Portfolio
   portfolioList: string;
   conflictsPolicy: string;
   investsInCompetitors: boolean;
   signsNDAs: boolean;
   ndaConditions: string;
-  
+
   // Step 6: Deal Mechanics (Optional)
   decisionProcess: string;
   timeToFirstResponse: string;
@@ -63,6 +73,17 @@ export interface VCOnboardingData {
 }
 
 export const defaultData: VCOnboardingData = {
+  // Personal Profile defaults
+  fullName: "",
+  email: "",
+  linkedIn: "",
+  title: "",
+  profileImage: null,
+  profileImagePreview: null,
+  investingSectors: [],
+  funFact: "",
+
+  // Existing defaults
   firmName: "",
   website: "",
   companyLinkedIn: "",
@@ -81,15 +102,15 @@ export const defaultData: VCOnboardingData = {
   stageFocus: [],
   sectorTags: [],
   portfolioCount: "",
-  topInvestments: "",
+  topInvestments: [],
   geographicFocus: "",
   geographicFocusDetail: "",
   thesisStatement: "",
   subThemes: [],
   subThemesOther: "",
   nonNegotiables: "",
-  hardNos: [],
-  fastSignals: [],
+  businessModels: [],
+  keyMetrics: [],
   operatingSupport: [],
   operatingSupportOther: "",
   firmInvolvement: "",
@@ -118,12 +139,16 @@ export const useVCOnboardingStorage = () => {
     try {
       const savedData = localStorage.getItem(STORAGE_KEY);
       const savedStep = localStorage.getItem(STORAGE_STEP_KEY);
-      
+
       if (savedData) {
         const parsed = JSON.parse(savedData);
+        // Ensure topInvestments is an array of objects
+        if (!Array.isArray(parsed.topInvestments) || (parsed.topInvestments.length > 0 && typeof parsed.topInvestments[0] === 'string')) {
+          parsed.topInvestments = [];
+        }
         setData({ ...defaultData, ...parsed });
       }
-      
+
       if (savedStep) {
         setCurrentStep(parseInt(savedStep, 10));
       }

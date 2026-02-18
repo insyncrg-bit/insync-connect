@@ -8,6 +8,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { sessionManager } from "@/lib/session";
 import { useToast } from "@/hooks/use-toast";
+import { useUserClaims } from "@/hooks/useUserClaims";
 
 const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
 
@@ -20,6 +21,7 @@ function parseErrorBody(res: Response): Promise<{ error?: string; path?: string 
 export const SuperuserConfig = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { userType, loading } = useUserClaims();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [assignError, setAssignError] = useState("");
@@ -32,6 +34,14 @@ export const SuperuserConfig = () => {
 
   // RequireAuth + RequireRole(superuser) already gate this route; just confirm user is signed in
   useEffect(() => {
+    if (loading) return;
+    
+    // Extra safety check in component
+    if (userType !== "superuser") {
+        setAllowed(false);
+        return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser) {
         navigate("/login", { replace: true });
@@ -40,7 +50,7 @@ export const SuperuserConfig = () => {
       setAllowed(true);
     });
     return () => unsubscribe();
-  }, [navigate]);
+  }, [navigate, loading, userType]);
 
   const getAuthHeaders = useCallback(async () => {
     const user = auth.currentUser;
@@ -229,6 +239,10 @@ export const SuperuserConfig = () => {
     }
   };
 
+  if (loading) {
+     return <Loader2 className="h-8 w-8 animate-spin text-cyan-glow mx-auto mt-20" />;
+  }
+
   if (allowed === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-navy-deep">
@@ -238,7 +252,7 @@ export const SuperuserConfig = () => {
   }
 
   if (!allowed) {
-    return null;
+    return <div className="p-8 text-white">Access Denied</div>;
   }
 
   return (

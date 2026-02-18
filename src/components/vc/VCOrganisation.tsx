@@ -34,7 +34,7 @@ interface Employee {
   joinedDate?: string;
 }
 
-export const VCAdminOrganisation = () => {
+export const VCOrganisation = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [pendingEmployees, setPendingEmployees] = useState<Employee[]>([]);

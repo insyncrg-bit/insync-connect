@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { signOut, deleteUser } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { sessionManager } from "@/lib/session";
-import { useRole } from "@/hooks/useRole";
+import { useUserClaims } from "@/hooks/useUserClaims";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +36,7 @@ import {
   UserPlus,
   Send,
   Shield,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import infinityLogo from "@/landing/assets/infinity-logo.png";
@@ -49,32 +50,25 @@ interface NavItem {
   path: string;
 }
 
-// Role-based navigation items
-const ROLE_NAV_ITEMS: Record<AllowedRole, NavItem[]> = {
-  vc: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/vc-admin" },
-    { id: "organisation", label: "Organisation", icon: Users, path: "/vc-admin?tab=organisation" },
-    { id: "settings", label: "Settings", icon: Settings, path: "/vc-admin?tab=settings" },
-  ],
-  startup: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/startup" },
-    { id: "profile", label: "Profile", icon: UserCog, path: "/startup/profile" },
-  ],
-  analyst: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/analyst" },
-    { id: "startups", label: "Startups", icon: Building2, path: "/analyst/startups" },
-  ],
-  superuser: [],
-};
+// Unified VC Navigation Items (for both Admin and Analyst)
+const VC_ITEMS: NavItem[] = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/vc-dashboard" },
+  { id: "organisation", label: "Organization", icon: Users, path: "/vc-dashboard?tab=organisation" },
+  { id: "edit-memo", label: "Edit Memo", icon: FileText, path: "/vc-dashboard?tab=edit-memo" },
+];
+
+const STARTUP_ITEMS: NavItem[] = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/startup-dashboard" },
+  { id: "profile", label: "Profile", icon: UserCog, path: "/startup-dashboard?tab=profile" },
+];
 
 /** Routes shown in navbar for superusers to jump between pages (testing). */
 const ADMIN_TEST_ROUTES: NavItem[] = [
   { id: "select-role", label: "Select role", icon: UserPlus, path: "/select-role" },
   { id: "vc-onboarding", label: "VC onboarding", icon: Building2, path: "/vc-onboarding" },
-  { id: "vc-admin", label: "VC admin", icon: LayoutDashboard, path: "/vc-admin" },
+  { id: "vc-dashboard", label: "VC dashboard", icon: LayoutDashboard, path: "/vc-dashboard" },
   { id: "startup-onboarding", label: "Startup onboarding", icon: Rocket, path: "/startup-onboarding" },
-  { id: "startup", label: "Startup", icon: Rocket, path: "/startup" },
-  { id: "analyst", label: "Analyst", icon: UserCog, path: "/analyst" },
+  { id: "startup", label: "Startup", icon: Rocket, path: "/startup-dashboard" },
   { id: "request-sent", label: "Request sent", icon: Send, path: "/request-sent" },
   { id: "admin-test", label: "Admin: Test page", icon: LayoutDashboard, path: "/admin/test" },
   { id: "admin-superuser", label: "Admin: Set superuser", icon: Shield, path: "/admin/set-superuser" },
@@ -89,7 +83,7 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { role, userEmail, userId, loading } = useRole();
+  const { userType, userEmail, loading } = useUserClaims();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -159,35 +153,34 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
   if (loading || !auth.currentUser) {
     return null;
   }
+  
+  // Determine which nav items to show based on userType
+  let navItems: NavItem[] = [];
 
-  const path = currentPath?.split("?")[0] || "";
-  const superuserViewingRole =
-    role === "superuser" &&
-    (path.startsWith("/vc-admin")
-      ? "vc"
-      : path.startsWith("/startup")
-        ? "startup"
-        : path.startsWith("/analyst")
-          ? "analyst"
-          : null);
-
-  const navItems =
-    superuserViewingRole
-      ? ROLE_NAV_ITEMS[superuserViewingRole]
-      : role === "superuser"
-        ? ADMIN_TEST_ROUTES
-        : role
-          ? ROLE_NAV_ITEMS[role] || []
-          : [];
-  const currentNavItem = navItems.find(
-    (item) => currentPath?.startsWith(item.path.split("?")[0])
-  ) || navItems[0];
+  if (userType === "superuser") {
+    navItems = ADMIN_TEST_ROUTES;
+  } else if (userType === "founder-user") {
+    navItems = STARTUP_ITEMS;
+  } else if (userType === "vc-user") {
+    // Unified VC items for both Admins and Analysts
+    if (currentPath?.startsWith("/vc-onboarding")) {
+      navItems = [];
+    } else {
+      navItems = VC_ITEMS;
+    }
+  }
+  const currentNavItem = navItems.find((item) => {
+    if (item.path.includes('?')) {
+      return currentPath === item.path;
+    }
+    return currentPath === item.path || currentPath === `${item.path}?tab=dashboard` || (item.id === 'dashboard' && currentPath === item.path);
+  }) || navItems.find(item => currentPath?.startsWith(item.path.split("?")[0])) || navItems[0];
 
   return (
     <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
       {/* Logo */}
       <button
-        onClick={() => handleNavigate("/")}
+        onClick={() => handleNavigate("/landing")}
         className="hover:opacity-80 transition-opacity"
       >
         <img src={infinityLogo} alt="Home" className="h-14 w-auto" />
@@ -204,7 +197,7 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
               size="sm"
               className="border-white/20 text-white hover:bg-white/10"
             >
-              {role === "superuser" && !superuserViewingRole ? (
+              {userType === "superuser" ? (
                 <>
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Test routes
@@ -226,7 +219,8 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
           <DropdownMenuContent align="end" className="bg-[#151a24] border-white/10">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentPath?.startsWith(item.path.split("?")[0]);
+              // Simple active check: path match
+              const isActive = currentPath === item.path || (item.id === 'dashboard' && currentPath === item.path);
               return (
                 <DropdownMenuItem
                   key={item.id}
@@ -241,7 +235,7 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
                 </DropdownMenuItem>
               );
             })}
-            {superuserViewingRole && (
+            {userType === "superuser" && (
               <>
                 <DropdownMenuSeparator className="bg-white/10" />
                 <DropdownMenuItem
@@ -272,7 +266,11 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="bg-[#151a24] border-white/10">
           <DropdownMenuItem
-            onClick={() => handleNavigate("/profile")}
+            onClick={() => {
+                if (userType === 'vc-user') handleNavigate("/vc-dashboard?tab=profile");
+                else if (userType === 'founder-user') handleNavigate("/startup-dashboard?tab=profile");
+                else handleNavigate("/profile"); // Fallback
+            }}
             className="text-white hover:bg-white/10 cursor-pointer"
           >
             <UserCog className="h-4 w-4 mr-2" />
@@ -285,14 +283,6 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
           >
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-white/10" />
-          <DropdownMenuItem
-            onClick={() => setDeleteDialogOpen(true)}
-            className="text-red-400 hover:bg-red-400/10 cursor-pointer"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete Account
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
