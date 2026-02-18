@@ -29,6 +29,7 @@ import { RequireUserType } from "./components/RequireUserType";
 import { RequireRequestStatus } from "./components/RequireRequestStatus";
 import { RequireNoUserType } from "./components/RequireNoUserType";
 import { AppLayoutWithNavbar } from "./components/AppLayoutWithNavbar";
+import { SimpleLayout } from "./components/SimpleLayout";
 import { NotFoundPage, ForbiddenPage, ErrorPage } from "./pages/errors";
 import Landing from "./landing";
 
@@ -73,15 +74,19 @@ const App = () => {
             <Route path="/login" element={<Login />} />
           </Route>
 
-          {/* Other Public/Auth Pages (No Navbar) */}
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/reset-password-success" element={<ResetPasswordSuccess />} />
+          {/* Other Public/Auth Pages (Simple Navbar) */}
+          <Route element={<SimpleLayout />}>
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/reset-password-success" element={<ResetPasswordSuccess />} />
+          </Route>
 
           <Route element={<RequireAuth />}>
             <Route element={<RequireNoUserType />}>
-              <Route path="/select-role" element={<SelectRole />} />
+              <Route element={<SimpleLayout />}>
+                <Route path="/select-role" element={<SelectRole />} />
+              </Route>
             </Route>
             
             {/* VC User Routes */}
@@ -90,7 +95,9 @@ const App = () => {
               
               {/* Only accessible if accepted (Admin or Analyst) */}
               <Route element={<RequireRequestStatus allowedStatuses={["accepted"]} />}>
-                <Route path="/vc-onboarding" element={<VCOnboarding />} />
+                <Route element={<SimpleLayout />}>
+                  <Route path="/vc-onboarding" element={<VCOnboarding />} />
+                </Route>
                 
                 <Route element={<AppLayoutWithNavbar />}>
                   <Route path="/vc-dashboard/*" element={<VCDashboard />} />
@@ -100,7 +107,9 @@ const App = () => {
 
             {/* Startup/Founder Routes */}
             <Route element={<RequireUserType allowedTypes={["founder-user"]} />}>
-              <Route path="/startup-onboarding" element={<StartupOnboarding />} />
+              <Route element={<SimpleLayout />}>
+                <Route path="/startup-onboarding" element={<StartupOnboarding />} />
+              </Route>
               
               <Route element={<AppLayoutWithNavbar />}>
                 <Route path="/startup-dashboard/*" element={<StartupDashboard />} />
