@@ -21,6 +21,12 @@ export const LandingOrRedirect = () => {
   useEffect(() => {
     if (loading) return;
 
+    // Explicit /landing: always show landing (e.g. when user clicks logo from app)
+    if (isLandingRoute) {
+      setShowLanding(true);
+      return;
+    }
+
     const user = auth.currentUser;
 
     if (!user) {
@@ -28,10 +34,10 @@ export const LandingOrRedirect = () => {
         navigate("/landing", { replace: true });
         return;
       }
-      if (isLandingRoute) setShowLanding(true);
       return;
     }
 
+    // Root or other: redirect logged-in users to their app home
     if (role) {
       getSmartRedirectPath(user, role).then((path) => {
         navigate(path, { replace: true });

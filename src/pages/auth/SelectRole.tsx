@@ -235,12 +235,20 @@ export const SelectRole = () => {
         Authorization: `Bearer ${token}`,
       };
 
-      // 1. Set the Firebase Auth custom claim
-      const roleRes = await fetch(`${FIREBASE_API}/auth/set-role`, {
+      // 1. Set the Firebase Auth custom claim (for startup, backend creates founder-users doc; fullName required)
+      // #region agent log
+      const setRoleUrl = `${FIREBASE_API}/auth/set-role`;
+      const setRoleBody = { role: claimRole, ...(role === "startup" && { fullName: formData.fullName.trim() }) };
+      fetch('http://127.0.0.1:7243/ingest/5ce772b9-3080-4ec6-94ac-b8b4c43f9b0e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d819f'},body:JSON.stringify({sessionId:'3d819f',location:'SelectRole.tsx:set-role',message:'before set-role',data:{role,claimRole,apiLen:setRoleUrl.length,hasFullName:role==='startup'?!!formData.fullName?.trim():undefined},hypothesisId:'H1',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      const roleRes = await fetch(setRoleUrl, {
         method: "POST",
         headers,
-        body: JSON.stringify({ role: claimRole }),
+        body: JSON.stringify(setRoleBody),
       });
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/5ce772b9-3080-4ec6-94ac-b8b4c43f9b0e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d819f'},body:JSON.stringify({sessionId:'3d819f',location:'SelectRole.tsx:set-role',message:'after set-role',data:{ok:roleRes.ok,status:roleRes.status},hypothesisId:'H1',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       if (!roleRes.ok) {
         const err = await roleRes.json().catch(() => ({}));
         setErrors({ submit: (err as { error?: string }).error || "Failed to set role. Please try again." });

@@ -80,6 +80,7 @@ const App = () => (
               </Route>
             </Route>
 
+            {/* Error routes: outside RequireAuth so redirects (e.g. RequireRole → /403) work; catch-all last */}
             <Route path="/403" element={<ForbiddenPage />} />
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="/500" element={<ErrorPage statusCode={500} />} />
