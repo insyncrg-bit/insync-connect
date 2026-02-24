@@ -239,12 +239,15 @@ export const SelectRole = () => {
       const sanitizedApi = FIREBASE_API.replace(/\/$/, "");
       const setRoleUrl = `${sanitizedApi}/auth/set-user-type`;
       console.log("Calling set-user-type:", setRoleUrl, { userType });
-      
+
       const roleRes = await fetch(setRoleUrl, {
         method: "POST",
         headers,
         body: JSON.stringify({ user_type: userType }),
       });
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/5ce772b9-3080-4ec6-94ac-b8b4c43f9b0e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d819f'},body:JSON.stringify({sessionId:'3d819f',location:'SelectRole.tsx:set-role',message:'after set-role',data:{ok:roleRes.ok,status:roleRes.status},hypothesisId:'H1',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       if (!roleRes.ok) {
         const err = await roleRes.json().catch(() => ({}));
         console.error("set-user-type failed:", roleRes.status, err);

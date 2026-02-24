@@ -83,28 +83,59 @@ export const StartupOnboarding = () => {
   };
 
   const handleSubmit = async (data: StartupOnboardingData) => {
-    // TODO: Integrate with backend API
-    // const response = await fetch('/api/startup/onboarding', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(data)
-    // });
-    
-    // For now, just simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Mark onboarding as complete in session
-    sessionManager.completeOnboarding();
-    
-    // Save onboarding data to session
-    sessionManager.updateOnboarding({
-      fields: data,
-    });
+    try {
+      const { getAuth } = await import("firebase/auth");
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error("Not authenticated");
+      }
+      const token = await user.getIdToken();
+      const apiUrl = import.meta.env.VITE_FIREBASE_API;
+      if (!apiUrl) {
+        throw new Error("API not configured");
+      }
+      // Strip File fields so JSON is serializable; uploads can be handled separately later
+      const payload = { ...data } as Record<string, unknown>;
+      (["companyLogo", "logoPreview", "pitchdeck"] as const).forEach((k) => {
+        if (payload[k] instanceof File) delete payload[k];
+      });
+      const profileUrl = `${apiUrl}/users/founder-users/me/profile`;
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/5ce772b9-3080-4ec6-94ac-b8b4c43f9b0e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d819f'},body:JSON.stringify({sessionId:'3d819f',location:'StartupOnboarding.tsx:handleSubmit',message:'before profile POST',data:{apiUrlLen:apiUrl?.length,hasUser:!!user,payloadKeys:Object.keys(payload).length},hypothesisId:'H2,H5',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      const response = await fetch(profileUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      // #region agent log
+      let errBody: unknown = null;
+      if (!response.ok) {
+        errBody = await response.json().catch(() => ({}));
+        fetch('http://127.0.0.1:7243/ingest/5ce772b9-3080-4ec6-94ac-b8b4c43f9b0e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d819f'},body:JSON.stringify({sessionId:'3d819f',location:'StartupOnboarding.tsx:handleSubmit',message:'after profile POST',data:{ok:response.ok,status:response.status,errorMsg:(errBody as {error?:string})?.error},hypothesisId:'H2,H3,H4',timestamp:Date.now()})}).catch(()=>{});
+      } else {
+        fetch('http://127.0.0.1:7243/ingest/5ce772b9-3080-4ec6-94ac-b8b4c43f9b0e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d819f'},body:JSON.stringify({sessionId:'3d819f',location:'StartupOnboarding.tsx:handleSubmit',message:'after profile POST',data:{ok:response.ok,status:response.status},hypothesisId:'H2,H3,H4',timestamp:Date.now()})}).catch(()=>{});
+      }
+      // #endregion
+      if (!response.ok) {
+        const err = errBody ?? {};
+        throw new Error((err as { error?: string }).error || "Failed to save profile");
+      }
+      sessionManager.completeOnboarding();
+      sessionManager.updateOnboarding({ fields: data });
+      await user.getIdToken(true);
+      // Navigation happens in handleComplete after OnboardingPage shows success toast
+    } catch (error) {
+      console.error("Error submitting startup onboarding:", error);
+      throw error;
+    }
   };
 
   const handleComplete = () => {
-    // After onboarding completion, redirect to startup memos (to be implemented)
-    // For now, redirects to dashboard
     navigate("/startup");
   };
 

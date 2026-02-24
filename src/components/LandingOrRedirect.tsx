@@ -17,13 +17,13 @@ export const LandingOrRedirect = () => {
     if (userType && auth.currentUser) {
       // Use smart redirect logic
       auth.currentUser.getIdTokenResult().then((token) => {
-          getSmartRedirectPath(auth.currentUser!, token.claims).then((path) => {
-              navigate(path, { replace: true });
-          });
+        getSmartRedirectPath(auth.currentUser!, token.claims).then((path) => {
+          navigate(path, { replace: true });
+        });
       });
     } else if (auth.currentUser) {
-        // Logged in but no userType -> select role
-        navigate("/select-role", { replace: true });
+      // Logged in but no userType -> select role
+      navigate("/select-role", { replace: true });
     }
   }, [ready, loading, userType, navigate]);
 

@@ -178,7 +178,7 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
 
   return (
     <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
-      {/* Logo */}
+      {/* Logo — always goes to landing page from anywhere in the app */}
       <button
         onClick={() => handleNavigate("/landing")}
         className="hover:opacity-80 transition-opacity"
