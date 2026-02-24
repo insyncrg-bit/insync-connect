@@ -276,6 +276,23 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
             <UserCog className="h-4 w-4 mr-2" />
             Edit Profile
           </DropdownMenuItem>
+          {userType === "founder-user" && (
+            <DropdownMenuItem
+              onClick={() => handleNavigate("/startup-settings")}
+              className="text-white hover:bg-white/10 cursor-pointer"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Account Settings
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator className="bg-white/10" />
+          <DropdownMenuItem
+            onClick={() => setDeleteDialogOpen(true)}
+            className="text-red-400 hover:bg-red-500/20 cursor-pointer"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Account
+          </DropdownMenuItem>
           <DropdownMenuSeparator className="bg-white/10" />
           <DropdownMenuItem
             onClick={handleLogout}

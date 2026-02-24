@@ -1,16 +1,31 @@
 import { useEffect, useState } from "react";
-import { getAuth, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { getAuth, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from "firebase/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, User, ShieldCheck } from "lucide-react";
+import { sessionManager } from "@/lib/session";
+import { Loader2, User, ShieldCheck, Trash2 } from "lucide-react";
 
 export const StartupSettings = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [loadingUser, setLoadingUser] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
@@ -131,6 +146,42 @@ export const StartupSettings = () => {
       });
     } finally {
       setSavingPassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteUser(user);
+      sessionManager.clear();
+      toast({
+        title: "Account deleted",
+        description: "Your account has been permanently deleted.",
+      });
+      navigate("/landing");
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+      if (error?.code === "auth/requires-recent-login") {
+        toast({
+          title: "Re-authentication required",
+          description: "Please sign in again before deleting your account.",
+          variant: "destructive",
+        });
+        navigate("/login");
+      } else {
+        toast({
+          title: "Error",
+          description: error?.message || "Failed to delete account. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -261,6 +312,56 @@ export const StartupSettings = () => {
           </Button>
         </div>
       </Card>
+
+      <Card className="bg-navy-card border-white/10 p-6 space-y-4 border-red-500/20">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center">
+            <Trash2 className="h-5 w-5 text-red-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-white">Delete Account</h2>
+            <p className="text-sm text-white/60">
+              Permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+          </div>
+        </div>
+
+        <Separator className="bg-white/10" />
+
+        <div className="flex justify-end pt-2">
+          <Button
+            variant="destructive"
+            onClick={() => setDeleteDialogOpen(true)}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Account
+          </Button>
+        </div>
+      </Card>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-[#151a24] border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Delete Account</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? "Deleting..." : "Delete Account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -37,7 +37,10 @@ export const useOnboardingStorage = <T extends Record<string, any>>(
     const updatedData = { ...data, ...newData };
     setData(updatedData);
     try {
-      localStorage.setItem(storageKey, JSON.stringify(updatedData));
+      const toPersist = { ...updatedData };
+      if ("companyLogo" in toPersist && toPersist.companyLogo instanceof File) delete (toPersist as any).companyLogo;
+      if ("pitchdeck" in toPersist && toPersist.pitchdeck instanceof File) delete (toPersist as any).pitchdeck;
+      localStorage.setItem(storageKey, JSON.stringify(toPersist));
     } catch (error) {
       console.error(`Error saving onboarding data (${storageKey}):`, error);
     }

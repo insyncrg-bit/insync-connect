@@ -1,8 +1,10 @@
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Building2, Globe, Linkedin } from "lucide-react";
+import { Loader2, Upload, Building2, Globe, Linkedin } from "lucide-react";
 import { LocationField } from "@/components/onboarding";
 import { StartupOnboardingData } from "../../hooks/useStartupOnboardingStorage";
 import { VERTICALS, STAGES } from "../../constants";
@@ -10,21 +12,40 @@ import { VERTICALS, STAGES } from "../../constants";
 interface CompanyInfoStepProps {
   data: StartupOnboardingData;
   onUpdate: (data: Partial<StartupOnboardingData>) => void;
+  onLogoUpload?: (file: File) => Promise<string>;
   onNext: () => void;
   onBack: () => void;
 }
 
-export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoStepProps) => {
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack }: CompanyInfoStepProps) => {
+  const { toast } = useToast();
+  const [logoUploading, setLogoUploading] = useState(false);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+    if (!onLogoUpload) {
       onUpdate({ companyLogo: file });
       const reader = new FileReader();
-      reader.onloadend = () => {
-        onUpdate({ logoPreview: reader.result as string });
-      };
+      reader.onloadend = () => onUpdate({ logoPreview: reader.result as string });
       reader.readAsDataURL(file);
+      return;
     }
+    setLogoUploading(true);
+    try {
+      const url = await onLogoUpload(file);
+      onUpdate({ startupLogoUrl: url, logoPreview: url, companyLogo: null });
+    } catch (err: any) {
+      console.error("Logo upload failed:", err);
+      toast({
+        title: "Upload failed",
+        description: err?.message || "Could not upload logo. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLogoUploading(false);
+    }
+    e.target.value = "";
   };
 
   const handlePitchdeckUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +78,11 @@ export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoS
             </div>
           ) : (
             <div className="w-24 h-24 rounded-lg border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center">
-              <Upload className="w-8 h-8 text-[hsl(var(--navy-deep))]/40" />
+              {logoUploading ? (
+                <Loader2 className="w-8 h-8 text-[hsl(var(--navy-deep))]/40 animate-spin" />
+              ) : (
+                <Upload className="w-8 h-8 text-[hsl(var(--navy-deep))]/40" />
+              )}
             </div>
           )}
           <div>
@@ -65,12 +90,13 @@ export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoS
               type="file"
               accept="image/*"
               onChange={handleLogoUpload}
+              disabled={logoUploading}
               className="hidden"
               id="logo-upload"
             />
-            <Label htmlFor="logo-upload" className="cursor-pointer">
-              <Button type="button" variant="outline" asChild className="border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
-                <span>Upload Logo</span>
+            <Label htmlFor="logo-upload" className={logoUploading ? "pointer-events-none opacity-60" : "cursor-pointer"}>
+              <Button type="button" variant="outline" disabled={logoUploading} asChild className="border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
+                <span>{logoUploading ? "Uploading..." : "Upload Logo"}</span>
               </Button>
             </Label>
             <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PNG, JPG up to 5MB</p>

@@ -41,7 +41,9 @@ export const uploadFile = async (file: File, type: "profile_pic" | "logo" | "sta
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || "Upload failed");
+            const msg = errorData.error || "Upload failed";
+            const detail = errorData.detail ? `: ${errorData.detail}` : "";
+            throw new Error(msg + detail);
         }
 
         const data: UploadResponse = await response.json();
@@ -75,7 +77,9 @@ export const deleteFile = async (url: string): Promise<void> => {
         });
 
         if (!response.ok) {
-            throw new Error(`Delete failed: ${response.statusText}`);
+            const errData = await response.json().catch(() => ({}));
+            const detail = errData?.error || errData?.detail || response.statusText || "Unknown error";
+            throw new Error(`Delete failed: ${detail}`);
         }
     } catch (error) {
         console.error("Delete error:", error);

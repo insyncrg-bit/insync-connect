@@ -33,7 +33,8 @@ import {
   FileText,
   Eye,
   ChevronRight,
-  Calculator
+  Calculator,
+  ExternalLink,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -41,16 +42,18 @@ interface MemoEditorProps {
   application: any;
   onUpdate?: () => void;
   autoEdit?: boolean;
+  readOnly?: boolean;
+  hideHeader?: boolean;
 }
 
 type MarketMetric = "tam" | "sam" | "som" | null;
 
-export function MemoEditor({ application, onUpdate, autoEdit }: MemoEditorProps) {
+export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHeader }: MemoEditorProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isEditing, setIsEditing] = useState(!!autoEdit);
+  const [isEditing, setIsEditing] = useState(!readOnly && !!autoEdit);
   const [isSaving, setIsSaving] = useState(false);
-  const [viewMode, setViewMode] = useState<"condensed" | "full">("condensed");
+  const [viewMode, setViewMode] = useState<"condensed" | "full">(readOnly ? "full" : "condensed");
   const [selectedMetric, setSelectedMetric] = useState<MarketMetric>(null);
   const [draftSections, setDraftSections] = useState<any>({});
   const [draftTeamMembers, setDraftTeamMembers] = useState<any[]>([]);
@@ -184,62 +187,66 @@ export function MemoEditor({ application, onUpdate, autoEdit }: MemoEditorProps)
   return (
     <div className="space-y-6">
       {/* Back Button */}
-      <Button
-        onClick={() => navigate("/startup-dashboard")}
-        className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
-      >
-        ← Back to Your Dashboard
-      </Button>
+      {!readOnly && (
+        <Button
+          onClick={() => navigate("/startup-dashboard")}
+          className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
+        >
+          ← Back to Your Dashboard
+        </Button>
+      )}
 
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-white">My Memo</h2>
-          <p className="text-white/60">Your investor-ready company memo</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "condensed" | "full")}>
-            <TabsList className="bg-white/10">
-              <TabsTrigger value="condensed" className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]">
-                <FileText className="h-4 w-4 mr-2" />
-                Condensed
-              </TabsTrigger>
-              <TabsTrigger value="full" className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]">
-                <Eye className="h-4 w-4 mr-2" />
-                Full Memo
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          {!isEditing ? (
-            <Button
-              onClick={() => setIsEditing(true)}
-              className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30"
-            >
-              <Edit2 className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-          ) : (
-            <div className="flex gap-2">
+      {!hideHeader && (
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-white">My Memo</h2>
+            <p className="text-white/60">Your investor-ready company memo</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "condensed" | "full")}>
+              <TabsList className="bg-white/10">
+                <TabsTrigger value="condensed" className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Condensed
+                </TabsTrigger>
+                <TabsTrigger value="full" className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]">
+                  <Eye className="h-4 w-4 mr-2" />
+                  Full Memo
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {!readOnly && !isEditing ? (
               <Button
-                variant="ghost"
-                onClick={() => setIsEditing(false)}
-                className="text-white/70 hover:text-white hover:bg-white/10"
+                onClick={() => setIsEditing(true)}
+                className="bg-[hsl(var(--cyan-glow))]/20 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/30 border border-[hsl(var(--cyan-glow))]/30"
               >
-                <X className="h-4 w-4 mr-2" />
-                Cancel
+                <Edit2 className="h-4 w-4 mr-2" />
+                Edit
               </Button>
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {isSaving ? "Saving..." : "Save"}
-              </Button>
-            </div>
-          )}
+            ) : !readOnly && isEditing ? (
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsEditing(false)}
+                  className="text-white/70 hover:text-white hover:bg-white/10"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {isSaving ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            ) : null}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Edit Panel (makes fields actually editable) */}
       {isEditing && (
@@ -445,9 +452,9 @@ export function MemoEditor({ application, onUpdate, autoEdit }: MemoEditorProps)
             <div className="relative z-10">
               <div className="flex items-start justify-between gap-6 mb-6">
                 <div className="flex items-center gap-4">
-                  {application?.logo_url ? (
+                  {(application?.logo_url ?? application?.logoUrl) ? (
                     <img 
-                      src={application.logo_url} 
+                      src={application.logo_url ?? application.logoUrl} 
                       alt={`${formData.company_name} logo`}
                       className="w-20 h-20 rounded-2xl object-cover shadow-lg shadow-[hsl(var(--cyan-glow))]/20"
                     />
@@ -608,9 +615,9 @@ export function MemoEditor({ application, onUpdate, autoEdit }: MemoEditorProps)
           {/* Header Section */}
           <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
             <div className="text-center mb-8">
-              {application?.logo_url ? (
+              {(application?.logo_url ?? application?.logoUrl) ? (
                 <img 
-                  src={application.logo_url} 
+                  src={application.logo_url ?? application.logoUrl} 
                   alt={`${formData.company_name} logo`}
                   className="w-24 h-24 mx-auto rounded-2xl object-cover shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4"
                 />
