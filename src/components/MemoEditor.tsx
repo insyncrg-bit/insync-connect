@@ -36,22 +36,25 @@ import {
   Calculator
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-// TODO: Integrate with backend API
 
 interface MemoEditorProps {
   application: any;
   onUpdate?: () => void;
+  autoEdit?: boolean;
 }
 
 type MarketMetric = "tam" | "sam" | "som" | null;
 
-export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
+export function MemoEditor({ application, onUpdate, autoEdit }: MemoEditorProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(!!autoEdit);
   const [isSaving, setIsSaving] = useState(false);
   const [viewMode, setViewMode] = useState<"condensed" | "full">("condensed");
   const [selectedMetric, setSelectedMetric] = useState<MarketMetric>(null);
+  const [draftSections, setDraftSections] = useState<any>({});
+  const [draftTeamMembers, setDraftTeamMembers] = useState<any[]>([]);
+  const [draftTraction, setDraftTraction] = useState<string>("");
   const [formData, setFormData] = useState({
     company_name: "",
     vertical: "",
@@ -60,6 +63,13 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
     website: "",
     business_model: "",
   });
+
+  const toExternalHref = (rawUrl: string) => {
+    const trimmed = rawUrl.trim();
+    if (!trimmed) return "";
+    if (/^(https?:\/\/|mailto:|tel:)/i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  };
 
   useEffect(() => {
     if (application) {
@@ -71,15 +81,76 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
         website: application.website || "",
         business_model: application.business_model || "",
       });
+      setDraftSections(application.application_sections || {});
+      setDraftTeamMembers(Array.isArray(application.team_members) ? application.team_members : []);
+      setDraftTraction(application.traction || "");
     }
   }, [application]);
+
+  const updateSection = (sectionKey: string, patch: Record<string, unknown>) => {
+    setDraftSections((prev: any) => ({
+      ...(prev || {}),
+      [sectionKey]: {
+        ...((prev || {})[sectionKey] || {}),
+        ...patch,
+      },
+    }));
+  };
+
+  const formatList = (val: unknown): string => (Array.isArray(val) ? val.join(", ") : "");
+  const parseList = (val: string): string[] =>
+    val
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // TODO: Integrate with backend API to update application
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const { getAuth } = await import("firebase/auth");
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (!user) {
+        throw new Error("You must be logged in to save your memo.");
+      }
+
+      const token = await user.getIdToken();
+      const apiUrl = import.meta.env.VITE_FIREBASE_API;
+
+      if (!apiUrl) {
+        throw new Error("API base URL is not configured.");
+      }
+
+      const baseUrl = apiUrl.replace(/\/$/, "");
+
+      // Merge editable header fields with any additional application data
+      const memoPayload = {
+        ...(application || {}),
+        company_name: formData.company_name,
+        vertical: formData.vertical,
+        stage: formData.stage,
+        location: formData.location,
+        website: formData.website,
+        business_model: formData.business_model,
+        traction: draftTraction,
+        application_sections: draftSections,
+        team_members: draftTeamMembers,
+      };
+
+      const res = await fetch(`${baseUrl}/api/startups/me/memo`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(memoPayload),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to save memo.");
+      }
 
       toast({
         title: "Memo Updated",
@@ -87,10 +158,10 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
       });
       setIsEditing(false);
       onUpdate?.();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to save changes. Please try again.",
+        description: error?.message || "Failed to save changes. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -98,8 +169,8 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
     }
   };
 
-  const sections = application?.application_sections || {};
-  const teamMembers = application?.team_members || [];
+  const sections = draftSections && Object.keys(draftSections).length ? draftSections : (application?.application_sections || {});
+  const teamMembers = draftTeamMembers.length ? draftTeamMembers : (application?.team_members || []);
 
   // Value driver labels
   const valueDriverLabels: Record<string, string> = {
@@ -114,7 +185,7 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
     <div className="space-y-6">
       {/* Back Button */}
       <Button
-        onClick={() => navigate("/founder-dashboard")}
+        onClick={() => navigate("/startup-dashboard")}
         className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
       >
         ← Back to Your Dashboard
@@ -169,6 +240,200 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
           )}
         </div>
       </div>
+
+      {/* Edit Panel (makes fields actually editable) */}
+      {isEditing && (
+        <Card className="bg-navy-card border-white/10 p-6 space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold text-white">Edit memo fields</h3>
+            <p className="text-white/60 text-sm">These changes will be saved to your startup memo.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-white/80">Company name</Label>
+              <Input
+                value={formData.company_name}
+                onChange={(e) => setFormData((p) => ({ ...p, company_name: e.target.value }))}
+                className="bg-white/5 border-white/15 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">Website</Label>
+              <Input
+                value={formData.website}
+                onChange={(e) => setFormData((p) => ({ ...p, website: e.target.value }))}
+                placeholder="https://..."
+                className="bg-white/5 border-white/15 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">Vertical</Label>
+              <Input
+                value={formData.vertical}
+                onChange={(e) => setFormData((p) => ({ ...p, vertical: e.target.value }))}
+                className="bg-white/5 border-white/15 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">Stage</Label>
+              <Input
+                value={formData.stage}
+                onChange={(e) => setFormData((p) => ({ ...p, stage: e.target.value }))}
+                className="bg-white/5 border-white/15 text-white"
+              />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label className="text-white/80">Location</Label>
+              <Input
+                value={formData.location}
+                onChange={(e) => setFormData((p) => ({ ...p, location: e.target.value }))}
+                className="bg-white/5 border-white/15 text-white"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80">Executive summary / one-liner</Label>
+            <Textarea
+              value={formData.business_model}
+              onChange={(e) => setFormData((p) => ({ ...p, business_model: e.target.value }))}
+              className="bg-white/5 border-white/15 text-white min-h-[100px]"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80">Traction</Label>
+            <Textarea
+              value={draftTraction}
+              onChange={(e) => setDraftTraction(e.target.value)}
+              className="bg-white/5 border-white/15 text-white min-h-[80px]"
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-white/80">Customer type (comma-separated)</Label>
+              <Input
+                value={formatList(sections?.section3?.customerType)}
+                onChange={(e) => updateSection("section3", { customerType: parseList(e.target.value) })}
+                className="bg-white/5 border-white/15 text-white"
+                placeholder="B2B, B2C, Enterprise..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">Pricing strategies (comma-separated)</Label>
+              <Input
+                value={formatList(sections?.section3?.pricingStrategies)}
+                onChange={(e) => updateSection("section3", { pricingStrategies: parseList(e.target.value) })}
+                className="bg-white/5 border-white/15 text-white"
+                placeholder="Subscription, Transaction..."
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80">The problem</Label>
+            <Textarea
+              value={(sections?.section2?.currentPainPoint as string) || ""}
+              onChange={(e) => updateSection("section2", { currentPainPoint: e.target.value })}
+              className="bg-white/5 border-white/15 text-white min-h-[120px]"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80">Value drivers (comma-separated)</Label>
+            <Input
+              value={formatList(sections?.section2?.valueDrivers)}
+              onChange={(e) => updateSection("section2", { valueDrivers: parseList(e.target.value) })}
+              className="bg-white/5 border-white/15 text-white"
+              placeholder="scalability, severity, unique-tech..."
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-white/80">GTM acquisition</Label>
+              <Textarea
+                value={(sections?.section4?.gtmAcquisition as string) || ""}
+                onChange={(e) => updateSection("section4", { gtmAcquisition: e.target.value })}
+                className="bg-white/5 border-white/15 text-white min-h-[100px]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">GTM timeline</Label>
+              <Textarea
+                value={(sections?.section4?.gtmTimeline as string) || ""}
+                onChange={(e) => updateSection("section4", { gtmTimeline: e.target.value })}
+                className="bg-white/5 border-white/15 text-white min-h-[100px]"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label className="text-white/80">TAM value</Label>
+              <Input
+                value={(sections?.section5?.tamValue as string) || ""}
+                onChange={(e) => updateSection("section5", { tamValue: e.target.value })}
+                className="bg-white/5 border-white/15 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">SAM value</Label>
+              <Input
+                value={(sections?.section5?.samValue as string) || ""}
+                onChange={(e) => updateSection("section5", { samValue: e.target.value })}
+                className="bg-white/5 border-white/15 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">SOM value</Label>
+              <Input
+                value={(sections?.section5?.somValue as string) || ""}
+                onChange={(e) => updateSection("section5", { somValue: e.target.value })}
+                className="bg-white/5 border-white/15 text-white"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label className="text-white/80">TAM breakdown</Label>
+              <Textarea
+                value={(sections?.section5?.tamBreakdown as string) || ""}
+                onChange={(e) => updateSection("section5", { tamBreakdown: e.target.value })}
+                className="bg-white/5 border-white/15 text-white min-h-[80px]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">SAM breakdown</Label>
+              <Textarea
+                value={(sections?.section5?.samBreakdown as string) || ""}
+                onChange={(e) => updateSection("section5", { samBreakdown: e.target.value })}
+                className="bg-white/5 border-white/15 text-white min-h-[80px]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">SOM breakdown</Label>
+              <Textarea
+                value={(sections?.section5?.somBreakdown as string) || ""}
+                onChange={(e) => updateSection("section5", { somBreakdown: e.target.value })}
+                className="bg-white/5 border-white/15 text-white min-h-[80px]"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80">Competitive moat</Label>
+            <Textarea
+              value={(sections?.section6?.competitiveMoat as string) || ""}
+              onChange={(e) => updateSection("section6", { competitiveMoat: e.target.value })}
+              className="bg-white/5 border-white/15 text-white min-h-[100px]"
+            />
+          </div>
+        </Card>
+      )}
 
       {/* Condensed View */}
       {viewMode === "condensed" && (
@@ -358,7 +623,16 @@ export function MemoEditor({ application, onUpdate }: MemoEditorProps) {
               <p className="text-xl text-white/70 mb-4">{formData.vertical} • {formData.stage}</p>
               <div className="flex justify-center gap-4 text-sm text-white/60">
                 <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {formData.location}</span>
-                {formData.website && <span className="flex items-center gap-1"><Globe className="h-4 w-4" /> {formData.website}</span>}
+                {formData.website && (
+                  <a
+                    href={toExternalHref(formData.website)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors"
+                  >
+                    <Globe className="h-4 w-4" /> {formData.website}
+                  </a>
+                )}
               </div>
             </div>
 

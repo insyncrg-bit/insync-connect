@@ -1,0 +1,323 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Loader2, Building2, Users } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { OnboardingPage, StepValidation } from "@/components/onboarding";
+import { deleteFile, uploadFile } from "@/lib/api";
+
+import {
+  defaultData,
+  type StartupOnboardingData,
+  type TeamMember,
+} from "./startup-onboarding/hooks/useStartupOnboardingStorage";
+import { CompanyInfoStep } from "./startup-onboarding/components/steps/CompanyInfoStep";
+import { TeamOverviewStep } from "./startup-onboarding/components/steps/TeamOverviewStep";
+
+// Steps for Edit Profile (steps 1–2 from onboarding, re-indexed 0–1)
+const EDIT_PROFILE_STEPS = [
+  { id: 0, title: "Company Info", icon: Building2 },
+  { id: 1, title: "Team & Overview", icon: Users },
+] as const;
+
+const STORAGE_KEY = "startup_edit_profile_data";
+const STEP_KEY = "startup_edit_profile_step";
+
+const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
+
+function toStringOrEmpty(v: unknown): string {
+  return typeof v === "string" ? v : "";
+}
+
+function toTeamMembers(v: unknown): TeamMember[] {
+  if (!Array.isArray(v)) return [];
+  return v
+    .filter(Boolean)
+    .map((m) => (typeof m === "object" && m ? (m as Record<string, unknown>) : {}))
+    .map((m) => ({
+      name: toStringOrEmpty(m.name),
+      role: toStringOrEmpty(m.role),
+      linkedin: toStringOrEmpty(m.linkedin),
+      background: toStringOrEmpty(m.background),
+    }))
+    .filter((m) => m.name || m.role || m.linkedin || m.background);
+}
+
+function buildPrefillFromProfile(source: Record<string, unknown> | null): Partial<StartupOnboardingData> {
+  if (!source) return {};
+  const teamMembers = toTeamMembers(source.teamMembers ?? source.team_members);
+  const applicationSections = (source.applicationSections ?? source.application_sections) as Record<string, any> | undefined;
+  const startupLogoUrl = toStringOrEmpty(
+    source.startupLogoUrl ?? source.startup_logo_url ?? source.companyLogoUrl ?? source.company_logo_url
+  );
+  const pitchdeckUrl = toStringOrEmpty(source.pitchdeckUrl ?? source.pitchdeck_url);
+  const pitchdeckName = toStringOrEmpty(source.pitchdeckName ?? source.pitchdeck_name);
+
+  return {
+    companyName: toStringOrEmpty(source.companyName ?? source.company_name),
+    website: toStringOrEmpty(source.website),
+    linkedIn: toStringOrEmpty(source.linkedIn ?? source.companyLinkedIn ?? source.company_linkedin),
+    vertical: toStringOrEmpty(source.vertical),
+    stage: toStringOrEmpty(source.stage),
+    location: toStringOrEmpty(source.location),
+    startupLogoUrl: startupLogoUrl || null,
+    logoPreview: startupLogoUrl || null,
+    pitchdeckUrl: pitchdeckUrl || null,
+    pitchdeckName: pitchdeckName || null,
+    companyOverview: toStringOrEmpty(
+      source.companyOverview ??
+        source.company_overview ??
+        source.business_model ??
+        applicationSections?.section1?.companyOverview
+    ),
+    teamMembers: teamMembers.length ? teamMembers : defaultData.teamMembers,
+  };
+}
+
+export function StartupProfilePage() {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const isDirtyRef = useRef(false);
+  const [loading, setLoading] = useState(true);
+  const [seeded, setSeeded] = useState(false);
+
+  const baseUrl = useMemo(() => {
+    const apiUrl = import.meta.env.VITE_FIREBASE_API as string | undefined;
+    return apiUrl ? apiUrl.replace(/\/$/, "") : "";
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadData = async () => {
+      try {
+        const { getAuth } = await import("firebase/auth");
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (!user) throw new Error("You must be logged in to edit your profile.");
+        if (!baseUrl) throw new Error("API base URL is not configured.");
+
+        const token = await user.getIdToken();
+        const res = await fetch(`${baseUrl}/api/startups/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText || "Failed to load startup profile.");
+        }
+        const json = await res.json();
+        const startup = (json.startup || {}) as Record<string, unknown>;
+
+        if (mounted) {
+          const prefilled: StartupOnboardingData = {
+            ...defaultData,
+            ...buildPrefillFromProfile(startup),
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(prefilled));
+          localStorage.setItem(STEP_KEY, "0");
+          localStorage.removeItem(`${STEP_KEY}_completed`);
+          setSeeded(true);
+        }
+      } catch (err: any) {
+        console.error("[StartupProfilePage] Error loading profile:", err);
+        toast({
+          title: "Error",
+          description: err?.message || "Failed to load your profile.",
+          variant: "destructive",
+        });
+        setSeeded(true);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadData();
+    return () => {
+      mounted = false;
+    };
+  }, [toast, baseUrl]);
+
+  // Browser back/refresh guard
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirtyRef.current) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
+
+  const validateStep = (step: number, data: StartupOnboardingData): StepValidation => {
+    const errors: string[] = [];
+    switch (step) {
+      case 0: // Company Info
+        if (!data.companyName.trim()) errors.push("Company name is required");
+        if (!data.vertical) errors.push("Vertical is required");
+        if (!data.stage) errors.push("Stage is required");
+        if (!data.location.trim()) errors.push("Location is required");
+        break;
+      case 1: // Team & Overview
+        if (countWords(data.companyOverview) < 30) errors.push("Company overview needs at least 30 words");
+        if (!data.teamMembers[0]?.role?.trim()) errors.push("Your role is required");
+        break;
+    }
+    return { isValid: errors.length === 0, errors };
+  };
+
+  const handleSubmit = async (data: StartupOnboardingData) => {
+    try {
+      const { getAuth } = await import("firebase/auth");
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) throw new Error("Not authenticated");
+      if (!baseUrl) throw new Error("API base URL is not configured.");
+
+      const token = await user.getIdToken();
+
+      // Upload new files (if any) first, optionally deleting old ones.
+      let startupLogoUrl: string | undefined;
+      if (data.companyLogo instanceof File) {
+        const oldUrl = typeof data.startupLogoUrl === "string" ? data.startupLogoUrl : "";
+        if (oldUrl) {
+          await deleteFile(oldUrl).catch(() => {});
+        }
+        startupLogoUrl = await uploadFile(data.companyLogo, "startup_logo", user.uid);
+      }
+
+      let pitchdeckUrl: string | undefined;
+      let pitchdeckName: string | undefined;
+      if (data.pitchdeck instanceof File) {
+        const oldUrl = typeof data.pitchdeckUrl === "string" ? data.pitchdeckUrl : "";
+        if (oldUrl) {
+          await deleteFile(oldUrl).catch(() => {});
+        }
+        pitchdeckUrl = await uploadFile(data.pitchdeck, "pitchdeck", user.uid);
+        pitchdeckName = data.pitchdeck.name;
+      }
+
+      // PATCH a minimal payload so we don't overwrite unrelated profile fields with empty defaults.
+      const payload: Record<string, unknown> = {
+        companyName: data.companyName,
+        website: data.website,
+        linkedIn: data.linkedIn,
+        vertical: data.vertical,
+        stage: data.stage,
+        location: data.location,
+        companyOverview: data.companyOverview,
+        teamMembers: data.teamMembers,
+      };
+
+      if (startupLogoUrl) {
+        payload.startupLogoUrl = startupLogoUrl;
+      }
+      if (pitchdeckUrl) {
+        payload.pitchdeckUrl = pitchdeckUrl;
+      }
+      if (pitchdeckName) {
+        payload.pitchdeckName = pitchdeckName;
+      }
+
+      let res = await fetch(`${baseUrl}/api/startups/me`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.status === 404) {
+        res = await fetch(`${baseUrl}/api/startups/me`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to save profile.");
+      }
+
+      isDirtyRef.current = false;
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STEP_KEY);
+      localStorage.removeItem(`${STEP_KEY}_completed`);
+
+      toast({ title: "Profile saved!", description: "Your startup profile has been updated." });
+    } catch (err: any) {
+      console.error("[StartupProfilePage] Error saving profile:", err);
+      toast({
+        title: "Error",
+        description: err?.message || "Failed to save profile.",
+        variant: "destructive",
+      });
+      throw err;
+    }
+  };
+
+  const renderStep = (
+    step: number,
+    data: StartupOnboardingData,
+    onUpdate: (data: Partial<StartupOnboardingData>) => void,
+    onNext: () => void,
+    onBack: () => void,
+    onSubmit: () => void
+  ) => {
+    const handleUpdate = (partial: Partial<StartupOnboardingData>) => {
+      isDirtyRef.current = true;
+      onUpdate(partial);
+    };
+
+    switch (step) {
+      case 0:
+        return <CompanyInfoStep data={data} onUpdate={handleUpdate} onNext={onNext} onBack={onBack} />;
+      case 1:
+        return (
+          <TeamOverviewStep
+            data={data}
+            onUpdate={handleUpdate}
+            onNext={onSubmit}
+            onBack={onBack}
+            nextLabel="Save"
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  if (loading || !seeded) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
+      </div>
+    );
+  }
+
+  return (
+    <OnboardingPage
+      title="Edit Profile"
+      description="Update your startup profile information."
+      steps={[...EDIT_PROFILE_STEPS]}
+      storageKey={STORAGE_KEY}
+      stepKey={STEP_KEY}
+      defaultData={defaultData}
+      renderStep={renderStep}
+      validateStep={validateStep}
+      onSubmit={handleSubmit}
+      onComplete={() => navigate("/startup-dashboard")}
+      requiredSteps={[0, 1]}
+      submitLabel="Save"
+      loadingText="Saving profile..."
+      successTitle="Profile saved!"
+      successDescription="Your startup profile has been updated."
+    />
+  );
+}
+
+export default StartupProfilePage;

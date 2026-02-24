@@ -82,7 +82,8 @@ export async function getSmartRedirectPath(user: User, claims: any): Promise<str
 
             // Check if they have marked onboarding as complete
             if (userData.user?.onboardingComplete) {
-                return "/startup";
+                // Startup dashboard is currently a "coming soon" placeholder
+                return "/startup-dashboard";
             }
             return "/startup-onboarding";
         }

@@ -10,11 +10,12 @@ interface TeamOverviewStepProps {
   onUpdate: (data: Partial<StartupOnboardingData>) => void;
   onNext: () => void;
   onBack: () => void;
+  nextLabel?: string;
 }
 
 const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 
-export const TeamOverviewStep = ({ data, onUpdate, onNext, onBack }: TeamOverviewStepProps) => {
+export const TeamOverviewStep = ({ data, onUpdate, onNext, onBack, nextLabel }: TeamOverviewStepProps) => {
   const addTeamMember = () => {
     onUpdate({
       teamMembers: [...data.teamMembers, { name: "", role: "", linkedin: "", background: "" }],
@@ -142,7 +143,7 @@ export const TeamOverviewStep = ({ data, onUpdate, onNext, onBack }: TeamOvervie
           Back
         </Button>
         <Button onClick={onNext} className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright">
-          Next
+          {nextLabel ?? "Next"}
         </Button>
       </div>
     </div>

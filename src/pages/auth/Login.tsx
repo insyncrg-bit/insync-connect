@@ -261,7 +261,7 @@ export const Login = () => {
       const user = userCredential.user;
       log.info("Firebase sign in successful", { uid: user.uid, email: user.email, emailVerified: user.emailVerified });
 
-      // If email is not verified, keep user on the auth flow and prompt verification
+      // If email is not verified, send them into the verification waiting flow
       if (!user.emailVerified) {
         log.info("User email not verified on login, sending verification email");
         try {
@@ -271,20 +271,20 @@ export const Login = () => {
           });
           toast({
             title: "Verify your email",
-            description: "We sent you a verification link. Please verify your email before signing in.",
+            description: "We sent you a verification link. Please check your email and click the verification link.",
           });
         } catch (err) {
           log.error("Failed to send verification email on login", err);
           toast({
             title: "Verification required",
-            description: "Your email is not verified. Please check your inbox for a verification link or request a new one.",
+            description:
+              "Your email is not verified. Please check your inbox for a verification link or request a new one.",
             variant: "destructive",
           });
         }
 
-        // Sign the user out so protected routes remain inaccessible
-        await auth.signOut();
         setIsLoading(false);
+        navigate("/verify-pending", { state: { email: normalizedEmail } });
         return;
       }
 

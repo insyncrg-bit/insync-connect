@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +52,7 @@ interface FounderApplication {
   user_id?: string | null;
   logo_url?: string | null;
   pitchdeck_url?: string | null;
+  pitchdeck_name?: string | null;
   calendly_link?: string | null;
   application_sections?: any;
   team_members?: any[];
@@ -82,6 +83,69 @@ export function MemoModal({
   const [syncNote, setSyncNote] = useState("");
   const [showSyncForm, setShowSyncForm] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<MarketMetric>(null);
+  const [enriched, setEnriched] = useState<Partial<FounderApplication> | null>(null);
+  const [enriching, setEnriching] = useState(false);
+
+  const baseUrl = useMemo(() => {
+    const apiUrl = import.meta.env.VITE_FIREBASE_API as string | undefined;
+    return apiUrl ? apiUrl.replace(/\/$/, "") : "";
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      if (!open) return;
+      if (!startup?.user_id) return;
+      // Only fetch if we're missing key assets
+      if (startup.pitchdeck_url || startup.logo_url) return;
+      if (!baseUrl) return;
+
+      try {
+        setEnriching(true);
+        const { getAuth } = await import("firebase/auth");
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (!user) return;
+        const token = await user.getIdToken();
+
+        const res = await fetch(`${baseUrl}/api/startups/${startup.user_id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const s = (json.startup || {}) as Record<string, unknown>;
+
+        const pitchdeckUrl =
+          (typeof s.pitchdeckUrl === "string" && s.pitchdeckUrl) ||
+          (typeof s.pitchdeck_url === "string" && s.pitchdeck_url) ||
+          null;
+        const pitchdeckName =
+          (typeof s.pitchdeckName === "string" && s.pitchdeckName) ||
+          (typeof s.pitchdeck_name === "string" && s.pitchdeck_name) ||
+          null;
+        const logoUrl =
+          (typeof s.startupLogoUrl === "string" && s.startupLogoUrl) ||
+          (typeof s.companyLogoUrl === "string" && s.companyLogoUrl) ||
+          (typeof s.logo_url === "string" && s.logo_url) ||
+          null;
+
+        if (mounted) {
+          setEnriched({
+            pitchdeck_url: pitchdeckUrl,
+            pitchdeck_name: pitchdeckName,
+            logo_url: logoUrl,
+          });
+        }
+      } finally {
+        if (mounted) setEnriching(false);
+      }
+    };
+
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, [open, startup?.user_id, startup?.pitchdeck_url, startup?.logo_url, baseUrl]);
 
   const wordCount = syncNote.trim().split(/\s+/).filter(Boolean).length;
   const isOverLimit = wordCount > 60;
@@ -104,6 +168,10 @@ export function MemoModal({
   };
 
   if (!startup) return null;
+
+  const pitchdeckUrl = enriched?.pitchdeck_url ?? startup.pitchdeck_url ?? null;
+  const pitchdeckName = enriched?.pitchdeck_name ?? startup.pitchdeck_name ?? null;
+  const logoUrl = enriched?.logo_url ?? startup.logo_url ?? null;
 
   const sections = startup.application_sections || {};
   const teamMembers = startup.team_members || [];
@@ -186,9 +254,9 @@ export function MemoModal({
                   <div className="relative z-10">
                     <div className="flex items-start justify-between gap-6 mb-6">
                       <div className="flex items-center gap-4">
-                        {startup.logo_url ? (
+                        {logoUrl ? (
                           <img 
-                            src={startup.logo_url} 
+                            src={logoUrl} 
                             alt={`${startup.company_name} logo`}
                             className="w-20 h-20 rounded-2xl object-cover shadow-lg shadow-[hsl(var(--cyan-glow))]/20"
                           />
@@ -254,6 +322,28 @@ export function MemoModal({
                         </p>
                       </button>
                     </div>
+
+                    {/* Pitch deck quick action */}
+                    {pitchdeckUrl && (
+                      <div className="mt-4 flex justify-end">
+                        <a
+                          href={pitchdeckUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex"
+                        >
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-white/20 text-white/80 hover:text-white hover:bg-white/10"
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            View Pitch Deck
+                            <ExternalLink className="h-3 w-3 ml-2" />
+                          </Button>
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </Card>
 
@@ -340,9 +430,9 @@ export function MemoModal({
                 {/* Header Section */}
                 <Card className="bg-navy-card border-[hsl(var(--cyan-glow))]/30 p-8 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
                   <div className="text-center mb-8">
-                    {startup.logo_url ? (
+                    {logoUrl ? (
                       <img 
-                        src={startup.logo_url} 
+                        src={logoUrl} 
                         alt={`${startup.company_name} logo`}
                         className="w-24 h-24 mx-auto rounded-2xl object-cover shadow-lg shadow-[hsl(var(--cyan-glow))]/20 mb-4"
                       />
@@ -365,9 +455,18 @@ export function MemoModal({
                           <Linkedin className="h-4 w-4" /> LinkedIn
                         </a>
                       )}
-                      {startup.pitchdeck_url && (
-                        <a href={startup.pitchdeck_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors">
-                          <FileText className="h-4 w-4" /> Pitch Deck <ExternalLink className="h-3 w-3" />
+                      {(pitchdeckUrl || enriching) && (
+                        <a
+                          href={pitchdeckUrl || undefined}
+                          target={pitchdeckUrl ? "_blank" : undefined}
+                          rel={pitchdeckUrl ? "noopener noreferrer" : undefined}
+                          className={`flex items-center gap-1 transition-colors ${
+                            pitchdeckUrl ? "hover:text-[hsl(var(--cyan-glow))]" : "text-white/40 pointer-events-none"
+                          }`}
+                        >
+                          <FileText className="h-4 w-4" />{" "}
+                          {enriching ? "Loading pitch deck..." : (pitchdeckName ? `Pitch Deck (${pitchdeckName})` : "Pitch Deck")}
+                          {pitchdeckUrl && <ExternalLink className="h-3 w-3" />}
                         </a>
                       )}
                     </div>

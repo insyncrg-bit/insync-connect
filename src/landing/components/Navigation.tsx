@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import infinityLogo from "../assets/infinity-logo.png";
+import infinityLogo from "../assets/infinity-logo-nav.png";
 
 export const Navigation = () => {
   const navigate = useNavigate();
@@ -27,6 +27,9 @@ export const Navigation = () => {
               src={infinityLogo}
               alt="In∞Sync"
               className="h-16 w-auto"
+              width={512}
+              height={288}
+              fetchPriority="high"
             />
           </div>
 

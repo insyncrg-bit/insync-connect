@@ -10,9 +10,10 @@ interface CompetitorsStepProps {
   onUpdate: (data: Partial<StartupOnboardingData>) => void;
   onSubmit: () => void;
   onBack: () => void;
+  submitLabel?: string;
 }
 
-export const CompetitorsStep = ({ data, onUpdate, onSubmit, onBack }: CompetitorsStepProps) => {
+export const CompetitorsStep = ({ data, onUpdate, onSubmit, onBack, submitLabel }: CompetitorsStepProps) => {
   const updateCompetitor = (index: number, field: keyof Competitor, value: string) => {
     const updated = [...data.competitors];
     updated[index] = { ...updated[index], [field]: value };
@@ -120,7 +121,7 @@ export const CompetitorsStep = ({ data, onUpdate, onSubmit, onBack }: Competitor
           Back
         </Button>
         <Button onClick={onSubmit} className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright">
-          Submit Application
+          {submitLabel ?? "Submit Application"}
         </Button>
       </div>
     </div>

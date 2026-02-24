@@ -9,6 +9,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { sessionManager } from "@/lib/session";
 import { useToast } from "@/hooks/use-toast";
 import { useUserClaims } from "@/hooks/useUserClaims";
+import { ForbiddenPage } from "../errors";
 
 const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
 
@@ -252,7 +253,7 @@ export const SuperuserConfig = () => {
   }
 
   if (!allowed) {
-    return <div className="p-8 text-white">Access Denied</div>;
+    return <ForbiddenPage />;
   }
 
   return (

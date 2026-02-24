@@ -24,6 +24,9 @@ export const RequireAuth = () => {
     // Firebase SDK handles token refresh automatically
     const user = auth.currentUser;
     if (!user) {
+      auth.signOut().catch(() => {
+        // Ignore sign-out errors in guard
+      });
       sessionManager.clear();
       toast({
         title: "Please sign in",
@@ -37,6 +40,9 @@ export const RequireAuth = () => {
 
     // Block users whose email is not verified
     if (!user.emailVerified) {
+      auth.signOut().catch(() => {
+        // Ignore sign-out errors in guard
+      });
       sessionManager.clear();
       toast({
         title: "Verify your email",

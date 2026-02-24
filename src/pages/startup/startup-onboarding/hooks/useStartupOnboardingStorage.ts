@@ -25,8 +25,10 @@ export interface StartupOnboardingData {
   location: string;
   companyLogo?: File | null;
   logoPreview?: string | null;
+  startupLogoUrl?: string | null;
   pitchdeck?: File | null;
   pitchdeckName?: string | null;
+  pitchdeckUrl?: string | null;
   
   // Step 2: Team & Overview
   companyOverview: string;
@@ -88,8 +90,10 @@ export const defaultData: StartupOnboardingData = {
   location: "",
   companyLogo: null,
   logoPreview: null,
+  startupLogoUrl: null,
   pitchdeck: null,
   pitchdeckName: null,
+  pitchdeckUrl: null,
   companyOverview: "",
   teamMembers: [{ name: "", role: "", linkedin: "", background: "" }],
   currentPainPoint: "",

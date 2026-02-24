@@ -7,6 +7,7 @@ import {
   TrendingUp,
   Map,
   Swords,
+  CircleDollarSign,
 } from "lucide-react";
 
 export const STEPS = [
@@ -15,9 +16,10 @@ export const STEPS = [
   { id: 2, title: "Team & Overview", icon: Users },
   { id: 3, title: "Value Proposition", icon: Target },
   { id: 4, title: "Business Model", icon: Briefcase },
-  { id: 5, title: "Go-to-Market", icon: TrendingUp },
-  { id: 6, title: "Customer & Market", icon: Map },
-  { id: 7, title: "Competitors", icon: Swords },
+  { id: 5, title: "Funding & Round", icon: CircleDollarSign },
+  { id: 6, title: "Go-to-Market", icon: TrendingUp },
+  { id: 7, title: "Customer & Market", icon: Map },
+  { id: 8, title: "Competitors", icon: Swords },
 ];
 
 export const VERTICALS = [

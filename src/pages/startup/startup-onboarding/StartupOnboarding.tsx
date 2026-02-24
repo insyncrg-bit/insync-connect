@@ -4,6 +4,7 @@ import { CompanyInfoStep } from "./components/steps/CompanyInfoStep";
 import { TeamOverviewStep } from "./components/steps/TeamOverviewStep";
 import { ValuePropositionStep } from "./components/steps/ValuePropositionStep";
 import { BusinessModelStep } from "./components/steps/BusinessModelStep";
+import { FundingRoundStep } from "./components/steps/FundingRoundStep";
 import { GoToMarketStep } from "./components/steps/GoToMarketStep";
 import { CustomerMarketStep } from "./components/steps/CustomerMarketStep";
 import { CompetitorsStep } from "./components/steps/CompetitorsStep";
@@ -54,12 +55,14 @@ export const StartupOnboarding = () => {
           errors.push("Select at least one pricing strategy");
         }
         break;
-      case 5: // Go-to-Market
+      case 5: // Funding & Round (optional for now)
+        return { isValid: true, errors: [] };
+      case 6: // Go-to-Market
         if (!data.gtmAcquisition.trim()) {
           errors.push("Customer acquisition strategy is required");
         }
         break;
-      case 6: // Customer & Market
+      case 7: // Customer & Market
         if (!data.targetGeography.trim()) {
           errors.push("Target geography is required");
         }
@@ -70,7 +73,7 @@ export const StartupOnboarding = () => {
         if (!data.samValue.trim()) errors.push("SAM value is required");
         if (!data.somValue.trim()) errors.push("SOM value is required");
         break;
-      case 7: // Competitors - optional
+      case 8: // Competitors - optional
         return { isValid: true, errors: [] };
     }
     
@@ -95,7 +98,8 @@ export const StartupOnboarding = () => {
       (["companyLogo", "logoPreview", "pitchdeck"] as const).forEach((k) => {
         if (payload[k] instanceof File) delete payload[k];
       });
-      const profileUrl = `${apiUrl}/users/founder-users/me/profile`;
+      const baseUrl = apiUrl.replace(/\/$/, "");
+      const profileUrl = `${baseUrl}/api/startups/me`;
       // #region agent log
       fetch('http://127.0.0.1:7243/ingest/5ce772b9-3080-4ec6-94ac-b8b4c43f9b0e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d819f'},body:JSON.stringify({sessionId:'3d819f',location:'StartupOnboarding.tsx:handleSubmit',message:'before profile POST',data:{apiUrlLen:apiUrl?.length,hasUser:!!user,payloadKeys:Object.keys(payload).length},hypothesisId:'H2,H5',timestamp:Date.now()})}).catch(()=>{});
       // #endregion
@@ -131,7 +135,8 @@ export const StartupOnboarding = () => {
   };
 
   const handleComplete = () => {
-    navigate("/startup");
+    // Redirect founders to the coming-soon startup dashboard placeholder
+    navigate("/startup-dashboard");
   };
 
   const renderStep = (
@@ -183,7 +188,7 @@ export const StartupOnboarding = () => {
         );
       case 5:
         return (
-          <GoToMarketStep
+          <FundingRoundStep
             data={data}
             onUpdate={onUpdate}
             onNext={onNext}
@@ -192,7 +197,7 @@ export const StartupOnboarding = () => {
         );
       case 6:
         return (
-          <CustomerMarketStep
+          <GoToMarketStep
             data={data}
             onUpdate={onUpdate}
             onNext={onNext}
@@ -200,6 +205,15 @@ export const StartupOnboarding = () => {
           />
         );
       case 7:
+        return (
+          <CustomerMarketStep
+            data={data}
+            onUpdate={onUpdate}
+            onNext={onNext}
+            onBack={onBack}
+          />
+        );
+      case 8:
         return (
           <CompetitorsStep
             data={data}
@@ -225,7 +239,7 @@ export const StartupOnboarding = () => {
       validateStep={validateStep}
       onSubmit={handleSubmit}
       onComplete={handleComplete}
-      requiredSteps={[1, 2, 3, 4, 5, 6]} // Step 7 (competitors) is optional
+      requiredSteps={[1, 2, 3, 4, 6, 7]} // Funding & Round and Competitors are optional
     />
   );
 };
