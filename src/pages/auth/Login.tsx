@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { sessionManager } from "@/lib/session";
 import { useToast } from "@/hooks/use-toast";
@@ -259,7 +259,34 @@ export const Login = () => {
       );
 
       const user = userCredential.user;
-      log.info("Firebase sign in successful", { uid: user.uid, email: user.email });
+      log.info("Firebase sign in successful", { uid: user.uid, email: user.email, emailVerified: user.emailVerified });
+
+      // If email is not verified, keep user on the auth flow and prompt verification
+      if (!user.emailVerified) {
+        log.info("User email not verified on login, sending verification email");
+        try {
+          await sendEmailVerification(user, {
+            url: `${window.location.origin}/verify-email`,
+            handleCodeInApp: false,
+          });
+          toast({
+            title: "Verify your email",
+            description: "We sent you a verification link. Please verify your email before signing in.",
+          });
+        } catch (err) {
+          log.error("Failed to send verification email on login", err);
+          toast({
+            title: "Verification required",
+            description: "Your email is not verified. Please check your inbox for a verification link or request a new one.",
+            variant: "destructive",
+          });
+        }
+
+        // Sign the user out so protected routes remain inaccessible
+        await auth.signOut();
+        setIsLoading(false);
+        return;
+      }
 
       await handleVerifiedUser(user);
     } catch (error: any) {

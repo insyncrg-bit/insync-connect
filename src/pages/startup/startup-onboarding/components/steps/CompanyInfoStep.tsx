@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Building2, Globe, Linkedin, MapPin, User, Mail } from "lucide-react";
+import { Upload, Building2, Globe, Linkedin } from "lucide-react";
+import { LocationField } from "@/components/onboarding";
 import { StartupOnboardingData } from "../../hooks/useStartupOnboardingStorage";
 import { VERTICALS, STAGES } from "../../constants";
 
@@ -177,53 +178,10 @@ export const CompanyInfoStep = ({ data, onUpdate, onNext, onBack }: CompanyInfoS
         </div>
         <div className="space-y-2">
           <Label className="text-[hsl(var(--navy-deep))]/80">Headquarters *</Label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--navy-deep))]/60" />
-            <Input
-              value={data.location}
-              onChange={(e) => onUpdate({ location: e.target.value })}
-              placeholder="City, State/Country"
-              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Founder Information */}
-      <div className="space-y-4 pt-6 border-t border-[hsl(var(--navy-deep))]/10">
-        <div className="space-y-2">
-          <Label className="text-base font-semibold text-[hsl(var(--navy-deep))]">Your Information</Label>
-          <p className="text-sm text-[hsl(var(--navy-deep))]/60">Primary contact for this application</p>
-        </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-[hsl(var(--navy-deep))]/80">Your Name *</Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--navy-deep))]/60" />
-              <Input
-                value={data.founderName}
-                onChange={(e) => onUpdate({ founderName: e.target.value })}
-                placeholder="Full name"
-                className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label className="text-[hsl(var(--navy-deep))]/80">Your Email *</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--navy-deep))]/60" />
-              <Input
-                type="email"
-                value={data.founderEmail}
-                onChange={(e) => onUpdate({ founderEmail: e.target.value })}
-                placeholder="you@company.com"
-                className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
-              />
-            </div>
-            <p className="text-xs text-cyan-glow/80 italic">
-              This email will be used to log in and access your dashboard.
-            </p>
-          </div>
+          <LocationField
+            value={data.location}
+            onChange={(location) => onUpdate({ location })}
+          />
         </div>
       </div>
 

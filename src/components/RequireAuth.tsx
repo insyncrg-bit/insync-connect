@@ -22,11 +22,25 @@ export const RequireAuth = () => {
     
     // Simply check if Firebase has a valid current user
     // Firebase SDK handles token refresh automatically
-    if (!auth.currentUser) {
+    const user = auth.currentUser;
+    if (!user) {
       sessionManager.clear();
       toast({
         title: "Please sign in",
         description: "You need to be signed in to access this page.",
+        variant: "destructive",
+      });
+      navigate("/login", { replace: true });
+      setAllowed(false);
+      return;
+    }
+
+    // Block users whose email is not verified
+    if (!user.emailVerified) {
+      sessionManager.clear();
+      toast({
+        title: "Verify your email",
+        description: "Please verify your email address using the link we sent before continuing.",
         variant: "destructive",
       });
       navigate("/login", { replace: true });

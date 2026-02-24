@@ -23,8 +23,6 @@ export interface StartupOnboardingData {
   vertical: string;
   stage: string;
   location: string;
-  founderName: string;
-  founderEmail: string;
   companyLogo?: File | null;
   logoPreview?: string | null;
   pitchdeck?: File | null;
@@ -43,6 +41,11 @@ export interface StartupOnboardingData {
   customerType: string[];
   customerTypeExplanation: string;
   businessStructure: string;
+  // Funding & Round add-ons
+  previousInvestors: string;
+  leadInvestor: string;
+  roundDetails: string;
+  fundingUse: string;
   pricingStrategies: string[];
   subscriptionType: string;
   subscriptionBillingCycle: string;
@@ -83,8 +86,6 @@ export const defaultData: StartupOnboardingData = {
   vertical: "",
   stage: "",
   location: "",
-  founderName: "",
-  founderEmail: "",
   companyLogo: null,
   logoPreview: null,
   pitchdeck: null,
@@ -97,6 +98,10 @@ export const defaultData: StartupOnboardingData = {
   customerType: [],
   customerTypeExplanation: "",
   businessStructure: "",
+  previousInvestors: "",
+  leadInvestor: "",
+  roundDetails: "",
+  fundingUse: "",
   pricingStrategies: [],
   subscriptionType: "",
   subscriptionBillingCycle: "",

@@ -10,4 +10,5 @@ export { SwitchField } from "./form/SwitchField";
 export { ContactList } from "./form/ContactList";
 export type { Contact } from "./form/ContactList";
 export { StepNavigation } from "./form/StepNavigation";
+export { LocationField } from "./form/LocationField";
 export { WelcomeStep } from "./steps/WelcomeStep";

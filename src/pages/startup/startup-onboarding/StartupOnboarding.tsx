@@ -29,11 +29,6 @@ export const StartupOnboarding = () => {
         if (!data.vertical) errors.push("Vertical is required");
         if (!data.stage) errors.push("Stage is required");
         if (!data.location.trim()) errors.push("Location is required");
-        if (!data.founderName.trim()) errors.push("Your name is required");
-        if (!data.founderEmail.trim()) errors.push("Your email is required");
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.founderEmail)) {
-          errors.push("Please enter a valid email address");
-        }
         break;
       case 2: // Team & Overview
         if (countWords(data.companyOverview) < 30) {

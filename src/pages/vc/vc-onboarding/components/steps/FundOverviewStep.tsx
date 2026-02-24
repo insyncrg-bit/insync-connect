@@ -24,6 +24,7 @@ import {
   MultiSelect,
   SwitchField,
   StepNavigation,
+  LocationField,
 } from "@/components/onboarding";
 import { Upload, X, Plus } from "lucide-react";
 import { uploadFile, deleteFile } from "@/lib/api";
@@ -246,7 +247,10 @@ export const FundOverviewStep = ({
             <TextInput type="url" value={data.companyLinkedIn} onChange={(v) => onUpdate({ companyLinkedIn: v })} placeholder="https://linkedin.com/company/yourfirm" />
           </FormField>
           <FormField label="Headquarters Location" required>
-            <TextInput value={data.hqLocation} onChange={(v) => onUpdate({ hqLocation: v })} placeholder="City, State" />
+            <LocationField
+              value={data.hqLocation}
+              onChange={(v) => onUpdate({ hqLocation: v })}
+            />
           </FormField>
           
           <div className="space-y-2">

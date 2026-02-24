@@ -33,6 +33,10 @@ export const VERTICALS = [
   "Enterprise Software",
   "Cybersecurity",
   "Other",
+  "Marketplace / Network",
+  "Developer Tools",
+  "BioTech / Life Sciences",
+  "Web3 / Crypto",
 ];
 
 export const STAGES = [
@@ -43,6 +47,8 @@ export const STAGES = [
   "Series A",
   "Series A+",
   "Series B+",
+  "Bootstrapped / Revenue-funded",
+  "Series C+",
 ];
 
 export const VALUE_DRIVERS = [
