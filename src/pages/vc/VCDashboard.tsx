@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -111,8 +112,8 @@ export const VCDashboard = () => {
   const { toast } = useToast();
   const [applications, setApplications] = useState<FounderApplication[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const queryClient = useQueryClient();
   const [connectionStats, setConnectionStats] = useState<ConnectionStats>({ interests: 0, syncs: 0, pending: 0 });
   const [pendingRequests, setPendingRequests] = useState<Set<string>>(new Set());
 
@@ -203,125 +204,67 @@ export const VCDashboard = () => {
 
   const currentTab = searchParams.get("tab") || "dashboard";
 
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, [searchParams]);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      
+  const { data: dashboardQueryData, isPending: loading } = useQuery({
+    queryKey: ["vc-dashboard"],
+    queryFn: async (): Promise<{ adminName: string; firmId: string | null; dashboard: DashboardData }> => {
       const { getAuth } = await import("firebase/auth");
-      const auth = getAuth();
-      const user = auth.currentUser;
+      const user = getAuth().currentUser;
+      if (!user) {
+        return { adminName: "VC User", firmId: null, dashboard: {} };
+      }
+      let firmId = sessionManager.get()?.firmId;
+      const token = await user.getIdToken();
+      const apiUrl = import.meta.env.VITE_FIREBASE_API as string;
 
-      if (user) {
-        let firmId = sessionManager.get()?.firmId;
-        console.log("[VCDashboard] Initial firmId from session:", firmId);
-
-        const token = await user.getIdToken();
-        const apiUrl = import.meta.env.VITE_FIREBASE_API;
-        
-        // Fetch user profile to get fresh name & firmId if missing
-        try {
-            const userRes = await fetch(`${apiUrl}/api/users/vc-users/${user.uid}`, { 
-                headers: { Authorization: `Bearer ${token}` } 
-            });
-            
-            if (userRes.ok) {
-                const userData = await userRes.json();
-                console.log("[VCDashboard] User data fetched:", userData);
-                if (userData.user) {
-                    if (userData.user.fullName) {
-                        const firstName = userData.user.fullName.split(' ')[0];
-                         setAdminName(firstName);
-                    }
-                    if (userData.user.firmId) {
-                        firmId = userData.user.firmId;
-                        console.log("[VCDashboard] Found firmId in user profile:", firmId);
-                        // Update session
-                         sessionManager.save({ 
-                            ...sessionManager.get(), 
-                            firmId
-                        });
-                    }
-                }
-            } else {
-                console.error("[VCDashboard] Failed to fetch user profile:", await userRes.text());
-                // Fallback to auth display name if fetch fails
-                 setAdminName(user.displayName ? user.displayName.split(' ')[0] : "VC User");
-            }
-        } catch (e) {
-            console.error("[VCDashboard] Error fetching user profile:", e);
-             // Fallback to auth display name if error
-             setAdminName(user.displayName ? user.displayName.split(' ')[0] : "VC User");
+      let adminName = user.displayName ? user.displayName.split(" ")[0] : "VC User";
+      try {
+        const userRes = await fetch(`${apiUrl}/api/users/vc-users/${user.uid}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          if (userData.user?.fullName) adminName = userData.user.fullName.split(" ")[0];
+          if (userData.user?.firmId) {
+            firmId = userData.user.firmId;
+            sessionManager.save({ ...sessionManager.get(), firmId });
+          }
         }
+      } catch {
+        // keep adminName fallback
+      }
 
-        if (firmId) {
-          const cacheKey = `dashboardData_${firmId}`;
-          const cachedData = sessionStorage.getItem(cacheKey);
+      if (!firmId) {
+        return { adminName, firmId: null, dashboard: {} };
+      }
 
-          if (cachedData) {
-            console.log("[VCDashboard] Using cached data:", JSON.parse(cachedData));
-            const data = JSON.parse(cachedData);
-            applyDashboardData(data);
-            setLoading(false);
-            return;
-          }
-
-          try {
-            console.log("[VCDashboard] Fetching data from:", apiUrl);
-
-            const [firmRes, memoRes] = await Promise.all([
-              fetch(`${apiUrl}/api/firms/${firmId}`, { headers: { Authorization: `Bearer ${token}` } }),
-              fetch(`${apiUrl}/api/firms/${firmId}/memo`, { headers: { Authorization: `Bearer ${token}` } })
-            ]);
-
-            const dashboardData: DashboardData = {};
-
-            if (firmRes.ok) {
-              const firmData = await firmRes.json();
-              console.log("[VCDashboard] Firm data fetched:", firmData);
-              dashboardData.firm = firmData.firm;
-            } else {
-                console.error("[VCDashboard] Failed to fetch firm:", await firmRes.text());
-            }
-
-            if (memoRes.ok) {
-              const memoData = await memoRes.json();
-              console.log("[VCDashboard] Memo data fetched:", memoData);
-              dashboardData.memo = memoData.memo;
-            } else {
-                console.error("[VCDashboard] Failed to fetch memo:", await memoRes.text());
-            }
-            
-            console.log("[VCDashboard] Final dashboard data:", dashboardData);
-            // Cache and apply
-            sessionStorage.setItem(cacheKey, JSON.stringify(dashboardData));
-            applyDashboardData(dashboardData);
-
-          } catch (err) {
-            console.error("Error fetching dashboard resources:", err);
-          }
-        } else {
-             console.warn("[VCDashboard] Could not determine firmId even after user profile fetch.");
+      const cacheKey = `dashboardData_${firmId}`;
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const dashboard = JSON.parse(cached) as DashboardData;
+          return { adminName, firmId, dashboard };
+        } catch {
+          // ignore bad cache
         }
       }
 
-      // Mock data for other parts
-      setApplications([]);
-      setConnectionStats({ interests: 0, syncs: 0, pending: 0 });
-      setIncomingInterests([]);
-      setActiveSyncs([]);
-      setOutgoingPending([]);
-      setMessageThreads([]);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      const [firmRes, memoRes] = await Promise.all([
+        fetch(`${apiUrl}/api/firms/${firmId}`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${apiUrl}/api/firms/${firmId}/memo`, { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+      const dashboard: DashboardData = {};
+      if (firmRes.ok) {
+        const firmData = await firmRes.json();
+        dashboard.firm = firmData.firm;
+      }
+      if (memoRes.ok) {
+        const memoData = await memoRes.json();
+        dashboard.memo = memoData.memo;
+      }
+      sessionStorage.setItem(cacheKey, JSON.stringify(dashboard));
+      return { adminName, firmId, dashboard };
+    },
+  });
 
   const applyDashboardData = (data: DashboardData) => {
     if (data.memo) {
@@ -387,6 +330,21 @@ export const VCDashboard = () => {
     const firmId = sessionManager.get()?.firmId;
     if (firmId) setRawFirmId(firmId);
   };
+
+  useEffect(() => {
+    if (!dashboardQueryData) return;
+    setAdminName(dashboardQueryData.adminName);
+    if (dashboardQueryData.firmId) setRawFirmId(dashboardQueryData.firmId);
+    applyDashboardData(dashboardQueryData.dashboard);
+    if (!dashboardQueryData.firmId) {
+      setApplications([]);
+      setConnectionStats({ interests: 0, syncs: 0, pending: 0 });
+      setIncomingInterests([]);
+      setActiveSyncs([]);
+      setOutgoingPending([]);
+      setMessageThreads([]);
+    }
+  }, [dashboardQueryData]);
 
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab }, { replace: true });
@@ -677,7 +635,7 @@ export const VCDashboard = () => {
                 if (rawFirmId) {
                   sessionStorage.removeItem(`dashboardData_${rawFirmId}`);
                 }
-                fetchDashboardData();
+                queryClient.invalidateQueries({ queryKey: ["vc-dashboard"] });
                 handleTabChange("");
               }}
             />
