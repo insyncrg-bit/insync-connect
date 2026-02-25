@@ -21,6 +21,7 @@ import {
   Building2, 
   MapPin, 
   Globe, 
+  Linkedin,
   Briefcase,
   Target,
   Users,
@@ -531,6 +532,30 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
                         📍 {formData.location || "Location"}
                       </Badge>
                     </div>
+                    {(formData.website || formData.linkedIn) && (
+                      <div className="flex flex-wrap gap-3 mt-2 text-sm text-white/60">
+                        {formData.website && (
+                          <a
+                            href={toExternalHref(formData.website)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors"
+                          >
+                            <Globe className="h-4 w-4" /> Website
+                          </a>
+                        )}
+                        {formData.linkedIn && (
+                          <a
+                            href={toExternalHref(formData.linkedIn)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors"
+                          >
+                            <Linkedin className="h-4 w-4" /> LinkedIn
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -674,7 +699,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
               )}
               <h1 className="text-4xl font-bold text-white mb-2">{formData.company_name || "Company Name"}</h1>
               <p className="text-xl text-white/70 mb-4">{formData.vertical} • {formData.stage}</p>
-              <div className="flex justify-center gap-4 text-sm text-white/60">
+              <div className="flex justify-center gap-4 text-sm text-white/60 flex-wrap">
                 <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {formData.location}</span>
                 {formData.website && (
                   <a
@@ -683,7 +708,17 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors"
                   >
-                    <Globe className="h-4 w-4" /> {formData.website}
+                    <Globe className="h-4 w-4" /> Website
+                  </a>
+                )}
+                {formData.linkedIn && (
+                  <a
+                    href={toExternalHref(formData.linkedIn)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:text-[hsl(var(--cyan-glow))] transition-colors"
+                  >
+                    <Linkedin className="h-4 w-4" /> LinkedIn
                   </a>
                 )}
               </div>
