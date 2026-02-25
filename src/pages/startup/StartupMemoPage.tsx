@@ -553,50 +553,12 @@ export function StartupMemoPage() {
     }
   };
 
-  if (loading || !seeded) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
-      </div>
-    );
-  }
+  // Shell always visible: title, subtitle, tabs; spinner only in content area when loading
+  const pitchUrl =
+    !loading && seeded && existingMemo
+      ? ((existingMemo as any)?.pitchdeck_url ?? (existingMemo as any)?.pitchdeckUrl ?? null)
+      : null;
 
-  if (mode === "edit") {
-    // Focused, full-page wizard feel for editing
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 pt-4">
-          <button
-            type="button"
-            className="text-sm text-white/70 hover:text-white flex items-center gap-2"
-            onClick={() => setMode("view")}
-          >
-            ← Back to preview
-          </button>
-          <p className="text-xs sm:text-sm text-white/40">Editing startup memo</p>
-        </div>
-        <OnboardingPage
-          title="Edit Memo"
-          description="Update your startup memo. Changes will be saved to your profile."
-          steps={[...EDIT_MEMO_STEPS]}
-          storageKey={STORAGE_KEY}
-          stepKey={STEP_KEY}
-          defaultData={defaultData}
-          renderStep={renderStep}
-          validateStep={validateStep}
-          onSubmit={handleSubmit}
-          onComplete={() => setMode("view")}
-          requiredSteps={[0, 1, 2, 3, 5, 6]}
-          submitLabel="Save"
-          loadingText="Saving memo..."
-          successTitle="Memo saved!"
-          successDescription="Your startup memo has been updated."
-        />
-      </div>
-    );
-  }
-
-  // View mode – centered investor-style preview (uses MemoEditor header)
   return (
     <div className="space-y-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -605,29 +567,23 @@ export function StartupMemoPage() {
           <p className="text-white/60 mt-1">Preview what investors see, or update your memo.</p>
         </div>
         <div className="flex items-center gap-3">
-          {(() => {
-            const pitchUrl =
-              (existingMemo as any)?.pitchdeck_url ??
-              (existingMemo as any)?.pitchdeckUrl ??
-              null;
-            return pitchUrl ? (
-              <a
-                href={pitchUrl as string}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex"
+          {pitchUrl ? (
+            <a
+              href={pitchUrl as string}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex"
+            >
+              <button
+                type="button"
+                className="inline-flex items-center rounded-md border border-white/20 bg-transparent px-3 py-2 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/10"
               >
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded-md border border-white/20 bg-transparent px-3 py-2 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/10"
-                >
-                  <FileText className="h-4 w-4 mr-1.5" />
-                  View Deck
-                  <ExternalLink className="h-3 w-3 ml-1" />
-                </button>
-              </a>
-            ) : null;
-          })()}
+                <FileText className="h-4 w-4 mr-1.5" />
+                View Deck
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </button>
+            </a>
+          ) : null}
           <Tabs value={mode} onValueChange={(v) => setMode(v as "view" | "edit")}>
             <TabsList className="bg-white/10">
               <TabsTrigger
@@ -649,7 +605,41 @@ export function StartupMemoPage() {
         </div>
       </div>
 
-      {existingMemo ? (
+      {loading || !seeded ? (
+        <div className="min-h-[40vh] flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
+        </div>
+      ) : mode === "edit" ? (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 pt-4">
+            <button
+              type="button"
+              className="text-sm text-white/70 hover:text-white flex items-center gap-2"
+              onClick={() => setMode("view")}
+            >
+              ← Back to preview
+            </button>
+            <p className="text-xs sm:text-sm text-white/40">Editing startup memo</p>
+          </div>
+          <OnboardingPage
+            title="Edit Memo"
+            description="Update your startup memo. Changes will be saved to your profile."
+            steps={[...EDIT_MEMO_STEPS]}
+            storageKey={STORAGE_KEY}
+            stepKey={STEP_KEY}
+            defaultData={defaultData}
+            renderStep={renderStep}
+            validateStep={validateStep}
+            onSubmit={handleSubmit}
+            onComplete={() => setMode("view")}
+            requiredSteps={[0, 1, 2, 3, 5, 6]}
+            submitLabel="Save"
+            loadingText="Saving memo..."
+            successTitle="Memo saved!"
+            successDescription="Your startup memo has been updated."
+          />
+        </div>
+      ) : existingMemo ? (
         <MemoEditor application={existingMemo} readOnly hideHeader />
       ) : (
         <div className="min-h-[40vh] flex items-center justify-center">
