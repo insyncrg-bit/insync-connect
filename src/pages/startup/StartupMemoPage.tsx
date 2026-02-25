@@ -13,7 +13,7 @@ import { onboardingToMemoPayload } from "@/lib/startupMemo";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MemoEditor = lazy(() => import("@/components/MemoEditor").then((m) => ({ default: m.MemoEditor })));
-const StartupMemoEditView = lazy(() => import("./StartupMemoEditView"));
+const StartupMemoEditView = lazy(() => import("./StartupMemoEditView.tsx"));
 
 const STORAGE_KEY = "startup_edit_memo_data";
 const STEP_KEY = "startup_edit_memo_step";

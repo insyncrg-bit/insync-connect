@@ -1,73 +1,69 @@
-# Welcome to your Lovable project
+# In-Sync Connect (Frontend)
 
-## Project info
+Web application for **In-Sync**, a high-fidelity startup–investor matching platform. Connects Boston founders with the right investors through data-driven matching and outcome tracking.
 
-**URL**: https://lovable.dev/projects/cf3d12d2-79f4-4e55-8a82-a89b281ee351
+## Tech stack
 
-## How can I edit this code?
+- **React 18** + **TypeScript**
+- **Vite 7** (build & dev server)
+- **React Router** (routing)
+- **Firebase** (auth)
+- **TanStack React Query** (server state)
+- **Tailwind CSS** + **Radix UI** (shadcn/ui-style components)
+- **Lucide React** (icons)
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+- Node.js 18+
+- npm or pnpm
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cf3d12d2-79f4-4e55-8a82-a89b281ee351) and start prompting.
+## Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Clone the repository and enter the frontend directory:
+   ```bash
+   cd insync-connect
+   ```
 
-**Use your preferred IDE**
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. Configure environment variables. Copy `.env.example` to `.env` (or create `.env`) and set:
+   - `VITE_FIREBASE_AUTH_DOMAIN` – Firebase Auth domain
+   - `VITE_FIREBASE_PROJECT_ID` – Firebase project ID
+   - `VITE_FIREBASE_API` – Backend API base URL (e.g. Cloud Functions URL)
+   - `VITE_FIREBASE_API_KEY` – Firebase Web API key  
+   Optional demo accounts: `VITE_DEMO_VC_EMAIL`, `VITE_DEMO_STARTUP_EMAIL`, `VITE_DEMO_ANALYST_EMAIL`, `VITE_DEMO_PASSWORD`.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+4. Run the dev server:
+   ```bash
+   npm run dev
+   ```
 
-Follow these steps:
+   The app is typically available at `http://localhost:5173`.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Scripts
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+| Command           | Description                |
+|-------------------|----------------------------|
+| `npm run dev`     | Start Vite dev server      |
+| `npm run build`   | Production build           |
+| `npm run build:dev` | Development build        |
+| `npm run preview` | Preview production build   |
+| `npm run lint`    | Run ESLint                 |
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Main areas
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+- **Landing** – Public landing and marketing
+- **Auth** – Sign up, login, verify email, forgot/reset password, role selection
+- **Startup** – Onboarding, dashboard, memo editor, profile, settings
+- **VC** – Onboarding, dashboard (thesis, curated startups, edit memo, connections)
+- **Analyst** – Analyst dashboard and flows
+- **Admin** – Superuser configuration and test pages
 
-**Edit a file directly in GitHub**
+The app uses role-based routes and layouts (e.g. `RequireUserType`, `AppLayoutWithNavbar`).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## License
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/cf3d12d2-79f4-4e55-8a82-a89b281ee351) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Commercial use is permitted only with explicit approval from the licensors. See [COMMERCIAL_LICENSE.md](./COMMERCIAL_LICENSE.md) in this repository for terms.
