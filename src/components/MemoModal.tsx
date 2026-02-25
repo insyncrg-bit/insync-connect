@@ -108,12 +108,13 @@ export function MemoModal({
         if (!user) return;
         const token = await user.getIdToken();
 
-        const res = await fetch(`${baseUrl}/api/startups/${startup.user_id}`, {
+        // Logo and pitch deck live in memo; profile is lean
+        const memoRes = await fetch(`${baseUrl}/startups/${startup.user_id}/memo`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) return;
-        const json = await res.json();
-        const s = (json.startup || {}) as Record<string, unknown>;
+        if (!memoRes.ok) return;
+        const memoJson = await memoRes.json();
+        const s = (memoJson.memo || {}) as Record<string, unknown>;
 
         const pitchdeckUrl =
           (typeof s.pitchdeckUrl === "string" && s.pitchdeckUrl) ||

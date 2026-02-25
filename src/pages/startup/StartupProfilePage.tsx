@@ -97,20 +97,28 @@ export function StartupProfilePage() {
         if (!baseUrl) throw new Error("API base URL is not configured.");
 
         const token = await user.getIdToken();
-        const res = await fetch(`${baseUrl}/api/startups/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText || "Failed to load startup profile.");
+        const authHeader = { Authorization: `Bearer ${token}` };
+
+        // Load profile (lean) + memo (overview, team, logo, pitch deck)
+        const [profileRes, memoRes] = await Promise.all([
+          fetch(`${baseUrl}/startups/me`, { headers: authHeader }),
+          fetch(`${baseUrl}/startups/me/memo`, { headers: authHeader }),
+        ]);
+
+        const profile = profileRes.ok ? ((await profileRes.json()).startup || {}) as Record<string, unknown> : {};
+        const memo = memoRes.ok ? ((await memoRes.json()).memo || null) as Record<string, unknown> | null : null;
+
+        if (!profileRes.ok && !memoRes.ok) {
+          throw new Error("Failed to load startup data.");
         }
-        const json = await res.json();
-        const startup = (json.startup || {}) as Record<string, unknown>;
+
+        // Merge profile + memo for display (memo has overview, team, logo, pitch deck)
+        const source = { ...profile, ...memo } as Record<string, unknown>;
 
         if (mounted) {
           const prefilled: StartupOnboardingData = {
             ...defaultData,
-            ...buildPrefillFromProfile(startup),
+            ...buildPrefillFromProfile(source),
           };
           localStorage.setItem(STORAGE_KEY, JSON.stringify(prefilled));
           localStorage.setItem(STEP_KEY, "0");
@@ -196,51 +204,69 @@ export function StartupProfilePage() {
         pitchdeckName = data.pitchdeck.name;
       }
 
-      // PATCH a minimal payload so we don't overwrite unrelated profile fields with empty defaults.
-      const payload: Record<string, unknown> = {
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+
+      // 1) PATCH lean profile (identifier fields only)
+      const profilePayload = {
         companyName: data.companyName,
-        website: data.website,
-        linkedIn: data.linkedIn,
         vertical: data.vertical,
         stage: data.stage,
         location: data.location,
-        companyOverview: data.companyOverview,
-        teamMembers: data.teamMembers,
+        website: data.website,
+        linkedIn: data.linkedIn,
       };
 
-      if (startupLogoUrl) {
-        payload.startupLogoUrl = startupLogoUrl;
-      }
-      if (pitchdeckUrl) {
-        payload.pitchdeckUrl = pitchdeckUrl;
-      }
-      if (pitchdeckName) {
-        payload.pitchdeckName = pitchdeckName;
-      }
-
-      let res = await fetch(`${baseUrl}/api/startups/me`, {
+      let profileRes = await fetch(`${baseUrl}/startups/me`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
+        headers,
+        body: JSON.stringify(profilePayload),
       });
-
-      if (res.status === 404) {
-        res = await fetch(`${baseUrl}/api/startups/me`, {
+      if (profileRes.status === 404) {
+        profileRes = await fetch(`${baseUrl}/startups/me`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
+          headers,
+          body: JSON.stringify(profilePayload),
         });
       }
-
-      if (!res.ok) {
-        const errText = await res.text();
+      if (!profileRes.ok) {
+        const errText = await profileRes.text();
         throw new Error(errText || "Failed to save profile.");
+      }
+
+      // 2) PATCH memo (only fields we edit: identifiers, overview, team, logo, pitch deck)
+      const logoUrl = startupLogoUrl ?? (typeof data.startupLogoUrl === "string" ? data.startupLogoUrl : undefined);
+      const memoPayload: Record<string, unknown> = {
+        company_name: data.companyName,
+        vertical: data.vertical,
+        stage: data.stage,
+        location: data.location,
+        website: data.website,
+        linkedIn: data.linkedIn ?? "",
+        business_model: data.companyOverview,
+        team_members: data.teamMembers.filter((m) => m.name || m.role || m.linkedin || m.background),
+      };
+      if (logoUrl) memoPayload.logo_url = logoUrl;
+      if (pitchdeckUrl) memoPayload.pitchdeck_url = pitchdeckUrl;
+      if (pitchdeckName) memoPayload.pitchdeck_name = pitchdeckName;
+
+      let memoRes = await fetch(`${baseUrl}/startups/me/memo`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(memoPayload),
+      });
+      if (memoRes.status === 404) {
+        memoRes = await fetch(`${baseUrl}/startups/me/memo`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(memoPayload),
+        });
+      }
+      if (!memoRes.ok) {
+        const errText = await memoRes.text();
+        throw new Error(errText || "Failed to save memo.");
       }
 
       isDirtyRef.current = false;
@@ -275,7 +301,22 @@ export function StartupProfilePage() {
 
     switch (step) {
       case 0:
-        return <CompanyInfoStep data={data} onUpdate={handleUpdate} onNext={onNext} onBack={onBack} />;
+        return (
+          <CompanyInfoStep
+            data={data}
+            onUpdate={handleUpdate}
+            onLogoUpload={async (file: File) => {
+              const { getAuth } = await import("firebase/auth");
+              const user = getAuth().currentUser;
+              if (!user) throw new Error("Not authenticated");
+              const oldUrl = typeof data.startupLogoUrl === "string" ? data.startupLogoUrl : "";
+              if (oldUrl) await deleteFile(oldUrl).catch(() => {});
+              return uploadFile(file, "startup_logo", user.uid);
+            }}
+            onNext={onNext}
+            onBack={onBack}
+          />
+        );
       case 1:
         return (
           <TeamOverviewStep

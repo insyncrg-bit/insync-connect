@@ -64,6 +64,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
     stage: "",
     location: "",
     website: "",
+    linkedIn: "",
     business_model: "",
   });
 
@@ -82,6 +83,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
         stage: application.stage || "",
         location: application.location || "",
         website: application.website || "",
+        linkedIn: application.linkedIn ?? application.companyLinkedIn ?? application.company_linkedin ?? "",
         business_model: application.business_model || "",
       });
       setDraftSections(application.application_sections || {});
@@ -126,8 +128,11 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
       }
 
       const baseUrl = apiUrl.replace(/\/$/, "");
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
 
-      // Merge editable header fields with any additional application data
       const memoPayload = {
         ...(application || {}),
         company_name: formData.company_name,
@@ -135,24 +140,55 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
         stage: formData.stage,
         location: formData.location,
         website: formData.website,
+        linkedIn: formData.linkedIn ?? "",
         business_model: formData.business_model,
         traction: draftTraction,
         application_sections: draftSections,
         team_members: draftTeamMembers,
       };
 
-      const res = await fetch(`${baseUrl}/api/startups/me/memo`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      // PATCH memo first, POST if memo doesn't exist
+      let memoRes = await fetch(`${baseUrl}/startups/me/memo`, {
+        method: "PATCH",
+        headers,
         body: JSON.stringify(memoPayload),
       });
-
-      if (!res.ok) {
-        const errText = await res.text();
+      if (memoRes.status === 404) {
+        memoRes = await fetch(`${baseUrl}/startups/me/memo`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(memoPayload),
+        });
+      }
+      if (!memoRes.ok) {
+        const errText = await memoRes.text();
         throw new Error(errText || "Failed to save memo.");
+      }
+
+      // Sync lean profile so search/filter stays up to date
+      const profilePayload = {
+        companyName: formData.company_name,
+        vertical: formData.vertical,
+        stage: formData.stage,
+        location: formData.location,
+        website: formData.website,
+        linkedIn: formData.linkedIn ?? "",
+      };
+      let profileRes = await fetch(`${baseUrl}/startups/me`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(profilePayload),
+      });
+      if (profileRes.status === 404) {
+        profileRes = await fetch(`${baseUrl}/startups/me`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(profilePayload),
+        });
+      }
+      if (!profileRes.ok) {
+        const errText = await profileRes.text();
+        throw new Error(errText || "Failed to sync profile.");
       }
 
       toast({
@@ -162,6 +198,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
       setIsEditing(false);
       onUpdate?.();
     } catch (error: any) {
+      console.error("[MemoEditor] Save error:", error);
       toast({
         title: "Error",
         description: error?.message || "Failed to save changes. Please try again.",
@@ -271,6 +308,15 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
                 value={formData.website}
                 onChange={(e) => setFormData((p) => ({ ...p, website: e.target.value }))}
                 placeholder="https://..."
+                className="bg-white/5 border-white/15 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80">LinkedIn</Label>
+              <Input
+                value={formData.linkedIn}
+                onChange={(e) => setFormData((p) => ({ ...p, linkedIn: e.target.value }))}
+                placeholder="Company LinkedIn URL"
                 className="bg-white/5 border-white/15 text-white"
               />
             </div>

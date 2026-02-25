@@ -17,6 +17,7 @@ import { GoToMarketStep } from "./startup-onboarding/components/steps/GoToMarket
 import { CustomerMarketStep } from "./startup-onboarding/components/steps/CustomerMarketStep";
 import { CompetitorsStep } from "./startup-onboarding/components/steps/CompetitorsStep";
 import { uploadFile, deleteFile } from "@/lib/api";
+import { onboardingToMemoPayload } from "@/lib/startupMemo";
 import { MemoEditor } from "@/components/MemoEditor";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -174,72 +175,6 @@ function buildPrefill(source: StartupMemoLike | null): Partial<StartupOnboarding
   };
 }
 
-function onboardingToMemoPayload(data: StartupOnboardingData): StartupMemoLike {
-  const teamMembers = data.teamMembers.filter((m) => m.name || m.role || m.linkedin || m.background);
-  const competitors = data.competitors.filter((c) => c.name || c.description || c.howYouDiffer);
-
-  const applicationSections = {
-    section2: {
-      currentPainPoint: data.currentPainPoint,
-      valueDrivers: data.valueDrivers,
-      valueDriverExplanations: data.valueDriverExplanations,
-    },
-    section3: {
-      customerType: data.customerType,
-      customerTypeExplanation: data.customerTypeExplanation,
-      businessStructure: data.businessStructure,
-      pricingStrategies: data.pricingStrategies,
-
-      previousInvestors: data.previousInvestors,
-      leadInvestor: data.leadInvestor,
-      roundDetails: data.roundDetails,
-      fundingUse: data.fundingUse,
-
-      subscriptionType: data.subscriptionType,
-      subscriptionBillingCycle: data.subscriptionBillingCycle,
-      subscriptionTiers: data.subscriptionTiers,
-      transactionFeeType: data.transactionFeeType,
-      transactionFeePercentage: data.transactionFeePercentage,
-      licensingModel: data.licensingModel,
-      adRevenueModel: data.adRevenueModel,
-      serviceType: data.serviceType,
-      revenueMetrics: data.revenueMetrics,
-      revenueMetricsValues: data.revenueMetricsValues,
-    },
-    section4: {
-      gtmAcquisition: data.gtmAcquisition,
-      gtmTimeline: data.gtmTimeline,
-    },
-    section5: {
-      targetGeography: data.targetGeography,
-      targetCustomerDescription: data.targetCustomerDescription,
-      tamValue: data.tamValue,
-      tamCalculationMethod: data.tamCalculationMethod,
-      tamBreakdown: data.tamBreakdown,
-      samValue: data.samValue,
-      samBreakdown: data.samBreakdown,
-      somValue: data.somValue,
-      somTimeframe: data.somTimeframe,
-      somBreakdown: data.somBreakdown,
-    },
-    section6: {
-      competitors,
-      competitiveMoat: data.competitiveMoat,
-    },
-  };
-
-  return {
-    company_name: data.companyName,
-    vertical: data.vertical,
-    stage: data.stage,
-    location: data.location,
-    website: data.website,
-    business_model: data.companyOverview,
-    team_members: teamMembers,
-    application_sections: applicationSections,
-  };
-}
-
 export function StartupMemoPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -274,69 +209,83 @@ export function StartupMemoPage() {
           throw new Error("API base URL is not configured.");
         }
 
-        // 1) Prefer existing memo
-        let source: StartupMemoLike | null = null;
+        // 1) Fetch memo and profile
+        let memo: StartupMemoLike | null = null;
+        let profile: StartupMemoLike = {};
         try {
-          const memoRes = await fetch(`${baseUrl}/startups/me/memo`, {
-            headers: authHeader,
-          });
+          const [memoRes, profileRes] = await Promise.all([
+            fetch(`${baseUrl}/startups/me/memo`, { headers: authHeader }),
+            fetch(`${baseUrl}/startups/me`, { headers: authHeader }),
+          ]);
 
           if (memoRes.ok) {
             const memoJson = await memoRes.json();
-            source = (memoJson.memo || null) as StartupMemoLike | null;
+            memo = (memoJson.memo || null) as StartupMemoLike | null;
           } else if (memoRes.status !== 404) {
             const errText = await memoRes.text();
             console.error("[StartupMemoPage] Error fetching memo:", errText);
           }
+
+          if (profileRes.ok) {
+            const profileJson = await profileRes.json();
+            profile = (profileJson.startup || {}) as StartupMemoLike;
+          }
         } catch (err) {
-          console.error("[StartupMemoPage] Failed to fetch memo:", err);
+          console.error("[StartupMemoPage] Failed to fetch data:", err);
         }
 
-        // 2) If no memo exists yet, fall back to startup profile (so we can still prefill)
+        // 2) Merge: memo is primary, profile supplies lean fields (linkedIn, etc.) for backward compat
+        const source: StartupMemoLike | null = memo
+          ? { ...profile, ...memo } as StartupMemoLike
+          : Object.keys(profile).length ? profile : null;
+
         if (!source) {
-          const profileRes = await fetch(`${baseUrl}/startups/me`, {
-            headers: authHeader,
-          });
-
-          if (!profileRes.ok) {
-            const errText = await profileRes.text();
-            throw new Error(errText || "Failed to load startup profile.");
-          }
-
-          const profileJson = await profileRes.json();
-          const p = (profileJson.startup || {}) as StartupMemoLike;
-          source = p;
+          throw new Error("Failed to load startup data.");
         }
 
         if (mounted) {
           const prefill = buildPrefill(source);
+          const onboardingData = { ...defaultData, ...prefill };
+
+          // When source is from profile (no memo doc), it has flat fields. Build memo format for MemoEditor.
+          const hasMemoStructure = !!(source as any).application_sections || (source as any).applicationSections;
+          const memoFormat = hasMemoStructure
+            ? source
+            : onboardingToMemoPayload(onboardingData);
+
           const enrichedForPreview: StartupMemoLike = {
-            ...source,
-            // Ensure preview has the same header & asset fields investors see
+            ...memoFormat,
             company_name:
-              (source as any).company_name ??
+              (memoFormat as any).company_name ??
               prefill.companyName ??
-              (source as any).company ??
+              (source as any).companyName ??
+              "",
+            linkedIn:
+              (memoFormat as any).linkedIn ??
+              (source as any).linkedIn ??
+              prefill.linkedIn ??
               "",
             logo_url:
-              (source as any).logo_url ??
+              (memoFormat as any).logo_url ??
               (source as any).startupLogoUrl ??
               (source as any).companyLogoUrl ??
               prefill.startupLogoUrl ??
               null,
             pitchdeck_url:
-              (source as any).pitchdeck_url ??
+              (memoFormat as any).pitchdeck_url ??
               (source as any).pitchdeckUrl ??
               prefill.pitchdeckUrl ??
+              null,
+            pitchdeck_name:
+              (memoFormat as any).pitchdeck_name ??
+              (source as any).pitchdeckName ??
+              prefill.pitchdeckName ??
               null,
           };
 
           setExistingMemo(enrichedForPreview);
 
-          const prefilled: StartupOnboardingData = {
-            ...defaultData,
-            ...prefill,
-          };
+          const prefilled: StartupOnboardingData = onboardingData;
           localStorage.setItem(STORAGE_KEY, JSON.stringify(prefilled));
           localStorage.setItem(STEP_KEY, "0");
           localStorage.removeItem(`${STEP_KEY}_completed`);
@@ -450,28 +399,15 @@ export function StartupMemoPage() {
         pitchdeckName = data.pitchdeck.name;
       }
 
-      // Sync key profile fields so the investor-facing profile & memo stay aligned.
+      // Lean profile: identifier fields only (for search/filtering)
       const profilePayload: Record<string, unknown> = {
         companyName: data.companyName,
-        website: data.website,
-        linkedIn: data.linkedIn,
         vertical: data.vertical,
         stage: data.stage,
         location: data.location,
-        companyOverview: data.companyOverview,
-        teamMembers: data.teamMembers,
+        website: data.website,
+        linkedIn: data.linkedIn,
       };
-      if (startupLogoUrl) {
-        profilePayload.startupLogoUrl = startupLogoUrl;
-      } else if (typeof data.startupLogoUrl === "string" && data.startupLogoUrl) {
-        profilePayload.startupLogoUrl = data.startupLogoUrl;
-      }
-      if (pitchdeckUrl) {
-        profilePayload.pitchdeckUrl = pitchdeckUrl;
-      }
-      if (pitchdeckName) {
-        profilePayload.pitchdeckName = pitchdeckName;
-      }
 
       // Apply profile updates (PATCH-first, POST fallback).
       let profileRes = await fetch(`${baseUrl}/startups/me`, {
@@ -499,8 +435,13 @@ export function StartupMemoPage() {
         throw new Error(errText || "Failed to save profile fields.");
       }
 
-      // Then update the structured memo content.
-      const memoPayload = onboardingToMemoPayload(data);
+      // Full memo: identifiers + logo + pitch deck + overview + team + sections
+      const logoUrl = startupLogoUrl ?? (typeof data.startupLogoUrl === "string" ? data.startupLogoUrl : undefined);
+      const memoPayload = onboardingToMemoPayload(data, {
+        logo_url: logoUrl,
+        pitchdeck_url: pitchdeckUrl,
+        pitchdeck_name: pitchdeckName,
+      });
 
       // PATCH first (preserve unknown memo fields), fall back to POST if memo doesn't exist yet
       let res = await fetch(`${baseUrl}/startups/me/memo`, {
