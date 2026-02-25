@@ -719,17 +719,17 @@ export const VCDashboard = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#151a24]">
-        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--cyan-glow))]" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-[#151a24]">
-      <main className="flex-1 p-6 md:p-8 overflow-auto">{renderContent()}</main>
+      <main className="flex-1 p-6 md:p-8 overflow-auto">
+        {loading ? (
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--cyan-glow))]" />
+          </div>
+        ) : (
+          renderContent()
+        )}
+      </main>
 
       <InvestorThesisModal
         open={thesisModalOpen}
