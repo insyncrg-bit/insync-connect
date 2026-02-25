@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { Loader2, FileText, PencilLine, ExternalLink } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import type { StepValidation } from "@/components/onboarding";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -159,10 +159,7 @@ function buildPrefill(source: StartupMemoLike | null): Partial<StartupOnboarding
 
 export function StartupMemoPage() {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const isDirtyRef = useRef(false);
-  const [existingMemo, setExistingMemo] = useState<StartupMemoLike | null>(null);
-  const [loading, setLoading] = useState(true);
   const [seeded, setSeeded] = useState(false);
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [refreshKey, setRefreshKey] = useState(0);
@@ -171,129 +168,108 @@ export function StartupMemoPage() {
     return apiUrl ? apiUrl.replace(/\/$/, "") : "";
   }, []);
 
+  const [memoQuery, profileQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ["startup-memo", baseUrl, refreshKey],
+        queryFn: async (): Promise<StartupMemoLike | null> => {
+          const { getAuth } = await import("firebase/auth");
+          const user = getAuth().currentUser;
+          if (!user) throw new Error("You must be logged in to edit your memo.");
+          if (!baseUrl) throw new Error("API base URL is not configured.");
+          const token = await user.getIdToken();
+          const res = await fetch(`${baseUrl}/startups/me/memo`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.status === 404) return null;
+          if (!res.ok) throw new Error(await res.text());
+          const json = await res.json();
+          return (json.memo ?? null) as StartupMemoLike | null;
+        },
+        enabled: !!baseUrl,
+      },
+      {
+        queryKey: ["startup-profile", baseUrl, refreshKey],
+        queryFn: async (): Promise<StartupMemoLike> => {
+          const { getAuth } = await import("firebase/auth");
+          const user = getAuth().currentUser;
+          if (!user) throw new Error("You must be logged in to edit your memo.");
+          if (!baseUrl) throw new Error("API base URL is not configured.");
+          const token = await user.getIdToken();
+          const res = await fetch(`${baseUrl}/startups/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) throw new Error(await res.text());
+          const json = await res.json();
+          return (json.startup ?? {}) as StartupMemoLike;
+        },
+        enabled: !!baseUrl,
+      },
+    ],
+  });
+
+  const loading = memoQuery.isPending || profileQuery.isPending;
+  const memoData = memoQuery.data;
+  const profileData = profileQuery.data;
+
+  const existingMemo = useMemo(() => {
+    if (memoQuery.isError || profileQuery.isError) return null;
+    if (memoData === undefined || profileData === undefined) return null;
+    const memo = memoData;
+    const profile = profileData;
+    const source: StartupMemoLike | null = memo
+      ? { ...profile, ...memo } as StartupMemoLike
+      : Object.keys(profile).length ? profile : null;
+    if (!source) return null;
+    const prefill = buildPrefill(source);
+    const onboardingData = { ...defaultData, ...prefill };
+    const hasMemoStructure = !!(source as any).application_sections || (source as any).applicationSections;
+    const memoFormat = hasMemoStructure ? source : onboardingToMemoPayload(onboardingData);
+    return {
+      ...memoFormat,
+      company_name:
+        (memoFormat as any).company_name ?? prefill.companyName ?? (source as any).companyName ?? "",
+      linkedIn:
+        (memoFormat as any).linkedIn ?? (source as any).linkedIn ?? prefill.linkedIn ?? "",
+      logo_url:
+        (memoFormat as any).logo_url ??
+        (source as any).startupLogoUrl ??
+        (source as any).companyLogoUrl ??
+        prefill.startupLogoUrl ??
+        null,
+      pitchdeck_url:
+        (memoFormat as any).pitchdeck_url ?? (source as any).pitchdeckUrl ?? prefill.pitchdeckUrl ?? null,
+      pitchdeck_name:
+        (memoFormat as any).pitchdeck_name ?? (source as any).pitchdeckName ?? prefill.pitchdeckName ?? null,
+    } as StartupMemoLike;
+  }, [memoData, profileData, memoQuery.isError, profileQuery.isError]);
+
   useEffect(() => {
-    let mounted = true;
-
-    const loadData = async () => {
-      try {
-        const { getAuth } = await import("firebase/auth");
-        const auth = getAuth();
-        const user = auth.currentUser;
-
-        if (!user) {
-          throw new Error("You must be logged in to edit your memo.");
-        }
-
-        const token = await user.getIdToken();
-        const authHeader = { Authorization: `Bearer ${token}` };
-
-        if (!baseUrl) {
-          throw new Error("API base URL is not configured.");
-        }
-
-        // 1) Fetch memo and profile
-        let memo: StartupMemoLike | null = null;
-        let profile: StartupMemoLike = {};
-        try {
-          const [memoRes, profileRes] = await Promise.all([
-            fetch(`${baseUrl}/startups/me/memo`, { headers: authHeader }),
-            fetch(`${baseUrl}/startups/me`, { headers: authHeader }),
-          ]);
-
-          if (memoRes.ok) {
-            const memoJson = await memoRes.json();
-            memo = (memoJson.memo || null) as StartupMemoLike | null;
-          } else if (memoRes.status !== 404) {
-            const errText = await memoRes.text();
-            console.error("[StartupMemoPage] Error fetching memo:", errText);
-          }
-
-          if (profileRes.ok) {
-            const profileJson = await profileRes.json();
-            profile = (profileJson.startup || {}) as StartupMemoLike;
-          }
-        } catch (err) {
-          console.error("[StartupMemoPage] Failed to fetch data:", err);
-        }
-
-        // 2) Merge: memo is primary, profile supplies lean fields (linkedIn, etc.) for backward compat
-        const source: StartupMemoLike | null = memo
-          ? { ...profile, ...memo } as StartupMemoLike
-          : Object.keys(profile).length ? profile : null;
-
-        if (!source) {
-          throw new Error("Failed to load startup data.");
-        }
-
-        if (mounted) {
-          const prefill = buildPrefill(source);
-          const onboardingData = { ...defaultData, ...prefill };
-
-          // When source is from profile (no memo doc), it has flat fields. Build memo format for MemoEditor.
-          const hasMemoStructure = !!(source as any).application_sections || (source as any).applicationSections;
-          const memoFormat = hasMemoStructure
-            ? source
-            : onboardingToMemoPayload(onboardingData);
-
-          const enrichedForPreview: StartupMemoLike = {
-            ...memoFormat,
-            company_name:
-              (memoFormat as any).company_name ??
-              prefill.companyName ??
-              (source as any).companyName ??
-              "",
-            linkedIn:
-              (memoFormat as any).linkedIn ??
-              (source as any).linkedIn ??
-              prefill.linkedIn ??
-              "",
-            logo_url:
-              (memoFormat as any).logo_url ??
-              (source as any).startupLogoUrl ??
-              (source as any).companyLogoUrl ??
-              prefill.startupLogoUrl ??
-              null,
-            pitchdeck_url:
-              (memoFormat as any).pitchdeck_url ??
-              (source as any).pitchdeckUrl ??
-              prefill.pitchdeckUrl ??
-              null,
-            pitchdeck_name:
-              (memoFormat as any).pitchdeck_name ??
-              (source as any).pitchdeckName ??
-              prefill.pitchdeckName ??
-              null,
-          };
-
-          setExistingMemo(enrichedForPreview);
-
-          const prefilled: StartupOnboardingData = onboardingData;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(prefilled));
-          localStorage.setItem(STEP_KEY, "0");
-          localStorage.removeItem(`${STEP_KEY}_completed`);
-          setSeeded(true);
-        }
-      } catch (err: any) {
-        console.error("[StartupMemoPage] Error loading data:", err);
-        toast({
-          title: "Error",
-          description: err?.message || "Failed to load your memo.",
-          variant: "destructive",
-        });
-        setSeeded(true);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    loadData();
-
-    return () => {
-      mounted = false;
-    };
-  }, [toast, baseUrl, refreshKey]);
+    if (!baseUrl) {
+      setSeeded(true);
+      return;
+    }
+    if (memoQuery.isError || profileQuery.isError) {
+      const err = memoQuery.error ?? profileQuery.error;
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to load your memo.",
+        variant: "destructive",
+      });
+      setSeeded(true);
+      return;
+    }
+    if (memoQuery.isPending || profileQuery.isPending) return;
+    if (memoData === undefined || profileData === undefined) return;
+    if (existingMemo) {
+      const prefill = buildPrefill(existingMemo);
+      const onboardingData = { ...defaultData, ...prefill };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(onboardingData));
+      localStorage.setItem(STEP_KEY, "0");
+      localStorage.removeItem(`${STEP_KEY}_completed`);
+    }
+    setSeeded(true);
+  }, [baseUrl, existingMemo, memoData, profileData, memoQuery.isPending, profileQuery.isPending, memoQuery.isError, profileQuery.isError, memoQuery.error, profileQuery.error, toast]);
 
   // Browser back/refresh guard
   useEffect(() => {
