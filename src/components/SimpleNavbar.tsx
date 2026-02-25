@@ -46,7 +46,7 @@ export const SimpleNavbar = () => {
         onClick={() => navigate("/landing")}
         className="hover:opacity-80 transition-opacity"
       >
-        <img src={infinityLogo} alt="Home" className="h-14 w-auto" />
+        <img src={infinityLogo} alt="Home" width={100} height={56} className="h-14 w-auto" />
       </button>
 
       <div className="flex-1" />
