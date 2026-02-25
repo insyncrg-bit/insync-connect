@@ -124,7 +124,9 @@ const App = () => {
               
               {/* VC User Routes */}
               <Route element={<RequireUserType allowedTypes={["vc-user"]} />}>
-                <Route path="/request-sent" element={<RequestSent />} />
+                <Route element={<SimpleLayout />}>
+                  <Route path="/request-sent" element={<RequestSent />} />
+                </Route>
                 
                 {/* Only accessible if accepted (Admin or Analyst) */}
                 <Route element={<RequireRequestStatus allowedStatuses={["accepted"]} />}>

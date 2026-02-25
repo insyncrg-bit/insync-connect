@@ -15,7 +15,7 @@ export interface Competitor {
 
 export interface StartupOnboardingData {
   // Step 0: Welcome (no data needed)
-  
+
   // Step 1: Company Info
   companyName: string;
   website: string;
@@ -29,21 +29,22 @@ export interface StartupOnboardingData {
   pitchdeck?: File | null;
   pitchdeckName?: string | null;
   pitchdeckUrl?: string | null;
-  
+
   // Step 2: Team & Overview
   companyOverview: string;
   teamMembers: TeamMember[];
-  
+
   // Step 3: Value Proposition
   currentPainPoint: string;
   valueDrivers: string[];
   valueDriverExplanations: Record<string, string>;
-  
+
   // Step 4: Business Model
   customerType: string[];
   customerTypeExplanation: string;
   businessStructure: string;
-  // Funding & Round add-ons
+
+  // Step 5: Funding & Round add-ons
   previousInvestors: string;
   leadInvestor: string;
   roundDetails: string;
@@ -59,11 +60,11 @@ export interface StartupOnboardingData {
   serviceType: string;
   revenueMetrics: string[];
   revenueMetricsValues: string;
-  
+
   // Step 5: Go-to-Market
   gtmAcquisition: string;
   gtmTimeline: string;
-  
+
   // Step 6: Customer & Market
   targetGeography: string;
   targetCustomerDescription: string;
@@ -75,7 +76,7 @@ export interface StartupOnboardingData {
   somValue: string;
   somTimeframe: string;
   somBreakdown: string;
-  
+
   // Step 7: Competitors
   competitors: Competitor[];
   competitiveMoat: string;

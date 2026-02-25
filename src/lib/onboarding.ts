@@ -43,8 +43,7 @@ export async function getSmartRedirectPath(user: User, claims: any): Promise<str
                 return "/request-sent";
             }
             if (requestStatus === "rejected") {
-                // TODO: Handle rejection
-                return "/select-role";
+                return "/403";
             }
             if (requestStatus === "accepted") {
                 // If accepted, check if they finished onboarding (via firm data)
@@ -79,9 +78,20 @@ export async function getSmartRedirectPath(user: User, claims: any): Promise<str
             if (!userRes.ok) return "/startup-onboarding";
 
             const userData = await userRes.json();
+            const startupId = userData.user?.startupId;
+
+            if (!startupId) return "/startup-onboarding";
+
+            // 2. Get Startup details
+            const startupRes = await fetch(`${FIREBASE_API}/startups/${startupId}`, { headers });
+
+            if (!startupRes.ok) return "/startup-onboarding";
+
+            const startupData = await startupRes.json();
+            const onboardingComplete = startupData.startup?.onboardingComplete;
 
             // Check if they have marked onboarding as complete
-            if (userData.user?.onboardingComplete) {
+            if (onboardingComplete) {
                 // Startup dashboard is currently a "coming soon" placeholder
                 return "/startup-dashboard";
             }
