@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,8 +25,9 @@ import { MemoModal } from "@/components/MemoModal";
 import { AnalystProfileModal } from "@/components/AnalystProfileModal";
 import { sessionManager } from "@/lib/session";
 import type { InvestorApplication } from "@/components/InvestorThesisModal";
-import { EditMemoTab } from "./EditMemoTab";
 import type { VCOnboardingData } from "./vc-onboarding/hooks/useVCOnboardingStorage";
+
+const EditMemoTab = lazy(() => import("./EditMemoTab").then((m) => ({ default: m.EditMemoTab })));
 
 
 interface MemoApiResponse {
@@ -662,18 +663,25 @@ export const VCDashboard = () => {
 
       case "edit-memo":
         return (
-          <EditMemoTab
-            memoData={rawMemoData}
-            firmId={rawFirmId}
-            onSaved={() => {
-              // Bust the cache so the dashboard re-fetches fresh data
-              if (rawFirmId) {
-                sessionStorage.removeItem(`dashboardData_${rawFirmId}`);
-              }
-              fetchDashboardData();
-              handleTabChange("");
-            }}
-          />
+          <Suspense
+            fallback={
+              <div className="min-h-[60vh] flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--cyan-glow))]" />
+              </div>
+            }
+          >
+            <EditMemoTab
+              memoData={rawMemoData}
+              firmId={rawFirmId}
+              onSaved={() => {
+                if (rawFirmId) {
+                  sessionStorage.removeItem(`dashboardData_${rawFirmId}`);
+                }
+                fetchDashboardData();
+                handleTabChange("");
+              }}
+            />
+          </Suspense>
         );
 
       case "profile":
