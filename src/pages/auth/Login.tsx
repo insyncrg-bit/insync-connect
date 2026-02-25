@@ -267,7 +267,7 @@ export const Login = () => {
         try {
           await sendEmailVerification(user, {
             url: `${window.location.origin}/verify-email`,
-            handleCodeInApp: false,
+            handleCodeInApp: true,
           });
           toast({
             title: "Verify your email",

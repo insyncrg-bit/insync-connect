@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export interface OnboardingStep {
   id: number;
@@ -9,20 +9,36 @@ export interface OnboardingStep {
 export const useOnboardingStorage = <T extends Record<string, any>>(
   storageKey: string,
   stepKey: string,
-  defaultData: T
+  defaultData: T,
+  initialData?: Partial<T>
 ) => {
   const [data, setData] = useState<T>(defaultData);
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const initialDataRef = useRef(initialData);
 
   useEffect(() => {
     try {
-      const savedData = localStorage.getItem(storageKey);
-      const savedStep = localStorage.getItem(stepKey);
-      if (savedData) {
-        const parsed = JSON.parse(savedData);
-        setData({ ...defaultData, ...parsed });
+      if (initialDataRef.current) {
+        // Edit mode: use initialData as base, but allow localStorage draft to take priority
+        // so the user doesn't lose in-progress edits if they navigate away and come back
+        const savedData = localStorage.getItem(storageKey);
+        if (savedData) {
+          const parsed = JSON.parse(savedData);
+          setData({ ...defaultData, ...initialDataRef.current, ...parsed });
+        } else {
+          setData({ ...defaultData, ...initialDataRef.current });
+        }
+      } else {
+        // Onboarding mode: use localStorage only
+        const savedData = localStorage.getItem(storageKey);
+        if (savedData) {
+          const parsed = JSON.parse(savedData);
+          setData({ ...defaultData, ...parsed });
+        }
       }
+
+      const savedStep = localStorage.getItem(stepKey);
       if (savedStep) {
         setCurrentStep(parseInt(savedStep, 10));
       }

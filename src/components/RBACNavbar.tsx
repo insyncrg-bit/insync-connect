@@ -59,7 +59,7 @@ const VC_ITEMS: NavItem[] = [
 
 const STARTUP_ITEMS: NavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/startup-dashboard" },
-  { id: "profile", label: "Profile", icon: UserCog, path: "/startup-dashboard?tab=profile" },
+  { id: "edit-memo", label: "Edit Memo", icon: FileText, path: "/startup-dashboard?tab=edit-memo" },
 ];
 
 /** Routes shown in navbar for superusers to jump between pages (testing). */
@@ -84,8 +84,6 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
   const location = useLocation();
   const { toast } = useToast();
   const { userType, userEmail, loading } = useUserClaims();
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const currentPath =
     propCurrentPath ?? `${location.pathname}${location.search || ""}`;
@@ -113,42 +111,6 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
     }
   };
 
-  const handleDeleteAccount = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    setIsDeleting(true);
-    try {
-      await deleteUser(user);
-      sessionManager.clear();
-      toast({
-        title: "Account deleted",
-        description: "Your account has been permanently deleted.",
-      });
-      navigate("/landing");
-    } catch (error: any) {
-      console.error("Error deleting account:", error);
-      
-      if (error.code === "auth/requires-recent-login") {
-        toast({
-          title: "Re-authentication required",
-          description: "Please sign in again before deleting your account.",
-          variant: "destructive",
-        });
-        await signOut(auth);
-        navigate("/login");
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to delete account. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setIsDeleting(false);
-      setDeleteDialogOpen(false);
-    }
-  };
 
   if (loading || !auth.currentUser) {
     return null;
@@ -180,7 +142,11 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
     <header className="h-14 border-b border-white/10 bg-[hsl(var(--navy-header))] backdrop-blur-sm flex items-center px-6 gap-4">
       {/* Logo — always goes to landing page from anywhere in the app */}
       <button
-        onClick={() => handleNavigate("/landing")}
+        onClick={() => {
+          const path = userType === "founder-user" ? "/startup-dashboard" : 
+                       (userType === "vc-user" ? "/vc-dashboard" : "/landing");
+          handleNavigate(path);
+        }}
         className="hover:opacity-80 transition-opacity"
       >
         <img src={infinityLogo} alt="Home" width={100} height={56} className="h-14 w-auto" />
@@ -268,32 +234,16 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
           <DropdownMenuItem
             onClick={() => {
                 if (userType === 'vc-user') handleNavigate("/vc-dashboard?tab=profile");
-                else if (userType === 'founder-user') handleNavigate("/startup-dashboard?tab=profile");
+                else if (userType === 'founder-user') handleNavigate("/startup-dashboard?tab=edit-profile");
                 else handleNavigate("/profile"); // Fallback
             }}
             className="text-white hover:bg-white/10 cursor-pointer"
           >
             <UserCog className="h-4 w-4 mr-2" />
-            Edit Profile
-          </DropdownMenuItem>
-          {userType === "founder-user" && (
-            <DropdownMenuItem
-              onClick={() => handleNavigate("/startup-settings")}
-              className="text-white hover:bg-white/10 cursor-pointer"
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Account Settings
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuSeparator className="bg-white/10" />
-          <DropdownMenuItem
-            onClick={() => setDeleteDialogOpen(true)}
-            className="text-red-400 hover:bg-red-500/20 cursor-pointer"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete Account
+            Edit profile
           </DropdownMenuItem>
           <DropdownMenuSeparator className="bg-white/10" />
+
           <DropdownMenuItem
             onClick={handleLogout}
             className="text-white hover:bg-white/10 cursor-pointer"
@@ -304,28 +254,6 @@ export const RBACNavbar = ({ currentPath: propCurrentPath, onNavigate }: RBACNav
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-[#151a24] border-white/10">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Delete Account</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/70">
-              Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteAccount}
-              disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              {isDeleting ? "Deleting..." : "Delete Account"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </header>
   );
 };

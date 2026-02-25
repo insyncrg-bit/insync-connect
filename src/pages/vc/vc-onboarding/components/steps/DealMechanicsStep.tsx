@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { VCOnboardingData } from "../../hooks/useVCOnboardingStorage";
+import { VCOnboardingData } from "../../hooks/vcMemoTypes";
 import {
   DECISION_PROCESS,
   RESPONSE_TIMES,
@@ -23,6 +23,7 @@ interface DealMechanicsStepProps {
   onSubmit: () => void;
   onBack: () => void;
   submitLabel?: string;
+  isSubmitting?: boolean;
 }
 
 export const DealMechanicsStep = ({
@@ -31,6 +32,7 @@ export const DealMechanicsStep = ({
   onSubmit,
   onBack,
   submitLabel = "Submit Application",
+  isSubmitting,
 }: DealMechanicsStepProps) => {
   return (
     <div className="space-y-6">
@@ -195,9 +197,10 @@ export const DealMechanicsStep = ({
         </Button>
         <Button
           onClick={onSubmit}
+          disabled={isSubmitting}
           className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright"
         >
-          {submitLabel}
+          {isSubmitting ? "Submitting..." : submitLabel}
         </Button>
       </div>
     </div>

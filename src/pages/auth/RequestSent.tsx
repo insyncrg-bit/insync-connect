@@ -1,10 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FloatingParticles } from "@/components/FloatingParticles";
 import inSyncLogo from "@/landing/assets/in-sync-logo.png";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { sessionManager } from "@/lib/session";
 
 export const RequestSent = () => {
+  const navigate = useNavigate();
+
+  const handleBackToLogin = async () => {
+    try {
+      await signOut(auth);
+      sessionManager.clear();
+      localStorage.clear();
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("Error signing out:", error);
+      // Fallback: still navigate to login
+      navigate("/login", { replace: true });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-navy-deep flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
       {/* Background gradient orbs */}
@@ -71,13 +89,12 @@ export const RequestSent = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-3">
-            <Link to="/login" className="w-full">
-              <Button
-                className="w-full bg-cyan-glow text-navy-deep hover:bg-cyan-bright font-semibold py-5 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)]"
-              >
-                Back to Login
-              </Button>
-            </Link>
+            <Button
+              onClick={handleBackToLogin}
+              className="w-full bg-cyan-glow text-navy-deep hover:bg-cyan-bright font-semibold py-5 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+            >
+              Back to Login
+            </Button>
             <Link
               to="/landing"
               className="text-center text-white/60 hover:text-cyan-glow transition-colors text-sm"

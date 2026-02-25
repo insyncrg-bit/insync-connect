@@ -21,6 +21,7 @@ interface OnboardingPageProps<T extends Record<string, any>> {
   storageKey: string;
   stepKey: string;
   defaultData: T;
+  initialData?: Partial<T>;
   renderStep: (
     step: number,
     data: T,
@@ -28,7 +29,8 @@ interface OnboardingPageProps<T extends Record<string, any>> {
     onNext: () => void,
     onBack: () => void,
     onSubmit: () => void,
-    submitLabel?: string
+    submitLabel?: string,
+    isSubmitting?: boolean
   ) => ReactNode;
   validateStep: (step: number, data: T) => StepValidation;
   onSubmit: (data: T) => Promise<void>;
@@ -38,6 +40,7 @@ interface OnboardingPageProps<T extends Record<string, any>> {
   loadingText?: string;
   successTitle?: string;
   successDescription?: string;
+  isEmbed?: boolean;
 }
 
 export const OnboardingPage = <T extends Record<string, any>>({
@@ -47,6 +50,7 @@ export const OnboardingPage = <T extends Record<string, any>>({
   storageKey,
   stepKey,
   defaultData,
+  initialData,
   renderStep,
   validateStep,
   onSubmit,
@@ -56,10 +60,11 @@ export const OnboardingPage = <T extends Record<string, any>>({
   loadingText = "Submitting application...",
   successTitle = "Application Submitted!",
   successDescription = "Your onboarding has been completed successfully.",
+  isEmbed = false,
 }: OnboardingPageProps<T>) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { data, currentStep, isLoaded, saveData, saveStep, clearData } = useOnboardingStorage<T>(storageKey, stepKey, defaultData);
+  const { data, currentStep, isLoaded, saveData, saveStep, clearData } = useOnboardingStorage<T>(storageKey, stepKey, defaultData, initialData);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [invalidSteps, setInvalidSteps] = useState<number[]>([]);
@@ -146,23 +151,34 @@ export const OnboardingPage = <T extends Record<string, any>>({
   }
 
   return (
-    <div className="min-h-screen bg-navy-deep relative overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-glow/5 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cyan-glow/5 blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
-      </div>
-      <FloatingParticles />
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-6 flex justify-center">
-          <Link to="/landing" className="block">
-            <div className="relative">
-              <div className="absolute inset-0 blur-[60px] animate-pulse" style={{ background: "radial-gradient(ellipse at center, rgba(6,182,212,0.4) 0%, rgba(6,182,212,0.2) 40%, transparent 70%)" }} />
-              <img src={inSyncLogo} alt="InSync" className="relative h-40 w-auto max-w-[500px] mx-auto" style={{ filter: "drop-shadow(0 0 30px rgba(6,182,212,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.3))" }} />
-            </div>
-          </Link>
-        </div>
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
+    <div className={cn(
+      !isEmbed && "min-h-screen bg-navy-deep relative overflow-hidden"
+    )}>
+      {!isEmbed && (
+        <>
+          <div className="fixed inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-glow/5 blur-[120px] animate-pulse" />
+            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-cyan-glow/5 blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
+          </div>
+          <FloatingParticles />
+        </>
+      )}
+      <div className={cn(
+        "relative z-10 mx-auto px-4 py-8",
+        isEmbed ? "w-full max-w-none" : "container max-w-4xl"
+      )}>
+        {!isEmbed && (
+          <div className="mb-6 flex justify-center">
+            <Link to="/landing" className="block">
+              <div className="relative">
+                <div className="absolute inset-0 blur-[60px] animate-pulse" style={{ background: "radial-gradient(ellipse at center, rgba(6,182,212,0.4) 0%, rgba(6,182,212,0.2) 40%, transparent 70%)" }} />
+                <img src={inSyncLogo} alt="InSync" className="relative h-40 w-auto max-w-[500px] mx-auto" style={{ filter: "drop-shadow(0 0 30px rgba(6,182,212,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.3))" }} />
+              </div>
+            </Link>
+          </div>
+        )}
+        <div className="mb-8 text-center text-white">
+          <h1 className="text-3xl font-bold mb-2">{title}</h1>
           <p className="text-white/60">{description}</p>
         </div>
         <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 mb-6">
@@ -186,9 +202,9 @@ export const OnboardingPage = <T extends Record<string, any>>({
           </div>
         )}
         <div className={cn("bg-white/95 backdrop-blur-sm border-2 rounded-2xl p-8 md:p-10 shadow-2xl transition-all", invalidSteps.includes(currentStep) ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]" : "border-[hsl(var(--cyan-glow))]/20")}>
-          {renderStep(currentStep, data, saveData, handleNext, handleBack, handleSubmit, submitLabel)}
+          {renderStep(currentStep, data, saveData, handleNext, handleBack, handleSubmit, submitLabel, isSubmitting)}
         </div>
-        <div className="mt-4 text-center text-white/40 text-sm">Your progress is saved automatically</div>
+        {!isEmbed && <div className="mt-4 text-center text-white/40 text-sm">Your progress is saved automatically</div>}
       </div>
 
       {/* Submission Loading Overlay */}

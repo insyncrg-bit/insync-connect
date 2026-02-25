@@ -139,7 +139,7 @@ export const VerifyPending = () => {
     try {
       await sendEmailVerification(currentUser, {
         url: `${window.location.origin}/verify-email`,
-        handleCodeInApp: false,
+        handleCodeInApp: true,
       });
       setVerificationEmailSent(true);
       toast({
@@ -207,9 +207,9 @@ export const VerifyPending = () => {
         {/* Card */}
         <div className="bg-navy-card border border-white/10 rounded-2xl p-8 shadow-xl">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-white mb-2">Verify your email</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">Verify your email (Check Spam folder)</h1>
             <p className="text-white/60">
-              Please check your email and click the verification link. We'll automatically proceed once you&apos;re
+              Please check your spam folder and click the verification link. We'll automatically proceed once you&apos;re
               verified.
             </p>
           </div>

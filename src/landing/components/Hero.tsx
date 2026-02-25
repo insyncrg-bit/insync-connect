@@ -64,7 +64,7 @@ export const Hero = () => {
                 boxShadow: '0 0 30px hsl(var(--cyan-glow) / 0.4)',
               }}
             >
-              For Founders
+              Founders
             </Button>
 
             <Button
@@ -73,7 +73,7 @@ export const Hero = () => {
               onClick={() => navigate("/login")}
               className="text-base px-8 py-6 font-semibold border-cyan-glow/40 text-cyan-glow hover:bg-cyan-glow/10 hover:border-cyan-glow transition-all duration-300 hover:scale-105 w-full sm:w-auto"
             >
-              For VCs
+              VCs
             </Button>
           </div>
 

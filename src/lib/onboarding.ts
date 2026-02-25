@@ -43,7 +43,7 @@ export async function getSmartRedirectPath(user: User, claims: any): Promise<str
                 return "/request-sent";
             }
             if (requestStatus === "rejected") {
-                return "/403";
+                return "/request-rejected";
             }
             if (requestStatus === "accepted") {
                 // If accepted, check if they finished onboarding (via firm data)
@@ -61,9 +61,27 @@ export async function getSmartRedirectPath(user: User, claims: any): Promise<str
                 if (!firmRes.ok) return "/vc-onboarding";
 
                 const firmData = await firmRes.json();
-                const onboardingComplete = firmData.firm?.onboardingComplete;
+                const firmOnboardingComplete = firmData.firm?.onboardingComplete;
 
-                return onboardingComplete ? "/vc-dashboard" : "/vc-onboarding";
+                if (firmOnboardingComplete) {
+                    // Auto-sync user status if firm is already done
+                    if (!userData.user?.onboardingComplete) {
+                        try {
+                            await fetch(`${FIREBASE_API}/api/users/vc-users/${user.uid}`, {
+                                method: "PATCH",
+                                headers,
+                                body: JSON.stringify({ onboardingComplete: true })
+                            });
+                            // Force token refresh to pick up new claims
+                            await user.getIdToken(true);
+                        } catch (e) {
+                            console.error("Auto-sync onboarding failed:", e);
+                        }
+                    }
+                    return "/vc-dashboard";
+                }
+
+                return "/vc-onboarding";
             }
 
             // If request_status is null, they haven't joined/created a firm yet

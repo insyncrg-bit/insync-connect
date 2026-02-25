@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
-import { StartupOnboardingData, Competitor } from "../../hooks/useStartupOnboardingStorage";
+import { StartupOnboardingData, Competitor } from "../../hooks/startupMemoTypes";
 
 interface CompetitorsStepProps {
   data: StartupOnboardingData;
@@ -11,9 +11,10 @@ interface CompetitorsStepProps {
   onSubmit: () => void;
   onBack: () => void;
   submitLabel?: string;
+  isSubmitting?: boolean;
 }
 
-export const CompetitorsStep = ({ data, onUpdate, onSubmit, onBack, submitLabel }: CompetitorsStepProps) => {
+export const CompetitorsStep = ({ data, onUpdate, onSubmit, onBack, submitLabel, isSubmitting }: CompetitorsStepProps) => {
   const updateCompetitor = (index: number, field: keyof Competitor, value: string) => {
     const updated = [...data.competitors];
     updated[index] = { ...updated[index], [field]: value };
@@ -120,8 +121,12 @@ export const CompetitorsStep = ({ data, onUpdate, onSubmit, onBack, submitLabel 
         <Button variant="outline" onClick={onBack} className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
           Back
         </Button>
-        <Button onClick={onSubmit} className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright">
-          {submitLabel ?? "Submit Application"}
+        <Button 
+          onClick={onSubmit} 
+          disabled={isSubmitting}
+          className="bg-cyan-glow text-navy-deep hover:bg-cyan-bright"
+        >
+          {isSubmitting ? "Submitting..." : (submitLabel ?? "Submit Application")}
         </Button>
       </div>
     </div>

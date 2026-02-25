@@ -11,7 +11,6 @@ import { SyncsModal } from "@/components/SyncsModal";
 import { PendingModal } from "@/components/PendingModal";
 import { MessagesModal } from "@/components/MessagesModal";
 import { MemoModal } from "@/components/MemoModal";
-import { AnalystProfileModal } from "@/components/AnalystProfileModal";
 import { InvestorDashboardContent, DashboardLayout } from "@/components/dashboards";
 import type { StartupCardData } from "@/components/dashboards";
 
@@ -431,17 +430,6 @@ export function AnalystDashboard() {
         onRequestSync={handleRequestSync}
         isRequested={selectedStartup?.user_id ? pendingRequests.has(selectedStartup.user_id) : false}
         isRequesting={requestingSync === selectedStartup?.user_id}
-      />
-      <AnalystProfileModal
-        open={profileModalOpen}
-        onOpenChange={setProfileModalOpen}
-        profile={(adminProfile ?? defaultProfile) as Parameters<typeof AnalystProfileModal>[0]["profile"]}
-        onProfileUpdate={(profile) => {
-          setAdminProfile(profile as AnalystProfileState);
-          setAdminName(profile.name);
-          setAdminTitle(profile.title);
-        }}
-        isMandatory={false}
       />
     </DashboardLayout>
   );

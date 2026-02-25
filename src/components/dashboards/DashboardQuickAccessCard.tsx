@@ -4,7 +4,7 @@ import { ArrowRight, LucideIcon } from "lucide-react";
 interface DashboardQuickAccessCardProps {
   icon: LucideIcon;
   title: string;
-  subtitle: string;
+  subtitle: React.ReactNode;
   onClick: () => void;
   logoUrl?: string | null;
 }

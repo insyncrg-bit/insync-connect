@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Plus } from "lucide-react";
 import { useState } from "react";
-import { VCOnboardingData } from "../../hooks/useVCOnboardingStorage";
+import { VCOnboardingData } from "../../hooks/vcMemoTypes";
 import { OPERATING_SUPPORT } from "../../constants";
 
 interface ValueAddStepProps {

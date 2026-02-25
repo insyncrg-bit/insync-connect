@@ -9,8 +9,8 @@ import { GoToMarketStep } from "./components/steps/GoToMarketStep";
 import { CustomerMarketStep } from "./components/steps/CustomerMarketStep";
 import { CompetitorsStep } from "./components/steps/CompetitorsStep";
 import { STEPS } from "./constants";
-import { StartupOnboardingData, defaultData } from "./hooks/useStartupOnboardingStorage";
-import { onboardingToMemoPayload } from "@/lib/startupMemo";
+import { StartupOnboardingData, defaultData } from "./hooks/startupMemoTypes";
+import { onboardingToMemoPayload } from "@/lib/startupMemoUtils";
 import { sessionManager } from "@/lib/session";
 import { uploadFile, deleteFile } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
@@ -117,11 +117,10 @@ export const StartupOnboarding = () => {
       // 1) Save lean profile to startups/{uid} (identifier fields only)
       const profilePayload = {
         companyName: data.companyName,
-        vertical: data.vertical,
-        stage: data.stage,
         location: data.location,
         website: data.website,
         linkedIn: data.linkedIn,
+        onboardingComplete: true,
       };
       const profileRes = await fetch(`${baseUrl}/startups/me`, {
         method: "POST",
@@ -169,7 +168,9 @@ export const StartupOnboarding = () => {
     onUpdate: (data: Partial<StartupOnboardingData>) => void,
     onNext: () => void,
     onBack: () => void,
-    onSubmit: () => void
+    onSubmit: () => void,
+    submitLabel?: string,
+    isSubmitting?: boolean
   ) => {
     switch (step) {
       case 0:
@@ -252,6 +253,8 @@ export const StartupOnboarding = () => {
             onUpdate={onUpdate}
             onSubmit={onSubmit}
             onBack={onBack}
+            submitLabel={submitLabel}
+            isSubmitting={isSubmitting}
           />
         );
       default:

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { sessionManager } from "@/lib/session";
-import { Loader2, User, ShieldCheck, Trash2 } from "lucide-react";
+import { Loader2, User, ShieldCheck, Trash2, Linkedin } from "lucide-react";
 
 export const StartupSettings = () => {
   const navigate = useNavigate();
@@ -28,6 +28,8 @@ export const StartupSettings = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
+  const [title, setTitle] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
@@ -36,17 +38,45 @@ export const StartupSettings = () => {
   const [savingPassword, setSavingPassword] = useState(false);
 
   useEffect(() => {
-    const auth = getAuth();
-    const user = auth.currentUser;
+    const fetchData = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
 
-    if (!user) {
-      setLoadingUser(false);
-      return;
-    }
+      if (!user) {
+        setLoadingUser(false);
+        return;
+      }
 
-    setDisplayName(user.displayName || "");
-    setEmail(user.email || "");
-    setLoadingUser(false);
+      setEmail(user.email || "");
+
+      try {
+        const token = await user.getIdToken();
+        const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
+        const res = await fetch(`${FIREBASE_API}/api/users/founder-users/${user.uid}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) {
+            setDisplayName(data.user.fullName || user.displayName || "");
+            setTitle(data.user.title || "");
+            setLinkedinUrl(data.user.linkedinUrl || "");
+          }
+        } else {
+          setDisplayName(user.displayName || "");
+        }
+      } catch (error) {
+        console.error("Error fetching founder profile:", error);
+        setDisplayName(user.displayName || "");
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleSaveProfile = async () => {
@@ -63,10 +93,27 @@ export const StartupSettings = () => {
 
     setSavingProfile(true);
     try {
+      const token = await user.getIdToken();
+      const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
+      const res = await fetch(`${FIREBASE_API}/api/users/founder-users/${user.uid}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fullName: displayName.trim(),
+          title: title.trim(),
+          linkedinUrl: linkedinUrl.trim(),
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update profile in database");
+
       await updateProfile(user, { displayName: displayName.trim() || undefined });
       toast({
         title: "Profile updated",
-        description: "Your name has been updated.",
+        description: "Your information has been saved.",
       });
     } catch (error: any) {
       toast({
@@ -215,24 +262,47 @@ export const StartupSettings = () => {
 
         <Separator className="bg-white/10" />
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-white/80">Name</Label>
-            <Input
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Your name"
-              className="bg-white/5 border-white/15 text-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-white/80">Email</Label>
-            <Input value={email} disabled className="bg-white/5 border-white/15 text-white/70" />
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-white/80">Name</Label>
+                <Input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Your name"
+                  className="bg-white/5 border-white/15 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/80">Email</Label>
+                <Input value={email} disabled className="bg-white/5 border-white/15 text-white/50 cursor-not-allowed" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/80">Title</Label>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Founder / CEO"
+                  className="bg-white/5 border-white/15 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/80">LinkedIn URL</Label>
+                <div className="relative">
+                  <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                  <Input
+                    value={linkedinUrl}
+                    onChange={(e) => setLinkedinUrl(e.target.value)}
+                    className="bg-white/5 border-white/15 text-white pl-10"
+                    placeholder="https://linkedin.com/in/..."
+                  />
+                </div>
+              </div>
+            </div>
             <p className="text-xs text-white/40">
               Email changes are not yet supported in-app. Contact support if you need to update your login email.
             </p>
           </div>
-        </div>
 
         <div className="flex justify-end pt-2">
           <Button

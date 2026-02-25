@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, X, Users } from "lucide-react";
-import { StartupOnboardingData, TeamMember } from "../../hooks/useStartupOnboardingStorage";
+import { StartupOnboardingData, TeamMember } from "../../hooks/startupMemoTypes";
 
 interface TeamOverviewStepProps {
   data: StartupOnboardingData;

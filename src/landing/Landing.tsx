@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import { Navigation } from "./components/Navigation";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
-import { ClosingCTA } from "./components/ClosingCTA";
 import { AboutContact } from "./components/AboutContact";
 import { Footer } from "./components/Footer";
 
@@ -54,7 +53,6 @@ export const Landing = () => {
           <main className="pt-16">
             <Hero />
             <HowItWorks onTryDemo={handleTryDemo} />
-            <ClosingCTA />
             <AboutContact />
           </main>
           <Footer />

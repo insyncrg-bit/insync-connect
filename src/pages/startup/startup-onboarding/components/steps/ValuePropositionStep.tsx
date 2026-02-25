@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { StartupOnboardingData } from "../../hooks/useStartupOnboardingStorage";
+import { StartupOnboardingData } from "../../hooks/startupMemoTypes";
 import { VALUE_DRIVERS } from "../../constants";
 
 interface ValuePropositionStepProps {
@@ -53,12 +53,14 @@ export const ValuePropositionStep = ({ data, onUpdate, onNext, onBack }: ValuePr
           {VALUE_DRIVERS.map((driver) => (
             <div
               key={driver.value}
-              className="flex items-start gap-3 p-4 bg-white border border-[hsl(var(--navy-deep))]/10 rounded-lg hover:bg-[hsl(var(--navy-deep))]/5 transition-colors"
+              className="flex items-start gap-3 p-4 bg-white border border-[hsl(var(--navy-deep))]/10 rounded-lg hover:bg-[hsl(var(--navy-deep))]/5 transition-colors cursor-pointer"
+              onClick={() => toggleValueDriver(driver.value)}
             >
               <Checkbox
                 checked={data.valueDrivers.includes(driver.value)}
                 onCheckedChange={() => toggleValueDriver(driver.value)}
                 className="mt-1"
+                onClick={(e) => e.stopPropagation()}
               />
               <div className="flex-1">
                 <Label className="text-[hsl(var(--navy-deep))] font-medium cursor-pointer">
@@ -66,20 +68,21 @@ export const ValuePropositionStep = ({ data, onUpdate, onNext, onBack }: ValuePr
                 </Label>
                 <p className="text-sm text-[hsl(var(--navy-deep))]/60 mt-1">{driver.description}</p>
                 {data.valueDrivers.includes(driver.value) && (
-                  <Textarea
-                    value={data.valueDriverExplanations[driver.value] || ""}
-                    onChange={(e) =>
-                      onUpdate({
-                        valueDriverExplanations: {
-                          ...data.valueDriverExplanations,
-                          [driver.value]: e.target.value,
-                        },
-                      })
-                    }
-                    placeholder={`Explain ${driver.label.toLowerCase()}...`}
-                    className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 placeholder:text-[hsl(var(--navy-deep))]/50 mt-2 min-h-[80px]"
-                    rows={3}
-                  />
+                    <Textarea
+                      value={data.valueDriverExplanations[driver.value] || ""}
+                      onChange={(e) =>
+                        onUpdate({
+                          valueDriverExplanations: {
+                            ...data.valueDriverExplanations,
+                            [driver.value]: e.target.value,
+                          },
+                        })
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                      placeholder={`Explain ${driver.label.toLowerCase()}...`}
+                      className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 placeholder:text-[hsl(var(--navy-deep))]/50 mt-2 min-h-[80px]"
+                      rows={3}
+                    />
                 )}
               </div>
             </div>

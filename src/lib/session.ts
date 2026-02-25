@@ -43,13 +43,45 @@ export const sessionManager = {
     }
   },
 
-  // Clear session
+  // Clear all app-owned storage (localStorage + sessionStorage).
+  // Called on sign-out and forced auth redirects to prevent
+  // data from one user leaking into another user's session.
   clear: () => {
     try {
+      // ── localStorage: session ──
       localStorage.removeItem(SESSION_KEY);
-      // Also clear VC onboarding data (including image previews)
-      localStorage.removeItem("vc_onboarding_data");
-      localStorage.removeItem("vc_onboarding_current_step");
+
+      // ── localStorage: onboarding drafts ──
+      const onboardingKeys = [
+        "vc_onboarding_data",
+        "vc_onboarding_step",
+        "vc_onboarding_step_completed",
+        "vc_onboarding_current_step",
+        "startup_onboarding_data",
+        "startup_onboarding_step",
+        "startup_onboarding_step_completed",
+      ];
+
+      // ── localStorage: edit-mode drafts ──
+      const editKeys = [
+        "vc_edit_memo_data",
+        "vc_edit_memo_step",
+        "vc_edit_memo_step_completed",
+        "startup_edit_memo_data",
+        "startup_edit_memo_step",
+        "startup_edit_memo_step_completed",
+        "startup_edit_profile_data",
+        "startup_edit_profile_step",
+        "startup_edit_profile_step_completed",
+      ];
+
+      for (const key of [...onboardingKeys, ...editKeys]) {
+        localStorage.removeItem(key);
+      }
+
+      // ── sessionStorage: dashboard caches ──
+      // These are keyed like "dashboardData_{firmId}" — clear all of sessionStorage
+      sessionStorage.clear();
     } catch (error) {
       console.error("Error clearing session:", error);
     }

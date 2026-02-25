@@ -393,7 +393,7 @@ export const SignUp = () => {
       try {
         await sendEmailVerification(user, {
           url: `${window.location.origin}/verify-email`,
-          handleCodeInApp: false,
+          handleCodeInApp: true,
         });
         setVerificationEmailSent(true);
         log.info("Verification email sent successfully");
@@ -530,7 +530,7 @@ export const SignUp = () => {
       log.info("Resending verification email");
       await sendEmailVerification(currentUser, {
         url: `${window.location.origin}/verify-email`,
-        handleCodeInApp: false,
+        handleCodeInApp: true,
       });
       setVerificationEmailSent(true);
       log.info("Verification email resent successfully");

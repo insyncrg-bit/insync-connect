@@ -11,6 +11,9 @@ import {
   Filter,
   Loader2,
   Sparkles,
+  MapPin,
+  Globe,
+  Linkedin,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -23,12 +26,12 @@ import { SyncsModal } from "@/components/SyncsModal";
 import { PendingModal } from "@/components/PendingModal";
 import { MessagesModal } from "@/components/MessagesModal";
 import { MemoModal } from "@/components/MemoModal";
-import { AnalystProfileModal } from "@/components/AnalystProfileModal";
 import { sessionManager } from "@/lib/session";
+import { VCProfileSettings } from "./VCProfileSettings";
 import type { InvestorApplication } from "@/components/InvestorThesisModal";
-import type { VCOnboardingData } from "./vc-onboarding/hooks/useVCOnboardingStorage";
+import type { VCOnboardingData } from "./vc-onboarding/hooks/vcMemoTypes";
 
-const EditMemoTab = lazy(() => import("./EditMemoTab").then((m) => ({ default: m.EditMemoTab })));
+const VCMemoEditView = lazy(() => import("./VCMemoEditView").then((m) => ({ default: m.VCMemoEditView })));
 
 
 interface MemoApiResponse {
@@ -132,6 +135,9 @@ export const VCDashboard = () => {
     vertical: string | null;
     one_liner: string | null;
     profile_completed: boolean;
+    role?: string;
+    funFact?: string;
+    investingSectors?: string[];
   } | null>(null);
   const [investorApplication, setInvestorApplication] = useState<InvestorApplication | null>(null);
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
@@ -142,7 +148,6 @@ export const VCDashboard = () => {
   const [syncsModalOpen, setSyncsModalOpen] = useState(false);
   const [pendingModalOpen, setPendingModalOpen] = useState(false);
   const [messagesModalOpen, setMessagesModalOpen] = useState(false);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [thesisModalOpen, setThesisModalOpen] = useState(false);
   const [memoModalOpen, setMemoModalOpen] = useState(false);
   const [selectedStartup, setSelectedStartup] = useState<FounderApplication | null>(null);
@@ -206,23 +211,25 @@ export const VCDashboard = () => {
 
   const { data: dashboardQueryData, isPending: loading } = useQuery({
     queryKey: ["vc-dashboard"],
-    queryFn: async (): Promise<{ adminName: string; firmId: string | null; dashboard: DashboardData }> => {
+    queryFn: async (): Promise<{ adminName: string; firmId: string | null; dashboard: DashboardData; userData?: any }> => {
       const { getAuth } = await import("firebase/auth");
       const user = getAuth().currentUser;
       if (!user) {
-        return { adminName: "VC User", firmId: null, dashboard: {} };
+        return { adminName: "VC User", firmId: null, dashboard: {}, userData: null };
       }
       let firmId = sessionManager.get()?.firmId;
       const token = await user.getIdToken();
       const apiUrl = import.meta.env.VITE_FIREBASE_API as string;
 
       let adminName = user.displayName ? user.displayName.split(" ")[0] : "VC User";
+      let fullUserData = null;
       try {
         const userRes = await fetch(`${apiUrl}/api/users/vc-users/${user.uid}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (userRes.ok) {
           const userData = await userRes.json();
+          fullUserData = userData.user;
           if (userData.user?.fullName) adminName = userData.user.fullName.split(" ")[0];
           if (userData.user?.firmId) {
             firmId = userData.user.firmId;
@@ -234,7 +241,7 @@ export const VCDashboard = () => {
       }
 
       if (!firmId) {
-        return { adminName, firmId: null, dashboard: {} };
+        return { adminName, firmId: null, dashboard: {}, userData: fullUserData };
       }
 
       const cacheKey = `dashboardData_${firmId}`;
@@ -242,7 +249,7 @@ export const VCDashboard = () => {
       if (cached) {
         try {
           const dashboard = JSON.parse(cached) as DashboardData;
-          return { adminName, firmId, dashboard };
+          return { adminName, firmId, dashboard, userData: fullUserData };
         } catch {
           // ignore bad cache
         }
@@ -262,7 +269,7 @@ export const VCDashboard = () => {
         dashboard.memo = memoData.memo;
       }
       sessionStorage.setItem(cacheKey, JSON.stringify(dashboard));
-      return { adminName, firmId, dashboard };
+      return { adminName, firmId, dashboard, userData: fullUserData };
     },
   });
 
@@ -315,7 +322,7 @@ export const VCDashboard = () => {
       else if (data.firm) setFirmName(data.firm.name);
       // Set company logo if available
       if (memo.companyLogo) setCompanyLogo(memo.companyLogo);
-      // Store raw memo for EditMemoTab prefill (cast geographicFocus to the correct union)
+      // Store raw memo for VCMemoEditView prefill (cast geographicFocus to the correct union)
       setRawMemoData({
         ...memo,
         geographicFocus: (memo.geographicFocus === "boston" || memo.geographicFocus === "other")
@@ -326,7 +333,7 @@ export const VCDashboard = () => {
       // No memo yet — fall back to firm name from the firms collection
       setFirmName(data.firm.name);
     }
-    // Store firmId for EditMemoTab
+    // Store firmId for VCMemoEditView
     const firmId = sessionManager.get()?.firmId;
     if (firmId) setRawFirmId(firmId);
   };
@@ -335,6 +342,28 @@ export const VCDashboard = () => {
     if (!dashboardQueryData) return;
     setAdminName(dashboardQueryData.adminName);
     if (dashboardQueryData.firmId) setRawFirmId(dashboardQueryData.firmId);
+    
+    if (dashboardQueryData.userData) {
+      const u = dashboardQueryData.userData;
+      setAdminProfile({
+        id: u.uid,
+        user_id: u.uid,
+        firm_id: u.firmId,
+        name: u.fullName || "VC User",
+        title: u.title || "VC",
+        firm_name: firmName,
+        email: u.email || "",
+        location: u.location || null,
+        vertical: u.vertical || null,
+        one_liner: u.one_liner || null,
+        profile_completed: u.onboardingComplete || false,
+        role: u.role,
+        funFact: u.funFact || "",
+        investingSectors: u.investingSectors || [],
+      });
+      setAdminTitle(u.title || "VC");
+    }
+
     applyDashboardData(dashboardQueryData.dashboard);
     if (!dashboardQueryData.firmId) {
       setApplications([]);
@@ -492,6 +521,11 @@ export const VCDashboard = () => {
   );
 
   const renderContent = () => {
+    // Robustly determine if profile is incomplete to avoid flickering
+    const userData = dashboardQueryData?.userData;
+    const isProfileIncomplete = userData && (!userData.funFact || !userData.investingSectors || userData.investingSectors.length === 0);
+    const showProfileBanner = !!isProfileIncomplete;
+
     switch (currentTab) {
       case "dashboard":
         return (
@@ -499,7 +533,41 @@ export const VCDashboard = () => {
             adminName={adminName}
             firmName={firmName}
             adminTitle={adminTitle}
-            thesisSubtitle={(investorApplication?.stage_focus ?? []).join(' • ') || undefined}
+            thesisSubtitle={
+              <div className="flex flex-wrap items-center gap-4 mt-1" onClick={(e) => e.stopPropagation()}>
+                {investorApplication?.hq_location && (
+                  <span className="flex items-center gap-1 text-white/60">
+                    <MapPin className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+                    {investorApplication.hq_location}
+                  </span>
+                )}
+                {investorApplication?.website && (
+                  <a
+                    href={investorApplication.website.startsWith('http') ? investorApplication.website : `https://${investorApplication.website}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-white/40 hover:text-[hsl(var(--cyan-glow))] transition-colors"
+                  >
+                    <Globe className="h-4 w-4" />
+                    Website
+                  </a>
+                )}
+                {investorApplication?.company_linkedin && (
+                  <a
+                    href={investorApplication.company_linkedin.startsWith('http') ? investorApplication.company_linkedin : `https://${investorApplication.company_linkedin}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-white/40 hover:text-[hsl(var(--cyan-glow))] transition-colors"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                    LinkedIn
+                  </a>
+                )}
+                {!investorApplication?.hq_location && !investorApplication?.website && !investorApplication?.company_linkedin && (
+                  <span className="text-white/40">Complete your firm profile to add details</span>
+                )}
+              </div>
+            }
             onViewAll={() => handleTabChange("startups")}
             stats={displayStats}
             startups={curatedStartups.map(toStartupCardData)}
@@ -517,6 +585,8 @@ export const VCDashboard = () => {
               }
             }}
             companyLogoUrl={companyLogo}
+            showProfileBanner={showProfileBanner}
+            onProfileBannerClick={() => handleTabChange("profile")}
           />
         );
 
@@ -611,12 +681,12 @@ export const VCDashboard = () => {
 
       case "organisation":
         return (
-          <div className="flex items-center justify-center h-[50vh]">
-             <div className="text-center">
-                <h2 className="text-3xl font-bold text-white mb-2">Organization</h2>
-                <Badge variant="outline" className="text-white/60 border-white/20">Coming Soon</Badge>
-             </div>
-          </div>
+          <VCOrganisation 
+            firmId={dashboardQueryData?.firmId || ""} 
+            isAdmin={adminProfile?.role === "admin"}
+            firmName={firmName || dashboardQueryData?.dashboard?.memo?.firmName || ""}
+            companyLogo={companyLogo || dashboardQueryData?.dashboard?.memo?.companyLogo}
+          />
         );
 
       case "edit-memo":
@@ -628,28 +698,28 @@ export const VCDashboard = () => {
               </div>
             }
           >
-            <EditMemoTab
-              memoData={rawMemoData}
-              firmId={rawFirmId}
-              onSaved={() => {
-                if (rawFirmId) {
-                  sessionStorage.removeItem(`dashboardData_${rawFirmId}`);
-                }
-                queryClient.invalidateQueries({ queryKey: ["vc-dashboard"] });
-                handleTabChange("");
-              }}
-            />
+            <div className="bg-navy-card/80 border border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm">
+              <VCMemoEditView
+                initialData={rawMemoData}
+                firmId={rawFirmId}
+                onSaved={() => {
+                  if (rawFirmId) {
+                    sessionStorage.removeItem(`dashboardData_${rawFirmId}`);
+                  }
+                  queryClient.invalidateQueries({ queryKey: ["vc-dashboard"] });
+                  handleTabChange("");
+                }}
+              />
+            </div>
           </Suspense>
         );
 
       case "profile":
         return (
-          <div className="max-w-4xl mx-auto">
-            <Card className="bg-navy-card border-white/10 p-8">
-              <h2 className="text-2xl font-bold text-white mb-4">Profile Settings</h2>
-              <p className="text-white/60">Profile settings will be implemented soon.</p>
-            </Card>
-          </div>
+          <VCProfileSettings 
+            userData={dashboardQueryData?.userData} 
+            onUpdate={() => queryClient.invalidateQueries({ queryKey: ["vc-dashboard"] })}
+          />
         );
 
       case "settings":
@@ -662,7 +732,41 @@ export const VCDashboard = () => {
             adminName={adminName}
             firmName={firmName}
             adminTitle={adminTitle}
-            thesisSubtitle={(investorApplication?.stage_focus ?? []).join(' • ') || undefined}
+            thesisSubtitle={
+              <div className="flex flex-wrap items-center gap-4 mt-1" onClick={(e) => e.stopPropagation()}>
+                {investorApplication?.hq_location && (
+                  <span className="flex items-center gap-1 text-white/60">
+                    <MapPin className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
+                    {investorApplication.hq_location}
+                  </span>
+                )}
+                {investorApplication?.website && (
+                  <a
+                    href={investorApplication.website.startsWith('http') ? investorApplication.website : `https://${investorApplication.website}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-white/40 hover:text-[hsl(var(--cyan-glow))] transition-colors"
+                  >
+                    <Globe className="h-4 w-4" />
+                    Website
+                  </a>
+                )}
+                {investorApplication?.company_linkedin && (
+                  <a
+                    href={investorApplication.company_linkedin.startsWith('http') ? investorApplication.company_linkedin : `https://${investorApplication.company_linkedin}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-white/40 hover:text-[hsl(var(--cyan-glow))] transition-colors"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                    LinkedIn
+                  </a>
+                )}
+                {!investorApplication?.hq_location && !investorApplication?.website && !investorApplication?.company_linkedin && (
+                  <span className="text-white/40">Complete your firm profile to add details</span>
+                )}
+              </div>
+            }
             onViewAll={() => handleTabChange("startups")}
             stats={displayStats}
             startups={curatedStartups.map(toStartupCardData)}
@@ -680,6 +784,8 @@ export const VCDashboard = () => {
               }
             }}
             companyLogoUrl={companyLogo}
+            showProfileBanner={showProfileBanner}
+            onProfileBannerClick={() => handleTabChange("profile")}
           />
         );
     }
@@ -782,18 +888,6 @@ export const VCDashboard = () => {
         onRequestSync={handleRequestSync}
         isRequested={selectedStartup?.user_id ? pendingRequests.has(selectedStartup.user_id) : false}
         isRequesting={requestingSync === selectedStartup?.user_id}
-      />
-
-      <AnalystProfileModal
-        open={profileModalOpen}
-        onOpenChange={setProfileModalOpen}
-        profile={adminProfile}
-        onProfileUpdate={(profile) => {
-          setAdminProfile(profile);
-          setAdminName(profile.name);
-          setAdminTitle(profile.title);
-        }}
-        isMandatory={false}
       />
     </div>
   );

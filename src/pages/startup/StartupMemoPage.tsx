@@ -7,9 +7,9 @@ import {
   defaultData,
   type StartupOnboardingData,
   type TeamMember,
-} from "./startup-onboarding/hooks/useStartupOnboardingStorage";
+} from "./startup-onboarding/hooks/startupMemoTypes";
 import { uploadFile, deleteFile } from "@/lib/api";
-import { onboardingToMemoPayload } from "@/lib/startupMemo";
+import { onboardingToMemoPayload } from "@/lib/startupMemoUtils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MemoEditor = lazy(() => import("@/components/MemoEditor").then((m) => ({ default: m.MemoEditor })));
@@ -160,7 +160,6 @@ function buildPrefill(source: StartupMemoLike | null): Partial<StartupOnboarding
 export function StartupMemoPage() {
   const { toast } = useToast();
   const isDirtyRef = useRef(false);
-  const [seeded, setSeeded] = useState(false);
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [refreshKey, setRefreshKey] = useState(0);
   const baseUrl = useMemo(() => {
@@ -244,11 +243,14 @@ export function StartupMemoPage() {
     } as StartupMemoLike;
   }, [memoData, profileData, memoQuery.isError, profileQuery.isError]);
 
+
+  // Compute initialData for the edit view from fetched data
+  const editInitialData = useMemo<Partial<StartupOnboardingData> | undefined>(() => {
+    if (loading || !existingMemo) return undefined;
+    return buildPrefill(existingMemo);
+  }, [loading, existingMemo]);
+
   useEffect(() => {
-    if (!baseUrl) {
-      setSeeded(true);
-      return;
-    }
     if (memoQuery.isError || profileQuery.isError) {
       const err = memoQuery.error ?? profileQuery.error;
       toast({
@@ -256,20 +258,8 @@ export function StartupMemoPage() {
         description: err instanceof Error ? err.message : "Failed to load your memo.",
         variant: "destructive",
       });
-      setSeeded(true);
-      return;
     }
-    if (memoQuery.isPending || profileQuery.isPending) return;
-    if (memoData === undefined || profileData === undefined) return;
-    if (existingMemo) {
-      const prefill = buildPrefill(existingMemo);
-      const onboardingData = { ...defaultData, ...prefill };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(onboardingData));
-      localStorage.setItem(STEP_KEY, "0");
-      localStorage.removeItem(`${STEP_KEY}_completed`);
-    }
-    setSeeded(true);
-  }, [baseUrl, existingMemo, memoData, profileData, memoQuery.isPending, profileQuery.isPending, memoQuery.isError, profileQuery.isError, memoQuery.error, profileQuery.error, toast]);
+  }, [memoQuery.isError, profileQuery.isError, memoQuery.error, profileQuery.error, toast]);
 
   // Browser back/refresh guard
   useEffect(() => {
@@ -360,8 +350,6 @@ export function StartupMemoPage() {
       // Lean profile: identifier fields only (for search/filtering)
       const profilePayload: Record<string, unknown> = {
         companyName: data.companyName,
-        vertical: data.vertical,
-        stage: data.stage,
         location: data.location,
         website: data.website,
         linkedIn: data.linkedIn,
@@ -447,7 +435,7 @@ export function StartupMemoPage() {
 
   // Shell always visible: title, subtitle, tabs; spinner only in content area when loading
   const pitchUrl =
-    !loading && seeded && existingMemo
+    !loading && existingMemo
       ? ((existingMemo as any)?.pitchdeck_url ?? (existingMemo as any)?.pitchdeckUrl ?? null)
       : null;
 
@@ -471,8 +459,8 @@ export function StartupMemoPage() {
                 className="inline-flex items-center rounded-md border border-white/20 bg-transparent px-3 py-2 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/10"
               >
                 <FileText className="h-4 w-4 mr-1.5" />
-                View Deck
-                <ExternalLink className="h-3 w-3 ml-1" />
+                Pitch Deck
+                <ExternalLink className="h-4 w-4 ml-1.5" />
               </button>
             </a>
           ) : null}
@@ -497,39 +485,44 @@ export function StartupMemoPage() {
         </div>
       </div>
 
-      {loading || !seeded ? (
+      {loading ? (
         <div className="min-h-[40vh] flex items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
         </div>
       ) : mode === "edit" ? (
-        <Suspense
-          fallback={
-            <div className="min-h-[40vh] flex items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
-            </div>
-          }
-        >
-          <StartupMemoEditView
-            defaultData={defaultData}
-            validateStep={validateStep}
-            onSubmit={handleSubmit}
-            onComplete={() => setMode("view")}
-            onBack={() => setMode("view")}
-            onDirtyChange={(dirty) => {
-              isDirtyRef.current = dirty;
-            }}
-          />
-        </Suspense>
+        <div className="w-full bg-navy-card/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
+          <Suspense
+            fallback={
+              <div className="min-h-[40vh] flex items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
+              </div>
+            }
+          >
+            <StartupMemoEditView
+              defaultData={defaultData}
+              initialData={editInitialData}
+              validateStep={validateStep}
+              onSubmit={handleSubmit}
+              onComplete={() => setMode("view")}
+              onBack={() => setMode("view")}
+              onDirtyChange={(dirty) => {
+                isDirtyRef.current = dirty;
+              }}
+            />
+          </Suspense>
+        </div>
       ) : existingMemo ? (
-        <Suspense
-          fallback={
-            <div className="min-h-[40vh] flex items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
-            </div>
-          }
-        >
-          <MemoEditor application={existingMemo} readOnly hideHeader />
-        </Suspense>
+        <div className="w-full">
+          <Suspense
+            fallback={
+              <div className="min-h-[40vh] flex items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
+              </div>
+            }
+          >
+            <MemoEditor application={existingMemo} readOnly hideHeader />
+          </Suspense>
+        </div>
       ) : (
         <div className="min-h-[40vh] flex items-center justify-center">
           <p className="text-white/70 text-center max-w-md">

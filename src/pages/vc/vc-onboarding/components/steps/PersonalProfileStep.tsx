@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { VCOnboardingData } from "../../hooks/useVCOnboardingStorage";
+import { VCOnboardingData } from "../../hooks/vcMemoTypes";
 import { StepNavigation } from "@/components/onboarding";
 import { Upload, X, Plus } from "lucide-react";
 import { auth } from "@/lib/firebase";

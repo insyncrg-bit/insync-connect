@@ -42,7 +42,7 @@ export function ForgotPassword() {
     try {
       await sendPasswordResetEmail(auth, email.trim().toLowerCase(), {
         url: `${window.location.origin}/reset-password`,
-        handleCodeInApp: false,
+        handleCodeInApp: true,
       });
       setEmailSent(true);
       toast({

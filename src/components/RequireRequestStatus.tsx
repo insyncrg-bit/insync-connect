@@ -35,8 +35,7 @@ export const RequireRequestStatus = ({ allowedStatuses }: RequireRequestStatusPr
             if (status === "sent") {
                 navigate("/request-sent");
             } else if (status === "rejected") {
-                // TODO: Create/Nav to request-rejected page if it exists, or just show forbidden
-                navigate("/403"); 
+                navigate("/request-rejected"); 
             } else if (status === null || status === undefined) {
                 // Should not happen for VCs if flow is correct, but safe fallback
                  navigate("/select-role");

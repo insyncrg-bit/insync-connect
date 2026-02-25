@@ -153,7 +153,7 @@ export const HowItWorks = ({ onTryDemo }: HowItWorksProps) => {
         </div>
 
         {/* Timeline Steps */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-4 mb-10">
           {steps.map((step, index) => (
             <button
               key={index}
@@ -190,26 +190,6 @@ export const HowItWorks = ({ onTryDemo }: HowItWorksProps) => {
             </button>
           ))}
         </div>
-
-        {/* Quick Demo Access Buttons - Always visible */}
-        {onTryDemo && (
-          <div className="flex justify-center gap-4 mb-6">
-            <button
-              onClick={() => onTryDemo('founder')}
-              className="px-5 py-2.5 rounded-lg bg-cyan-glow/10 border border-cyan-glow/30 text-cyan-glow font-medium hover:bg-cyan-glow/20 transition-all flex items-center gap-2 text-sm"
-            >
-              <Eye className="w-4 h-4" />
-              View Founder Demo
-            </button>
-            <button
-              onClick={() => onTryDemo('investor')}
-              className="px-5 py-2.5 rounded-lg bg-cyan-glow/10 border border-cyan-glow/30 text-cyan-glow font-medium hover:bg-cyan-glow/20 transition-all flex items-center gap-2 text-sm"
-            >
-              <Eye className="w-4 h-4" />
-              View Investor Demo
-            </button>
-          </div>
-        )}
 
         {/* Interactive Preview Area */}
         <div className="bg-[hsl(var(--navy-deep))] border border-white/10 rounded-2xl overflow-hidden shadow-2xl min-h-[400px]">
@@ -392,7 +372,7 @@ export const HowItWorks = ({ onTryDemo }: HowItWorksProps) => {
                 </div>
               </div>
               
-              <div className="ml-16 text-left">
+              <div className="ml-48 text-left">
                 <h3 className="text-xl text-white font-medium mb-2">Finding Your Matches</h3>
                 <p className="text-white/50 text-sm mb-4 max-w-xs">
                   Our algorithm analyzes 20+ criteria to find the perfect fit between {activeTab === 'founder' ? 'startups and investors' : 'VCs and founders'}
@@ -595,6 +575,25 @@ export const HowItWorks = ({ onTryDemo }: HowItWorksProps) => {
           )}
         </div>
 
+        {/* Quick Demo Access Buttons - Moved below */}
+        {onTryDemo && (
+          <div className="flex justify-center gap-4 mt-10 animate-fade-in">
+            <button
+              onClick={() => onTryDemo('founder')}
+              className="px-5 py-2.5 rounded-lg bg-cyan-glow/10 border border-cyan-glow/30 text-cyan-glow font-medium hover:bg-cyan-glow/20 transition-all flex items-center gap-2 text-sm"
+            >
+              <Eye className="w-4 h-4" />
+              View Founder Demo
+            </button>
+            <button
+              onClick={() => onTryDemo('investor')}
+              className="px-5 py-2.5 rounded-lg bg-cyan-glow/10 border border-cyan-glow/30 text-cyan-glow font-medium hover:bg-cyan-glow/20 transition-all flex items-center gap-2 text-sm"
+            >
+              <Eye className="w-4 h-4" />
+              View Investor Demo
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Add keyframe animation for progress bar */}

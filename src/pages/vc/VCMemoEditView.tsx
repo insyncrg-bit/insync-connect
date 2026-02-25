@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { OnboardingPage, StepValidation } from "@/components/onboarding";
 import { FundOverviewStep } from "./vc-onboarding/components/steps/FundOverviewStep";
@@ -6,7 +6,8 @@ import { InvestmentStrategyStep } from "./vc-onboarding/components/steps/Investm
 import { ValueAddStep } from "./vc-onboarding/components/steps/ValueAddStep";
 import { PortfolioStep } from "./vc-onboarding/components/steps/PortfolioStep";
 import { DealMechanicsStep } from "./vc-onboarding/components/steps/DealMechanicsStep";
-import { VCOnboardingData, defaultData } from "./vc-onboarding/hooks/useVCOnboardingStorage";
+import { VCOnboardingData, defaultData } from "./vc-onboarding/hooks/vcMemoTypes";
+import { extractVCMemoPayload } from "@/lib/vcMemoUtils";
 import { Building2, Target, Handshake, FolderOpen, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,28 +23,15 @@ const EDIT_MEMO_STEPS = [
 const STORAGE_KEY = "vc_edit_memo_data";
 const STEP_KEY = "vc_edit_memo_step";
 
-interface EditMemoTabProps {
-  memoData: Partial<VCOnboardingData> | null;
+interface VCMemoEditViewProps {
+  initialData: Partial<VCOnboardingData> | null;
   firmId: string | null;
   onSaved: () => void;
 }
 
-export function EditMemoTab({ memoData, firmId, onSaved }: EditMemoTabProps) {
+export function VCMemoEditView({ initialData, firmId, onSaved }: VCMemoEditViewProps) {
   const { toast } = useToast();
   const isDirtyRef = useRef(false);
-  const [seeded, setSeeded] = useState(false);
-
-  // Seed localStorage with memo data on mount so OnboardingPage picks it up
-  useEffect(() => {
-    if (memoData) {
-      const prefilled: VCOnboardingData = { ...defaultData, ...memoData };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(prefilled));
-      localStorage.setItem(STEP_KEY, "0");
-      // Clear completed steps so all steps are accessible
-      localStorage.removeItem(`${STEP_KEY}_completed`);
-    }
-    setSeeded(true);
-  }, []); // Only run on mount
 
   // Browser back/refresh guard
   useEffect(() => {
@@ -56,7 +44,6 @@ export function EditMemoTab({ memoData, firmId, onSaved }: EditMemoTabProps) {
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
-
 
   const validateStep = (step: number, data: VCOnboardingData): StepValidation => {
     const errors: string[] = [];
@@ -99,18 +86,8 @@ export function EditMemoTab({ memoData, firmId, onSaved }: EditMemoTabProps) {
       const token = await user.getIdToken();
       const apiUrl = import.meta.env.VITE_FIREBASE_API;
 
-      // Exclude personal profile fields — same as original onboarding submit
-      const {
-        fullName,
-        email,
-        linkedIn,
-        title,
-        profileImage,
-        profileImagePreview,
-        investingSectors,
-        funFact,
-        ...memoPayload
-      } = data;
+      // Use centralized util to extract memo-only fields
+      const memoPayload = extractVCMemoPayload(data);
 
       const res = await fetch(`${apiUrl}/api/firms/${firmId}/memo`, {
         method: "PATCH",
@@ -153,7 +130,8 @@ export function EditMemoTab({ memoData, firmId, onSaved }: EditMemoTabProps) {
     onNext: () => void,
     onBack: () => void,
     onSubmit: () => void,
-    submitLabel?: string
+    submitLabel?: string,
+    isSubmitting?: boolean
   ) => {
     // Mark dirty on any update
     const handleUpdate = (partial: Partial<VCOnboardingData>) => {
@@ -171,13 +149,20 @@ export function EditMemoTab({ memoData, firmId, onSaved }: EditMemoTabProps) {
       case 3:
         return <PortfolioStep data={data} onUpdate={handleUpdate} onNext={onNext} onBack={onBack} />;
       case 4:
-        return <DealMechanicsStep data={data} onUpdate={handleUpdate} onSubmit={onSubmit} onBack={onBack} submitLabel={submitLabel} />;
+        return (
+          <DealMechanicsStep 
+            data={data} 
+            onUpdate={handleUpdate} 
+            onSubmit={onSubmit} 
+            onBack={onBack} 
+            submitLabel={submitLabel} 
+            isSubmitting={isSubmitting}
+          />
+        );
       default:
         return null;
     }
   };
-
-  if (!seeded) return null;
 
   return (
     <OnboardingPage
@@ -187,6 +172,7 @@ export function EditMemoTab({ memoData, firmId, onSaved }: EditMemoTabProps) {
       storageKey={STORAGE_KEY}
       stepKey={STEP_KEY}
       defaultData={defaultData}
+      initialData={initialData ?? undefined}
       renderStep={renderStep}
       validateStep={validateStep}
       onSubmit={handleSubmit}

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { StartupOnboardingData } from "../../hooks/useStartupOnboardingStorage";
+import { StartupOnboardingData } from "../../hooks/startupMemoTypes";
 
 interface FundingRoundStepProps {
   data: StartupOnboardingData;

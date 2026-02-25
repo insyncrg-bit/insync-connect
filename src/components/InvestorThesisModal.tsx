@@ -245,7 +245,6 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading, 
                                 📍 {displayData.hq_location}
                               </Badge>
                             )}
-                            {/* LinkedIn icon — only if URL exists */}
                             {displayData.company_linkedin && (
                               <a
                                 href={displayData.company_linkedin.startsWith("http") ? displayData.company_linkedin : `https://${displayData.company_linkedin}`}
@@ -272,7 +271,7 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading, 
                     </div>
 
                     {/* Key Metrics Row: Check Size | Stage Focus | AUM */}
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                       <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
                         <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Check Size</p>
                         <p className="text-xl font-bold text-white">{displayData.check_sizes?.[0] || "—"}</p>
@@ -282,14 +281,7 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading, 
                       </div>
                       <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
                         <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">Stage Focus</p>
-                        <p className="text-xl font-bold text-white">{displayData.stage_focus?.[0] || "—"}</p>
-                        <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
-                          View details <ChevronRight className="h-3 w-3" />
-                        </p>
-                      </div>
-                      <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all group border border-transparent hover:border-[hsl(var(--cyan-glow))]/30">
-                        <p className="text-sm text-white/50 mb-1 group-hover:text-[hsl(var(--cyan-glow))] transition-colors">AUM</p>
-                        <p className="text-xl font-bold text-white">{displayData.aum || "—"}</p>
+                        <p className="text-xl font-bold text-white text-center">{displayData.stage_focus?.[0] || "—"}</p>
                         <p className="text-xs text-white/30 mt-1 group-hover:text-white/50 flex items-center justify-center gap-1">
                           View details <ChevronRight className="h-3 w-3" />
                         </p>
@@ -382,7 +374,6 @@ export function InvestorThesisModal({ open, onOpenChange, application, loading, 
                     <p className="text-xl text-white/70 mb-4">{displayData.fund_type} • {displayData.lead_follow}</p>
                     <div className="flex justify-center gap-4 text-sm text-white/60">
                       <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {displayData.hq_location || "Location not specified"}</span>
-                      {displayData.aum && <span className="flex items-center gap-1"><DollarSign className="h-4 w-4" /> {displayData.aum}</span>}
                     </div>
                   </div>
 

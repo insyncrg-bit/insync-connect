@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { VCOnboardingData } from "../../hooks/useVCOnboardingStorage";
+import { VCOnboardingData } from "../../hooks/vcMemoTypes";
 import {
   FUND_TYPES,
   CHECK_SIZES,

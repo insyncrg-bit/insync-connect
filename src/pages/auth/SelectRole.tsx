@@ -53,29 +53,51 @@ export const SelectRole = () => {
   const [selectedFirmId, setSelectedFirmId] = useState<string>(""); // Firestore id of selected firm
   const [firmsLoading, setFirmsLoading] = useState(false);
 
-  // Fetch all firms on mount
+  // Fetch all firms when user is available
   useEffect(() => {
     if (!FIREBASE_API) return;
-    const fetchFirms = async () => {
+
+    const fetchFirmsWithRetry = async (user: any, attempt = 1) => {
       setFirmsLoading(true);
       try {
-        const user = auth.currentUser;
-        if (!user) return;
-        const token = await user.getIdToken();
+        console.log(`Fetching firms (attempt ${attempt}/3)...`);
+        const token = await user.getIdToken(true);
         const res = await fetch(`${FIREBASE_API}/firms`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        
         if (res.ok) {
           const data = await res.json();
-          setFirmsFromDb(data.firms || []);
+          const firms = data.firms || [];
+          setFirmsFromDb(firms);
+          
+          // If firms list is empty and we have attempts left, retry
+          if (firms.length === 0 && attempt < 3) {
+            console.log("No firms found, retrying in 2 seconds...");
+            setTimeout(() => fetchFirmsWithRetry(user, attempt + 1), 2000);
+            return; // Don't set loading false yet
+          }
+        } else {
+          console.error("Firms fetch failed:", res.status);
         }
       } catch (error) {
         console.error("Error fetching firms:", error);
       } finally {
+        // Only set loading false if we're not retrying or we've hit the limit
         setFirmsLoading(false);
       }
     };
-    fetchFirms();
+
+    // Use onAuthStateChanged to wait for user to be available
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchFirmsWithRetry(user);
+        // We can unsubscribe once we have the user if we only want to fetch once
+        unsubscribe();
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,6 +205,12 @@ export const SelectRole = () => {
       if (!formData.companyName.trim()) {
         newErrors.companyName = "Firm name is required";
       }
+      if (!formData.title.trim()) {
+        newErrors.title = "Title is required";
+      }
+    }
+
+    if (role === "startup") {
       if (!formData.title.trim()) {
         newErrors.title = "Title is required";
       }
@@ -337,6 +365,51 @@ export const SelectRole = () => {
 
       // 4. Save session and navigate
       if (role === "startup") {
+        // Call POST /startups/init to create startup + founder-user entities
+        const sanitizedApi = FIREBASE_API.replace(/\/$/, "");
+        const initRes = await fetch(`${sanitizedApi}/startups/init`, {
+          method: "POST",
+          headers: freshHeaders,
+          body: JSON.stringify({
+            fullName: formData.fullName.trim(),
+            title: formData.title.trim(),
+            linkedinUrl: formData.linkedinProfile.trim() || undefined,
+          }),
+        });
+        if (!initRes.ok) {
+          const err = await initRes.json().catch(() => ({}));
+          console.error("startup init failed:", initRes.status, err);
+          setErrors({ submit: `Startup init failed: ${(err as { error?: string }).error || initRes.statusText || "Unknown error"}` });
+          return;
+        }
+
+        // Pre-fill startup onboarding localStorage with teamMembers from role data
+        try {
+          const prefill = {
+            teamMembers: [
+              {
+                name: formData.fullName.trim(),
+                role: formData.title.trim(),
+                linkedin: formData.linkedinProfile.trim() || "",
+                background: "",
+              },
+            ],
+          };
+          const existing = localStorage.getItem("startup_onboarding_data");
+          let merged = prefill;
+          if (existing) {
+            try {
+              const parsed = JSON.parse(existing);
+              merged = { ...parsed, ...prefill };
+            } catch (e) {
+              console.warn("Could not parse existing startup onboarding data, overwriting.");
+            }
+          }
+          localStorage.setItem("startup_onboarding_data", JSON.stringify(merged));
+        } catch (e) {
+          console.error("Failed to save startup prefill data to local storage", e);
+        }
+
         sessionManager.save({
           role: "startup",
           onboardingType: "startup",
@@ -354,7 +427,7 @@ export const SelectRole = () => {
           navigate("/request-sent");
         } else {
           // Save preliminary data to VC onboarding storage so it's pre-filled
-          // We use the same key as useVCOnboardingStorage: "vc_onboarding_data"
+          // We use the same key as vcMemoTypes: "vc_onboarding_data"
           const prefillData = {
               fullName: formData.fullName.trim(),
               title: formData.title.trim(),
@@ -662,57 +735,59 @@ export const SelectRole = () => {
                     <p className="text-red-400 text-sm">{errors.companyName}</p>
                   )}
                 </div>
-
-                {/* Title */}
-                <div
-                  className="space-y-2 opacity-0 animate-fade-in-up"
-                  style={{ animationDelay: "160ms" }}
-                >
-                  <Label htmlFor="title" className="text-white/80">
-                    Title *
-                  </Label>
-                  <div className="relative">
-                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
-                    <Input
-                      id="title"
-                      name="title"
-                      type="text"
-                      placeholder="e.g. Associate, Analyst, Principal"
-                      value={formData.title}
-                      onChange={handleInputChange}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
-                    />
-                  </div>
-                  {errors.title && (
-                    <p className="text-red-400 text-sm">{errors.title}</p>
-                  )}
-                </div>
-
-                {/* LinkedIn Profile */}
-                <div
-                  className="space-y-2 opacity-0 animate-fade-in-up"
-                  style={{ animationDelay: "240ms" }}
-                >
-                  <Label htmlFor="linkedinProfile" className="text-white/80">
-                    LinkedIn Profile
-                  </Label>
-                  <div className="relative">
-                    <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
-                    <Input
-                      id="linkedinProfile"
-                      name="linkedinProfile"
-                      type="url"
-                      placeholder="https://linkedin.com/in/yourprofile"
-                      value={formData.linkedinProfile}
-                      onChange={handleInputChange}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
-                    />
-                  </div>
-                </div>
               </>
             )}
 
-            {/* Submit Error */}
+            {/* Title — shown for both roles */}
+            {role && (
+              <div
+                className="space-y-2 opacity-0 animate-fade-in-up"
+                style={{ animationDelay: "160ms" }}
+              >
+                <Label htmlFor="title" className="text-white/80">
+                  Title *
+                </Label>
+                <div className="relative">
+                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+                  <Input
+                    id="title"
+                    name="title"
+                    type="text"
+                    placeholder={role === "startup" ? "e.g. CEO, CTO, Co-Founder" : "e.g. Associate, Analyst, Principal"}
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
+                  />
+                </div>
+                {errors.title && (
+                  <p className="text-red-400 text-sm">{errors.title}</p>
+                )}
+              </div>
+            )}
+
+            {/* LinkedIn Profile — shown for both roles */}
+            {role && (
+              <div
+                className="space-y-2 opacity-0 animate-fade-in-up"
+                style={{ animationDelay: "240ms" }}
+              >
+                <Label htmlFor="linkedinProfile" className="text-white/80">
+                  LinkedIn Profile
+                </Label>
+                <div className="relative">
+                  <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+                  <Input
+                    id="linkedinProfile"
+                    name="linkedinProfile"
+                    type="url"
+                    placeholder="https://linkedin.com/in/yourprofile"
+                    value={formData.linkedinProfile}
+                    onChange={handleInputChange}
+                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-cyan-glow focus:ring-cyan-glow/20 pl-10"
+                  />
+                </div>
+              </div>
+            )}
             {errors.submit && (
               <p className="text-red-400 text-sm text-center">{errors.submit}</p>
             )}

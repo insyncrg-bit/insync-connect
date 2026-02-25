@@ -12,9 +12,10 @@ import { RequireNoAuth } from "./components/RequireNoAuth";
 import { RequireUserType } from "./components/RequireUserType";
 import { RequireRequestStatus } from "./components/RequireRequestStatus";
 import { RequireNoUserType } from "./components/RequireNoUserType";
+import { RequireOnboarding } from "./components/RequireOnboarding";
 import { AppLayoutWithNavbar } from "./components/AppLayoutWithNavbar";
 import { SimpleLayout } from "./components/SimpleLayout";
-import { NotFoundPage, ForbiddenPage, ErrorPage } from "./pages/errors";
+import { NotFoundPage, ForbiddenPage, ErrorPage, RejectedPage } from "./pages/errors";
 import Landing from "./landing";
 
 const SignUp = lazy(() => import("./pages/auth/SignUp"));
@@ -50,8 +51,6 @@ const StartupDashboard = lazy(() =>
   import("./pages/startup/StartupDashboard").then((m) => ({ default: m.StartupDashboard }))
 );
 
-const StartupMemoPage = lazy(() => import("./pages/startup/StartupMemoPage"));
-const StartupSettings = lazy(() => import("./pages/startup/StartupSettings"));
 const StartupProfilePage = lazy(() =>
   import("./pages/startup/StartupProfilePage").then((m) => ({ default: m.StartupProfilePage }))
 );
@@ -130,27 +129,33 @@ const App = () => {
                 
                 {/* Only accessible if accepted (Admin or Analyst) */}
                 <Route element={<RequireRequestStatus allowedStatuses={["accepted"]} />}>
-                  <Route element={<SimpleLayout />}>
-                    <Route path="/vc-onboarding" element={<VCOnboarding />} />
+                  <Route element={<RequireOnboarding mode="incomplete" />}>
+                    <Route element={<SimpleLayout />}>
+                      <Route path="/vc-onboarding" element={<VCOnboarding />} />
+                    </Route>
                   </Route>
                   
-                  <Route element={<AppLayoutWithNavbar />}>
-                    <Route path="/vc-dashboard/*" element={<VCDashboard />} />
+                  <Route element={<RequireOnboarding mode="complete" />}>
+                    <Route element={<AppLayoutWithNavbar />}>
+                      <Route path="/vc-dashboard/*" element={<VCDashboard />} />
+                    </Route>
                   </Route>
                 </Route>
               </Route>
 
               {/* Startup/Founder Routes */}
               <Route element={<RequireUserType allowedTypes={["founder-user"]} />}>
-                <Route element={<SimpleLayout />}>
-                  <Route path="/startup-onboarding" element={<StartupOnboarding />} />
+                <Route element={<RequireOnboarding mode="incomplete" />}>
+                  <Route element={<SimpleLayout />}>
+                    <Route path="/startup-onboarding" element={<StartupOnboarding />} />
+                  </Route>
                 </Route>
                 
-                <Route element={<AppLayoutWithNavbar />}>
-                  <Route path="/startup-dashboard/*" element={<StartupDashboard />} />
-                  <Route path="/startup-memo" element={<StartupMemoPage />} />
-                  <Route path="/startup-settings" element={<StartupSettings />} />
-                  <Route path="/startup-profile" element={<StartupProfilePage />} />
+                <Route element={<RequireOnboarding mode="complete" />}>
+                  <Route element={<AppLayoutWithNavbar />}>
+                    <Route path="/startup-dashboard/*" element={<StartupDashboard />} />
+                    <Route path="/startup-profile" element={<StartupProfilePage />} />
+                  </Route>
                 </Route>
               </Route>
 
@@ -167,6 +172,7 @@ const App = () => {
             </Route>
 
             <Route path="/403" element={<ForbiddenPage />} />
+            <Route path="/request-rejected" element={<RejectedPage />} />
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="/500" element={<ErrorPage statusCode={500} />} />
             <Route path="*" element={<NotFoundPage />} />

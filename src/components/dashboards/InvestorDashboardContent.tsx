@@ -1,4 +1,4 @@
-import { Eye, Heart, MessageSquare, FileText } from "lucide-react";
+import { Eye, Heart, MessageSquare, FileText, Sparkles, MapPin, Globe, Linkedin } from "lucide-react";
 import {
   DashboardQuickAccessCard,
   DashboardStatsGrid,
@@ -11,7 +11,7 @@ interface InvestorDashboardContentProps {
   adminName: string;
   firmName: string;
   adminTitle: string;
-  thesisSubtitle?: string;
+  thesisSubtitle?: React.ReactNode;
   onViewAll?: () => void;
   stats: {
     interests: number;
@@ -28,6 +28,8 @@ interface InvestorDashboardContentProps {
   onMessagesClick: () => void;
   onViewStartup: (startup: StartupCardData) => void;
   companyLogoUrl?: string | null;
+  showProfileBanner?: boolean;
+  onProfileBannerClick?: () => void;
 }
 
 export function InvestorDashboardContent({
@@ -46,9 +48,29 @@ export function InvestorDashboardContent({
   onMessagesClick,
   onViewStartup,
   companyLogoUrl,
+  showProfileBanner,
+  onProfileBannerClick,
 }: InvestorDashboardContentProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-10">
+        {showProfileBanner && (
+          <div className="bg-gradient-to-r from-[hsl(var(--cyan-glow))]/20 to-transparent border border-[hsl(var(--cyan-glow))]/30 rounded-xl p-4 flex items-center justify-between group cursor-pointer hover:bg-[hsl(var(--cyan-glow))]/30 transition-all duration-300" onClick={onProfileBannerClick}>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
+              </div>
+              <div>
+                <p className="text-white font-medium">Complete your analyst profile</p>
+                <p className="text-white/60 text-sm">Help founders understand your specific sourcing focus and background</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-[hsl(var(--cyan-glow))] group-hover:gap-3 transition-all">
+              <span className="text-sm font-semibold uppercase tracking-wider">Complete Profile</span>
+              <FileText className="h-4 w-4" />
+            </div>
+          </div>
+        )}
+        
         <div>
           <h1 className="text-4xl font-bold text-white">
             Welcome {adminName} from {firmName}!
@@ -78,11 +100,9 @@ export function InvestorDashboardContent({
           ]}
         />
 
-        <CuratedSection title="Curated Startups">
-          <div className="flex items-center justify-center py-10">
-            <p className="text-white/40 text-sm">Coming Soon</p>
-          </div>
-        </CuratedSection>
+        <div className="pt-10 pb-20 text-center">
+            <h3 className="text-xl font-bold text-white">Curated Startups Coming Soon</h3>
+        </div>
       </div>
   );
 }

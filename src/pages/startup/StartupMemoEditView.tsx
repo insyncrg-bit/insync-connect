@@ -1,6 +1,6 @@
 import { Building2, Users, Target, Briefcase, CircleDollarSign, TrendingUp, Map, Swords } from "lucide-react";
 import { OnboardingPage } from "@/components/onboarding";
-import type { StartupOnboardingData } from "./startup-onboarding/hooks/useStartupOnboardingStorage";
+import type { StartupOnboardingData } from "./startup-onboarding/hooks/startupMemoTypes";
 import type { StepValidation } from "@/components/onboarding";
 import { CompanyInfoStep } from "./startup-onboarding/components/steps/CompanyInfoStep";
 import { TeamOverviewStep } from "./startup-onboarding/components/steps/TeamOverviewStep";
@@ -28,6 +28,7 @@ const STEP_KEY = "startup_edit_memo_step";
 
 export interface StartupMemoEditViewProps {
   defaultData: StartupOnboardingData;
+  initialData?: Partial<StartupOnboardingData>;
   validateStep: (step: number, data: StartupOnboardingData) => StepValidation;
   onSubmit: (data: StartupOnboardingData) => Promise<void>;
   onComplete: () => void;
@@ -37,6 +38,7 @@ export interface StartupMemoEditViewProps {
 
 export function StartupMemoEditView({
   defaultData,
+  initialData,
   validateStep,
   onSubmit,
   onComplete,
@@ -55,7 +57,8 @@ export function StartupMemoEditView({
     onNext: () => void,
     onBackStep: () => void,
     onSubmitStep: () => void,
-    submitLabel?: string
+    submitLabel?: string,
+    isSubmitting?: boolean
   ) => {
     const update = handleUpdate(onUpdate);
 
@@ -97,6 +100,7 @@ export function StartupMemoEditView({
             onSubmit={onSubmitStep}
             onBack={onBackStep}
             submitLabel={submitLabel}
+            isSubmitting={isSubmitting}
           />
         );
       default:
@@ -106,16 +110,7 @@ export function StartupMemoEditView({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 pt-4">
-        <button
-          type="button"
-          className="text-sm text-white/70 hover:text-white flex items-center gap-2"
-          onClick={onBack}
-        >
-          ← Back to preview
-        </button>
-        <p className="text-xs sm:text-sm text-white/40">Editing startup memo</p>
-      </div>
+
       <OnboardingPage
         title="Edit Memo"
         description="Update your startup memo. Changes will be saved to your profile."
@@ -123,6 +118,7 @@ export function StartupMemoEditView({
         storageKey={STORAGE_KEY}
         stepKey={STEP_KEY}
         defaultData={defaultData}
+        initialData={initialData}
         renderStep={renderStep}
         validateStep={validateStep}
         onSubmit={onSubmit}
@@ -132,6 +128,7 @@ export function StartupMemoEditView({
         loadingText="Saving memo..."
         successTitle="Memo saved!"
         successDescription="Your startup memo has been updated."
+        isEmbed
       />
     </div>
   );

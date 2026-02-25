@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { VCOnboardingData } from "../../hooks/useVCOnboardingStorage";
+import { VCOnboardingData } from "../../hooks/vcMemoTypes";
 import { CONFLICTS_POLICY } from "../../constants";
 import {
   Select,

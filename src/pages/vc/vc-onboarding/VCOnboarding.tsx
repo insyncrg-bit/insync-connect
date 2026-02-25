@@ -7,7 +7,7 @@ import { ValueAddStep } from "./components/steps/ValueAddStep";
 import { PortfolioStep } from "./components/steps/PortfolioStep";
 import { DealMechanicsStep } from "./components/steps/DealMechanicsStep";
 import { STEPS } from "./constants";
-import { VCOnboardingData, defaultData } from "./hooks/useVCOnboardingStorage";
+import { VCOnboardingData, defaultData } from "./hooks/vcMemoTypes";
 import { sessionManager } from "@/lib/session";
 import { useNavigate } from "react-router-dom";
 
@@ -166,7 +166,8 @@ export const VCOnboarding = () => {
     onNext: () => void,
     onBack: () => void,
     onSubmit: () => void,
-    submitLabel?: string
+    submitLabel?: string,
+    isSubmitting?: boolean
   ) => {
     switch (step) {
       case 0:
@@ -223,6 +224,7 @@ export const VCOnboarding = () => {
             onSubmit={onSubmit}
             onBack={onBack}
             submitLabel={submitLabel}
+            isSubmitting={isSubmitting}
           />
         );
       default:

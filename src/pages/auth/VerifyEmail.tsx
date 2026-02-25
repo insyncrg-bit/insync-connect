@@ -22,16 +22,42 @@ export function VerifyEmail() {
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
-    const verifyEmail = async () => {
-      // Check if this is an email verification action
-      if (mode !== "verifyEmail" || !oobCode) {
-        setStatus("invalid");
-        return;
-      }
-
+    const startVerification = async (user: any) => {
       try {
+        // If the user exists, check if they are already verified
+        if (user) {
+          await user.reload();
+          if (user.emailVerified) {
+            console.log("VerifyEmail: User already verified session, skipping applyActionCode");
+            setStatus("success");
+            setTimeout(() => navigate("/select-role", { replace: true }), 1500);
+            return;
+          }
+        }
+
+        // Check if this is an email verification action
+        if (mode !== "verifyEmail" || !oobCode) {
+          setStatus("invalid");
+          return;
+        }
+
         // First verify the code is valid
-        await checkActionCode(auth, oobCode);
+        try {
+          await checkActionCode(auth, oobCode);
+        } catch (checkError: any) {
+          // Final check if they became verified while we were waiting
+          const currentUser = auth.currentUser;
+          if (currentUser) {
+            await currentUser.reload();
+            if (currentUser.emailVerified) {
+              console.log("VerifyEmail: Code used/invalid but user is verified. Continuing.");
+              setStatus("success");
+              setTimeout(() => navigate("/select-role", { replace: true }), 1500);
+              return;
+            }
+          }
+          throw checkError;
+        }
         
         // Apply the verification
         await applyActionCode(auth, oobCode);
@@ -42,9 +68,9 @@ export function VerifyEmail() {
           description: "Your email has been successfully verified. You can now sign in.",
         });
         
-        // Redirect to login after a short delay
+        // Redirect to after a short delay
         setTimeout(() => {
-          navigate("/login", { replace: true });
+          navigate("/select-role", { replace: true });
         }, 2000);
       } catch (error: unknown) {
         const message = error && typeof (error as { message?: string }).message === "string"
@@ -74,7 +100,13 @@ export function VerifyEmail() {
       }
     };
 
-    verifyEmail();
+    // We wait for auth state to be resolved (even if null) before starting
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      startVerification(user);
+      unsubscribe(); // Only need to trigger once
+    });
+
+    return () => unsubscribe();
   }, [oobCode, mode, navigate, toast]);
 
   if (status === "invalid") {
@@ -88,7 +120,7 @@ export function VerifyEmail() {
             This verification link is invalid or missing required parameters. Please check your email for the correct link.
           </p>
           <Button asChild variant="outline" className="border-cyan-glow/50 text-cyan-glow">
-            <Link to="/login">Go to Login</Link>
+            <Link to="/select-role">Continue to App</Link>
           </Button>
         </div>
       </div>
@@ -105,7 +137,7 @@ export function VerifyEmail() {
           <p className="text-white/70 mb-6">{errorMessage}</p>
           <div className="flex flex-col gap-3">
             <Button asChild variant="outline" className="border-cyan-glow/50 text-cyan-glow">
-              <Link to="/login">Go to Login</Link>
+              <Link to="/select-role">Continue to App</Link>
             </Button>
             <Button asChild variant="ghost" size="sm" className="text-white/70">
               <Link to="/signup">Create new account</Link>

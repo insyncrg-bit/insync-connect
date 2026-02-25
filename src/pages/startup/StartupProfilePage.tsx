@@ -9,7 +9,7 @@ import {
   defaultData,
   type StartupOnboardingData,
   type TeamMember,
-} from "./startup-onboarding/hooks/useStartupOnboardingStorage";
+} from "./startup-onboarding/hooks/startupMemoTypes";
 import { CompanyInfoStep } from "./startup-onboarding/components/steps/CompanyInfoStep";
 import { TeamOverviewStep } from "./startup-onboarding/components/steps/TeamOverviewStep";
 

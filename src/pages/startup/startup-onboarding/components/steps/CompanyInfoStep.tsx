@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Upload, Building2, Globe, Linkedin } from "lucide-react";
 import { LocationField } from "@/components/onboarding";
-import { StartupOnboardingData } from "../../hooks/useStartupOnboardingStorage";
+import { StartupOnboardingData } from "../../hooks/startupMemoTypes";
 import { VERTICALS, STAGES } from "../../constants";
 
 interface CompanyInfoStepProps {

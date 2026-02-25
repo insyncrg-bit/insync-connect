@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StartupOnboardingData } from "../../hooks/useStartupOnboardingStorage";
+import { StartupOnboardingData } from "../../hooks/startupMemoTypes";
 import { CUSTOMER_TYPES, PRICING_STRATEGIES } from "../../constants";
 
 interface BusinessModelStepProps {
@@ -48,6 +48,7 @@ export const BusinessModelStep = ({ data, onUpdate, onNext, onBack }: BusinessMo
               <Checkbox
                 checked={data.customerType.includes(type)}
                 onCheckedChange={() => toggleCustomerType(type)}
+                onClick={(e) => e.stopPropagation()}
               />
               <Label className="text-[hsl(var(--navy-deep))] cursor-pointer">{type}</Label>
             </div>
@@ -57,6 +58,7 @@ export const BusinessModelStep = ({ data, onUpdate, onNext, onBack }: BusinessMo
           <Textarea
             value={data.customerTypeExplanation}
             onChange={(e) => onUpdate({ customerTypeExplanation: e.target.value })}
+            onClick={(e) => e.stopPropagation()}
             placeholder="Explain your customer type..."
             className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[100px]"
             rows={3}
@@ -76,6 +78,7 @@ export const BusinessModelStep = ({ data, onUpdate, onNext, onBack }: BusinessMo
               <Checkbox
                 checked={data.pricingStrategies.includes(strategy.id)}
                 onCheckedChange={() => togglePricingStrategy(strategy.id)}
+                onClick={(e) => e.stopPropagation()}
               />
               <Label className="text-[hsl(var(--navy-deep))] cursor-pointer">{strategy.label}</Label>
             </div>
