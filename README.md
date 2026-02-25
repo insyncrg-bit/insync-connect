@@ -1,69 +1,88 @@
 # In-Sync Connect (Frontend)
 
-Web application for **In-Sync**, a high-fidelity startup–investor matching platform. Connects Boston founders with the right investors through data-driven matching and outcome tracking.
+Developer-facing documentation for the In-Sync frontend (Vite + React + TypeScript). This app powers the startup, VC, analyst, and admin experiences for the In-Sync platform.
 
 ## Tech stack
 
 - **React 18** + **TypeScript**
-- **Vite 7** (build & dev server)
-- **React Router** (routing)
+- **Vite 7** (bundler & dev server)
+- **React Router v6** (routing)
 - **Firebase** (auth)
-- **TanStack React Query** (server state)
-- **Tailwind CSS** + **Radix UI** (shadcn/ui-style components)
+- **TanStack React Query v5** (server state)
+- **Tailwind CSS** + **Radix UI** (shadcn-style components)
 - **Lucide React** (icons)
 
-## Prerequisites
+## Getting started
 
-- Node.js 18+
-- npm or pnpm
+- **Prereqs**: Node.js 18+ and npm (or pnpm)
 
-## Setup
+```bash
+cd insync-connect
+npm install
+```
 
-1. Clone the repository and enter the frontend directory:
-   ```bash
-   cd insync-connect
-   ```
+### Environment variables
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+Create a `.env` file (never commit real secrets) and set:
 
-3. Configure environment variables. Copy `.env.example` to `.env` (or create `.env`) and set:
-   - `VITE_FIREBASE_AUTH_DOMAIN` – Firebase Auth domain
-   - `VITE_FIREBASE_PROJECT_ID` – Firebase project ID
-   - `VITE_FIREBASE_API` – Backend API base URL (e.g. Cloud Functions URL)
-   - `VITE_FIREBASE_API_KEY` – Firebase Web API key  
-   Optional demo accounts: `VITE_DEMO_VC_EMAIL`, `VITE_DEMO_STARTUP_EMAIL`, `VITE_DEMO_ANALYST_EMAIL`, `VITE_DEMO_PASSWORD`.
+- `VITE_FIREBASE_AUTH_DOMAIN` – Firebase Auth domain
+- `VITE_FIREBASE_PROJECT_ID` – Firebase project ID
+- `VITE_FIREBASE_API` – Backend API base URL (Cloud Functions HTTPS endpoint)
+- `VITE_FIREBASE_API_KEY` – Firebase Web API key
 
-4. Run the dev server:
-   ```bash
-   npm run dev
-   ```
+Optional demo accounts:
 
-   The app is typically available at `http://localhost:5173`.
+- `VITE_DEMO_VC_EMAIL`
+- `VITE_DEMO_STARTUP_EMAIL`
+- `VITE_DEMO_ANALYST_EMAIL`
+- `VITE_DEMO_PASSWORD`
 
-## Scripts
+### Dev loop
 
-| Command           | Description                |
-|-------------------|----------------------------|
-| `npm run dev`     | Start Vite dev server      |
-| `npm run build`   | Production build           |
-| `npm run build:dev` | Development build        |
-| `npm run preview` | Preview production build   |
-| `npm run lint`    | Run ESLint                 |
+```bash
+# Start dev server
+npm run dev
 
-## Main areas
+# Type-check & lint
+npm run lint
 
-- **Landing** – Public landing and marketing
-- **Auth** – Sign up, login, verify email, forgot/reset password, role selection
-- **Startup** – Onboarding, dashboard, memo editor, profile, settings
-- **VC** – Onboarding, dashboard (thesis, curated startups, edit memo, connections)
-- **Analyst** – Analyst dashboard and flows
-- **Admin** – Superuser configuration and test pages
+# Production build + preview
+npm run build
+npm run preview
+```
 
-The app uses role-based routes and layouts (e.g. `RequireUserType`, `AppLayoutWithNavbar`).
+The app usually runs at `http://localhost:5173`.
+
+## Project structure (high level)
+
+- `src/main.tsx` – Vite entry
+- `src/App.tsx` – Router + `QueryClientProvider` + top-level layouts
+- `src/landing/` – Marketing/landing pages
+- `src/components/` – Reusable UI components (Navbars, dashboards, modals, memo editor, etc.)
+- `src/pages/` – Route-level screens (startup, vc, analyst, admin, auth)
+- `src/lib/` – API helpers (`api.ts`), Firebase config, startup memo helpers, session utils
+- `src/hooks/` – Custom hooks (e.g. `use-toast`, onboarding storage)
+
+Role-based routing is enforced via wrappers such as `RequireAuth`, `RequireUserType`, and `AppLayoutWithNavbar`.
+
+## Key flows
+
+- **Auth**: Email/password + Firebase; guarded routes via `RequireAuth` and user-type gates.
+- **Startup**:
+  - Onboarding wizard → persists to backend and local storage.
+  - `StartupMemoPage` uses React Query for loading profile + memo, lazy-loads heavy editors.
+- **VC**:
+  - Onboarding to collect thesis.
+  - `VCDashboard` fetches firm + memo via React Query and code-splits heavy tabs like `EditMemoTab`.
+
+## Conventions
+
+- **TypeScript** everywhere (`.tsx` / `.ts`).
+- **React Query** for async server data; avoid ad-hoc `fetch` in components where possible.
+- **Tailwind** for layout and styling; keep complex variants in utility components when needed.
+- Prefer function components + hooks; no class components.
+- Put shared logic in `src/lib` or `src/hooks` rather than inside pages.
 
 ## License
 
-Commercial use is permitted only with explicit approval from the licensors. See [COMMERCIAL_LICENSE.md](./COMMERCIAL_LICENSE.md) in this repository for terms.
+Commercial use is permitted only with explicit approval from the licensors. See [COMMERCIAL_LICENSE.md](./COMMERCIAL_LICENSE.md) for terms.
