@@ -209,13 +209,8 @@ export const VerifyPending = () => {
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-white mb-2">Verify your email (Check Spam folder)</h1>
             <p className="text-white/60">
-<<<<<<< HEAD
-              Please check your spam folder and click the verification link. We'll automatically proceed once you&apos;re
-              verified.
-=======
               Please check your email and click the verification link. If you don&apos;t see it, check your spam and
               junk folders. We&apos;ll automatically proceed once you&apos;re verified.
->>>>>>> a9e9751 (added junk email disclaimer)
             </p>
           </div>
 
