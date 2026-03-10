@@ -141,7 +141,11 @@ function buildPrefill(source: StartupMemoLike | null): Partial<StartupOnboarding
   };
 }
 
-export function StartupMemoPage() {
+interface StartupMemoPageProps {
+  onUpdate?: () => void;
+}
+
+export function StartupMemoPage({ onUpdate }: StartupMemoPageProps) {
   const { toast } = useToast();
   const isDirtyRef = useRef(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -403,6 +407,7 @@ export function StartupMemoPage() {
       localStorage.removeItem(`${STEP_KEY}_completed`);
 
       setRefreshKey((k) => k + 1);
+      onUpdate?.();
       toast({
         title: "Success",
         description: "Your memo has been updated.",

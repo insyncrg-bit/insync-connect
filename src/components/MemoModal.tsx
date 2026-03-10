@@ -242,7 +242,7 @@ export function MemoModal({
                       className="border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10 font-semibold px-4"
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      View Pitch Deck
+                      Pitch Deck
                       <ExternalLink className="h-3 w-3 ml-2" />
                     </Button>
                   </a>

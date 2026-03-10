@@ -4,6 +4,9 @@ import { auth } from "./firebase";
 // Base URL for API
 const API_BASE_URL = import.meta.env.VITE_FIREBASE_API || "https://us-central1-insync-backend-bd86e.cloudfunctions.net/api";
 
+// Base URL for Memo Inferencer service
+const INFERENCER_URL = "https://memo-inferencer-970620251155.us-east4.run.app";
+
 interface UploadResponse {
     url: string;
     path: string;
@@ -83,6 +86,33 @@ export const deleteFile = async (url: string): Promise<void> => {
         }
     } catch (error) {
         console.error("Delete error:", error);
+        throw error;
+    }
+};
+
+/**
+ * Calls the AI Memo Inferencer service to extract startup data from a pitch deck PDF URL.
+ */
+export const inferMemo = async (url: string): Promise<{ success: boolean; data: any; timing: any }> => {
+    try {
+        const response = await fetch(`${INFERENCER_URL}/infer`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ url }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            const msg = errorData?.detail?.message || errorData?.error || "Inference failed";
+            const code = errorData?.detail?.code ? ` (${errorData.detail.code})` : "";
+            throw new Error(msg + code);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Inference error:", error);
         throw error;
     }
 };

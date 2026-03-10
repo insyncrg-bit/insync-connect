@@ -49,18 +49,28 @@ export const useOnboardingStorage = <T extends Record<string, any>>(
     }
   }, [storageKey, stepKey, defaultData]);
 
+  const dataRef = useRef<T>(data);
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
   const saveData = useCallback((newData: Partial<T>) => {
-    const updatedData = { ...data, ...newData };
-    setData(updatedData);
-    try {
-      const toPersist = { ...updatedData };
-      if ("companyLogo" in toPersist && toPersist.companyLogo instanceof File) delete (toPersist as any).companyLogo;
-      if ("pitchdeck" in toPersist && toPersist.pitchdeck instanceof File) delete (toPersist as any).pitchdeck;
-      localStorage.setItem(storageKey, JSON.stringify(toPersist));
-    } catch (error) {
-      console.error(`Error saving onboarding data (${storageKey}):`, error);
-    }
-  }, [data, storageKey]);
+    setData((prev) => {
+      const updatedData = { ...prev, ...newData };
+
+      // Side effect: persist to localStorage
+      try {
+        const toPersist = { ...updatedData };
+        if ("companyLogo" in toPersist && toPersist.companyLogo instanceof File) delete (toPersist as any).companyLogo;
+        if ("pitchdeck" in toPersist && toPersist.pitchdeck instanceof File) delete (toPersist as any).pitchdeck;
+        localStorage.setItem(storageKey, JSON.stringify(toPersist));
+      } catch (error) {
+        console.error(`Error saving onboarding data (${storageKey}):`, error);
+      }
+
+      return updatedData;
+    });
+  }, [storageKey]);
 
   const saveStep = useCallback((step: number) => {
     setCurrentStep(step);

@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Upload, Building2, Globe, Linkedin, X } from "lucide-react";
+import { Loader2, Upload, Building2, Globe, Linkedin, X, Sparkles } from "lucide-react";
 import { LocationField } from "@/components/onboarding";
 import { StartupOnboardingData } from "../../hooks/startupMemoTypes";
 import { VERTICALS, STAGES } from "../../constants";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 
@@ -24,21 +25,80 @@ interface CompanyInfoStepProps {
 export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack, isEditMode }: CompanyInfoStepProps) => {
   const { toast } = useToast();
   const [logoUploading, setLogoUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processStep, setProcessStep] = useState<"uploading" | "inferring" | "idle">("idle");
 
-  const handlePitchdeckUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePitchdeckUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.type !== 'application/pdf') {
-        toast({ title: "Invalid file", description: "Only PDF files are supported.", variant: "destructive" });
-        return;
-      }
-      if (file.size > 20 * 1024 * 1024) {
-        toast({ title: "File too large", description: "PDF must be under 20MB.", variant: "destructive" });
-        return;
-      }
-      onUpdate({ pitchdeck: file, pitchdeckName: file.name });
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({ title: "Invalid file", description: "Only PDF files are supported.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      toast({ title: "File too large", description: "PDF must be under 20MB.", variant: "destructive" });
+      return;
+    }
+
+    const { getAuth } = await import("firebase/auth");
+    const user = getAuth().currentUser;
+    if (!user) {
+      toast({ title: "Error", description: "You must be logged in.", variant: "destructive" });
+      return;
+    }
+
+    setIsProcessing(true);
+    setProcessStep("uploading");
+    
+    try {
+      const { uploadFile } = await import("@/lib/api");
+      const url = await uploadFile(file, "pitchdeck", user.uid);
+      onUpdate({ pitchdeck: file, pitchdeckName: file.name, pitchdeckUrl: url });
+      
+      await runInference(url);
+    } catch (err: any) {
+      toast({ title: "Upload Failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsProcessing(false);
+      setProcessStep("idle");
     }
   };
+
+  const runInference = async (url: string) => {
+    setIsProcessing(true);
+    setProcessStep("inferring");
+    
+    try {
+      const { inferMemo } = await import("@/lib/api");
+      const result = await inferMemo(url);
+
+      if (result.success && result.data) {
+        const inferredData = result.data;
+        
+        // Handle valueDriverExplanations parsing if it's a string
+        const updates: any = { ...inferredData };
+        delete updates.confidence;
+
+        if (typeof updates.valueDriverExplanations === 'string') {
+          try {
+            updates.valueDriverExplanations = JSON.parse(updates.valueDriverExplanations);
+          } catch (e) {
+            updates.valueDriverExplanations = {};
+          }
+        }
+
+        onUpdate(updates);
+        toast({ title: "Autofill Complete", description: "Your startup profile has been updated with data from the deck." });
+      }
+    } catch (err: any) {
+      toast({ title: "Autofill Failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsProcessing(false);
+      setProcessStep("idle");
+    }
+  };
+
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -135,10 +195,15 @@ export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack, 
           
           <div className="flex items-center gap-4">
             <div className="relative group">
-              <div className="w-24 h-24 rounded-lg bg-[hsl(var(--navy-deep))]/5 border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center p-2 text-center text-xs text-[hsl(var(--navy-deep))]/80 break-all overflow-hidden">
-                {data.pitchdeckName ? data.pitchdeckName : "No File"}
+              <div className={cn(
+                "w-24 h-24 rounded-lg bg-[hsl(var(--navy-deep))]/5 border-2 border-dashed flex items-center justify-center p-2 text-center text-xs text-[hsl(var(--navy-deep))]/80 break-all overflow-hidden transition-all",
+                isProcessing ? "border-cyan-glow animate-pulse" : "border-[hsl(var(--navy-deep))]/20"
+              )}>
+                {isProcessing ? (
+                   <Loader2 className="w-6 h-6 text-cyan-glow animate-spin" />
+                ) : data.pitchdeckName ? data.pitchdeckName : "No File"}
               </div>
-              {data.pitchdeckName && (
+              {data.pitchdeckName && !isProcessing && (
                 <button
                   type="button"
                   onClick={() => onUpdate({ pitchdeck: null, pitchdeckName: null, pitchdeckUrl: null })}
@@ -149,7 +214,7 @@ export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack, 
               )}
             </div>
             <div className="space-y-3">
-              {!data.pitchdeckName && (
+              {!data.pitchdeckName && !isProcessing && (
                 <div className="flex items-center gap-2">
                   <Input
                     type="file"
@@ -165,22 +230,42 @@ export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack, 
                   </Label>
                 </div>
               )}
-              {!data.pitchdeckName && <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PDF up to 20MB</p>}
+              {!data.pitchdeckName && !isProcessing && <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PDF up to 20MB</p>}
               
               {data.pitchdeckName && (
-                <Button 
-                  type="button" 
-                  variant="default"
-                  className="bg-[hsl(var(--navy-deep))] text-white hover:bg-[hsl(var(--navy-deep))]/90"
-                  onClick={() => toast({ title: "Autofill triggered", description: "This feature is coming soon!" })}
-                >
-                  Rerun Autofill
-                </Button>
+                <div className="flex flex-col gap-2">
+                   <Button 
+                    type="button" 
+                    variant="default"
+                    className="bg-[hsl(var(--navy-deep))] text-white hover:bg-[hsl(var(--navy-deep))]/90"
+                    onClick={() => {
+                      if (window.confirm("This will overwrite all of your current memo data. Are you sure?")) {
+                        data.pitchdeckUrl && runInference(data.pitchdeckUrl);
+                      }
+                    }}
+                    disabled={isProcessing || !data.pitchdeckUrl}
+                  >
+                    {isProcessing ? (
+                       <span className="flex items-center gap-2">
+                          {processStep === "uploading" ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-4 h-4 animate-pulse text-cyan-glow" />
+                          )}
+                          {processStep === "uploading" ? "Syncing to Cloud..." : "Analysing Pitch Deck..."}
+                       </span>
+                    ) : "Rerun Autofill"}
+                  </Button>
+                  {isProcessing && processStep === "inferring" && (
+                    <p className="text-[10px] text-cyan-700 italic">This usually takes ~60s</p>
+                  )}
+                </div>
               )}
             </div>
           </div>
         </div>
       )}
+
 
 
 

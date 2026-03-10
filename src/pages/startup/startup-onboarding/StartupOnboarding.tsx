@@ -92,7 +92,9 @@ export const StartupOnboarding = () => {
       // Upload pitch deck if selected (logo is uploaded on select via onLogoUpload)
       let pitchdeckUrl: string | undefined;
       let pitchdeckName: string | undefined;
-      if (data.pitchdeck instanceof File) {
+
+      if (data.pitchdeck instanceof File && !data.pitchdeckUrl) {
+        // Only upload if we don't already have a URL (from immediate upload/autofill)
         const oldUrl = typeof data.pitchdeckUrl === "string" ? data.pitchdeckUrl : "";
         if (oldUrl) await deleteFile(oldUrl).catch(() => {});
         pitchdeckUrl = await uploadFile(data.pitchdeck, "pitchdeck", user.uid);
