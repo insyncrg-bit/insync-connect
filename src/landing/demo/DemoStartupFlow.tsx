@@ -2369,7 +2369,7 @@ export const DemoStartupFlow = ({ onClose }: DemoStartupFlowProps) => {
                   <p className="text-xs text-[hsl(var(--navy-deep))]/60 mt-1">Select all that apply</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {["B2B", "B2C", "Both"].map((type) => (
+                  {["B2B", "B2C"].map((type) => (
                     <button key={type} className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${type === "B2B" ? "bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))]" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
                       {type}
                     </button>

@@ -83,7 +83,7 @@ export const VALUE_DRIVERS = [
   },
 ];
 
-export const CUSTOMER_TYPES = ["B2B", "B2C", "Both"];
+export const CUSTOMER_TYPES = ["B2B", "B2C"];
 
 export const PRICING_STRATEGIES = [
   { id: "subscription", label: "Subscription" },

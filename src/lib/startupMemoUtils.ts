@@ -37,6 +37,7 @@ export function onboardingToMemoPayload(
             licensingModel: data.licensingModel,
             adRevenueModel: data.adRevenueModel,
             serviceType: data.serviceType,
+            otherPricingDetail: data.otherPricingDetail,
             revenueMetrics: data.revenueMetrics,
             revenueMetricsValues: data.revenueMetricsValues,
         },

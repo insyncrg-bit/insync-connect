@@ -48,6 +48,7 @@ export interface StartupOnboardingData {
     licensingModel: string;
     adRevenueModel: string;
     serviceType: string;
+    otherPricingDetail: string;
     revenueMetrics: string[];
     revenueMetricsValues: string;
 
@@ -105,6 +106,7 @@ export const defaultData: StartupOnboardingData = {
     licensingModel: "",
     adRevenueModel: "",
     serviceType: "",
+    otherPricingDetail: "",
     revenueMetrics: [],
     revenueMetricsValues: "",
     gtmAcquisition: "",
