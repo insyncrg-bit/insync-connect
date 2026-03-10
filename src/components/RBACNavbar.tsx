@@ -59,6 +59,7 @@ const VC_ITEMS: NavItem[] = [
 
 const STARTUP_ITEMS: NavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/startup-dashboard" },
+  { id: "organisation", label: "Organization", icon: Users, path: "/startup-dashboard?tab=organisation" },
   { id: "edit-memo", label: "Edit Memo", icon: FileText, path: "/startup-dashboard?tab=edit-memo" },
 ];
 

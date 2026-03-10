@@ -1,26 +1,20 @@
-import { Building2, Users, Target, Briefcase, CircleDollarSign, TrendingUp, Map, Swords } from "lucide-react";
+import { Building2, Briefcase, CircleDollarSign, Map, Swords } from "lucide-react";
 import { OnboardingPage } from "@/components/onboarding";
 import type { StartupOnboardingData } from "./startup-onboarding/hooks/startupMemoTypes";
 import type { StepValidation } from "@/components/onboarding";
 import { CompanyInfoStep } from "./startup-onboarding/components/steps/CompanyInfoStep";
-import { TeamOverviewStep } from "./startup-onboarding/components/steps/TeamOverviewStep";
-import { ValuePropositionStep } from "./startup-onboarding/components/steps/ValuePropositionStep";
 import { BusinessModelStep } from "./startup-onboarding/components/steps/BusinessModelStep";
 import { FundingRoundStep } from "./startup-onboarding/components/steps/FundingRoundStep";
-import { GoToMarketStep } from "./startup-onboarding/components/steps/GoToMarketStep";
 import { CustomerMarketStep } from "./startup-onboarding/components/steps/CustomerMarketStep";
 import { CompetitorsStep } from "./startup-onboarding/components/steps/CompetitorsStep";
 import { uploadFile, deleteFile } from "@/lib/api";
 
 const EDIT_MEMO_STEPS = [
-  { id: 0, title: "Company Info", icon: Building2 },
-  { id: 1, title: "Team & Overview", icon: Users },
-  { id: 2, title: "Value Proposition", icon: Target },
-  { id: 3, title: "Business Model", icon: Briefcase },
-  { id: 4, title: "Funding & Round (Optional)", icon: CircleDollarSign },
-  { id: 5, title: "Go-to-Market", icon: TrendingUp },
-  { id: 6, title: "Customer & Market", icon: Map },
-  { id: 7, title: "Competitors (Optional)", icon: Swords },
+  { id: 0, title: "Company Overview", icon: Building2 },
+  { id: 1, title: "Business Model & Value", icon: Briefcase },
+  { id: 2, title: "Funding Details", icon: CircleDollarSign },
+  { id: 3, title: "Consumer & Market", icon: Map },
+  { id: 4, title: "Competitors (Optional)", icon: Swords },
 ] as const;
 
 const STORAGE_KEY = "startup_edit_memo_data";
@@ -78,21 +72,16 @@ export function StartupMemoEditView({
             }}
             onNext={onNext}
             onBack={onBackStep}
+            isEditMode={true}
           />
         );
       case 1:
-        return <TeamOverviewStep data={data} onUpdate={update} onNext={onNext} onBack={onBackStep} />;
-      case 2:
-        return <ValuePropositionStep data={data} onUpdate={update} onNext={onNext} onBack={onBackStep} />;
-      case 3:
         return <BusinessModelStep data={data} onUpdate={update} onNext={onNext} onBack={onBackStep} />;
-      case 4:
+      case 2:
         return <FundingRoundStep data={data} onUpdate={update} onNext={onNext} onBack={onBackStep} />;
-      case 5:
-        return <GoToMarketStep data={data} onUpdate={update} onNext={onNext} onBack={onBackStep} />;
-      case 6:
+      case 3:
         return <CustomerMarketStep data={data} onUpdate={update} onNext={onNext} onBack={onBackStep} />;
-      case 7:
+      case 4:
         return (
           <CompetitorsStep
             data={data}
@@ -123,7 +112,7 @@ export function StartupMemoEditView({
         validateStep={validateStep}
         onSubmit={onSubmit}
         onComplete={onComplete}
-        requiredSteps={[0, 1, 2, 3, 5, 6]}
+        requiredSteps={[0, 1, 3]}
         submitLabel="Save"
         loadingText="Saving memo..."
         successTitle="Memo saved!"

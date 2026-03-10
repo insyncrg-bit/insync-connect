@@ -522,8 +522,16 @@ export const VCDashboard = () => {
 
   const renderContent = () => {
     // Robustly determine if profile is incomplete to avoid flickering
+    // Use profileComplete flag if it exists, otherwise fall back to manual check
     const userData = dashboardQueryData?.userData;
-    const isProfileIncomplete = userData && (!userData.funFact || !userData.investingSectors || userData.investingSectors.length === 0);
+    const isProfileIncomplete = userData && (
+      userData.profileComplete === false || 
+      (userData.profileComplete === undefined && (
+        !userData.funFact || 
+        !userData.investingSectors || 
+        userData.investingSectors.length === 0
+      ))
+    );
     const showProfileBanner = !!isProfileIncomplete;
 
     switch (currentTab) {
@@ -587,6 +595,7 @@ export const VCDashboard = () => {
             companyLogoUrl={companyLogo}
             showProfileBanner={showProfileBanner}
             onProfileBannerClick={() => handleTabChange("profile")}
+            onManageTeam={() => handleTabChange("organisation")}
           />
         );
 
@@ -786,6 +795,7 @@ export const VCDashboard = () => {
             companyLogoUrl={companyLogo}
             showProfileBanner={showProfileBanner}
             onProfileBannerClick={() => handleTabChange("profile")}
+            onManageTeam={() => handleTabChange("organisation")}
           />
         );
     }

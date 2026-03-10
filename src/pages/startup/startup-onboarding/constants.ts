@@ -12,14 +12,11 @@ import {
 
 export const STEPS = [
   { id: 0, title: "Welcome", icon: CircleDot },
-  { id: 1, title: "Company Info", icon: Building2 },
-  { id: 2, title: "Team & Overview", icon: Users },
-  { id: 3, title: "Value Proposition", icon: Target },
-  { id: 4, title: "Business Model", icon: Briefcase },
-  { id: 5, title: "Funding & Round", icon: CircleDollarSign },
-  { id: 6, title: "Go-to-Market", icon: TrendingUp },
-  { id: 7, title: "Customer & Market", icon: Map },
-  { id: 8, title: "Competitors", icon: Swords },
+  { id: 1, title: "Company Overview", icon: Building2 },
+  { id: 2, title: "Business Model & Value", icon: Briefcase },
+  { id: 3, title: "Funding Details", icon: CircleDollarSign },
+  { id: 4, title: "Consumer & Market", icon: Map },
+  { id: 5, title: "Competitors", icon: Swords },
 ];
 
 export const VERTICALS = [
@@ -54,34 +51,34 @@ export const STAGES = [
 ];
 
 export const VALUE_DRIVERS = [
-  { 
-    value: "scalability", 
-    label: "True Scalability", 
+  {
+    value: "scalability",
+    label: "True Scalability",
     description: "Making life easier, more efficient, or intuitive",
   },
-  { 
-    value: "severity", 
-    label: "Severity & Urgency", 
+  {
+    value: "severity",
+    label: "Severity & Urgency",
     description: "How urgent or costly is the problem (impact analysis)",
   },
-  { 
-    value: "unique-tech", 
-    label: "Unique Technology Value", 
+  {
+    value: "unique-tech",
+    label: "Unique Technology Value",
     description: "What makes your uniqueness attractive to customers daily life",
   },
-  { 
-    value: "emotional", 
-    label: "Emotional & Social Value", 
+  {
+    value: "emotional",
+    label: "Emotional & Social Value",
     description: "Does it create status, trust, or peace of mind",
   },
-  { 
-    value: "adaptability", 
-    label: "Adaptability", 
+  {
+    value: "adaptability",
+    label: "Adaptability",
     description: "Across regions, geographies, groups of people",
   },
-  { 
-    value: "other", 
-    label: "Other", 
+  {
+    value: "other",
+    label: "Other",
     description: "A value proposition that doesn't fit the categories above",
   },
 ];

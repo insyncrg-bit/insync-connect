@@ -27,7 +27,9 @@ import {
   Shield,
   Calculator,
   Linkedin,
-  ExternalLink
+  ExternalLink,
+  PencilLine,
+  X
 } from "lucide-react";
 import insyncInfinity from "@/landing/assets/infinity-logo-transparent.png";
 import {
@@ -55,7 +57,6 @@ interface FounderApplication {
   pitchdeck_name?: string | null;
   calendly_link?: string | null;
   application_sections?: any;
-  team_members?: any[];
   updated_at?: string;
 }
 
@@ -63,9 +64,10 @@ interface MemoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   startup: FounderApplication | null;
-  onRequestSync: (userId: string, companyName: string) => void;
-  isRequested: boolean;
-  isRequesting: boolean;
+  onRequestSync?: (userId: string, companyName: string) => void;
+  isRequested?: boolean;
+  isRequesting?: boolean;
+  onEdit?: () => void;
 }
 
 type MarketMetric = "tam" | "sam" | "som" | null;
@@ -75,8 +77,9 @@ export function MemoModal({
   onOpenChange, 
   startup, 
   onRequestSync,
-  isRequested,
-  isRequesting 
+  isRequested = false,
+  isRequesting = false,
+  onEdit
 }: MemoModalProps) {
   const [viewMode, setViewMode] = useState<"condensed" | "full">("condensed");
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -161,7 +164,7 @@ export function MemoModal({
   };
 
   const handleSync = () => {
-    if (startup?.user_id && !isOverLimit) {
+    if (startup?.user_id && !isOverLimit && onRequestSync) {
       onRequestSync(startup.user_id, startup.company_name);
       setSyncNote("");
       setShowSyncForm(false);
@@ -175,7 +178,6 @@ export function MemoModal({
   const logoUrl = enriched?.logo_url ?? startup.logo_url ?? null;
 
   const sections = startup.application_sections || {};
-  const teamMembers = startup.team_members || [];
 
   // Value driver labels
   const valueDriverLabels: Record<string, string> = {
@@ -204,16 +206,10 @@ export function MemoModal({
           ? 'max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] rounded-none' 
           : 'max-w-5xl max-h-[95vh]'
       }`}>
-        <ScrollArea className={isFullscreen ? "h-[100vh]" : "max-h-[95vh]"}>
-          <div className="p-6 space-y-6">
+        <ScrollArea className="h-full max-h-[90vh]">
+          <div className="p-8 space-y-8">
             {/* Back Button */}
-            <Button
-              onClick={handleClose}
-              className="bg-[hsl(var(--cyan-glow))] text-[#151a24] hover:bg-[hsl(var(--cyan-bright))] shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-all duration-300 font-semibold"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
+
 
             {/* Header */}
             <div className="flex items-center justify-between flex-wrap gap-4">
@@ -234,14 +230,34 @@ export function MemoModal({
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="border-white/20 text-white/70 hover:text-white hover:bg-white/10"
-                >
-                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                </Button>
+                {pitchdeckUrl && (
+                  <a
+                    href={pitchdeckUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-[hsl(var(--cyan-glow))]/30 text-[hsl(var(--cyan-glow))] hover:bg-[hsl(var(--cyan-glow))]/10 font-semibold px-4"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      View Pitch Deck
+                      <ExternalLink className="h-3 w-3 ml-2" />
+                    </Button>
+                  </a>
+                )}
+                {onEdit && (
+                  <Button
+                    onClick={onEdit}
+                    variant="outline"
+                    size="sm"
+                    className="border-white/20 text-white/80 hover:text-white hover:bg-white/10 font-semibold px-4"
+                  >
+                    <PencilLine className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -323,45 +339,12 @@ export function MemoModal({
                         </p>
                       </button>
                     </div>
-
-                    {/* Pitch deck quick action */}
-                    {pitchdeckUrl && (
-                      <div className="mt-4 flex justify-end">
-                        <a
-                          href={pitchdeckUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex"
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-white/20 text-white/80 hover:text-white hover:bg-white/10"
-                          >
-                            <FileText className="h-4 w-4 mr-2" />
-                            View Pitch Deck
-                            <ExternalLink className="h-3 w-3 ml-2" />
-                          </Button>
-                        </a>
-                      </div>
-                    )}
                   </div>
                 </Card>
 
                 {/* Quick Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                        <Users className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
-                      </div>
-                      <div>
-                        <p className="text-white/40 text-xs font-medium">Team Size</p>
-                        <p className="text-white font-semibold">{teamMembers.length || 1}</p>
-                      </div>
-                    </div>
-                  </Card>
-                  <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                <div className="flex flex-wrap items-stretch justify-center gap-4">
+                  <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)] w-full md:w-[280px]">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
                         <Target className="h-5 w-5 text-purple-400/70" />
@@ -372,7 +355,7 @@ export function MemoModal({
                       </div>
                     </div>
                   </Card>
-                  <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                  <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)] w-full md:w-[280px]">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                         <DollarSign className="h-5 w-5 text-emerald-400/70" />
@@ -383,7 +366,7 @@ export function MemoModal({
                       </div>
                     </div>
                   </Card>
-                  <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+                  <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)] w-full md:w-[280px]">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
                         <Zap className="h-5 w-5 text-amber-400/70" />
@@ -764,60 +747,7 @@ export function MemoModal({
                   )}
                 </Card>
 
-                {/* Section 6: Team */}
-                <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
-                      <Users className="h-5 w-5 text-pink-400/70" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-white">Founding Team</h2>
-                  </div>
 
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {teamMembers.length > 0 ? teamMembers.map((member: any, i: number) => (
-                      <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-purple-500/30 flex items-center justify-center">
-                            <span className="text-white font-bold">{member.name?.charAt(0) || "?"}</span>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-white">{member.name || "Team Member"}</p>
-                            <p className="text-sm text-[hsl(var(--cyan-glow))]/70">{member.role || "Role"}</p>
-                          </div>
-                        </div>
-                        {member.background && <p className="text-white/50 text-sm">{member.background}</p>}
-                      </div>
-                    )) : (
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-purple-500/30 flex items-center justify-center">
-                            <span className="text-white font-bold">{startup.founder_name.charAt(0)}</span>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-white">{startup.founder_name}</p>
-                            <p className="text-sm text-[hsl(var(--cyan-glow))]/70">Founder</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-
-                {/* Traction Section */}
-                <Card className="bg-navy-card border-emerald-500/20 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                      <TrendingUp className="h-5 w-5 text-emerald-400/70" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-white">Traction & Progress</h2>
-                      <p className="text-white/40 text-sm">Key metrics and milestones</p>
-                    </div>
-                  </div>
-                  <p className="text-white/80 leading-relaxed">
-                    {startup.traction}
-                  </p>
-                </Card>
 
                 {/* Current Ask / Fundraising */}
                 {startup.current_ask && (
@@ -837,74 +767,11 @@ export function MemoModal({
                   </Card>
                 )}
 
-                {/* Footer */}
-                <div className="text-center py-8 border-t border-white/10">
-                  <p className="text-white/40 text-sm">
-                    Generated by In-Sync • Last updated: {startup.updated_at ? new Date(startup.updated_at).toLocaleDateString() : "Unknown"}
-                  </p>
-                </div>
+
               </div>
             )}
 
-            {/* Sync Section */}
-            <div className="border-t border-white/10 pt-6">
-              {isRequested ? (
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-center">
-                  <p className="text-green-400 font-medium">Sync request sent! Waiting for response.</p>
-                </div>
-              ) : showSyncForm ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-white/80 text-sm font-medium mb-2 block">
-                      Add a note to your sync request (optional, max 60 words)
-                    </label>
-                    <Textarea
-                      value={syncNote}
-                      onChange={(e) => setSyncNote(e.target.value)}
-                      placeholder="Tell them why you'd be a great fit..."
-                      className="bg-white/5 border-white/20 text-white min-h-[100px]"
-                    />
-                    <p className={`text-xs mt-1 ${isOverLimit ? 'text-red-400' : 'text-white/40'}`}>
-                      {wordCount}/60 words
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setShowSyncForm(false);
-                        setSyncNote("");
-                      }}
-                      className="text-white/70 hover:text-white hover:bg-white/10"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleSync}
-                      disabled={isRequesting || isOverLimit}
-                      className="bg-[hsl(var(--cyan-glow))] text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--cyan-glow))]/90 flex-1"
-                    >
-                      {isRequesting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        "Send Sync Request"
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <Button
-                  onClick={() => setShowSyncForm(true)}
-                  className="w-full bg-[hsl(220,60%,8%)] text-[hsl(var(--cyan-glow))] hover:bg-[hsl(220,60%,12%)] border border-[hsl(var(--cyan-glow))]/40 h-14 text-lg shadow-[0_0_20px_rgba(6,182,212,0.2)]"
-                >
-                  <img src={insyncInfinity} alt="Sync" className="mr-3 h-10 w-16 object-contain brightness-125 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                  Request to Sync
-                </Button>
-              )}
-            </div>
+
           </div>
         </ScrollArea>
       </DialogContent>

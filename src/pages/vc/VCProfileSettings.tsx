@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuth, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from "firebase/auth";
+import { getAuth, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,7 @@ export const VCProfileSettings = ({ userData, onUpdate }: VCProfileSettingsProps
   const [loadingUser, setLoadingUser] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [onlyAdminDialogOpen, setOnlyAdminDialogOpen] = useState(false);
   
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -179,7 +180,44 @@ export const VCProfileSettings = ({ userData, onUpdate }: VCProfileSettingsProps
   const handleSaveProfile = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Not signed in",
+        description: "Please sign in again to edit your profile.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validation
+    if (!fullName.trim()) {
+      toast({ title: "Name required", description: "Please enter your full name.", variant: "destructive" });
+      return;
+    }
+    if (!title.trim()) {
+      toast({ title: "Title required", description: "Please enter your professional title.", variant: "destructive" });
+      return;
+    }
+
+    // LinkedIn URL validation
+    if (linkedinUrl.trim()) {
+      const linkedinRegex = /^(https?:\/\/)?(www\.)?linkedin\.com\/(in|company)\/[\w-]+\/?$/;
+      if (!linkedinRegex.test(linkedinUrl.trim())) {
+        toast({ 
+          title: "Invalid LinkedIn URL", 
+          description: "Please enter a valid LinkedIn profile URL (e.g., https://www.linkedin.com/in/username).", 
+          variant: "destructive" 
+        });
+        return;
+      }
+    }
+
+    // Check for profile completion
+    const isProfileComplete = !!(
+      linkedinUrl.trim() && 
+      investingSectors.length > 0 && 
+      funFact.trim()
+    );
 
     setSavingProfile(true);
     try {
@@ -197,6 +235,7 @@ export const VCProfileSettings = ({ userData, onUpdate }: VCProfileSettingsProps
           funFact: funFact.trim(),
           profileImage: profileImage,
           investingSectors: investingSectors,
+          profileComplete: isProfileComplete,
         }),
       });
 
@@ -209,9 +248,11 @@ export const VCProfileSettings = ({ userData, onUpdate }: VCProfileSettingsProps
 
       toast({
         title: "Profile updated",
-        description: "Your information has been saved.",
+        description: isProfileComplete 
+          ? "Your profile is now complete!" 
+          : "Your information has been saved.",
       });
-      onUpdate();
+      if (onUpdate) onUpdate();
     } catch (error: any) {
       toast({
         title: "Update failed",
@@ -276,31 +317,80 @@ export const VCProfileSettings = ({ userData, onUpdate }: VCProfileSettingsProps
 
     setIsDeleting(true);
     try {
-      await deleteUser(user);
+      const token = await user.getIdToken();
+      const res = await fetch(`${FIREBASE_API}/api/users/me`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        if (errorData.code === "ONLY_ADMIN") {
+          // Close the first dialog, open the cascade-warning dialog
+          setDeleteDialogOpen(false);
+          setOnlyAdminDialogOpen(true);
+          return;
+        }
+        throw new Error(errorData.error || "Failed to delete account");
+      }
+
       sessionManager.clear();
       toast({
         title: "Account deleted",
-        description: "Your account has been permanently deleted.",
+        description: "Your account and all associated data have been permanently deleted.",
       });
       navigate("/landing");
     } catch (error: any) {
-      if (error?.code === "auth/requires-recent-login") {
-        toast({
-          title: "Re-authentication required",
-          description: "Please sign in again before deleting your account.",
-          variant: "destructive",
-        });
-        navigate("/login");
-      } else {
-        toast({
-          title: "Error",
-          description: error?.message || "Failed to delete account.",
-          variant: "destructive",
-        });
-      }
+      console.error("Error deleting account:", error);
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to delete account.",
+        variant: "destructive",
+      });
     } finally {
       setIsDeleting(false);
       setDeleteDialogOpen(false);
+    }
+  };
+
+  const handleForceDeleteAccount = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
+
+    setIsDeleting(true);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`${FIREBASE_API}/api/users/me?force=true`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to delete account");
+      }
+
+      sessionManager.clear();
+      toast({
+        title: "Account deleted",
+        description: "Your account, firm, and all associated data have been permanently deleted.",
+      });
+      navigate("/landing");
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to delete account.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+      setOnlyAdminDialogOpen(false);
     }
   };
 
@@ -608,6 +698,41 @@ export const VCProfileSettings = ({ userData, onUpdate }: VCProfileSettingsProps
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               {isDeleting ? "Deleting..." : "Delete Account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Second dialog: only-admin cascade warning */}
+      <AlertDialog open={onlyAdminDialogOpen} onOpenChange={setOnlyAdminDialogOpen}>
+        <AlertDialogContent className="bg-[#151a24] border-red-500/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-400">⚠️ You are the only admin</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70 space-y-2">
+              <p>
+                Since you are the only administrator of this firm, deleting your account will also <strong className="text-white">permanently delete the entire firm</strong>, including:
+              </p>
+              <ul className="list-disc list-inside text-white/60 space-y-1 ml-2">
+                <li>The firm profile and all company data</li>
+                <li>The VC memo / investor thesis</li>
+                <li>All uploaded assets (logo, etc.)</li>
+                <li>Your personal profile and account</li>
+              </ul>
+              <p className="text-red-400/80 font-medium pt-1">
+                This action is irreversible. Are you absolutely sure?
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleForceDeleteAccount}
+              disabled={isDeleting}
+              className="bg-red-700 hover:bg-red-800 text-white"
+            >
+              {isDeleting ? "Deleting everything..." : "Delete Account & Firm"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

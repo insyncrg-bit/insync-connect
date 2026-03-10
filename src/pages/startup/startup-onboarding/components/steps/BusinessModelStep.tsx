@@ -5,7 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StartupOnboardingData } from "../../hooks/startupMemoTypes";
-import { CUSTOMER_TYPES, PRICING_STRATEGIES } from "../../constants";
+import { CUSTOMER_TYPES, PRICING_STRATEGIES, VALUE_DRIVERS } from "../../constants";
+
+const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 
 interface BusinessModelStepProps {
   data: StartupOnboardingData;
@@ -29,11 +31,20 @@ export const BusinessModelStep = ({ data, onUpdate, onNext, onBack }: BusinessMo
     onUpdate({ pricingStrategies: updated });
   };
 
+  const toggleValueDriver = (value: string) => {
+    const updated = data.valueDrivers.includes(value)
+      ? data.valueDrivers.filter((v) => v !== value)
+      : [...data.valueDrivers, value];
+    onUpdate({ valueDrivers: updated });
+  };
+
+  const wordCount = countWords(data.currentPainPoint);
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Business Model</h2>
-        <p className="text-[hsl(var(--navy-deep))]/60">Describe your business model and pricing</p>
+        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Business Model & Value</h2>
+        <p className="text-[hsl(var(--navy-deep))]/60">Describe your business model, pricing, and value proposition</p>
       </div>
 
       <div className="space-y-4">
@@ -131,6 +142,69 @@ export const BusinessModelStep = ({ data, onUpdate, onNext, onBack }: BusinessMo
           className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[100px]"
           rows={4}
         />
+      </div>
+
+      <div className="space-y-4 pt-4 border-t border-[hsl(var(--navy-deep))]/10">
+        <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">Value Proposition</h3>
+        
+        <div className="space-y-2">
+          <Label className="text-[hsl(var(--navy-deep))]/80">
+            Problem Statement * (min 20 words)
+          </Label>
+          <Textarea
+            value={data.currentPainPoint}
+            onChange={(e) => onUpdate({ currentPainPoint: e.target.value })}
+            placeholder="Describe the problem your customers face and why it's urgent..."
+            className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow min-h-[150px]"
+            rows={6}
+          />
+          <p className={`text-xs ${wordCount >= 20 ? "text-cyan-glow" : "text-[hsl(var(--navy-deep))]/50"}`}>
+            {wordCount} / 20 words
+          </p>
+        </div>
+
+        <div className="space-y-4 pt-2">
+          <Label className="text-[hsl(var(--navy-deep))]/80">Value Drivers * (Select at least one)</Label>
+          <div className="space-y-3">
+            {VALUE_DRIVERS.map((driver) => (
+              <div
+                key={driver.value}
+                className="flex items-start gap-3 p-4 bg-white border border-[hsl(var(--navy-deep))]/10 rounded-lg hover:bg-[hsl(var(--navy-deep))]/5 transition-colors cursor-pointer"
+                onClick={() => toggleValueDriver(driver.value)}
+              >
+                <Checkbox
+                  checked={data.valueDrivers.includes(driver.value)}
+                  onCheckedChange={() => toggleValueDriver(driver.value)}
+                  className="mt-1"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <div className="flex-1">
+                  <Label className="text-[hsl(var(--navy-deep))] font-medium cursor-pointer">
+                    {driver.label}
+                  </Label>
+                  <p className="text-sm text-[hsl(var(--navy-deep))]/60 mt-1">{driver.description}</p>
+                  {data.valueDrivers.includes(driver.value) && (
+                      <Textarea
+                        value={data.valueDriverExplanations[driver.value] || ""}
+                        onChange={(e) =>
+                          onUpdate({
+                            valueDriverExplanations: {
+                              ...data.valueDriverExplanations,
+                              [driver.value]: e.target.value,
+                            },
+                          })
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        placeholder={`Explain ${driver.label.toLowerCase()}...`}
+                        className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5 placeholder:text-[hsl(var(--navy-deep))]/50 mt-2 min-h-[80px]"
+                        rows={3}
+                      />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-between pt-4">

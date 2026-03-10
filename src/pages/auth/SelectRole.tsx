@@ -29,7 +29,7 @@ type RoleType = "startup" | "vc";
 
 export const SelectRole = () => {
   const navigate = useNavigate();
-  const [role, setRole] = useState<RoleType | null>("vc");
+  const [role, setRole] = useState<RoleType | null>("startup");
   const [formData, setFormData] = useState({
     fullName: "",
     companyName: "",
@@ -48,12 +48,13 @@ export const SelectRole = () => {
   const [committedFirmName, setCommittedFirmName] = useState<string>(""); // Firm name user has committed to
   const [showCompanyNotFound, setShowCompanyNotFound] = useState(false);
 
-  // Firms loaded from Firestore via GET /firms
   const [firmsFromDb, setFirmsFromDb] = useState<{ id: string; name: string }[]>([]);
-  const [selectedFirmId, setSelectedFirmId] = useState<string>(""); // Firestore id of selected firm
+  const [startupsFromDb, setStartupsFromDb] = useState<{ id: string; name: string }[]>([]);
+  const [selectedFirmId, setSelectedFirmId] = useState<string>(""); 
   const [firmsLoading, setFirmsLoading] = useState(false);
+  const [startupsLoading, setStartupsLoading] = useState(false);
 
-  // Fetch all firms when user is available
+  // Fetch all firms and startups when user is available
   useEffect(() => {
     if (!FIREBASE_API) return;
 
@@ -62,7 +63,7 @@ export const SelectRole = () => {
       try {
         console.log(`Fetching firms (attempt ${attempt}/3)...`);
         const token = await user.getIdToken(true);
-        const res = await fetch(`${FIREBASE_API}/firms`, {
+        const res = await fetch(`${FIREBASE_API}/firms?onboardingComplete=true`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -88,10 +89,40 @@ export const SelectRole = () => {
       }
     };
 
+    const fetchStartupsWithRetry = async (user: any, attempt = 1) => {
+      setStartupsLoading(true);
+      try {
+        console.log(`Fetching startups (attempt ${attempt}/3)...`);
+        const token = await user.getIdToken(true);
+        const res = await fetch(`${FIREBASE_API}/startups?onboardingComplete=true`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          const startups = data.startups || [];
+          setStartupsFromDb(startups);
+          
+          if (startups.length === 0 && attempt < 3) {
+            console.log("No startups found, retrying in 2 seconds...");
+            setTimeout(() => fetchStartupsWithRetry(user, attempt + 1), 2000);
+            return;
+          }
+        } else {
+          console.error("Startups fetch failed:", res.status);
+        }
+      } catch (error) {
+        console.error("Error fetching startups:", error);
+      } finally {
+        setStartupsLoading(false);
+      }
+    };
+
     // Use onAuthStateChanged to wait for user to be available
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         fetchFirmsWithRetry(user);
+        fetchStartupsWithRetry(user);
         // We can unsubscribe once we have the user if we only want to fetch once
         unsubscribe();
       }
@@ -113,9 +144,9 @@ export const SelectRole = () => {
     }
   };
 
-  // Client-side filtering of firms from DB
+  // Client-side filtering of companies from DB
   useEffect(() => {
-    if (role !== "vc") {
+    if (!role) {
       setCompanySearchQuery("");
       setSelectedCompany("");
       setSelectedFirmId("");
@@ -125,26 +156,29 @@ export const SelectRole = () => {
       return;
     }
 
-    // Filter firms client-side based on search query
+    // Filter companies client-side based on search query
+    const dataSource = role === "vc" ? firmsFromDb : startupsFromDb;
+
     if (companySearchQuery.trim()) {
       const query = companySearchQuery.trim().toLowerCase();
-      const filtered = firmsFromDb
-        .filter((f) => f.name.toLowerCase().includes(query))
-        .map((f) => f.name);
+      const filtered = dataSource
+        .filter((item) => item.name.toLowerCase().startsWith(query))
+        .map((item) => item.name);
       setCompanySearchResults(filtered);
     } else {
       setCompanySearchResults([]);
       setShowCompanyNotFound(false);
       setCommittedFirmName("");
     }
-  }, [companySearchQuery, role, firmsFromDb]);
+  }, [companySearchQuery, role, firmsFromDb, startupsFromDb]);
 
   // Show warning only when user has committed to a firm name (on blur or after selection)
   useEffect(() => {
-    if (role === "vc" && !selectedCompany && committedFirmName.trim() && companySearchQuery.trim() === committedFirmName.trim()) {
-      // Check if this firm exists (in real implementation, this would be an API call)
-      // For now, if no results were found and user has committed, show the warning
-      if (companySearchResults.length === 0 && !isSearching) {
+    if (role && !selectedCompany && committedFirmName.trim() && companySearchQuery.trim() === committedFirmName.trim()) {
+      const dataSource = role === "vc" ? firmsFromDb : startupsFromDb;
+      const exists = dataSource.some(item => item.name.toLowerCase() === committedFirmName.toLowerCase());
+      
+      if (!exists && !isSearching) {
         setShowCompanyNotFound(true);
       } else {
         setShowCompanyNotFound(false);
@@ -152,13 +186,13 @@ export const SelectRole = () => {
     } else {
       setShowCompanyNotFound(false);
     }
-  }, [committedFirmName, selectedCompany, companySearchQuery, companySearchResults, isSearching, role]);
+  }, [committedFirmName, selectedCompany, companySearchQuery, isSearching, role, firmsFromDb, startupsFromDb]);
 
   const handleCompanySelect = (company: string) => {
     setSelectedCompany(company);
-    // Look up the firm ID from our DB list
-    const firm = firmsFromDb.find((f) => f.name === company);
-    setSelectedFirmId(firm?.id || "");
+    const dataSource = role === "vc" ? firmsFromDb : startupsFromDb;
+    const item = dataSource.find((f) => f.name === company);
+    setSelectedFirmId(item?.id || "");
     setFormData((prev) => ({ ...prev, companyName: company }));
     setCompanySearchOpen(false);
     setCompanySearchQuery(company);
@@ -188,7 +222,7 @@ export const SelectRole = () => {
 
   // Clear committed name when user starts typing again
   useEffect(() => {
-    if (role === "vc" && companySearchQuery.trim() !== committedFirmName && committedFirmName) {
+    if (role && companySearchQuery.trim() !== committedFirmName && committedFirmName) {
       setCommittedFirmName("");
       setShowCompanyNotFound(false);
     }
@@ -201,16 +235,10 @@ export const SelectRole = () => {
       newErrors.fullName = "Full name is required";
     }
 
-    if (role === "vc") {
+    if (role) {
       if (!formData.companyName.trim()) {
-        newErrors.companyName = "Firm name is required";
+        newErrors.companyName = role === "vc" ? "Firm name is required" : "Company name is required";
       }
-      if (!formData.title.trim()) {
-        newErrors.title = "Title is required";
-      }
-    }
-
-    if (role === "startup") {
       if (!formData.title.trim()) {
         newErrors.title = "Title is required";
       }
@@ -291,8 +319,8 @@ export const SelectRole = () => {
         Authorization: `Bearer ${freshToken}`,
       };
 
-      // 2. Create or join firm (VC path only)
-      let firmId = "";
+      // 2. Create or join firm/startup
+      let orgId = "";
       if (role === "vc") {
         if (isExistingFirm) {
           // Join existing firm as analyst
@@ -312,7 +340,7 @@ export const SelectRole = () => {
             return;
           }
           const joinData = await joinRes.json();
-          firmId = joinData.firmId;
+          orgId = joinData.firmId;
         } else {
           // Create new firm as admin
           const sanitizedApi = FIREBASE_API.replace(/\/$/, "");
@@ -336,7 +364,47 @@ export const SelectRole = () => {
             return;
           }
           const createData = await createRes.json();
-          firmId = createData.firmId;
+          orgId = createData.firmId;
+        }
+      } else if (role === "startup") {
+        const sanitizedApi = FIREBASE_API.replace(/\/$/, "");
+        if (isExistingFirm) {
+          const joinRes = await fetch(`${sanitizedApi}/startups/join`, {
+            method: "POST",
+            headers: freshHeaders,
+            body: JSON.stringify({
+              startupId: selectedFirmId,
+              fullName: formData.fullName.trim(),
+              title: formData.title.trim(),
+              linkedinUrl: formData.linkedinProfile.trim() || undefined,
+            }),
+          });
+          if (!joinRes.ok) {
+            const err = await joinRes.json().catch(() => ({}));
+            setErrors({ submit: (err as { error?: string }).error || "Failed to join startup. Please try again." });
+            return;
+          }
+          const joinData = await joinRes.json();
+          orgId = joinData.startupId;
+        } else {
+          const initRes = await fetch(`${sanitizedApi}/startups`, {
+            method: "POST",
+            headers: freshHeaders,
+            body: JSON.stringify({
+              companyName: formData.companyName.trim(),
+              fullName: formData.fullName.trim(),
+              title: formData.title.trim(),
+              linkedinUrl: formData.linkedinProfile.trim() || undefined,
+            }),
+          });
+          if (!initRes.ok) {
+            const err = await initRes.json().catch(() => ({}));
+            console.error("startup init failed:", initRes.status, err);
+            setErrors({ submit: `Startup init failed: ${(err as { error?: string }).error || initRes.statusText || "Unknown error"}` });
+            return;
+          }
+          const initData = await initRes.json();
+          orgId = initData.startupId;
         }
       }
 
@@ -365,36 +433,18 @@ export const SelectRole = () => {
 
       // 4. Save session and navigate
       if (role === "startup") {
-        // Call POST /startups/init to create startup + founder-user entities
-        const sanitizedApi = FIREBASE_API.replace(/\/$/, "");
-        const initRes = await fetch(`${sanitizedApi}/startups/init`, {
-          method: "POST",
-          headers: freshHeaders,
-          body: JSON.stringify({
-            fullName: formData.fullName.trim(),
-            title: formData.title.trim(),
-            linkedinUrl: formData.linkedinProfile.trim() || undefined,
-          }),
-        });
-        if (!initRes.ok) {
-          const err = await initRes.json().catch(() => ({}));
-          console.error("startup init failed:", initRes.status, err);
-          setErrors({ submit: `Startup init failed: ${(err as { error?: string }).error || initRes.statusText || "Unknown error"}` });
-          return;
-        }
-
-        // Pre-fill startup onboarding localStorage with teamMembers from role data
+        if (isExistingFirm) {
+          sessionManager.save({
+            role: "startup",
+            onboardingType: "startup",
+            onboardingComplete: false,
+            firmId: orgId,
+          });
+          navigate("/request-sent");
+        } else {
+          // Pre-fill startup onboarding localStorage with teamMembers from role data
         try {
-          const prefill = {
-            teamMembers: [
-              {
-                name: formData.fullName.trim(),
-                role: formData.title.trim(),
-                linkedin: formData.linkedinProfile.trim() || "",
-                background: "",
-              },
-            ],
-          };
+          const prefill = {};
           const existing = localStorage.getItem("startup_onboarding_data");
           let merged = prefill;
           if (existing) {
@@ -410,19 +460,21 @@ export const SelectRole = () => {
           console.error("Failed to save startup prefill data to local storage", e);
         }
 
-        sessionManager.save({
-          role: "startup",
-          onboardingType: "startup",
-          onboardingComplete: false,
-        });
-        navigate("/startup-onboarding");
+          sessionManager.save({
+            role: "startup",
+            onboardingType: "startup",
+            onboardingComplete: false,
+            firmId: orgId,
+          });
+          navigate("/startup-onboarding");
+        }
       } else if (role === "vc") {
         if (isExistingFirm) {
           sessionManager.save({
             role: "analyst",
             onboardingType: "vc_analyst",
             onboardingComplete: false,
-            firmId,
+            firmId: orgId,
           });
           navigate("/request-sent");
         } else {
@@ -458,7 +510,7 @@ export const SelectRole = () => {
             role: "vc",
             onboardingType: "vc_admin",
             onboardingComplete: false,
-            firmId,
+            firmId: orgId,
           });
           navigate("/vc-onboarding");
         }
@@ -571,6 +623,15 @@ export const SelectRole = () => {
                   type="button"
                   onClick={() => {
                     setRole("vc");
+                    setFormData((prev) => ({ 
+                      ...prev, 
+                      companyName: "",
+                      title: "",
+                      linkedinProfile: ""
+                    }));
+                    setSelectedCompany("");
+                    setCompanySearchQuery("");
+                    setShowCompanyNotFound(false);
                     setErrors({});
                   }}
                   className={`flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
@@ -612,15 +673,15 @@ export const SelectRole = () => {
               )}
             </div>
 
-            {/* VC-specific fields */}
-            {role === "vc" && (
+            {/* Combobox for both roles */}
+            {role && (
               <>
-                {/* Firm */}
+                {/* Firm / Startup */}
                 <div
                   className="space-y-2 opacity-0 animate-fade-in-up"
                   style={{ animationDelay: "80ms" }}
                 >
-                  <Label className="text-white/80">Firm *</Label>
+                  <Label className="text-white/80">{role === "vc" ? "Firm *" : "Startup / Company *"}</Label>
                   <Popover open={companySearchOpen} onOpenChange={(open) => {
                     setCompanySearchOpen(open);
                     if (!open && companySearchQuery.trim() && !selectedCompany) {
@@ -638,22 +699,27 @@ export const SelectRole = () => {
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <Building2 className="h-4 w-4 text-white/60 shrink-0" />
                           {selectedCompany || companySearchQuery ? (
-                            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/10 border border-white/20 rounded-md">
-                              <span className="text-sm text-white truncate max-w-[200px]">
+                            <div className={cn(
+                              "flex items-center gap-1.5 px-2 py-1 border rounded-md min-w-0 max-w-full overflow-hidden",
+                              selectedCompany 
+                                ? "bg-blue-500/10 border-blue-500/30 text-blue-400" 
+                                : "bg-red-500/10 border-red-500/30 text-red-400"
+                            )}>
+                              <span className="text-sm truncate font-medium">
                                 {selectedCompany || companySearchQuery}
                               </span>
                               <button
                                 type="button"
                                 onClick={handleClearFirm}
-                                className="p-0.5 rounded hover:bg-white/20 transition-colors shrink-0"
+                                className="p-0.5 rounded hover:bg-white/10 transition-colors shrink-0"
                                 aria-label="Clear firm selection"
                               >
-                                <X className="h-3 w-3 text-white/70 hover:text-white" />
+                                <X className="h-3 w-3" />
                               </button>
                             </div>
                           ) : (
                             <span className="text-white/30">
-                              Search or enter your VC firm name
+                              {role === "vc" ? "Search or enter your VC firm name" : "Search or enter your startup name"}
                             </span>
                           )}
                         </div>
@@ -672,9 +738,13 @@ export const SelectRole = () => {
                             }
                           }}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter" && companySearchQuery.trim() && !selectedCompany) {
+                            if (e.key === "Enter" && companySearchQuery.trim()) {
                               e.preventDefault();
-                              handleFirmNameCommit();
+                              if (companySearchResults.length === 1) {
+                                handleCompanySelect(companySearchResults[0]);
+                              } else if (!selectedCompany) {
+                                handleFirmNameCommit();
+                              }
                               setCompanySearchOpen(false);
                             }
                           }}
@@ -706,7 +776,7 @@ export const SelectRole = () => {
                             <CommandEmpty className="py-6 text-center text-sm">
                               <div className="text-white/60">
                                 <p className="font-medium mb-1">Not found</p>
-                                <p className="text-xs text-white/40">Enter to create new firm</p>
+                                <p className="text-xs text-white/40">Enter to create new {role === "vc" ? "firm" : "startup"}</p>
                               </div>
                             </CommandEmpty>
                           ) : (
@@ -717,16 +787,16 @@ export const SelectRole = () => {
                       </Command>
                     </PopoverContent>
                   </Popover>
-                  {/* Explicit validation message - only show when user has committed to a new firm */}
+                  {/* Explicit validation message - only show when user has committed to a new firm/startup */}
                   {showCompanyNotFound && !selectedCompany && committedFirmName.trim() && (
                     <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
                       <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm text-red-400 font-medium mb-1">
-                          You are creating a new firm
+                          You are creating a new {role === "vc" ? "firm" : "startup"}
                         </p>
                         <p className="text-xs text-red-400/90 leading-relaxed">
-                          By continuing, you will become the administrator for this firm and will be responsible for setting up the firm profile and managing team members. You'll be able to invite analysts to join your firm after onboarding.
+                          By continuing, you will become the administrator for this {role === "vc" ? "firm" : "startup"} and will be responsible for setting up the {role === "vc" ? "firm" : "startup"} profile.
                         </p>
                       </div>
                     </div>
@@ -772,7 +842,7 @@ export const SelectRole = () => {
                 style={{ animationDelay: "240ms" }}
               >
                 <Label htmlFor="linkedinProfile" className="text-white/80">
-                  LinkedIn Profile
+                  Personal LinkedIn
                 </Label>
                 <div className="relative">
                   <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />

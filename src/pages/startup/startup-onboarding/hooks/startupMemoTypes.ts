@@ -1,10 +1,3 @@
-export interface TeamMember {
-    name: string;
-    role: string;
-    linkedin: string;
-    background: string;
-}
-
 export interface Competitor {
     name: string;
     description: string;
@@ -28,9 +21,8 @@ export interface StartupOnboardingData {
     pitchdeckName?: string | null;
     pitchdeckUrl?: string | null;
 
-    // Step 2: Team & Overview
+    // Step 2: Overview
     companyOverview: string;
-    teamMembers: TeamMember[];
 
     // Step 3: Value Proposition
     currentPainPoint: string;
@@ -94,7 +86,6 @@ export const defaultData: StartupOnboardingData = {
     pitchdeckName: null,
     pitchdeckUrl: null,
     companyOverview: "",
-    teamMembers: [{ name: "", role: "", linkedin: "", background: "" }],
     currentPainPoint: "",
     valueDrivers: [],
     valueDriverExplanations: {},

@@ -21,15 +21,10 @@ export const VCOnboarding = () => {
     switch (step) {
       case 0: // Welcome
         return { isValid: true, errors: [] };
-      case 1: // Personal Profile
-        // Optional profile image, but sector list is good to have?
-        // User said: "investing sectors... list of strings... save as a tag looking thing"
-        // Validation: maybe check if full name/email loaded? They are read-only so should be there.
-        // Let's enforce at least one sector for better profile quality?
-        // "At the end of the say we will be saving a list of strings."
-        if (data.investingSectors.length === 0) errors.push("Add at least one investing sector");
-        break;
-      case 2: // Fund Overview (Merged Admin & Verification)
+      // case x: // Personal Profile (Temporarily hidden)
+      //   if (data.investingSectors.length === 0) errors.push("Add at least one investing sector");
+      //   break;
+      case 1: // Fund Overview (Merged Admin & Verification)
         if (!data.firmName.trim()) errors.push("Firm name is required");
         if (!data.hqLocation.trim()) errors.push("HQ location is required");
         if (!data.firmDescription.trim()) errors.push("Firm description is required");
@@ -37,16 +32,16 @@ export const VCOnboarding = () => {
         if (data.checkSizes.length === 0) errors.push("Select at least one check size");
         if (data.stageFocus.length === 0) errors.push("Select at least one stage focus");
         break;
-      case 3: // Investment Strategy
+      case 2: // Investment Strategy
         if (!data.thesisStatement.trim()) errors.push("Thesis statement is required");
         break;
-      case 4: // Value-Add
+      case 3: // Value-Add
         if (data.operatingSupport.length === 0) errors.push("Select at least one operating support type");
         if (!data.firmInvolvement.trim()) errors.push("Firm involvement description is required");
         break;
-      case 5: // Portfolio - optional, no validation
+      case 4: // Portfolio - optional, no validation
         return { isValid: true, errors: [] };
-      case 6: // Deal Mechanics - optional, no validation
+      case 5: // Deal Mechanics - optional, no validation
         return { isValid: true, errors: [] };
     }
     
@@ -80,22 +75,6 @@ export const VCOnboarding = () => {
           "Authorization": `Bearer ${token}`
       };
 
-      // 1. Prepare Profile Data (for vc-users collection)
-      // These are fields to ADD to the existing user record
-      const profileData = {
-        profileImage: data.profileImage,
-        investingSectors: data.investingSectors,
-        funFact: data.funFact,
-      };
-
-      // 2. Prepare Memo Data (for memos collection)
-      // Exclude personal profile fields completely
-      // const { 
-      //   fullName, email, linkedIn, title, // Read-only from step 1
-      //   profileImage, profileImagePreview, investingSectors, funFact, // User inputs from step 1
-      //   ...memoFields 
-      // } = data;
-      
       // Explicitly destructure to omit them from memoData
       const {
         fullName,
@@ -108,18 +87,6 @@ export const VCOnboarding = () => {
         funFact,
         ...memoData
       } = data;
-
-      // 3. Update User Profile
-      // Uses the new PATCH endpoint we just created
-      const profileRes = await fetch(`${apiUrl}/api/users/vc-users/${user.uid}`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify(profileData)
-      });
-
-      if (!profileRes.ok) {
-         throw new Error("Failed to update user profile");
-      }
 
       // 4. Update Firm Memo
       const memoRes = await fetch(`${apiUrl}/api/firms/${firmId}/memo`, {
@@ -172,15 +139,9 @@ export const VCOnboarding = () => {
     switch (step) {
       case 0:
         return <WelcomeStep onNext={onNext} />;
+      // case x: 
+      //   return <PersonalProfileStep data={data} onUpdate={onUpdate} onNext={onNext} />;
       case 1:
-        return (
-          <PersonalProfileStep
-            data={data}
-            onUpdate={onUpdate}
-            onNext={onNext}
-          />
-        );
-      case 2:
         return (
           <FundOverviewStep
             data={data}
@@ -189,7 +150,7 @@ export const VCOnboarding = () => {
             onBack={onBack}
           />
         );
-      case 3:
+      case 2:
         return (
           <InvestmentStrategyStep
             data={data}
@@ -198,7 +159,7 @@ export const VCOnboarding = () => {
             onBack={onBack}
           />
         );
-      case 4:
+      case 3:
         return (
           <ValueAddStep
             data={data}
@@ -207,7 +168,7 @@ export const VCOnboarding = () => {
             onBack={onBack}
           />
         );
-      case 5:
+      case 4:
         return (
           <PortfolioStep
             data={data}
@@ -216,7 +177,7 @@ export const VCOnboarding = () => {
             onBack={onBack}
           />
         );
-      case 6:
+      case 5:
         return (
           <DealMechanicsStep
             data={data}
@@ -244,7 +205,7 @@ export const VCOnboarding = () => {
       validateStep={validateStep}
       onSubmit={handleSubmit}
       onComplete={handleComplete}
-      requiredSteps={[1, 2, 3, 4]} // Welcome (0) is implicit. Personal Profile (1) to Value Add (4) required.
+      requiredSteps={[1, 2, 3]} // Welcome (0) is implicit. Fund Overview (1) to Value Add (3) required.
     />
   );
 };

@@ -105,6 +105,7 @@ const App = () => {
               <Route path="/login" element={<Login />} />
             </Route>
 
+
             {/* Other Public/Auth Pages (Simple Navbar) */}
             <Route element={<SimpleLayout />}>
               <Route path="/verify-email" element={<VerifyEmail />} />
@@ -121,12 +122,15 @@ const App = () => {
                 </Route>
               </Route>
               
-              {/* VC User Routes */}
-              <Route element={<RequireUserType allowedTypes={["vc-user"]} />}>
+              {/* Common Shared Routes */}
+              <Route element={<RequireUserType allowedTypes={["vc-user", "founder-user"]} />}>
                 <Route element={<SimpleLayout />}>
                   <Route path="/request-sent" element={<RequestSent />} />
                 </Route>
-                
+              </Route>
+
+              {/* VC User Routes */}
+              <Route element={<RequireUserType allowedTypes={["vc-user"]} />}>
                 {/* Only accessible if accepted (Admin or Analyst) */}
                 <Route element={<RequireRequestStatus allowedStatuses={["accepted"]} />}>
                   <Route element={<RequireOnboarding mode="incomplete" />}>
@@ -145,16 +149,19 @@ const App = () => {
 
               {/* Startup/Founder Routes */}
               <Route element={<RequireUserType allowedTypes={["founder-user"]} />}>
-                <Route element={<RequireOnboarding mode="incomplete" />}>
-                  <Route element={<SimpleLayout />}>
-                    <Route path="/startup-onboarding" element={<StartupOnboarding />} />
+                {/* Only accessible if accepted */}
+                <Route element={<RequireRequestStatus allowedStatuses={["accepted"]} />}>
+                  <Route element={<RequireOnboarding mode="incomplete" />}>
+                    <Route element={<SimpleLayout />}>
+                      <Route path="/startup-onboarding" element={<StartupOnboarding />} />
+                    </Route>
                   </Route>
-                </Route>
-                
-                <Route element={<RequireOnboarding mode="complete" />}>
-                  <Route element={<AppLayoutWithNavbar />}>
-                    <Route path="/startup-dashboard/*" element={<StartupDashboard />} />
-                    <Route path="/startup-profile" element={<StartupProfilePage />} />
+                  
+                  <Route element={<RequireOnboarding mode="complete" />}>
+                    <Route element={<AppLayoutWithNavbar />}>
+                      <Route path="/startup-dashboard/*" element={<StartupDashboard />} />
+                      <Route path="/startup-profile" element={<StartupProfilePage />} />
+                    </Route>
                   </Route>
                 </Route>
               </Route>

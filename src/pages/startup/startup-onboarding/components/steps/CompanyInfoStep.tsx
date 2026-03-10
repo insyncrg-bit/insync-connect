@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Upload, Building2, Globe, Linkedin } from "lucide-react";
+import { Loader2, Upload, Building2, Globe, Linkedin, X } from "lucide-react";
 import { LocationField } from "@/components/onboarding";
 import { StartupOnboardingData } from "../../hooks/startupMemoTypes";
 import { VERTICALS, STAGES } from "../../constants";
+import { Textarea } from "@/components/ui/textarea";
+
+const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 
 interface CompanyInfoStepProps {
   data: StartupOnboardingData;
@@ -15,11 +18,27 @@ interface CompanyInfoStepProps {
   onLogoUpload?: (file: File) => Promise<string>;
   onNext: () => void;
   onBack: () => void;
+  isEditMode?: boolean;
 }
 
-export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack }: CompanyInfoStepProps) => {
+export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack, isEditMode }: CompanyInfoStepProps) => {
   const { toast } = useToast();
   const [logoUploading, setLogoUploading] = useState(false);
+
+  const handlePitchdeckUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast({ title: "Invalid file", description: "Only PDF files are supported.", variant: "destructive" });
+        return;
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        toast({ title: "File too large", description: "PDF must be under 20MB.", variant: "destructive" });
+        return;
+      }
+      onUpdate({ pitchdeck: file, pitchdeckName: file.name });
+    }
+  };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -48,23 +67,12 @@ export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack }
     e.target.value = "";
   };
 
-  const handlePitchdeckUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.type !== 'application/pdf') {
-        return;
-      }
-      if (file.size > 20 * 1024 * 1024) {
-        return;
-      }
-      onUpdate({ pitchdeck: file, pitchdeckName: file.name });
-    }
-  };
+
 
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Company Information</h2>
+        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Company Overview</h2>
         <p className="text-[hsl(var(--navy-deep))]/60">Tell us about your company</p>
       </div>
 
@@ -72,68 +80,109 @@ export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack }
       <div className="space-y-2">
         <Label className="text-[hsl(var(--navy-deep))]/80">Company Logo (Optional)</Label>
         <div className="flex items-center gap-4">
-          {data.logoPreview ? (
-            <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-cyan-glow/30">
-              <img src={data.logoPreview} alt="Company logo" className="w-full h-full object-cover" />
-            </div>
-          ) : (
-            <div className="w-24 h-24 rounded-lg border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center">
-              {logoUploading ? (
-                <Loader2 className="w-8 h-8 text-[hsl(var(--navy-deep))]/40 animate-spin" />
-              ) : (
-                <Upload className="w-8 h-8 text-[hsl(var(--navy-deep))]/40" />
-              )}
+          <div className="relative group">
+            {data.logoPreview ? (
+              <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-cyan-glow/30">
+                <img src={data.logoPreview} alt="Company logo" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="w-24 h-24 rounded-lg border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center">
+                {logoUploading ? (
+                  <Loader2 className="w-8 h-8 text-[hsl(var(--navy-deep))]/40 animate-spin" />
+                ) : (
+                  <Upload className="w-8 h-8 text-[hsl(var(--navy-deep))]/40" />
+                )}
+              </div>
+            )}
+            {data.logoPreview && !logoUploading && (
+              <button
+                type="button"
+                onClick={() => onUpdate({ companyLogo: null, logoPreview: null, startupLogoUrl: null })}
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+          {!data.logoPreview && (
+            <div>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                disabled={logoUploading}
+                className="hidden"
+                id="logo-upload"
+              />
+              <Label htmlFor="logo-upload" className={logoUploading ? "pointer-events-none opacity-60" : "cursor-pointer"}>
+                <Button type="button" variant="outline" disabled={logoUploading} asChild className="border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
+                  <span>{logoUploading ? "Uploading..." : "Upload Logo"}</span>
+                </Button>
+              </Label>
+              <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PNG, JPG up to 5MB</p>
             </div>
           )}
-          <div>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={handleLogoUpload}
-              disabled={logoUploading}
-              className="hidden"
-              id="logo-upload"
-            />
-            <Label htmlFor="logo-upload" className={logoUploading ? "pointer-events-none opacity-60" : "cursor-pointer"}>
-              <Button type="button" variant="outline" disabled={logoUploading} asChild className="border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
-                <span>{logoUploading ? "Uploading..." : "Upload Logo"}</span>
-              </Button>
-            </Label>
-            <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PNG, JPG up to 5MB</p>
-          </div>
         </div>
       </div>
 
-      {/* Pitchdeck Upload */}
-      <div className="space-y-2">
-        <Label className="text-[hsl(var(--navy-deep))]/80">Pitch Deck (Optional)</Label>
-        <div className="flex items-center gap-4">
-          <div className="w-24 h-24 rounded-lg border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center">
-            {data.pitchdeckName ? (
-              <div className="text-center p-2">
-                <p className="text-[10px] text-[hsl(var(--navy-deep))]/70 truncate max-w-[80px]">{data.pitchdeckName}</p>
-              </div>
-            ) : (
-              <Upload className="w-8 h-8 text-[hsl(var(--navy-deep))]/40" />
-            )}
+      {/* Pitch Deck Upload (Edit Mode Only) */}
+      {isEditMode && (
+        <div className="space-y-4 pt-4 border-t border-[hsl(var(--navy-deep))]/10">
+          <div className="space-y-2">
+            <Label className="text-[hsl(var(--navy-deep))]/80">Pitch Deck (PDF)</Label>
+            <p className="text-[hsl(var(--navy-deep))]/60 text-sm">Update your pitch deck to refresh your profile.</p>
           </div>
-          <div>
-            <Input
-              type="file"
-              accept=".pdf"
-              onChange={handlePitchdeckUpload}
-              className="hidden"
-              id="pitchdeck-upload"
-            />
-            <Label htmlFor="pitchdeck-upload" className="cursor-pointer">
-              <Button type="button" variant="outline" asChild className="border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
-                <span>{data.pitchdeckName ? 'Replace Pitch Deck' : 'Upload Pitch Deck'}</span>
-              </Button>
-            </Label>
-            <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PDF up to 20MB</p>
+          
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              <div className="w-24 h-24 rounded-lg bg-[hsl(var(--navy-deep))]/5 border-2 border-dashed border-[hsl(var(--navy-deep))]/20 flex items-center justify-center p-2 text-center text-xs text-[hsl(var(--navy-deep))]/80 break-all overflow-hidden">
+                {data.pitchdeckName ? data.pitchdeckName : "No File"}
+              </div>
+              {data.pitchdeckName && (
+                <button
+                  type="button"
+                  onClick={() => onUpdate({ pitchdeck: null, pitchdeckName: null, pitchdeckUrl: null })}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <div className="space-y-3">
+              {!data.pitchdeckName && (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handlePitchdeckUpload}
+                    className="hidden"
+                    id="pitchdeck-upload-edit"
+                  />
+                  <Label htmlFor="pitchdeck-upload-edit" className="cursor-pointer">
+                    <Button type="button" variant="outline" asChild className="border-[hsl(var(--navy-deep))]/20 text-[hsl(var(--navy-deep))] hover:bg-[hsl(var(--navy-deep))]/5">
+                      <span>Upload Pitch Deck</span>
+                    </Button>
+                  </Label>
+                </div>
+              )}
+              {!data.pitchdeckName && <p className="text-xs text-[hsl(var(--navy-deep))]/50 mt-1">PDF up to 20MB</p>}
+              
+              {data.pitchdeckName && (
+                <Button 
+                  type="button" 
+                  variant="default"
+                  className="bg-[hsl(var(--navy-deep))] text-white hover:bg-[hsl(var(--navy-deep))]/90"
+                  onClick={() => toast({ title: "Autofill triggered", description: "This feature is coming soon!" })}
+                >
+                  Rerun Autofill
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
@@ -209,6 +258,22 @@ export const CompanyInfoStep = ({ data, onUpdate, onLogoUpload, onNext, onBack }
             onChange={(location) => onUpdate({ location })}
           />
         </div>
+      </div>
+
+      <div className="space-y-2 pt-6 border-t border-[hsl(var(--navy-deep))]/10">
+        <Label className="text-[hsl(var(--navy-deep))]/80">
+          Company Overview * (min 30 words)
+        </Label>
+        <Textarea
+          value={data.companyOverview}
+          onChange={(e) => onUpdate({ companyOverview: e.target.value })}
+          placeholder="Describe your company, the problem you're solving, and your solution..."
+          className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow min-h-[150px]"
+          rows={6}
+        />
+        <p className={`text-xs ${countWords(data.companyOverview) >= 30 ? "text-cyan-glow" : "text-[hsl(var(--navy-deep))]/50"}`}>
+          {countWords(data.companyOverview)} / 30 words
+        </p>
       </div>
 
       <div className="flex justify-between pt-4">

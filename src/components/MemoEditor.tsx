@@ -57,7 +57,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
   const [viewMode, setViewMode] = useState<"condensed" | "full">(readOnly ? "full" : "condensed");
   const [selectedMetric, setSelectedMetric] = useState<MarketMetric>(null);
   const [draftSections, setDraftSections] = useState<any>({});
-  const [draftTeamMembers, setDraftTeamMembers] = useState<any[]>([]);
+
   const [draftTraction, setDraftTraction] = useState<string>("");
   const [formData, setFormData] = useState({
     company_name: "",
@@ -88,7 +88,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
         business_model: application.business_model || "",
       });
       setDraftSections(application.application_sections || {});
-      setDraftTeamMembers(Array.isArray(application.team_members) ? application.team_members : []);
+
       setDraftTraction(application.traction || "");
     }
   }, [application]);
@@ -145,7 +145,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
         business_model: formData.business_model,
         traction: draftTraction,
         application_sections: draftSections,
-        team_members: draftTeamMembers,
+
       };
 
       // PATCH memo first, POST if memo doesn't exist
@@ -211,7 +211,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
   };
 
   const sections = draftSections && Object.keys(draftSections).length ? draftSections : (application?.application_sections || {});
-  const teamMembers = draftTeamMembers.length ? draftTeamMembers : (application?.team_members || []);
+
 
   // Value driver labels
   const valueDriverLabels: Record<string, string> = {
@@ -605,17 +605,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
 
           {/* Quick Stats Grid - Subtle colors */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[hsl(var(--cyan-glow))]/10 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-[hsl(var(--cyan-glow))]/70" />
-                </div>
-                <div>
-                  <p className="text-white/40 text-xs font-medium">Team Size</p>
-                  <p className="text-white font-semibold">{teamMembers.length || 1}</p>
-                </div>
-              </div>
-            </Card>
+
             <Card className="bg-navy-card border-white/10 p-4 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
@@ -930,34 +920,7 @@ export function MemoEditor({ application, onUpdate, autoEdit, readOnly, hideHead
             )}
           </Card>
 
-          {/* Section 6: Team */}
-          <Card className="bg-navy-card border-white/10 p-8 shadow-[0_0_15px_rgba(6,182,212,0.05)]">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
-                <Users className="h-5 w-5 text-pink-400/70" />
-              </div>
-              <h2 className="text-2xl font-bold text-white">Founding Team</h2>
-            </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {teamMembers.length > 0 ? teamMembers.map((member: any, i: number) => (
-                <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(var(--cyan-glow))]/30 to-purple-500/30 flex items-center justify-center">
-                      <span className="text-white font-bold">{member.name?.charAt(0) || "?"}</span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-white">{member.name || "Team Member"}</p>
-                      <p className="text-sm text-[hsl(var(--cyan-glow))]/70">{member.role || "Role"}</p>
-                    </div>
-                  </div>
-                  {member.background && <p className="text-white/50 text-sm">{member.background}</p>}
-                </div>
-              )) : (
-                <p className="text-white/50">No team members listed.</p>
-              )}
-            </div>
-          </Card>
 
           {/* Footer */}
           <div className="text-center py-8 border-t border-white/10">

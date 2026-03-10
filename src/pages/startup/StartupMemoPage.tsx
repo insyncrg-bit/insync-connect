@@ -6,7 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import {
   defaultData,
   type StartupOnboardingData,
-  type TeamMember,
 } from "./startup-onboarding/hooks/startupMemoTypes";
 import { uploadFile, deleteFile } from "@/lib/api";
 import { onboardingToMemoPayload } from "@/lib/startupMemoUtils";
@@ -28,20 +27,6 @@ function toStringOrEmpty(v: unknown): string {
 
 function toStringArray(v: unknown): string[] {
   return Array.isArray(v) ? v.filter((x) => typeof x === "string") : [];
-}
-
-function toTeamMembers(v: unknown): TeamMember[] {
-  if (!Array.isArray(v)) return [];
-  return v
-    .filter(Boolean)
-    .map((m) => (typeof m === "object" && m ? (m as Record<string, unknown>) : {}))
-    .map((m) => ({
-      name: toStringOrEmpty(m.name),
-      role: toStringOrEmpty(m.role),
-      linkedin: toStringOrEmpty(m.linkedin),
-      background: toStringOrEmpty(m.background),
-    }))
-    .filter((m) => m.name || m.role || m.linkedin || m.background);
 }
 
 function toCompetitors(v: unknown): StartupOnboardingData["competitors"] {
@@ -66,7 +51,7 @@ function buildPrefill(source: StartupMemoLike | null): Partial<StartupOnboarding
   const section5 = (sections?.section5 ?? {}) as Record<string, unknown>;
   const section6 = (sections?.section6 ?? {}) as Record<string, unknown>;
 
-  const teamMembers = toTeamMembers(s.team_members ?? s.teamMembers);
+
   const startupLogoUrl =
     toStringOrEmpty(
       (s as any).startupLogoUrl ??
@@ -100,7 +85,6 @@ function buildPrefill(source: StartupMemoLike | null): Partial<StartupOnboarding
     companyOverview: toStringOrEmpty(
       s.companyOverview ?? s.company_overview ?? s.business_model ?? s.businessModel
     ),
-    teamMembers: teamMembers.length ? teamMembers : defaultData.teamMembers,
 
     currentPainPoint: toStringOrEmpty(s.currentPainPoint ?? section2.currentPainPoint),
     valueDrivers: toStringArray(s.valueDrivers ?? section2.valueDrivers),
@@ -160,7 +144,6 @@ function buildPrefill(source: StartupMemoLike | null): Partial<StartupOnboarding
 export function StartupMemoPage() {
   const { toast } = useToast();
   const isDirtyRef = useRef(false);
-  const [mode, setMode] = useState<"view" | "edit">("view");
   const [refreshKey, setRefreshKey] = useState(0);
   const baseUrl = useMemo(() => {
     const apiUrl = import.meta.env.VITE_FIREBASE_API as string | undefined;
@@ -276,41 +259,40 @@ export function StartupMemoPage() {
   const validateStep = (step: number, data: StartupOnboardingData): StepValidation => {
     const errors: string[] = [];
     switch (step) {
-      case 0: // Company Info
+      case 0: // Company Overview
         if (!data.companyName.trim()) errors.push("Company name is required");
         if (!data.vertical) errors.push("Vertical is required");
         if (!data.stage) errors.push("Stage is required");
         if (!data.location.trim()) errors.push("Location is required");
-        break;
-      case 1: // Team & Overview
         if (countWords(data.companyOverview) < 30) {
           errors.push("Company overview needs at least 30 words");
         }
-        if (!data.teamMembers[0]?.role?.trim()) {
-          errors.push("Your role is required");
+        break;
+      case 1: // Business Model & Value
+        if (data.customerType.length === 0) {
+          errors.push("Select at least one customer type");
+        }
+        if (data.pricingStrategies.length === 0) {
+          errors.push("Select at least one pricing strategy");
+        }
+        if (countWords(data.currentPainPoint) < 20) {
+          errors.push("Problem statement needs at least 20 words");
+        }
+        if (data.valueDrivers.length === 0) {
+          errors.push("Select at least one value driver");
         }
         break;
-      case 2: // Value Proposition
-        if (countWords(data.currentPainPoint) < 20) errors.push("Pain point description needs at least 20 words");
-        if (data.valueDrivers.length === 0) errors.push("Select at least one value driver");
-        break;
-      case 3: // Business Model
-        if (data.customerType.length === 0) errors.push("Select at least one customer type");
-        if (data.pricingStrategies.length === 0) errors.push("Select at least one pricing strategy");
-        break;
-      case 4: // Funding & Round (optional)
+      case 2: // Funding Details (optional)
         return { isValid: true, errors: [] };
-      case 5: // Go-to-Market
-        if (!data.gtmAcquisition.trim()) errors.push("Customer acquisition strategy is required");
-        break;
-      case 6: // Customer & Market
+      case 3: // Consumer & Market
         if (!data.targetGeography.trim()) errors.push("Target geography is required");
         if (countWords(data.targetCustomerDescription) < 20) errors.push("Customer description needs at least 20 words");
         if (!data.tamValue.trim()) errors.push("TAM value is required");
         if (!data.samValue.trim()) errors.push("SAM value is required");
         if (!data.somValue.trim()) errors.push("SOM value is required");
+        if (!data.gtmAcquisition.trim()) errors.push("Customer acquisition strategy is required");
         break;
-      case 7: // Competitors (optional)
+      case 4: // Competitors (optional)
         return { isValid: true, errors: [] };
     }
     return { isValid: errors.length === 0, errors };
@@ -420,8 +402,11 @@ export function StartupMemoPage() {
       localStorage.removeItem(STEP_KEY);
       localStorage.removeItem(`${STEP_KEY}_completed`);
 
-      setMode("view");
       setRefreshKey((k) => k + 1);
+      toast({
+        title: "Success",
+        description: "Your memo has been updated.",
+      });
     } catch (err: any) {
       console.error("[StartupMemoPage] Error saving memo:", err);
       toast({
@@ -440,57 +425,18 @@ export function StartupMemoPage() {
       : null;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">My Memo</h1>
-          <p className="text-white/60 mt-1">Preview what investors see, or update your memo.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {pitchUrl ? (
-            <a
-              href={pitchUrl as string}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex"
-            >
-              <button
-                type="button"
-                className="inline-flex items-center rounded-md border border-white/20 bg-transparent px-3 py-2 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/10"
-              >
-                <FileText className="h-4 w-4 mr-1.5" />
-                Pitch Deck
-                <ExternalLink className="h-4 w-4 ml-1.5" />
-              </button>
-            </a>
-          ) : null}
-          <Tabs value={mode} onValueChange={(v) => setMode(v as "view" | "edit")}>
-            <TabsList className="bg-white/10">
-              <TabsTrigger
-                value="view"
-                className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                View Memo
-              </TabsTrigger>
-              <TabsTrigger
-                value="edit"
-                className="data-[state=active]:bg-[hsl(var(--cyan-glow))] data-[state=active]:text-[hsl(var(--navy-deep))]"
-              >
-                <PencilLine className="h-4 w-4 mr-2" />
-                Edit Memo
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+    <div className="space-y-6 max-w-4xl mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white tracking-tight">Edit Startup Memo</h1>
+        <p className="text-white/60 mt-1">Update your company details and pitch deck for investors.</p>
       </div>
 
       {loading ? (
         <div className="min-h-[40vh] flex items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
         </div>
-      ) : mode === "edit" ? (
-        <div className="w-full bg-navy-card/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
+      ) : (
+        <div className="bg-navy-card/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm shadow-2xl">
           <Suspense
             fallback={
               <div className="min-h-[40vh] flex items-center justify-center">
@@ -503,31 +449,15 @@ export function StartupMemoPage() {
               initialData={editInitialData}
               validateStep={validateStep}
               onSubmit={handleSubmit}
-              onComplete={() => setMode("view")}
-              onBack={() => setMode("view")}
+              onComplete={() => {
+                toast({ title: "Success", description: "Memo updated successfully" });
+              }}
+              onBack={() => {}}
               onDirtyChange={(dirty) => {
                 isDirtyRef.current = dirty;
               }}
             />
           </Suspense>
-        </div>
-      ) : existingMemo ? (
-        <div className="w-full">
-          <Suspense
-            fallback={
-              <div className="min-h-[40vh] flex items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--cyan-glow))]" />
-              </div>
-            }
-          >
-            <MemoEditor application={existingMemo} readOnly hideHeader />
-          </Suspense>
-        </div>
-      ) : (
-        <div className="min-h-[40vh] flex items-center justify-center">
-          <p className="text-white/70 text-center max-w-md">
-            We couldn&apos;t load your memo yet. Switch to the Edit tab to create or update your memo.
-          </p>
         </div>
       )}
     </div>

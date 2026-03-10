@@ -8,15 +8,12 @@ import { deleteFile, uploadFile } from "@/lib/api";
 import {
   defaultData,
   type StartupOnboardingData,
-  type TeamMember,
 } from "./startup-onboarding/hooks/startupMemoTypes";
 import { CompanyInfoStep } from "./startup-onboarding/components/steps/CompanyInfoStep";
-import { TeamOverviewStep } from "./startup-onboarding/components/steps/TeamOverviewStep";
 
 // Steps for Edit Profile (steps 1–2 from onboarding, re-indexed 0–1)
 const EDIT_PROFILE_STEPS = [
-  { id: 0, title: "Company Info", icon: Building2 },
-  { id: 1, title: "Team & Overview", icon: Users },
+  { id: 0, title: "Company Overview", icon: Building2 },
 ] as const;
 
 const STORAGE_KEY = "startup_edit_profile_data";
@@ -28,23 +25,8 @@ function toStringOrEmpty(v: unknown): string {
   return typeof v === "string" ? v : "";
 }
 
-function toTeamMembers(v: unknown): TeamMember[] {
-  if (!Array.isArray(v)) return [];
-  return v
-    .filter(Boolean)
-    .map((m) => (typeof m === "object" && m ? (m as Record<string, unknown>) : {}))
-    .map((m) => ({
-      name: toStringOrEmpty(m.name),
-      role: toStringOrEmpty(m.role),
-      linkedin: toStringOrEmpty(m.linkedin),
-      background: toStringOrEmpty(m.background),
-    }))
-    .filter((m) => m.name || m.role || m.linkedin || m.background);
-}
-
 function buildPrefillFromProfile(source: Record<string, unknown> | null): Partial<StartupOnboardingData> {
   if (!source) return {};
-  const teamMembers = toTeamMembers(source.teamMembers ?? source.team_members);
   const applicationSections = (source.applicationSections ?? source.application_sections) as Record<string, any> | undefined;
   const startupLogoUrl = toStringOrEmpty(
     source.startupLogoUrl ?? source.startup_logo_url ?? source.companyLogoUrl ?? source.company_logo_url
@@ -69,7 +51,6 @@ function buildPrefillFromProfile(source: Record<string, unknown> | null): Partia
         source.business_model ??
         applicationSections?.section1?.companyOverview
     ),
-    teamMembers: teamMembers.length ? teamMembers : defaultData.teamMembers,
   };
 }
 
@@ -159,15 +140,12 @@ export function StartupProfilePage() {
   const validateStep = (step: number, data: StartupOnboardingData): StepValidation => {
     const errors: string[] = [];
     switch (step) {
-      case 0: // Company Info
+      case 0: // Company Overview
         if (!data.companyName.trim()) errors.push("Company name is required");
         if (!data.vertical) errors.push("Vertical is required");
         if (!data.stage) errors.push("Stage is required");
         if (!data.location.trim()) errors.push("Location is required");
-        break;
-      case 1: // Team & Overview
         if (countWords(data.companyOverview) < 30) errors.push("Company overview needs at least 30 words");
-        if (!data.teamMembers[0]?.role?.trim()) errors.push("Your role is required");
         break;
     }
     return { isValid: errors.length === 0, errors };
@@ -246,7 +224,6 @@ export function StartupProfilePage() {
         website: data.website,
         linkedIn: data.linkedIn ?? "",
         business_model: data.companyOverview,
-        team_members: data.teamMembers.filter((m) => m.name || m.role || m.linkedin || m.background),
       };
       if (logoUrl) memoPayload.logo_url = logoUrl;
       if (pitchdeckUrl) memoPayload.pitchdeck_url = pitchdeckUrl;
@@ -313,18 +290,8 @@ export function StartupProfilePage() {
               if (oldUrl) await deleteFile(oldUrl).catch(() => {});
               return uploadFile(file, "startup_logo", user.uid);
             }}
-            onNext={onNext}
-            onBack={onBack}
-          />
-        );
-      case 1:
-        return (
-          <TeamOverviewStep
-            data={data}
-            onUpdate={handleUpdate}
             onNext={onSubmit}
             onBack={onBack}
-            nextLabel="Save"
           />
         );
       default:
@@ -352,7 +319,7 @@ export function StartupProfilePage() {
       validateStep={validateStep}
       onSubmit={handleSubmit}
       onComplete={() => navigate("/startup-dashboard")}
-      requiredSteps={[0, 1]}
+      requiredSteps={[0]}
       submitLabel="Save"
       loadingText="Saving profile..."
       successTitle="Profile saved!"

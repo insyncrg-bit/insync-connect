@@ -29,21 +29,22 @@ interface Member {
   fullName: string;
   email: string;
   title: string;
-  role: "admin" | "analyst";
+  role?: "admin" | "analyst";
   request_status: "accepted" | "sent" | "rejected";
   profilePicture?: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
-interface VCOrganisationProps {
-  firmId: string;
+interface StartupOrganisationProps {
+  startupId: string;
   isAdmin: boolean;
-  firmName?: string;
+  companyName?: string;
   companyLogo?: string | null;
+  adminUids?: string[];
 }
 
-export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrganisationProps) => {
+export const StartupOrganisation = ({ startupId, isAdmin, companyName, companyLogo, adminUids = [] }: StartupOrganisationProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<Member[]>([]);
@@ -51,7 +52,7 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const fetchMembers = async () => {
-    if (!firmId) return;
+    if (!startupId) return;
     try {
       setLoading(true);
       const user = auth.currentUser;
@@ -60,7 +61,7 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
       const token = await user.getIdToken();
       const apiUrl = import.meta.env.VITE_FIREBASE_API;
       
-      const res = await fetch(`${apiUrl}/api/firms/${firmId}/members`, {
+      const res = await fetch(`${apiUrl}/api/startups/${startupId}/members`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -80,11 +81,11 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
 
   useEffect(() => {
     fetchMembers();
-  }, [firmId]);
+  }, [startupId]);
 
   const handleAction = async (targetUid: string, action: "approve" | "reject" | "toggle-admin" | "remove") => {
     if (action === "remove") {
-      const confirmed = window.confirm("Are you sure you want to remove this member from the firm?");
+      const confirmed = window.confirm("Are you sure you want to remove this member from the startup?");
       if (!confirmed) return;
     }
 
@@ -97,13 +98,13 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
 
       let res;
       if (action === "remove") {
-        res = await fetch(`${apiUrl}/api/firms/${firmId}/members/${targetUid}`, {
+        res = await fetch(`${apiUrl}/api/startups/${startupId}/members/${targetUid}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
         const endpoint = action === "toggle-admin" ? "toggle-admin" : action;
-        res = await fetch(`${apiUrl}/api/firms/${firmId}/members/${targetUid}/${endpoint}`, {
+        res = await fetch(`${apiUrl}/api/startups/${startupId}/members/${targetUid}/${endpoint}`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -115,16 +116,16 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
         
         if (action === "approve") {
           title = "Request Approved";
-          description = "User has been added to the firm.";
+          description = "User has been added to the startup.";
         } else if (action === "reject") {
           title = "Request Rejected";
-          description = "User has been removed from the firm.";
+          description = "User has been removed from the startup.";
         } else if (action === "toggle-admin") {
           title = "Role Updated";
           description = "User role has been toggled.";
         } else if (action === "remove") {
           title = "Member Removed";
-          description = "User has been removed from the firm.";
+          description = "User has been removed from the startup.";
         }
 
         toast({ title, description });
@@ -151,8 +152,9 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
   };
 
   const MemberCard = ({ member, isPending = false }: { member: Member; isPending?: boolean }) => {
+    const isMemberAdmin = adminUids.includes(member.id) || member.role === "admin";
     const isCurrentUser = auth.currentUser?.uid === member.id;
-    
+
     return (
     <Card className="bg-white/5 border-white/10 p-5 backdrop-blur-sm hover:border-[hsl(var(--cyan-glow))]/30 transition-all duration-300 group">
       <div className="flex items-start justify-between gap-4">
@@ -171,14 +173,14 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
           </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-white truncate">{member.fullName}</h4>
-              {member.role === "admin" && (
+              <h4 className="font-semibold text-white truncate">{member.fullName || "User"}</h4>
+              {isMemberAdmin && (
                 <Badge className="bg-[hsl(var(--cyan-glow))]/10 text-[hsl(var(--cyan-glow))] border-none text-[10px] px-1.5 py-0 h-4 uppercase tracking-wider">
                   Admin
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-white/50 truncate mb-1">{member.title}</p>
+            <p className="text-sm text-white/50 truncate mb-1">{member.title || "Team Member"}</p>
             <div className="flex items-center gap-3 text-xs text-white/30">
               <span className="flex items-center gap-1">
                 <Mail className="h-3 w-3" />
@@ -224,14 +226,14 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
                   onClick={() => handleAction(member.id, "toggle-admin")}
                   disabled={!!processingId}
                 >
-                  {member.role === "admin" ? "Remove Admin" : "Make Admin"}
+                  {isMemberAdmin ? "Remove Admin" : "Make Admin"}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   className="text-rose-400 focus:text-rose-300 focus:bg-rose-400/10 cursor-pointer"
                   onClick={() => handleAction(member.id, "remove")}
                   disabled={!!processingId}
                 >
-                  Remove from Firm
+                  Remove from Startup
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -280,7 +282,7 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
             {companyLogo ? (
               <img 
                 src={companyLogo} 
-                alt={firmName} 
+                alt={companyName} 
                 className="w-full h-full object-cover filter drop-shadow(0 0 8px rgba(6,182,212,0.2)) group-hover/logo:scale-105 transition-transform duration-500" 
               />
             ) : (
@@ -288,7 +290,7 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
             )}
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-white mb-2">{firmName || "My Organization"}</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">{companyName || "My Organization"}</h2>
             <div className="flex flex-wrap items-center gap-4 text-white/50 text-sm">
               <span className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-[hsl(var(--cyan-glow))]" />
@@ -296,7 +298,7 @@ export const VCOrganisation = ({ firmId, isAdmin, firmName, companyLogo }: VCOrg
               </span>
               <span className="w-1 h-1 rounded-full bg-white/20 hidden md:block" />
               <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-xs font-mono tracking-tight text-white/40">
-                FIRM_ID: {firmId}
+                STARTUP_ID: {startupId}
               </span>
             </div>
           </div>

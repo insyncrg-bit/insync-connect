@@ -10,7 +10,6 @@ export function onboardingToMemoPayload(
     data: StartupOnboardingData,
     opts?: { logo_url?: string; pitchdeck_url?: string; pitchdeck_name?: string }
 ): StartupMemoLike {
-    const teamMembers = data.teamMembers.filter((m) => m.name || m.role || m.linkedin || m.background);
     const competitors = data.competitors.filter((c) => c.name || c.description || c.howYouDiffer);
 
     const applicationSections = {
@@ -71,7 +70,6 @@ export function onboardingToMemoPayload(
         website: data.website,
         linkedIn: data.linkedIn ?? "",
         business_model: data.companyOverview,
-        team_members: teamMembers,
         application_sections: applicationSections,
     };
     if (opts?.logo_url) memo.logo_url = opts.logo_url;

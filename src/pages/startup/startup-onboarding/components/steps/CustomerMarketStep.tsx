@@ -20,8 +20,8 @@ export const CustomerMarketStep = ({ data, onUpdate, onNext, onBack }: CustomerM
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Customer & Market</h2>
-        <p className="text-[hsl(var(--navy-deep))]/60">Define your target customer and market size</p>
+        <h2 className="text-2xl font-bold text-[hsl(var(--navy-deep))]">Consumer & Market</h2>
+        <p className="text-[hsl(var(--navy-deep))]/60">Define your target customer, market size, and go-to-market strategy</p>
       </div>
 
       <div className="space-y-2">
@@ -109,6 +109,33 @@ export const CustomerMarketStep = ({ data, onUpdate, onNext, onBack }: CustomerM
                 rows={2}
               />
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4 pt-4 border-t border-[hsl(var(--navy-deep))]/10">
+        <h3 className="text-lg font-semibold text-[hsl(var(--navy-deep))]">Go-to-Market Strategy</h3>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label className="text-[hsl(var(--navy-deep))]/80">Customer Acquisition Strategy *</Label>
+            <Textarea
+              value={data.gtmAcquisition}
+              onChange={(e) => onUpdate({ gtmAcquisition: e.target.value })}
+              placeholder="How will you acquire customers? Describe your channels, partnerships, marketing strategy..."
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 focus:border-cyan-glow min-h-[150px]"
+              rows={6}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-[hsl(var(--navy-deep))]/80">Go-to-Market Timeline</Label>
+            <Textarea
+              value={data.gtmTimeline}
+              onChange={(e) => onUpdate({ gtmTimeline: e.target.value })}
+              placeholder="What is your timeline for launching and scaling? Key milestones..."
+              className="bg-white border border-[hsl(var(--navy-deep))]/10 text-[hsl(var(--navy-deep))] placeholder:text-[hsl(var(--navy-deep))]/50 min-h-[100px]"
+              rows={4}
+            />
           </div>
         </div>
       </div>

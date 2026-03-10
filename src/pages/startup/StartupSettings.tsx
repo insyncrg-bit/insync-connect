@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuth, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from "firebase/auth";
+import { getAuth, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,19 +18,31 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { sessionManager } from "@/lib/session";
-import { Loader2, User, ShieldCheck, Trash2, Linkedin } from "lucide-react";
+import { Loader2, User, ShieldCheck, Trash2, Linkedin, Camera, X } from "lucide-react";
+import { useRef } from "react";
 
-export const StartupSettings = () => {
+interface StartupSettingsProps {
+  onUpdate?: () => void;
+}
+
+export const StartupSettings = ({ onUpdate }: StartupSettingsProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loadingUser, setLoadingUser] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [onlyAdminDialogOpen, setOnlyAdminDialogOpen] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [title, setTitle] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [funFact, setFunFact] = useState("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
+  const [education, setEducation] = useState<{ degree: string; university: string }>({ degree: "", university: "" });
   const [savingProfile, setSavingProfile] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -64,6 +76,9 @@ export const StartupSettings = () => {
             setDisplayName(data.user.fullName || user.displayName || "");
             setTitle(data.user.title || "");
             setLinkedinUrl(data.user.linkedinUrl || "");
+            setFunFact(data.user.funFact || "");
+            setProfileImage(data.user.profileImage || null);
+            setEducation(data.user.education || { degree: "", university: "" });
           }
         } else {
           setDisplayName(user.displayName || "");
@@ -91,6 +106,37 @@ export const StartupSettings = () => {
       return;
     }
 
+    // Validation
+    if (!displayName.trim()) {
+      toast({ title: "Name required", description: "Please enter your full name.", variant: "destructive" });
+      return;
+    }
+    if (!title.trim()) {
+      toast({ title: "Title required", description: "Please enter your professional title (e.g. Founder & CEO).", variant: "destructive" });
+      return;
+    }
+
+    // LinkedIn URL validation
+    if (linkedinUrl.trim()) {
+      const linkedinRegex = /^(https?:\/\/)?(www\.)?linkedin\.com\/(in|company)\/[\w-]+\/?$/;
+      if (!linkedinRegex.test(linkedinUrl.trim())) {
+        toast({ 
+          title: "Invalid LinkedIn URL", 
+          description: "Please enter a valid LinkedIn profile URL (e.g., https://www.linkedin.com/in/username).", 
+          variant: "destructive" 
+        });
+        return;
+      }
+    }
+
+    // Check for profile completion
+    const isProfileComplete = !!(
+      linkedinUrl.trim() && 
+      education.degree && 
+      education.university.trim() && 
+      funFact.trim()
+    );
+
     setSavingProfile(true);
     try {
       const token = await user.getIdToken();
@@ -105,6 +151,10 @@ export const StartupSettings = () => {
           fullName: displayName.trim(),
           title: title.trim(),
           linkedinUrl: linkedinUrl.trim(),
+          funFact: funFact.trim(),
+          profileImage: profileImage,
+          education: education,
+          profileComplete: isProfileComplete,
         }),
       });
 
@@ -113,8 +163,13 @@ export const StartupSettings = () => {
       await updateProfile(user, { displayName: displayName.trim() || undefined });
       toast({
         title: "Profile updated",
-        description: "Your information has been saved.",
+        description: isProfileComplete 
+          ? "Your profile is now complete!" 
+          : "Your information has been saved.",
       });
+      
+      // Navigate or refresh to update dashboard banner if needed
+      if (onUpdate) onUpdate();
     } catch (error: any) {
       toast({
         title: "Failed to update profile",
@@ -203,33 +258,169 @@ export const StartupSettings = () => {
 
     setIsDeleting(true);
     try {
-      await deleteUser(user);
+      const token = await user.getIdToken();
+      const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
+      
+      const res = await fetch(`${FIREBASE_API}/api/users/me`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        if (errorData.code === "ONLY_ADMIN") {
+          // Close the first dialog, open the cascade-warning dialog
+          setDeleteDialogOpen(false);
+          setOnlyAdminDialogOpen(true);
+          return;
+        }
+        throw new Error(errorData.error || "Failed to delete account");
+      }
+
       sessionManager.clear();
       toast({
         title: "Account deleted",
-        description: "Your account has been permanently deleted.",
+        description: "Your account and all associated data have been permanently deleted.",
       });
       navigate("/landing");
     } catch (error: any) {
       console.error("Error deleting account:", error);
-      if (error?.code === "auth/requires-recent-login") {
-        toast({
-          title: "Re-authentication required",
-          description: "Please sign in again before deleting your account.",
-          variant: "destructive",
-        });
-        navigate("/login");
-      } else {
-        toast({
-          title: "Error",
-          description: error?.message || "Failed to delete account. Please try again.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to delete account. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsDeleting(false);
       setDeleteDialogOpen(false);
     }
+  };
+
+  const handleForceDeleteAccount = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
+
+    setIsDeleting(true);
+    try {
+      const token = await user.getIdToken();
+      const FIREBASE_API = import.meta.env.VITE_FIREBASE_API || "";
+      
+      const res = await fetch(`${FIREBASE_API}/api/users/me?force=true`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to delete account");
+      }
+
+      sessionManager.clear();
+      toast({
+        title: "Account deleted",
+        description: "Your account, organization, and all associated data have been permanently deleted.",
+      });
+      navigate("/landing");
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to delete account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+      setOnlyAdminDialogOpen(false);
+    }
+  };
+
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      try {
+        setIsUploading(true);
+        if (profileImage) {
+          try {
+            const { deleteFile } = await import("@/lib/api");
+            await deleteFile(profileImage);
+          } catch (error) {
+            console.error("Failed to delete old image:", error);
+          }
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProfileImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+
+        const { uploadFile } = await import("@/lib/api");
+        const publicUrl = await uploadFile(file, "profile_pic");
+        setProfileImage(publicUrl);
+        setProfileImagePreview(null);
+        
+        toast({
+          title: "Photo uploaded",
+          description: "Your profile picture has been updated.",
+        });
+      } catch (error) {
+        console.error("Failed to upload image:", error);
+        toast({
+          title: "Upload failed",
+          description: "Failed to upload profile picture. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    if (!profileImage) return;
+    setIsUploading(true);
+    try {
+      const { deleteFile } = await import("@/lib/api");
+      await deleteFile(profileImage);
+      setProfileImage(null);
+      setProfileImagePreview(null);
+      toast({
+        title: "Photo removed",
+        description: "Your profile picture has been removed.",
+      });
+    } catch (error) {
+      console.error("Failed to remove photo:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove profile picture.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   if (loadingUser) {
@@ -249,18 +440,71 @@ export const StartupSettings = () => {
         </p>
       </div>
 
-      <Card className="bg-navy-card border-white/10 p-6 space-y-4">
+      <Card className="bg-navy-card border-white/10 p-6 space-y-6">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-9 h-9 rounded-full bg-[hsl(var(--cyan-glow))]/20 flex items-center justify-center">
             <User className="h-5 w-5 text-[hsl(var(--cyan-glow))]" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-white">Profile</h2>
-            <p className="text-sm text-white/60">Update your name and view your login email.</p>
+            <p className="text-sm text-white/60">Update your name and personal details.</p>
           </div>
         </div>
 
         <Separator className="bg-white/10" />
+
+        <div className="space-y-6">
+          {/* Profile Picture */}
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center py-2">
+            <div className="relative group">
+              <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-[hsl(var(--cyan-glow))]/30 flex items-center justify-center bg-[hsl(var(--cyan-glow))]/10">
+                {(profileImagePreview || profileImage) ? (
+                  <img src={profileImagePreview || profileImage || ""} alt="Profile" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-[hsl(var(--cyan-glow))] text-xl font-bold">
+                    {getInitials(displayName || "U")}
+                  </span>
+                )}
+              </div>
+              {(profileImage || profileImagePreview) && (
+                <button
+                  type="button"
+                  onClick={handleRemovePhoto}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+            <div className="space-y-2 flex-1 flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="flex items-center gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfileImageUpload}
+                  className="hidden"
+                  id="profile-pic-upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="bg-white/5 border-white/15 text-white hover:bg-white/10 h-8"
+                >
+                  {isUploading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
+                  ) : (
+                    <Camera className="h-3.5 w-3.5 mr-2" />
+                  )}
+                  {profileImage ? "Change photo" : "Upload photo"}
+                </Button>
+              </div>
+              <p className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">JPG or PNG. Max size 5MB.</p>
+            </div>
+          </div>
 
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -299,10 +543,48 @@ export const StartupSettings = () => {
                 </div>
               </div>
             </div>
-            <p className="text-xs text-white/40">
-              Email changes are not yet supported in-app. Contact support if you need to update your login email.
-            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-white/80">Highest Level of Education</Label>
+                <select
+                  value={education.degree}
+                  onChange={(e) => setEducation({ ...education, degree: e.target.value })}
+                  className="w-full bg-white/5 border border-white/15 text-white rounded-md h-10 px-3 outline-none focus:ring-1 focus:ring-[hsl(var(--cyan-glow))]"
+                >
+                  <option value="" className="bg-navy-deep">Select degree</option>
+                  <option value="BA" className="bg-navy-deep">Bachelor of Arts (BA)</option>
+                  <option value="BS" className="bg-navy-deep">Bachelor of Science (BS)</option>
+                  <option value="MA" className="bg-navy-deep">Master of Arts (MA)</option>
+                  <option value="MS" className="bg-navy-deep">Master of Science (MS)</option>
+                  <option value="MBA" className="bg-navy-deep">Master of Business Administration (MBA)</option>
+                  <option value="PhD" className="bg-navy-deep">Doctor of Philosophy (PhD)</option>
+                  <option value="Other" className="bg-navy-deep">Other</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/80">University</Label>
+                <Input
+                  value={education.university}
+                  onChange={(e) => setEducation({ ...education, university: e.target.value })}
+                  placeholder="e.g. Stanford University"
+                  className="bg-white/5 border-white/15 text-white"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-white/80">Fun Fact</Label>
+              <Input
+                value={funFact}
+                onChange={(e) => setFunFact(e.target.value)}
+                placeholder="e.g. I’ve climbed Mt. Kilimanjaro"
+                className="bg-white/5 border-white/15 text-white"
+              />
+              <p className="text-xs text-white/40">This helps investors get to know you better!</p>
+            </div>
           </div>
+        </div>
 
         <div className="flex justify-end pt-2">
           <Button
@@ -428,6 +710,41 @@ export const StartupSettings = () => {
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               {isDeleting ? "Deleting..." : "Delete Account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Second dialog: only-admin cascade warning */}
+      <AlertDialog open={onlyAdminDialogOpen} onOpenChange={setOnlyAdminDialogOpen}>
+        <AlertDialogContent className="bg-[#151a24] border-red-500/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-400">⚠️ You are the only admin</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70 space-y-2">
+              <p>
+                Since you are the only administrator of this startup, deleting your account will also <strong className="text-white">permanently delete the entire organization</strong>, including:
+              </p>
+              <ul className="list-disc list-inside text-white/60 space-y-1 ml-2">
+                <li>The startup profile and all company data</li>
+                <li>The startup memo</li>
+                <li>All uploaded assets (logo, pitch deck, etc.)</li>
+                <li>Your personal profile and account</li>
+              </ul>
+              <p className="text-red-400/80 font-medium pt-1">
+                This action is irreversible. Are you absolutely sure?
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleForceDeleteAccount}
+              disabled={isDeleting}
+              className="bg-red-700 hover:bg-red-800 text-white"
+            >
+              {isDeleting ? "Deleting everything..." : "Delete Account & Organization"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,11 +1,8 @@
 import { OnboardingPage, StepValidation } from "@/components/onboarding";
 import { WelcomeStep } from "./components/steps/WelcomeStep";
 import { CompanyInfoStep } from "./components/steps/CompanyInfoStep";
-import { TeamOverviewStep } from "./components/steps/TeamOverviewStep";
-import { ValuePropositionStep } from "./components/steps/ValuePropositionStep";
 import { BusinessModelStep } from "./components/steps/BusinessModelStep";
 import { FundingRoundStep } from "./components/steps/FundingRoundStep";
-import { GoToMarketStep } from "./components/steps/GoToMarketStep";
 import { CustomerMarketStep } from "./components/steps/CustomerMarketStep";
 import { CompetitorsStep } from "./components/steps/CompetitorsStep";
 import { STEPS } from "./constants";
@@ -27,44 +24,32 @@ export const StartupOnboarding = () => {
     switch (step) {
       case 0: // Welcome - no validation
         return { isValid: true, errors: [] };
-      case 1: // Company Info
+      case 1: // Company Overview
         if (!data.companyName.trim()) errors.push("Company name is required");
         if (!data.vertical) errors.push("Vertical is required");
         if (!data.stage) errors.push("Stage is required");
         if (!data.location.trim()) errors.push("Location is required");
-        break;
-      case 2: // Team & Overview
         if (countWords(data.companyOverview) < 30) {
           errors.push("Company overview needs at least 30 words");
         }
-        if (!data.teamMembers[0]?.role?.trim()) {
-          errors.push("Your role is required");
-        }
         break;
-      case 3: // Value Proposition
-        if (countWords(data.currentPainPoint) < 20) {
-          errors.push("Pain point description needs at least 20 words");
-        }
-        if (data.valueDrivers.length === 0) {
-          errors.push("Select at least one value driver");
-        }
-        break;
-      case 4: // Business Model
+      case 2: // Business Model & Value
         if (data.customerType.length === 0) {
           errors.push("Select at least one customer type");
         }
         if (data.pricingStrategies.length === 0) {
           errors.push("Select at least one pricing strategy");
         }
-        break;
-      case 5: // Funding & Round (optional for now)
-        return { isValid: true, errors: [] };
-      case 6: // Go-to-Market
-        if (!data.gtmAcquisition.trim()) {
-          errors.push("Customer acquisition strategy is required");
+        if (countWords(data.currentPainPoint) < 20) {
+          errors.push("Problem statement needs at least 20 words");
+        }
+        if (data.valueDrivers.length === 0) {
+          errors.push("Select at least one value driver");
         }
         break;
-      case 7: // Customer & Market
+      case 3: // Funding Details (optional for now)
+        return { isValid: true, errors: [] };
+      case 4: // Consumer & Market
         if (!data.targetGeography.trim()) {
           errors.push("Target geography is required");
         }
@@ -74,8 +59,11 @@ export const StartupOnboarding = () => {
         if (!data.tamValue.trim()) errors.push("TAM value is required");
         if (!data.samValue.trim()) errors.push("SAM value is required");
         if (!data.somValue.trim()) errors.push("SOM value is required");
+        if (!data.gtmAcquisition.trim()) {
+          errors.push("Customer acquisition strategy is required");
+        }
         break;
-      case 8: // Competitors - optional
+      case 5: // Competitors - optional
         return { isValid: true, errors: [] };
     }
     
@@ -174,7 +162,7 @@ export const StartupOnboarding = () => {
   ) => {
     switch (step) {
       case 0:
-        return <WelcomeStep onNext={onNext} />;
+        return <WelcomeStep data={data} onUpdate={onUpdate} onNext={onNext} />;
       case 1:
         return (
           <CompanyInfoStep
@@ -194,7 +182,7 @@ export const StartupOnboarding = () => {
         );
       case 2:
         return (
-          <TeamOverviewStep
+          <BusinessModelStep
             data={data}
             onUpdate={onUpdate}
             onNext={onNext}
@@ -203,7 +191,7 @@ export const StartupOnboarding = () => {
         );
       case 3:
         return (
-          <ValuePropositionStep
+          <FundingRoundStep
             data={data}
             onUpdate={onUpdate}
             onNext={onNext}
@@ -212,33 +200,6 @@ export const StartupOnboarding = () => {
         );
       case 4:
         return (
-          <BusinessModelStep
-            data={data}
-            onUpdate={onUpdate}
-            onNext={onNext}
-            onBack={onBack}
-          />
-        );
-      case 5:
-        return (
-          <FundingRoundStep
-            data={data}
-            onUpdate={onUpdate}
-            onNext={onNext}
-            onBack={onBack}
-          />
-        );
-      case 6:
-        return (
-          <GoToMarketStep
-            data={data}
-            onUpdate={onUpdate}
-            onNext={onNext}
-            onBack={onBack}
-          />
-        );
-      case 7:
-        return (
           <CustomerMarketStep
             data={data}
             onUpdate={onUpdate}
@@ -246,7 +207,7 @@ export const StartupOnboarding = () => {
             onBack={onBack}
           />
         );
-      case 8:
+      case 5:
         return (
           <CompetitorsStep
             data={data}
@@ -274,7 +235,7 @@ export const StartupOnboarding = () => {
       validateStep={validateStep}
       onSubmit={handleSubmit}
       onComplete={handleComplete}
-      requiredSteps={[1, 2, 3, 4, 6, 7]} // Funding & Round and Competitors are optional
+      requiredSteps={[1, 2, 4]} // Funding Details (3) and Competitors (5) are optional
     />
   );
 };

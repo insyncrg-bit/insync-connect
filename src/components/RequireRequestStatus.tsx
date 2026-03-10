@@ -27,18 +27,18 @@ export const RequireRequestStatus = ({ allowedStatuses }: RequireRequestStatusPr
         const tokenResult = await user.getIdTokenResult();
         const status = tokenResult.claims.request_status as string | undefined | null;
 
+        // Legacy fallback: if status is missing, treat as "accepted"
+        const effectiveStatus = status || "accepted";
+
         // "accepted" allows access
-        if (status && allowedStatuses.includes(status)) {
+        if (effectiveStatus && allowedStatuses.includes(effectiveStatus)) {
           setAuthorized(true);
         } else {
             // Handle redirects based on status
-            if (status === "sent") {
+            if (effectiveStatus === "sent") {
                 navigate("/request-sent");
-            } else if (status === "rejected") {
+            } else if (effectiveStatus === "rejected") {
                 navigate("/request-rejected"); 
-            } else if (status === null || status === undefined) {
-                // Should not happen for VCs if flow is correct, but safe fallback
-                 navigate("/select-role");
             } else {
                 navigate("/403");
             }

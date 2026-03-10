@@ -11,12 +11,12 @@ import {
 
 export const STEPS = [
   { id: 0, title: "Welcome", icon: Sparkles },
-  { id: 1, title: "Personal Profile", icon: User },
-  { id: 2, title: "Fund Overview", icon: Building2 },
-  { id: 3, title: "Investment Strategy", icon: Target },
-  { id: 4, title: "Value-Add", icon: Handshake },
-  { id: 5, title: "Portfolio", icon: FolderOpen },
-  { id: 6, title: "Deal Mechanics (Optional)", icon: Briefcase },
+  // { id: 1, title: "Personal Profile", icon: User }, // Temporarily hidden
+  { id: 1, title: "Fund Overview", icon: Building2 },
+  { id: 2, title: "Investment Strategy", icon: Target },
+  { id: 3, title: "Value-Add", icon: Handshake },
+  { id: 4, title: "Portfolio", icon: FolderOpen },
+  { id: 5, title: "Deal Mechanics (Optional)", icon: Briefcase },
 ];
 
 export const FUND_TYPES = [
