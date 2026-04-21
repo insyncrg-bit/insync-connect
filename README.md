@@ -23,7 +23,7 @@ npm install
 
 ### Environment variables
 
-Create a `.env` file (never commit real secrets) and set:
+Create a `.env` file and set:
 
 - `VITE_FIREBASE_AUTH_DOMAIN` – Firebase Auth domain
 - `VITE_FIREBASE_PROJECT_ID` – Firebase project ID
